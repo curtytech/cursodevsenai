@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curso de Desenvolvimento de Sistemas - SENAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="text-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <header class="mb-10 text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl shadow-lg mb-4">
+                <i class="fas fa-graduation-cap text-4xl text-white"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-2">Curso de Desenvolvimento de Sistemas</h1>
+            <p class="text-xl text-blue-200 mb-1">SENAI - Repositório de Materiais</p>
+            <div class="inline-flex items-center gap-2 text-sm text-blue-300">
+                <i class="fas fa-book"></i>
+                <span>Links, Arquivos, Documentos e Vídeo Aulas</span>
+            </div>
+        </header>
+
+        <!-- <div class="grid md:grid-cols-2 gap-4 mb-8">
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-white/20">
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-link text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold">12</p>
+                    <p class="text-blue-200 text-sm">Links Úteis</p>
+                </div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-white/20">
+                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-file-alt text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold">8</p>
+                    <p class="text-blue-200 text-sm">Arquivos</p>
+                </div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-white/20">
+                <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-file-pdf text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold">15</p>
+                    <p class="text-blue-200 text-sm">Documentos</p>
+                </div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-white/20">
+                <div class="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-video text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold">20</p>
+                    <p class="text-blue-200 text-sm">Vídeo Aulas</p>
+                </div>
+            </div>
+        </div> -->
+
+        <section class="mb-10">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Links Úteis</h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="https://www.w3schools.com" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-code text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">W3Schools</h3>
+                            <p class="text-sm text-blue-200 mt-1">Tutoriais de HTML, CSS, JS e mais</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="https://developer.mozilla.org" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-book-open text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">MDN Web Docs</h3>
+                            <p class="text-sm text-blue-200 mt-1">Documentação completa para devs</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="https://github.com" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fab fa-github text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">GitHub</h3>
+                            <p class="text-sm text-blue-200 mt-1">Plataforma de hospedagem de código</p>
+                        </div>
+                    </div>
+                </a>
+                <!-- <a href="https://www.figma.com" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fab fa-figma text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">Figma</h3>
+                            <p class="text-sm text-blue-200 mt-1">Design de interfaces colaborativo</p>
+                        </div>
+                    </div>
+                </a> -->
+                <a href="https://tailwindcss.com" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-cyan-500 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-wind text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">Tailwind CSS</h3>
+                            <p class="text-sm text-blue-200 mt-1">Framework CSS utilitário</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="https://stackoverflow.com" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fab fa-stack-overflow text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">Stack Overflow</h3>
+                            <p class="text-sm text-blue-200 mt-1">Comunidade de desenvolvedores</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-file-archive"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Arquivos</h2>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+                <a href="./Logica-de-Programacao-para-Iniciantes.pptx" download class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-file-powerpoint text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-white group-hover:text-green-300 transition-colors">Lógica de Programação para Iniciantes</h3>
+                            <p class="text-sm text-blue-200 mt-1">Apresentação .pptx</p>
+                        </div>
+                        <div class="shrink-0 mt-1">
+                            <i class="fas fa-download text-green-400"></i>
+                        </div>
+                    </div>
+                </a>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 opacity-60 cursor-not-allowed">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-file-code text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-white">Projeto Base - HTML/CSS</h3>
+                            <p class="text-sm text-blue-200 mt-1">Arquivos .zip (em breve)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 opacity-60 cursor-not-allowed">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-database text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-white">Scripts SQL - Banco de Dados</h3>
+                            <p class="text-sm text-blue-200 mt-1">Arquivos .sql (em breve)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 opacity-60 cursor-not-allowed">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-file-excel text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-white">Planilha de Horas - Cronograma</h3>
+                            <p class="text-sm text-blue-200 mt-1">Arquivo .xlsx (em breve)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Documentos</h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 opacity-60 cursor-not-allowed">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-file-pdf text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Plano de Curso</h3>
+                            <p class="text-sm text-blue-200 mt-1">PDF - Estrutura completa do curso</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 opacity-60 cursor-not-allowed">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-file-pdf text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Ementa - Módulos</h3>
+                            <p class="text-sm text-blue-200 mt-1">PDF - Conteúdos programáticos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 opacity-60 cursor-not-allowed">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-file-pdf text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Apostila HTML/CSS</h3>
+                            <p class="text-sm text-blue-200 mt-1">PDF - Material teórico e prático</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 opacity-60 cursor-not-allowed">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-file-pdf text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Apostila JavaScript</h3>
+                            <p class="text-sm text-blue-200 mt-1">PDF - Fundamentos e avançado</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 opacity-60 cursor-not-allowed">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-file-pdf text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Guia de Banco de Dados</h3>
+                            <p class="text-sm text-blue-200 mt-1">PDF - Modelagem e SQL</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 opacity-60 cursor-not-allowed">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-file-pdf text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Projeto Integrador</h3>
+                            <p class="text-sm text-blue-200 mt-1">PDF - Instruções do projeto final</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+<!-- 
+        <section class="mb-10">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-video"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Vídeo Aulas</h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="https://www.youtube.com/watch?v=Ejkb_YpuHWs&list=PLHz_AreHm4dkZ9-atkzZbkwrF-FMBX8Zj&ab_channel=CursoemV%C3%ADdeo" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="h-40 bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center relative">
+                        <i class="fab fa-youtube text-6xl text-white/90"></i>
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-play text-red-600 ml-1 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-white group-hover:text-red-300 transition-colors">Curso de Python</h3>
+                        <p class="text-sm text-blue-200 mt-1">Curso em Vídeo - Módulo 1</p>
+                    </div>
+                </a>
+                <a href="https://www.youtube.com/watch?v=Ejkb_YpuHWs" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="h-40 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center relative">
+                        <i class="fab fa-html5 text-6xl text-white/90"></i>
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-play text-blue-600 ml-1 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-white group-hover:text-red-300 transition-colors">HTML5 e CSS3</h3>
+                        <p class="text-sm text-blue-200 mt-1">Fundamentos da Web Moderna</p>
+                    </div>
+                </a>
+                <a href="https://www.youtube.com/watch?v=uzEhdlW1tms" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="h-40 bg-gradient-to-br from-yellow-500 to-yellow-700 flex items-center justify-center relative">
+                        <i class="fab fa-js text-6xl text-white/90"></i>
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-play text-yellow-600 ml-1 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-white group-hover:text-red-300 transition-colors">JavaScript Moderno</h3>
+                        <p class="text-sm text-blue-200 mt-1">ES6+ e manipulação DOM</p>
+                    </div>
+                </a>
+                <a href="https://www.youtube.com/watch?v=Ofktsne-utM" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="h-40 bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center relative">
+                        <i class="fas fa-database text-6xl text-white/90"></i>
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-play text-green-600 ml-1 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-white group-hover:text-red-300 transition-colors">Banco de Dados MySQL</h3>
+                        <p class="text-sm text-blue-200 mt-1">Modelagem e consultas SQL</p>
+                    </div>
+                </a>
+                <a href="https://www.youtube.com/watch?v=qWjYlKH3PZc" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="h-40 bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center relative">
+                        <i class="fab fa-php text-6xl text-white/90"></i>
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-play text-purple-600 ml-1 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-white group-hover:text-red-300 transition-colors">PHP e MySQL</h3>
+                        <p class="text-sm text-blue-200 mt-1">Desenvolvimento Back-end</p>
+                    </div>
+                </a>
+                <a href="https://www.youtube.com/watch?v=oFJqJqULQ2c" target="_blank" class="group bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="h-40 bg-gradient-to-br from-pink-600 to-pink-800 flex items-center justify-center relative">
+                        <i class="fas fa-mobile-alt text-6xl text-white/90"></i>
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-play text-pink-600 ml-1 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-white group-hover:text-red-300 transition-colors">Git e GitHub</h3>
+                        <p class="text-sm text-blue-200 mt-1">Controle de versões</p>
+                    </div>
+                </a>
+            </div>
+        </section> -->
+
+        <footer class="text-center py-8 border-t border-white/20 mt-10">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <i class="fas fa-cog text-blue-300"></i>
+                <p class="text-blue-200">Curso de Desenvolvimento de Sistemas - SENAI</p>
+            </div>
+            <p class="text-sm text-blue-300/70">© 2026 - Todos os direitos reservados</p>
+        </footer>
+    </div>
+</body>
+</html>
