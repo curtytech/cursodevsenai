@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+```
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Aula de HTML - Tags e Exemplos</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #f4f6f8;
+        color: #333;
+    }
+
+    header {
+        background-color: #1e3a8a;
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    nav {
+        background-color: #172554;
+        padding: 15px;
+        text-align: center;
+    }
+
+    nav a {
+        color: white;
+        text-decoration: none;
+        margin: 0 10px;
+    }
+
+    nav a:hover {
+        text-decoration: underline;
+    }
+
+    main {
+        width: 80%;
+        max-width: 1000px;
+        margin: 30px auto;
+    }
+
+    section,
+    article,
+    aside {
+        background-color: white;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+        color: #1e3a8a;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 10px;
+    }
+
+    h3 {
+        color: #2563eb;
+    }
+
+    .destaque {
+        color: #dc2626;
+        font-weight: bold;
+    }
+
+    .codigo {
+        background-color: #1f2937;
+        color: #f9fafb;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+    }
+
+    .exemplo {
+        background-color: #eff6ff;
+        border-left: 5px solid #2563eb;
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    input {
+        padding: 10px;
+        margin-top: 5px;
+        width: 250px;
+        max-width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #1d4ed8;
+    }
+
+    footer {
+        background-color: #172554;
+        color: white;
+        text-align: center;
+        padding: 25px;
+        margin-top: 40px;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+```
+<!-- =====================================================
+     CABEÇALHO
+     ===================================================== -->
+
+<header>
+
+    <h1>Aula de HTML</h1>
+
+    <p>
+        Aprendendo as principais tags HTML
+    </p>
+
+</header>
+
+
+<!-- =====================================================
+     MENU
+     ===================================================== -->
+
+<nav>
+
+    <a href="#estrutura">Estrutura</a>
+
+    <a href="#texto">Texto</a>
+
+    <a href="#links">Links</a>
+
+    <a href="#formulario">Formulário</a>
+
+</nav>
+
+
+<!-- =====================================================
+     CONTEÚDO PRINCIPAL
+     ===================================================== -->
+
+<main>
+
+
+    <!-- =================================================
+         1. ESTRUTURA
+         ================================================= -->
+
+    <section id="estrutura">
+
+        <h2>1. Estrutura básica do HTML</h2>
+
+        <p>
+            Todo documento HTML possui uma estrutura básica.
+        </p>
+
+        <pre class="codigo">
+```
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+```
+&lt;head&gt;
+
+    &lt;title&gt;Minha página&lt;/title&gt;
+
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    Conteúdo da página
+
+&lt;/body&gt;
+```
+
+</html> </pre>
+
+```
+    </section>
+
+
+    <!-- =================================================
+         2. TÍTULOS
+         ================================================= -->
+
+    <section>
+
+        <h2>2. Títulos — h1 até h6</h2>
+
+        <p>
+            As tags h1 até h6 são utilizadas para criar
+            títulos e subtítulos.
+        </p>
+
+        <h1>H1 — Título principal</h1>
+
+        <h2>H2 — Título de seção</h2>
+
+        <h3>H3 — Subtítulo</h3>
+
+        <h4>H4 — Subtítulo</h4>
+
+        <h5>H5 — Subtítulo</h5>
+
+        <h6>H6 — Menor nível de título</h6>
+
+    </section>
+
+
+    <!-- =================================================
+         3. TEXTO
+         ================================================= -->
+
+    <section id="texto">
+
+        <h2>3. Tags de texto</h2>
+
+
+        <!-- P -->
+
+        <article>
+
+            <h3>&lt;p&gt; — Parágrafo</h3>
+
+            <p>
+                A tag &lt;p&gt; é utilizada para criar
+                parágrafos.
+            </p>
+
+            <div class="exemplo">
+
+                <p>
+                    Este é um exemplo de parágrafo HTML.
+                </p>
+
+            </div>
+
+        </article>
+
+
+        <!-- SPAN -->
+
+        <article>
+
+            <h3>&lt;span&gt; — Trecho de texto</h3>
+
+            <p>
+                A tag span permite modificar ou destacar
+                uma parte específica de um texto.
+            </p>
+
+            <div class="exemplo">
+
+                <p>
+                    Este produto custa
+                    <span class="destaque">
+                        R$ 50,00
+                    </span>.
+                </p>
+
+            </div>
+
+            <pre class="codigo">
+```
+
+<p>
+Este produto custa
+<span>R$ 50,00</span>.
+</p> </pre>
+
+```
+        </article>
+
+
+        <!-- PRE -->
+
+        <article>
+
+            <h3>&lt;pre&gt; — Texto pré-formatado</h3>
+
+            <p>
+                A tag pre mantém espaços e quebras de linha.
+            </p>
+
+            <pre>
+```
+
+Nome: João
+Idade: 20
+Cidade: Niterói </pre>
+
+```
+            <pre class="codigo">
+```
+
+<pre>
+Nome: João
+Idade: 20
+Cidade: Niterói
+</pre> </pre>
+
+```
+        </article>
+
+
+        <!-- B -->
+
+        <article>
+
+            <h3>&lt;b&gt; — Negrito</h3>
+
+            <p>
+                A tag b apresenta o texto em
+                <b>negrito</b>.
+            </p>
+
+            <pre class="codigo">
+```
+
+<b>Texto em negrito</b> </pre>
+
+```
+        </article>
+
+
+        <!-- I -->
+
+        <article>
+
+            <h3>&lt;i&gt; — Itálico</h3>
+
+            <p>
+                A tag i apresenta o texto em
+                <i>itálico</i>.
+            </p>
+
+            <pre class="codigo">
+```
+
+<i>Texto em itálico</i> </pre>
+
+```
+        </article>
+
+
+        <!-- BR -->
+
+        <article>
+
+            <h3>&lt;br&gt; — Quebra de linha</h3>
+
+            <p>
+                A tag br cria uma quebra de linha.
+            </p>
+
+            <div class="exemplo">
+
+                Primeira linha.<br>
+
+                Segunda linha.<br>
+
+                Terceira linha.
+
+            </div>
+
+            <pre class="codigo">
+```
+
+Primeira linha.<br>
+Segunda linha.<br>
+Terceira linha. </pre>
+
+```
+        </article>
+
+
+        <!-- HR -->
+
+        <article>
+
+            <h3>&lt;hr&gt; — Linha horizontal</h3>
+
+            <p>
+                A tag hr cria uma separação horizontal.
+            </p>
+
+            <p>
+                Primeiro assunto
+            </p>
+
+            <hr>
+
+            <p>
+                Segundo assunto
+            </p>
+
+            <pre class="codigo">
+```
+
+<p>Primeiro assunto</p>
+
+<hr>
+
+<p>Segundo assunto</p> </pre>
+
+```
+        </article>
+
+    </section>
+
+
+    <!-- =================================================
+         4. LINKS E IMAGENS
+         ================================================= -->
+
+    <section id="links">
+
+        <h2>4. Links e imagens</h2>
+
+
+        <article>
+
+            <h3>&lt;a&gt; — Link</h3>
+
+            <p>
+                A tag a é utilizada para criar links.
+            </p>
+
+            <a
+                href="https://www.google.com"
+                target="_blank"
+                title="Abrir o Google">
+
+                Acessar o Google
+
+            </a>
+
+            <pre class="codigo">
+```
+
+<a
+href="https://www.google.com"
+target="_blank">
+
+```
+Acessar o Google
+```
+
+</a> </pre>
+
+```
+        </article>
+
+
+        <article>
+
+            <h3>&lt;img&gt; — Imagem</h3>
+
+            <p>
+                A tag img permite adicionar imagens
+                à página.
+            </p>
+
+            <img
+                src="https://placehold.co/600x200"
+                alt="Imagem de exemplo"
+                width="600"
+                height="200"
+                style="max-width: 100%;">
+
+            <pre class="codigo">
+```
+
+<img
+src="imagem.jpg"
+alt="Descrição da imagem"
+width="600"
+height="200"> </pre>
+
+```
+        </article>
+
+    </section>
+
+
+    <!-- =================================================
+         5. BUTTON
+         ================================================= -->
+
+    <section>
+
+        <h2>5. Botão — &lt;button&gt;</h2>
+
+        <p>
+            A tag button cria um botão interativo.
+        </p>
+
+        <div class="exemplo">
+
+            <button
+                onclick="alert('Você clicou no botão!')">
+
+                Clique aqui
+
+            </button>
+
+        </div>
+
+        <pre class="codigo">
+```
+
+<button onclick="alert('Olá!')">
+Clique aqui
+</button> </pre>
+
+```
+    </section>
+
+
+    <!-- =================================================
+         6. FORMULÁRIO
+         ================================================= -->
+
+    <section id="formulario">
+
+        <h2>6. Formulário — &lt;form&gt;</h2>
+
+        <p>
+            A tag form é utilizada para criar formulários
+            que recebem informações do usuário.
+        </p>
+
+
+        <form>
+
+            <!-- Nome -->
+
+            <label for="nome">
+                Nome:
+            </label>
+
+            <br>
+
+            <input
+                type="text"
+                id="nome"
+                name="nome"
+                placeholder="Digite seu nome"
+                required
+                >
+                
+
+            <br><br>
+
+
+            <!-- E-mail -->
+
+            <label for="email">
+                E-mail:
+            </label>
+
+            <br>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Digite seu e-mail">
+
+            <br><br>
+
+
+            <!-- Senha -->
+
+            <label for="senha">
+                Senha:
+            </label>
+
+            <br>
+
+            <input
+                type="password"
+                id="senha"
+                name="senha"
+                placeholder="Digite sua senha">
+
+            <br><br>
+
+
+            <!-- Número -->
+
+            <label for="idade">
+                Idade:
+            </label>
+
+            <br>
+
+            <input
+                type="number"
+                id="idade"
+                name="idade"
+                max="20"
+                placeholder="Digite sua idade">
+
+            <br><br>
+
+
+            <!-- Data -->
+
+            <label for="nascimento">
+                Data de nascimento:
+            </label>
+
+            <br>
+
+            <input
+                type="date"
+                id="nascimento"
+                name="nascimento"
+                min="2026-08-09">
+
+            <br><br>
+
+
+            <!-- Checkbox -->
+
+            <input
+                type="checkbox"
+                id="termos"
+                name="termos">
+
+            <label for="termos">
+
+                <span class="destaque">
+                    Aceito os termos de uso.
+
+                </span>
+
+            </label>
+
+            <br><br>
+
+
+            <!-- Botão -->
+
+            <button type="submit">
+
+                Cadastrar
+
+            </button>
+
+        </form>
+
+
+        <br>
+
+
+        <pre class="codigo">
+```
+
+<form>
+
+```
+&lt;label&gt;Nome:&lt;/label&gt;
+
+&lt;input
+    type="text"
+    placeholder="Digite seu nome"&gt;
+
+&lt;br&gt;
+
+&lt;label&gt;E-mail:&lt;/label&gt;
+
+&lt;input
+    type="email"
+    placeholder="Digite seu e-mail"&gt;
+
+&lt;br&gt;
+
+&lt;button type="submit"&gt;
+    Cadastrar
+&lt;/button&gt;
+```
+
+</form> </pre>
+
+```
+    </section>
+
+
+    <!-- =================================================
+         7. ASIDE
+         ================================================= -->
+
+    <aside>
+
+        <h2>7. Conteúdo complementar — &lt;aside&gt;</h2>
+
+        <p>
+            A tag aside é utilizada para informações
+            complementares ao conteúdo principal.
+        </p>
+
+        <p>
+            Exemplo: uma barra lateral, links relacionados
+            ou informações adicionais.
+        </p>
+
+    </aside>
+
+
+    <!-- =================================================
+         8. DIV
+         ================================================= -->
+
+    <section>
+
+        <h2>8. Container — &lt;div&gt;</h2>
+
+        <div class="exemplo">
+
+            <h3>Exemplo de uma div</h3>
+
+            <p>
+                A div é um container genérico utilizado
+                para organizar elementos da página.
+            </p>
+
+        </div>
+
+        <pre class="codigo">
+```
+
+<div>
+
+```
+&lt;h3&gt;Título&lt;/h3&gt;
+
+&lt;p&gt;
+    Conteúdo dentro da div.
+&lt;/p&gt;
+```
+
+</div> </pre>
+
+```
+    </section>
+
+
+    <!-- =================================================
+         9. DESAFIO
+         ================================================= -->
+
+    <section>
+
+        <h2>9. Desafio</h2>
+
+        <p>
+            Crie uma página de cadastro de aluno
+            utilizando as tags aprendidas nesta aula.
+        </p>
+
+        <p>
+            Sua página deverá possuir:
+        </p>
+
+        <ul>
+
+            <li>Um título com h1</li>
+
+            <li>Parágrafos com p</li>
+
+            <li>Texto destacado com span</li>
+
+            <li>Texto em negrito com b</li>
+
+            <li>Texto em itálico com i</li>
+
+            <li>Quebras de linha com br</li>
+
+            <li>Separações com hr</li>
+
+            <li>Um formulário com form</li>
+
+            <li>Campos utilizando input</li>
+
+            <li>Um botão utilizando button</li>
+
+            <li>Uma imagem utilizando img</li>
+
+            <li>Um link utilizando a</li>
+
+        </ul>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     RODAPÉ
+     ===================================================== -->
+
+<footer>
+
+    <p>
+        Aula de HTML — Introdução às tags HTML
+    </p>
+
+    <p>
+        <i>
+            Pratique criando suas próprias páginas!
+        </i>
+    </p>
+
+</footer>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+     ===================================================== -->
+
+<script>
+
+    console.log(
+        "Aula de HTML carregada com sucesso!"
+    );
+
+</script>
+```
+
+</body>
+
+</html>
