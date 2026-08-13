@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lógica de Programação</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body>
+    <h1>Lógica de Programação</h1>
+
+    <div class="">
+        <div class="flex flex-col mt-5 mx-5 w-full justify-center items-center">
+
+            <label for="nome">Nome</label>
+            <input type="text" name="nome" id="nome" class="rounded-lg border border-gray-500 text-black p-1">
+
+            <label for="idade">Idade</label>
+            <input type="number" name="idade" id="idade" class="rounded-lg border border-gray-500 text-black p-1">
+
+            <label for="ativo">Ativo</label>
+            <input type="checkbox" name="ativo" id="ativo" class="rounded-lg border border-gray-500 text-black p-1">
+
+            <button class="btn bg-blue-700 text-white p-3 rounded-lg mt-5" id="enviar">Enviar</button>
+        </div>
+    </div>
+
+    <div id="listaDeDados" class="flex flex-col mt-5 mx-5 w-full justify-center items-center ">
+
+    </div>
+
+
+    <script>
+        let nome = "Phelipe";
+        let idade = 32;
+        let ativo = true;
+        let resultado = idade + 5;
+
+        console.log(nome)
+        console.log(idade)
+        console.log(ativo)
+        console.log(resultado)
+
+        // Exemplo de Soma
+        resultado = idade + 5;
+        console.log("Soma " + resultado)
+
+        // Exemplo de Subtração
+        resultado = idade - 5;
+        console.log("Subtração " + resultado)
+
+        // Exemplo de Multiplicação
+        resultado = idade * 5;
+        console.log("Multiplicação " + resultado)
+
+        // Exemplo de Divisão
+        resultado = idade / 5;
+        console.log("Divisão " + resultado)
+
+        // Exemplo de Igualdade
+        if (idade === 32) {
+            console.log("Idade Correta")
+        }
+
+        // Exemplo de Diferença
+        if (idade != 31) {
+            console.log("Idade Incorreta")
+        }
+
+        // Exemplo de Maior ou Igual
+        if (idade >= 18) {
+            console.log("Maior de Idade")
+        }
+
+        // Exemplo de Menor ou Igual
+        if (idade <= 18) {
+            console.log("Menor de Idade")
+        }
+
+        // Exemplo de Comparação com AND
+        if (idade == 32 && nome == "Phelipe") {
+            console.log("É o professor")
+        }
+
+        // Exemplo de Comparação com OR
+        if (idade == 32 || nome == "Phelipe") {
+            console.log("Talvez seja o professor")
+        } else {
+            console.log("Talvez não seja o professor")
+        }
+
+        // Exemplo de NOT
+        console.log("Exemplo de Not" + !ativo)
+
+        // Exemplo de Laço
+        for (let i = 1; i <= 5; i++) {
+            console.log(i); // Imprime 1, 2, 3, 4, 5
+        }
+
+
+        // Exemplo de Função
+        function quemEuSou(nome) {
+            return console.log("Eu sou " + nome + "E tenho " + idade + " anos")
+        }
+
+        quemEuSou("Phelipe Curty")
+        quemEuSou("Matheus")
+        quemEuSou("Alexandre")
+        quemEuSou("Magno")
+
+        document.getElementById("enviar").addEventListener("click", mostarDados);
+
+        function mostarDados() {
+            nome = document.getElementById("nome").value
+            idade = document.getElementById("idade").value
+            ativo = document.getElementById('ativo').value
+
+            console.log("Clicou")
+            console.log(nome)
+            console.log(idade)
+            console.log(ativo)
+
+            let listaDeDados = document.getElementById('listaDeDados')
+            listaDeDados.innerHTML += `
+                <hr class="border w-full my-2">
+
+                <li>
+                    <a href="#"
+                        class="text-blue-500">
+                        ${nome}
+                    </a>
+                </li>
+                 <li>
+                    <a href="#"
+                        class="text-blue-500">
+                        ${idade}
+                    </a>
+                </li>
+                 <li>
+                    <a href="#"
+                        class="text-blue-500">
+                        ${ativo}
+                    </a>
+                </li>
+                <hr class="border w-full my-2">
+
+            `;
+
+        }
+
+        // document.getElementById("myBtn").addEventListener("click", displayDate);
+
+        // function displayDate() {
+        //     document.getElementById("demo").innerHTML = Date();
+        // }
+
+
+
+    </script>
+
+
+
+</body>
+
+</html>
