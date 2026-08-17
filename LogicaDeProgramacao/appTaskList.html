@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body>
+    <h1>Lista de Tarefas</h1>
+
+    <div class="">
+        <div class="flex flex-col mt-5 mx-5 w-full justify-center items-center">
+
+            <label for="nome">Nome</label>
+            <input type="text" name="nome" id="nome" class="rounded-lg border border-gray-500 text-black p-1">
+
+            <label for="idade">Idade</label>
+            <input type="number" name="idade" id="idade" class="rounded-lg border border-gray-500 text-black p-1">
+
+            <label for="ativo">Ativo</label>
+            <input type="checkbox" name="ativo" id="ativo" class="rounded-lg border border-gray-500 text-black p-1">
+
+            <button class="btn bg-blue-700 text-white p-3 rounded-lg mt-5" id="enviar">Enviar</button>
+        </div>
+    </div>
+
+    <div id="listaDeDados" class="flex flex-col mt-5 mx-5 w-full justify-center items-center ">
+
+    </div>
+
+
+    <script>
+        let nome = "Phelipe";
+        let idade = 32;
+        let ativo = true;
+
+        document.getElementById("enviar").addEventListener("click", mostarDados);
+
+        function mostarDados() {
+            nome = document.getElementById("nome").value
+            idade = document.getElementById("idade").value
+            ativo = document.getElementById('ativo').value
+
+            console.log("Clicou")
+            console.log(nome)
+            console.log(idade)
+            console.log(ativo)
+
+            let listaDeDados = document.getElementById('listaDeDados')
+            listaDeDados.innerHTML += `
+                <hr class="border w-full my-2">
+
+                <li>
+                    <a href="#"
+                        class="text-blue-500">
+                        ${nome}
+                    </a>
+                </li>
+                 <li>
+                    <a href="#"
+                        class="text-blue-500">
+                        ${idade}
+                    </a>
+                </li>
+                 <li>
+                    <a href="#"
+                        class="text-blue-500">
+                        ${ativo}
+                    </a>
+                </li>
+                <hr class="border w-full my-2">
+
+            `;
+
+        }
+
+        // document.getElementById("myBtn").addEventListener("click", displayDate);
+
+        // function displayDate() {
+        //     document.getElementById("demo").innerHTML = Date();
+        // }
+
+
+
+    </script>
+
+
+
+</body>
+
+</html>
