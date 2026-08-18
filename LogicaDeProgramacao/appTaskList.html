@@ -6,77 +6,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Tarefas</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css" />
 </head>
 
 <body>
-    <h1>Lista de Tarefas</h1>
+    
+    <div class="flex justify-center mt-5">
 
-    <div class="">
-        <div class="flex flex-col mt-5 mx-5 w-full justify-center items-center">
+    <div class=" border border-gray-400 p-4 w-80 rounded-lg  ">
+        <h1 class="text-2xl text-center mt-5 font-bold animate-pulse text-blue-700"><i class="ph-bold ph-list-checks"></i>
+            Lista de Tarefas <i class="ph-bold ph-list-checks"></i></h1>
+        <div class="flex flex-col mt-5 w-full justify-center items-center ">
 
-            <label for="nome">Nome</label>
-            <input type="text" name="nome" id="nome" class="rounded-lg border border-gray-500 text-black p-1">
+            <div class="flex gap-5">
 
-            <label for="idade">Idade</label>
-            <input type="number" name="idade" id="idade" class="rounded-lg border border-gray-500 text-black p-1">
+                <!-- <label for="tarefa">Tarefa</label> -->
+                <input placeholder="Tarefa" type="text" name="tarefa" id="tarefa" value="test"
+                    class="rounded-lg border border-gray-500 text-black p-1">
 
-            <label for="ativo">Ativo</label>
-            <input type="checkbox" name="ativo" id="ativo" class="rounded-lg border border-gray-500 text-black p-1">
+                <!-- <label for="status">Status</label> -->
+                <!-- <input type="checkbox" name="status" id="status"
+                    class="w-6 rounded-lg border border-gray-500 text-black p-1"> -->
+            </div>
 
             <button class="btn bg-blue-700 text-white p-3 rounded-lg mt-5" id="enviar">Enviar</button>
         </div>
     </div>
-
-    <div id="listaDeDados" class="flex flex-col mt-5 mx-5 w-full justify-center items-center ">
-
     </div>
 
+    <div class="flex justify-center">
+        <div id="listaDeDados" class="flex flex-col gap-5 mt-5 mx-5 w-64 justify-center items-center">
+
+        </div>
+    </div>
 
     <script>
-        let nome = "Phelipe";
-        let idade = 32;
-        let ativo = true;
+        let tarefa = "Phelipe";
+        let status = true;
+        let btnNumber = 1
 
         document.getElementById("enviar").addEventListener("click", mostarDados);
 
         function mostarDados() {
-            nome = document.getElementById("nome").value
-            idade = document.getElementById("idade").value
-            ativo = document.getElementById('ativo').value
+            let tarefa = document.getElementById("tarefa").value;
+            // let status = document.getElementById("status").value;
 
-            console.log("Clicou")
-            console.log(nome)
-            console.log(idade)
-            console.log(ativo)
 
-            let listaDeDados = document.getElementById('listaDeDados')
+
+            let listaDeDados = document.getElementById("listaDeDados");
+
             listaDeDados.innerHTML += `
-                <hr class="border w-full my-2">
+            <div class="flex justify-between items-center w-64 border p-2 border-gray-400 rounded-lg">
+            
+                <span class="text-blue-500">
+                    ${tarefa}
+                </span>
 
-                <li>
-                    <a href="#"
-                        class="text-blue-500">
-                        ${nome}
-                    </a>
-                </li>
-                 <li>
-                    <a href="#"
-                        class="text-blue-500">
-                        ${idade}
-                    </a>
-                </li>
-                 <li>
-                    <a href="#"
-                        class="text-blue-500">
-                        ${ativo}
-                    </a>
-                </li>
-                <hr class="border w-full my-2">
-
+                <button 
+                    id="btnStatus${btnNumber}"  
+                    class="btn bg-blue-700 text-white p-2 rounded btnStatus">                        
+                    <i class="ph-bold ph-check-circle "></i>
+                </button>
+            </div>
             `;
 
+            btnNumber++;
         }
 
+        // Captura cliques nos elementos criados dentro de listaDeDados
+        document.getElementById("listaDeDados").addEventListener("click", function (event) {
+
+            if (event.target.classList.contains("btnStatus")) {
+                updateStatus(event.target);
+            }
+
+        });
+
+        function updateStatus(elemento) {
+            console.log("click")
+            const statusAtual = elemento.dataset.status === "true";
+            const novoStatus = !statusAtual;
+
+            elemento.dataset.status = novoStatus;
+            elemento.innerHTML = novoStatus ? `<i class="ph-bold ph-check-circle"></i>` : `<i class="ph-bold ph-circle"></i>`;
+
+            console.log("Status:", novoStatus);
+        }
         // document.getElementById("myBtn").addEventListener("click", displayDate);
 
         // function displayDate() {
