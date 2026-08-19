@@ -12,70 +12,152 @@
 </head>
 
 <body>
-    
+
     <div class="flex justify-center mt-5">
 
-    <div class=" border border-gray-400 p-4 w-80 rounded-lg  ">
-        <h1 class="text-2xl text-center mt-5 font-bold animate-pulse text-blue-700"><i class="ph-bold ph-list-checks"></i>
-            Lista de Tarefas <i class="ph-bold ph-list-checks"></i></h1>
-        <div class="flex flex-col mt-5 w-full justify-center items-center ">
+        <div class=" border border-gray-400 p-4 w-80 rounded-lg  ">
+            <h1 class="text-2xl text-center mt-5 font-bold animate-pulse text-blue-700"><i
+                    class="ph-bold ph-list-checks"></i>
+                Lista de Tarefas <i class="ph-bold ph-list-checks"></i></h1>
+            <div class="flex flex-col mt-5 w-full justify-center items-center ">
 
-            <div class="flex gap-5">
+                <div class="flex gap-5">
+                    <div class="flex justify-between items-center gap-2">
+                        <input placeholder="Tarefa" type="text" name="tarefa" id="tarefa"
+                            class="rounded-lg border border-gray-500 text-black py-1 px-2 ">
 
-                <!-- <label for="tarefa">Tarefa</label> -->
-                <input placeholder="Tarefa" type="text" name="tarefa" id="tarefa" value="test"
-                    class="rounded-lg border border-gray-500 text-black p-1">
+                        <button class="btn bg-blue-700 text-white py-2 px-3 rounded-full" id="criar"> <i
+                                class="ph-bold ph-plus-circle"></i>
+                        </button>
+                    </div>
+                    
+                </div>
 
-                <!-- <label for="status">Status</label> -->
-                <!-- <input type="checkbox" name="status" id="status"
-                    class="w-6 rounded-lg border border-gray-500 text-black p-1"> -->
+                <div class="flex justify-center gap-2">
+                    <button class="btn bg-blue-700 text-white p-2 rounded-lg mt-5 flex items-center gap-2"
+                        id="mostrarLista">
+                        <i class="ph-bold ph-list"></i> Mostrar </button>
+                    <button hidden class="btn bg-blue-700 text-white p-3 rounded-lg mt-5" id="confirmEdit"> <i
+                            class="ph-bold ph-pencil-simple"></i>
+                    </button>
+                </div>
+               
             </div>
-
-            <button class="btn bg-blue-700 text-white p-3 rounded-lg mt-5" id="enviar">Enviar</button>
         </div>
     </div>
-    </div>
 
-    <div class="flex justify-center">
-        <div id="listaDeDados" class="flex flex-col gap-5 mt-5 mx-5 w-64 justify-center items-center">
+    <div class="flex justify-center ">
+        <div id="listaDeDados" class="flex flex-col gap-5 mt-5 w-80 justify-center items-center">
 
         </div>
     </div>
 
     <script>
-        let tarefa = "Phelipe";
-        let status = true;
-        let btnNumber = 1
+        var tarefas = []
+        let idTarefa = tarefas.length
 
-        document.getElementById("enviar").addEventListener("click", mostarDados);
+        document.getElementById("criar").addEventListener("click", criarTarefa);
 
-        function mostarDados() {
-            let tarefa = document.getElementById("tarefa").value;
-            // let status = document.getElementById("status").value;
+        function criarTarefa() {
+            let tarefa = document.getElementById("tarefa").value
+            let idTarefa = tarefas.length
 
+            if (tarefa == "") {
+                alert("Digite a tarefa!")
+                return
+            }
 
+            tarefas.push([idTarefa, tarefa, true])
 
-            let listaDeDados = document.getElementById("listaDeDados");
-
-            listaDeDados.innerHTML += `
-            <div class="flex justify-between items-center w-64 border p-2 border-gray-400 rounded-lg">
-            
-                <span class="text-blue-500">
-                    ${tarefa}
-                </span>
-
-                <button 
-                    id="btnStatus${btnNumber}"  
-                    class="btn bg-blue-700 text-white p-2 rounded btnStatus">                        
-                    <i class="ph-bold ph-check-circle "></i>
-                </button>
-            </div>
-            `;
-
-            btnNumber++;
+            mostrarLista()
+            document.getElementById("tarefa").value = ""
+            return
         }
 
-        // Captura cliques nos elementos criados dentro de listaDeDados
+        document.getElementById("mostrarLista").addEventListener("click", mostrarLista);
+
+        function mostrarLista() {
+            let listaDeDados = document.getElementById("listaDeDados");
+
+            listaDeDados.innerHTML = ``
+
+            tarefas.forEach(function (tarefa) {
+                let icon = ''
+                if (tarefa[2] == true) {
+                    icon = `<i id="btnStatus${tarefa[0]}" class="ph-bold ph-check-circle btnStatus"></i>`
+                } else {
+                    icon = `<i id="btnStatus${tarefa[0]}" class="ph-bold ph-circle btnStatus"></i>`
+                }
+
+                listaDeDados.innerHTML += `
+                <div class="flex justify-between items-center w-80 border p-2 border-gray-400 rounded-lg">
+                    
+                    <span class="text-blue-500 font-bold px-3">
+                        ${tarefa[1]}
+                    </span>
+                        
+                    <div class="flex gap-2">
+                        <button 
+                            id="btnStatus${tarefa[0]}"  
+                            class="btn bg-green-700 text-white p-2 rounded btnStatus">                             
+                            ${icon}
+                        </button>
+
+                        <button 
+                        id="btnEdit${tarefa[0]}"  
+                        class="btn bg-blue-700 text-white p-2 rounded btnEdit">    
+                            <i id="btnEdit${tarefa[0]}" class="ph-bold ph-pencil-simple btnEdit"></i>
+                        </button>
+
+                         <button 
+                        id="btnDelete${tarefa[0]}"  
+                        class="btn bg-red-700 text-white p-2 rounded btnDelete">    
+                            <i id="btnDelete${tarefa[0]}" class="ph-bold ph-trash btnDelete"></i>
+                        </button>
+                    </div>
+
+                </div>
+                        `;
+            });
+        }
+
+        document.getElementById("listaDeDados").addEventListener("click", function (event) {
+
+            if (event.target.classList.contains("btnEdit")) {
+                edit(event.target);
+            }
+
+        });
+
+        function edit(elemento) {
+            const id = elemento.id
+            const idOnlyNumber = id.replace("btnEdit", '')
+
+            parseInt(idOnlyNumber)
+
+            document.getElementById("tarefa").value = tarefas[idOnlyNumber][1]
+
+            document.getElementById("confirmEdit").removeAttribute("hidden")
+
+        }
+
+        document.getElementById("confirmEdit").addEventListener("click", function () {
+            confirmEdit(idTarefa);
+        });
+
+        function confirmEdit(idTarefa) {
+            tarefas[idTarefa][1] = document.getElementById("tarefa").value
+
+            if (tarefa == "") {
+                alert("Digite a tarefa!")
+                return
+            }
+
+            mostrarLista()
+            document.getElementById("tarefa").value = ""
+            return
+        }
+
         document.getElementById("listaDeDados").addEventListener("click", function (event) {
 
             if (event.target.classList.contains("btnStatus")) {
@@ -84,27 +166,46 @@
 
         });
 
-        function updateStatus(elemento) {
-            console.log("click")
-            const statusAtual = elemento.dataset.status === "true";
-            const novoStatus = !statusAtual;
+        function updateStatus(idTarefa) {
+            const id = idTarefa.id
+            const idOnlyNumber = id.replace("btnStatus", '')
 
-            elemento.dataset.status = novoStatus;
-            elemento.innerHTML = novoStatus ? `<i class="ph-bold ph-check-circle"></i>` : `<i class="ph-bold ph-circle"></i>`;
+            parseInt(idOnlyNumber)
 
-            console.log("Status:", novoStatus);
+            if (tarefas[idOnlyNumber][2] === true) {
+                tarefas[idOnlyNumber][2] = false
+            } else {
+                tarefas[idOnlyNumber][2] = true
+            }
+
+            console.log("tarefa Editada" + tarefas[idOnlyNumber][2])
+
+            mostrarLista()
+
         }
-        // document.getElementById("myBtn").addEventListener("click", displayDate);
 
-        // function displayDate() {
-        //     document.getElementById("demo").innerHTML = Date();
-        // }
+        document.getElementById("listaDeDados").addEventListener("click", function (event) {
 
+            if (event.target.classList.contains("btnDelete")) {
+                deleteTarefa(event.target);
+            }
 
+        });
+
+        function deleteTarefa(idTarefa) {
+            const id = idTarefa.id;
+            const idOnlyNumber = parseInt(id.replace("btnDelete", ''));
+
+            console.log("deletar:", idOnlyNumber);
+
+            tarefas = tarefas.filter(tarefa => tarefa[0] !== idOnlyNumber);
+
+            console.log("task:", tarefas);
+
+            mostrarLista();
+        }
 
     </script>
-
-
 
 </body>
 
