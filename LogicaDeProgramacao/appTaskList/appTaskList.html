@@ -9,6 +9,8 @@
 
     <link rel="stylesheet" type="text/css"
         href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -34,9 +36,9 @@
                 </div>
 
                 <div class="flex justify-center gap-2">
-                    <button class="btn bg-blue-700 text-white p-2 rounded-lg mt-5 flex items-center gap-2"
+                    <!-- <button class="btn bg-blue-700 text-white p-2 rounded-lg mt-5 flex items-center gap-2"
                         id="mostrarLista">
-                        <i class="ph-bold ph-list"></i> Mostrar </button>
+                        <i class="ph-bold ph-list"></i> Mostrar </button> -->
                     <button hidden class="btn bg-blue-700 text-white p-3 rounded-lg mt-5" id="confirmEdit"> <i
                             class="ph-bold ph-pencil-simple"></i>
                     </button>
@@ -46,7 +48,7 @@
         </div>
     </div>
 
-    <div class="flex justify-center ">
+    <div class="flex justify-center">
         <div id="listaDeDados" class="flex flex-col gap-5 mt-5 w-80 justify-center items-center">
 
         </div>
@@ -74,7 +76,7 @@
             return
         }
 
-        document.getElementById("mostrarLista").addEventListener("click", mostrarLista);
+        // document.getElementById("mostrarLista").addEventListener("click", mostrarLista);
 
         function mostrarLista() {
             let listaDeDados = document.getElementById("listaDeDados");
@@ -139,6 +141,8 @@
 
             document.getElementById("confirmEdit").removeAttribute("hidden")
 
+            document.getElementsByClassName("btnDelete")[0].setAttribute("hidden", true)
+
         }
 
         document.getElementById("confirmEdit").addEventListener("click", function () {
@@ -148,10 +152,12 @@
         function confirmEdit(idTarefa) {
             tarefas[idTarefa][1] = document.getElementById("tarefa").value
 
-            if (tarefa == "") {
+            if (document.getElementById("tarefa").value == "") {
                 alert("Digite a tarefa!")
                 return
             }
+
+            document.getElementById("confirmEdit").setAttribute("hidden", true)
 
             mostrarLista()
             document.getElementById("tarefa").value = ""
