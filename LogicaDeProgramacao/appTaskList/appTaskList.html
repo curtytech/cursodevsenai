@@ -18,32 +18,29 @@
     <div class="flex justify-center mt-5">
 
         <div class=" border border-gray-400 p-4 w-80 rounded-lg  ">
-            <h1 class="text-2xl text-center mt-5 font-bold animate-pulse text-blue-700"><i
-                    class="ph-bold ph-list-checks"></i>
-                Lista de Tarefas <i class="ph-bold ph-list-checks"></i></h1>
+            <h1 class="text-2xl text-center mt-5 font-bold animate-pulse text-blue-700">
+                <i class="ph-bold ph-list-checks"></i>
+                Lista de Tarefas
+                <i class="ph-bold ph-list-checks"></i>
+            </h1>
             <div class="flex flex-col mt-5 w-full justify-center items-center ">
-
                 <div class="flex gap-5">
                     <div class="flex justify-between items-center gap-2">
                         <input placeholder="Tarefa" type="text" name="tarefa" id="tarefa"
                             class="rounded-lg border border-gray-500 text-black py-1 px-2 ">
 
-                        <button class="btn bg-blue-700 text-white py-2 px-3 rounded-full" id="criar"> <i
-                                class="ph-bold ph-plus-circle"></i>
+                        <button class="btn bg-blue-700 text-white py-2 px-3 rounded-full" id="criar">
+                            <i class="ph-bold ph-plus-circle"></i>
                         </button>
                     </div>
-                    
+
                 </div>
 
                 <div class="flex justify-center gap-2">
-                    <!-- <button class="btn bg-blue-700 text-white p-2 rounded-lg mt-5 flex items-center gap-2"
-                        id="mostrarLista">
-                        <i class="ph-bold ph-list"></i> Mostrar </button> -->
-                    <button hidden class="btn bg-blue-700 text-white p-3 rounded-lg mt-5" id="confirmEdit"> <i
-                            class="ph-bold ph-pencil-simple"></i>
+                    <button hidden class="btn bg-blue-700 text-white p-3 rounded-lg mt-5" id="confirmEdit">
+                        <i class="ph-bold ph-pencil-simple"></i>
                     </button>
                 </div>
-               
             </div>
         </div>
     </div>
@@ -92,34 +89,34 @@
                 }
 
                 listaDeDados.innerHTML += `
-                <div class="flex justify-between items-center w-80 border p-2 border-gray-400 rounded-lg">
-                    
-                    <span class="text-blue-500 font-bold px-3">
-                        ${tarefa[1]}
-                    </span>
+                    <div class="flex justify-between items-center w-80 border p-2 border-gray-400 rounded-lg">
                         
-                    <div class="flex gap-2">
-                        <button 
-                            id="btnStatus${tarefa[0]}"  
-                            class="btn bg-green-700 text-white p-2 rounded btnStatus">                             
-                            ${icon}
-                        </button>
+                        <span class="text-blue-500 font-bold px-3">
+                            ${tarefa[1]}
+                        </span>
+                            
+                        <div class="flex gap-2">
+                            <button 
+                                id="btnStatus${tarefa[0]}"  
+                                class="btn bg-green-700 text-white p-2 rounded btnStatus">                             
+                                ${icon}
+                            </button>
 
-                        <button 
-                        id="btnEdit${tarefa[0]}"  
-                        class="btn bg-blue-700 text-white p-2 rounded btnEdit">    
-                            <i id="btnEdit${tarefa[0]}" class="ph-bold ph-pencil-simple btnEdit"></i>
-                        </button>
+                            <button 
+                            id="btnEdit${tarefa[0]}"  
+                            class="btn bg-blue-700 text-white p-2 rounded btnEdit">    
+                                <i id="btnEdit${tarefa[0]}" class="ph-bold ph-pencil-simple btnEdit"></i>
+                            </button>
 
-                         <button 
-                        id="btnDelete${tarefa[0]}"  
-                        class="btn bg-red-700 text-white p-2 rounded btnDelete">    
-                            <i id="btnDelete${tarefa[0]}" class="ph-bold ph-trash btnDelete"></i>
-                        </button>
+                            <button 
+                            id="btnDelete${tarefa[0]}"  
+                            class="btn bg-red-700 text-white p-2 rounded btnDelete">    
+                                <i id="btnDelete${tarefa[0]}" class="ph-bold ph-trash btnDelete"></i>
+                            </button>
+                        </div>
+
                     </div>
-
-                </div>
-                        `;
+                `;
             });
         }
 
@@ -135,8 +132,6 @@
             const id = elemento.id
             const idOnlyNumber = id.replace("btnEdit", '')
 
-            parseInt(idOnlyNumber)
-
             document.getElementById("tarefa").value = tarefas[idOnlyNumber][1]
 
             document.getElementById("confirmEdit").removeAttribute("hidden")
@@ -150,12 +145,13 @@
         });
 
         function confirmEdit(idTarefa) {
-            tarefas[idTarefa][1] = document.getElementById("tarefa").value
 
             if (document.getElementById("tarefa").value == "") {
                 alert("Digite a tarefa!")
                 return
             }
+
+            tarefas[idTarefa][1] = document.getElementById("tarefa").value
 
             document.getElementById("confirmEdit").setAttribute("hidden", true)
 
@@ -175,8 +171,6 @@
         function updateStatus(idTarefa) {
             const id = idTarefa.id
             const idOnlyNumber = id.replace("btnStatus", '')
-
-            parseInt(idOnlyNumber)
 
             if (tarefas[idOnlyNumber][2] === true) {
                 tarefas[idOnlyNumber][2] = false
