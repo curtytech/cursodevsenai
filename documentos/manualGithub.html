@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta name="author" content="Anderson-Farias">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Rápido — Git e GitHub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --bg-elevated: #151b23;
+            --bg-terminal: #010409;
+            --border: #30363d;
+            --border-soft: #21262d;
+            --text: #c9d1d9;
+            --text-dim: #8b949e;
+            --text-bright: #f0f3f6;
+
+            --orange: #f05133;
+            /* cor do logo do Git */
+            --orange-soft: rgba(240, 81, 51, 0.12);
+            --green: #3fb950;
+            /* add / sucesso */
+            --green-soft: rgba(63, 185, 80, 0.12);
+            --purple: #bc8cff;
+            /* commit */
+            --purple-soft: rgba(188, 140, 255, 0.12);
+            --blue: #58a6ff;
+            /* push / pull / links */
+            --blue-soft: rgba(88, 166, 255, 0.12);
+
+            --mono: 'JetBrains Mono', ui-monospace, monospace;
+            --sans: 'Inter', system-ui, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: var(--blue);
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        summary:focus-visible {
+            outline: 2px solid var(--blue);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            * {
+                animation-duration: 0.001ms !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+
+        /* ---------- topo fixo ---------- */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: rgba(13, 17, 23, 0.86);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .topbar svg {
+            flex-shrink: 0;
+        }
+
+        .topbar .brand {
+            font-family: var(--mono);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-bright);
+            letter-spacing: 0.02em;
+        }
+
+        .topbar .brand span {
+            color: var(--text-dim);
+        }
+
+        .topbar .status {
+            margin-left: auto;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .topbar .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 0 3px var(--green-soft);
+        }
+
+        @media (max-width:560px) {
+            .topbar .status {
+                display: none;
+            }
+        }
+
+        /* ---------- hero ---------- */
+        .hero {
+            padding: 64px 24px 48px;
+            max-width: 880px;
+            margin: 0 auto;
+        }
+
+        .hero .prompt {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--green);
+            margin: 0 0 18px;
+        }
+
+        .hero .prompt::before {
+            content: "➜  ";
+            color: var(--text-dim);
+        }
+
+        .hero .prompt .path {
+            color: var(--blue);
+        }
+
+        .hero h1 {
+            font-family: var(--mono);
+            font-size: clamp(28px, 5vw, 42px);
+            font-weight: 700;
+            color: var(--text-bright);
+            margin: 0 0 14px;
+            letter-spacing: -0.01em;
+        }
+
+        .hero h1 .hash {
+            color: var(--orange);
+        }
+
+        .hero p.lead {
+            font-size: 16px;
+            color: var(--text-dim);
+            max-width: 60ch;
+            margin: 0;
+        }
+
+        .hero .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 26px;
+        }
+
+        .legend .chip {
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        /* ---------- layout principal com trilho de commits ---------- */
+        main {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+            position: relative;
+        }
+
+        .rail {
+            position: relative;
+            padding-left: 56px;
+        }
+
+        .rail::before {
+            content: "";
+            position: absolute;
+            left: 19px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--border) 0%, var(--border) 100%);
+        }
+
+        section.step {
+            position: relative;
+            padding: 0 0 52px;
+        }
+
+        section.step:last-of-type {
+            padding-bottom: 12px;
+        }
+
+        .node {
+            position: absolute;
+            left: -56px;
+            top: 2px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            border: 2px solid var(--orange);
+            color: var(--orange);
+            font-family: var(--mono);
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        h2 {
+            font-family: var(--mono);
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin: 2px 0 12px;
+        }
+
+        h3 {
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin: 22px 0 10px;
+        }
+
+        p {
+            margin: 0 0 12px;
+            color: var(--text);
+        }
+
+        .step>p:first-of-type {
+            margin-top: 0;
+        }
+
+        ol.steps {
+            margin: 0 0 14px;
+            padding-left: 22px;
+            color: var(--text);
+        }
+
+        ol.steps li {
+            margin-bottom: 6px;
+        }
+
+        ol.steps strong {
+            color: var(--text-bright);
+            font-weight: 600;
+        }
+
+        code.inline {
+            font-family: var(--mono);
+            font-size: 0.88em;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-soft);
+            padding: 1px 6px;
+            border-radius: 4px;
+            color: var(--blue);
+        }
+
+        .callout {
+            border-left: 3px solid var(--purple);
+            background: var(--purple-soft);
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            font-size: 14px;
+            color: var(--text);
+            margin: 14px 0;
+        }
+
+        /* ---------- terminal ---------- */
+        .terminal {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 14px 0 16px;
+        }
+
+        .terminal-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 12px;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .terminal-bar .tl {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .tl.r {
+            background: #ff5f56;
+        }
+
+        .tl.y {
+            background: #ffbd2e;
+        }
+
+        .tl.g {
+            background: #27c93f;
+        }
+
+        .terminal-bar .filename {
+            margin-left: 8px;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .terminal pre {
+            margin: 0;
+            padding: 14px 16px;
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text);
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .terminal pre .cmd {
+            color: var(--green);
+        }
+
+        .terminal pre .cmd::before {
+            content: "$ ";
+            color: var(--text-dim);
+        }
+
+        .terminal pre .out {
+            color: var(--text-dim);
+            display: block;
+        }
+
+        .terminal pre .cmt {
+            color: var(--text-dim);
+        }
+
+        /* ---------- tabela de comandos ---------- */
+        .cmd-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .cmd-table thead th {
+            text-align: left;
+            font-family: var(--mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            background: var(--bg-elevated);
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cmd-table td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border-soft);
+            color: var(--text);
+        }
+
+        .cmd-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cmd-table td.cmd-cell {
+            font-family: var(--mono);
+            font-size: 13px;
+        }
+
+        .cmd-table .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .tag.add {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        .tag.commit {
+            background: var(--purple-soft);
+            color: var(--purple);
+        }
+
+        .tag.push,
+        .tag.pull {
+            background: var(--blue-soft);
+            color: var(--blue);
+        }
+
+        .tag.setup {
+            background: var(--orange-soft);
+            color: var(--orange);
+        }
+
+        /* ---------- fluxos ---------- */
+        .flows {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 16px 0 8px;
+        }
+
+        @media (max-width:720px) {
+            .flows {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .flow {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .flow h4 {
+            margin: 0 0 14px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .flow-chip {
+            font-family: var(--mono);
+            font-size: 12.5px;
+            background: var(--bg-terminal);
+            border: 1px solid var(--border-soft);
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .flow-chip.key {
+            color: var(--text-bright);
+            border-color: var(--border);
+        }
+
+        .flow-arrow {
+            text-align: center;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 13px;
+            padding: 4px 0;
+        }
+
+        /* ---------- badges regra simples ---------- */
+        .rule {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin: 16px 0 4px;
+        }
+
+        .rule .badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--mono);
+            font-size: 13px;
+            padding: 9px 14px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            color: var(--text-bright);
+        }
+
+        .rule .badge b {
+            font-weight: 700;
+        }
+
+        .rule .badge small {
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        .rule .arrow {
+            color: var(--text-dim);
+        }
+
+        .badge.add {
+            border-color: rgba(63, 185, 80, 0.35);
+        }
+
+        .badge.add b {
+            color: var(--green);
+        }
+
+        .badge.commit {
+            border-color: rgba(188, 140, 255, 0.35);
+        }
+
+        .badge.commit b {
+            color: var(--purple);
+        }
+
+        .badge.push {
+            border-color: rgba(88, 166, 255, 0.35);
+        }
+
+        .badge.push b {
+            color: var(--blue);
+        }
+
+        .badge.pull {
+            border-color: rgba(88, 166, 255, 0.35);
+        }
+
+        .badge.pull b {
+            color: var(--blue);
+        }
+
+        .badge.clone {
+            border-color: rgba(240, 81, 51, 0.35);
+        }
+
+        .badge.clone b {
+            color: var(--orange);
+        }
+
+        footer {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 30px 24px 60px;
+            color: var(--text-dim);
+            font-size: 13px;
+            font-family: var(--mono);
+            border-top: 1px solid var(--border-soft);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="6" cy="6" r="2.6" stroke="#f05133" stroke-width="1.6" />
+            <circle cx="6" cy="18" r="2.6" stroke="#f05133" stroke-width="1.6" />
+            <circle cx="17" cy="12" r="2.6" stroke="#f05133" stroke-width="1.6" />
+            <path d="M6 8.6V15.4" stroke="#f05133" stroke-width="1.6" />
+            <path d="M8.6 6.6C11.5 6.9 14.4 9 14.6 9.7" stroke="#f05133" stroke-width="1.6" fill="none" />
+        </svg>
+        <span class="brand">manual-do-aluno.SENAI<span>@</span>git-github</span>
+        <span class="status"><span class="dot"></span> 13 passos</span>
+    </div>
+
+    <div class="hero">
+        <p class="prompt">cat <span class="path">~/Desenvolvimento-de-sistemas/FIRJANSENAISESI.md</span></p>
+        <h1><span class="hash">#</span> Manual Rápido de Git e GitHub</h1>
+        <p class="lead">Um guia direto para sair do zero e chegar ao seu primeiro <code class="inline">push</code>:
+            criar conta, instalar o Git, versionar um projeto e publicá-lo no GitHub.</p>
+        <div class="legend">
+            <span class="chip">git init</span>
+            <span class="chip">git add</span>
+            <span class="chip">git commit</span>
+            <span class="chip">git push</span>
+            <span class="chip">git clone</span>
+        </div>
+    </div>
+
+    <main>
+        <div class="rail">
+
+            <section class="step" id="s1">
+                <span class="node">1</span>
+                <h2>O que são Git e GitHub?</h2>
+                <p><strong>Git</strong> é uma ferramenta usada para controlar versões dos seus projetos. Ele registra as
+                    alterações feitas no código e permite voltar a versões anteriores.</p>
+                <p><strong>GitHub</strong> é uma plataforma online onde podemos armazenar, compartilhar e colaborar em
+                    projetos que utilizam Git.</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span><span class="filename">resumo</span></div>
+                    <pre><span class="out">Git    = controla as versões do código
+GitHub = armazena o projeto online</span></pre>
+                </div>
+            </section>
+
+            <section class="step" id="s2">
+                <span class="node">2</span>
+                <h2>Criando uma conta no GitHub</h2>
+                <p>Acesse <a href="https://github.com/" target="_blank" rel="noopener">github.com</a> e siga os passos:
+                </p>
+                <ol class="steps">
+                    <li>Clique em <strong>Sign up</strong>.</li>
+                    <li>Informe seu <strong>e-mail</strong>.</li>
+                    <li>Crie uma <strong>senha</strong>.</li>
+                    <li>Escolha seu <strong>nome de usuário</strong>.</li>
+                    <li>Confirme seu e-mail.</li>
+                    <li>Conclua as etapas solicitadas.</li>
+                </ol>
+                <div class="callout">✅ Sua conta GitHub está pronta!</div>
+            </section>
+
+            <section class="step" id="s3">
+                <span class="node">3</span>
+                <h2>Baixando e instalando o Git</h2>
+                <p>Acesse <a href="https://git-scm.com/downloads" target="_blank"
+                        rel="noopener">git-scm.com/downloads</a>:</p>
+                <ol class="steps">
+                    <li>Escolha <strong>Windows</strong>.</li>
+                    <li>Baixe o instalador.</li>
+                    <li>Execute o arquivo baixado.</li>
+                    <li>Durante a instalação, mantenha as opções padrão.</li>
+                    <li>Clique em <strong>Install</strong>.</li>
+                    <li>Ao terminar, clique em <strong>Finish</strong>.</li>
+                </ol>
+                <h3>Verificando a instalação</h3>
+                <p>Abra o Git Bash ou o terminal do VS Code:</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span></div>
+                    <pre><span class="cmd">git --version</span>
+<span class="out">git version 2.x.x</span></pre>
+                </div>
+                <p>Se algo parecido apareceu, o Git foi instalado corretamente. ✅</p>
+            </section>
+
+            <section class="step" id="s4">
+                <span class="node">4</span>
+                <h2>Configurando o Git</h2>
+                <p>No terminal, informe seu nome e o e-mail usado no GitHub:</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span></div>
+                    <pre><span class="cmd">git config --global user.name "Seu Nome"</span>
+<span class="cmd">git config --global user.email "seu@email.com"</span></pre>
+                </div>
+                <p>Pronto! O Git está configurado.</p>
+            </section>
+
+            <section class="step" id="s5">
+                <span class="node">5</span>
+                <h2>Criando seu primeiro projeto</h2>
+                <p>Crie uma pasta para o projeto, por exemplo <code class="inline">meu-primeiro-projeto</code>, e dentro
+                    dela um arquivo <code class="inline">index.html</code>:</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span><span class="filename">index.html</span></div>
+                    <pre><span class="out">&lt;!DOCTYPE html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Meu primeiro projeto&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Meu primeiro projeto com Git!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</span></pre>
+                </div>
+            </section>
+
+            <section class="step" id="s6">
+                <span class="node">6</span>
+                <h2>Criando o repositório Git local</h2>
+                <p>Abra o terminal dentro da pasta do projeto e execute:</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span></div>
+                    <pre><span class="cmd">git init</span>
+<span class="cmt"># Agora o Git começou a controlar seu projeto</span>
+
+<span class="cmd">git status</span></pre>
+                </div>
+            </section>
+
+            <section class="step" id="s7">
+                <span class="node">7</span>
+                <h2>Criando o repositório no GitHub</h2>
+                <p>Acesse <a href="https://github.com/" target="_blank" rel="noopener">github.com</a>:</p>
+                <ol class="steps">
+                    <li>Clique em <strong>+</strong>.</li>
+                    <li>Clique em <strong>New repository</strong>.</li>
+                    <li>Digite um nome, por exemplo <code class="inline">meu-primeiro-projeto</code>.</li>
+                    <li>Escolha <strong>Public</strong> ou <strong>Private</strong>.</li>
+                    <li>Clique em <strong>Create repository</strong>.</li>
+                </ol>
+                <div class="callout">Para este primeiro exercício, deixe o repositório vazio. Não marque README,
+                    .gitignore ou License.</div>
+            </section>
+
+            <section class="step" id="s8">
+                <span class="node">8</span>
+                <h2>Conectando o projeto ao GitHub</h2>
+                <p>O GitHub fornecerá uma URL semelhante a <code
+                        class="inline">https://github.com/seuusuario/meu-primeiro-projeto.git</code>. No terminal do seu
+                    projeto:</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span></div>
+                    <pre><span class="cmd">git remote add origin https://github.com/seuusuario/meu-primeiro-projeto.git</span>
+<span class="cmd">git remote -v</span></pre>
+                </div>
+            </section>
+
+            <section class="step" id="s9">
+                <span class="node">9</span>
+                <h2>Fazendo o primeiro commit</h2>
+                <p>Primeiro, adicione os arquivos e depois crie o commit — o registro da versão atual do projeto:</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span></div>
+                    <pre><span class="cmd">git add .</span>
+<span class="cmd">git commit -m "Primeiro commit"</span></pre>
+                </div>
+            </section>
+
+            <section class="step" id="s10">
+                <span class="node">10</span>
+                <h2>Enviando o projeto para o GitHub</h2>
+                <p>Garanta que a branch seja <code class="inline">main</code> e envie o projeto:</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span></div>
+                    <pre><span class="cmd">git branch -M main</span>
+<span class="cmd">git push -u origin main</span></pre>
+                </div>
+                <div class="callout">🎉 Pronto! Seu projeto agora está no GitHub.</div>
+            </section>
+
+            <section class="step" id="s11">
+                <span class="node">11</span>
+                <h2>Fazendo uma alteração</h2>
+                <p>Abra o <code class="inline">index.html</code> e altere, por exemplo, o título de <code
+                        class="inline">Meu primeiro projeto com Git!</code> para <code
+                        class="inline">Meu primeiro projeto com Git e GitHub!</code>. Salve o arquivo e confira:</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span></div>
+                    <pre><span class="cmd">git status</span>
+<span class="out">O Git mostrará que o arquivo foi alterado</span></pre>
+                </div>
+            </section>
+
+            <section class="step" id="s12">
+                <span class="node">12</span>
+                <h2>Registrando e enviando a alteração</h2>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span></div>
+                    <pre><span class="cmd">git add .</span>
+<span class="cmd">git commit -m "Atualiza título da página"</span>
+<span class="cmd">git push</span></pre>
+                </div>
+                <p>Pronto! A alteração agora também está no GitHub.</p>
+            </section>
+
+            <section class="step" id="s13">
+                <span class="node">13</span>
+                <h2>Fazendo um Git Clone</h2>
+                <p>Imagine que você está em outro computador e quer baixar o projeto que está no GitHub. No repositório,
+                    clique em <strong>Code</strong>, selecione <strong>HTTPS</strong> e copie a URL.</p>
+                <div class="terminal">
+                    <div class="terminal-bar"><span class="tl r"></span><span class="tl y"></span><span
+                            class="tl g"></span></div>
+                    <pre><span class="cmd">git clone https://github.com/seuusuario/meu-primeiro-projeto.git</span>
+<span class="cmd">cd meu-primeiro-projeto</span>
+<span class="cmd">git status</span></pre>
+                </div>
+                <p>O Git criará uma cópia completa do projeto no computador.</p>
+            </section>
+
+        </div>
+    </main>
+
+    <div class="hero" style="padding-top:8px;">
+        <h3 style="margin-bottom:14px;">🧠 Comandos essenciais</h3>
+        <table class="cmd-table">
+            <thead>
+                <tr>
+                    <th>Comando</th>
+                    <th>Função</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="cmd-cell">git init</td>
+                    <td>Inicia o Git no projeto</td>
+                    <td><span class="tag setup">setup</span></td>
+                </tr>
+                <tr>
+                    <td class="cmd-cell">git status</td>
+                    <td>Mostra o estado do projeto</td>
+                    <td><span class="tag setup">setup</span></td>
+                </tr>
+                <tr>
+                    <td class="cmd-cell">git add .</td>
+                    <td>Prepara as alterações</td>
+                    <td><span class="tag add">add</span></td>
+                </tr>
+                <tr>
+                    <td class="cmd-cell">git commit -m "mensagem"</td>
+                    <td>Registra uma versão</td>
+                    <td><span class="tag commit">commit</span></td>
+                </tr>
+                <tr>
+                    <td class="cmd-cell">git push</td>
+                    <td>Envia para o GitHub</td>
+                    <td><span class="tag push">push</span></td>
+                </tr>
+                <tr>
+                    <td class="cmd-cell">git pull</td>
+                    <td>Baixa atualizações do GitHub</td>
+                    <td><span class="tag pull">pull</span></td>
+                </tr>
+                <tr>
+                    <td class="cmd-cell">git clone URL</td>
+                    <td>Clona um projeto</td>
+                    <td><span class="tag setup">setup</span></td>
+                </tr>
+                <tr>
+                    <td class="cmd-cell">git remote -v</td>
+                    <td>Mostra o repositório remoto</td>
+                    <td><span class="tag setup">setup</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top:36px;margin-bottom:14px;">⭐ Fluxo básico para memorizar</h3>
+        <div class="flows">
+            <div class="flow">
+                <h4>Primeiro projeto</h4>
+                <div class="flow-chip key">CRIAR PROJETO</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip">git init</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip">git add .</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip">git commit</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip">git remote add origin URL</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip">git push</div>
+            </div>
+            <div class="flow">
+                <h4>Quando fizer alterações</h4>
+                <div class="flow-chip key">ALTERAR CÓDIGO</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip">git add .</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip">git commit -m "Alteração"</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip">git push</div>
+            </div>
+            <div class="flow">
+                <h4>Baixar projeto existente</h4>
+                <div class="flow-chip key">GITHUB</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip">git clone URL</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-chip key">COMPUTADOR</div>
+            </div>
+        </div>
+
+        <h3 style="margin-top:36px;margin-bottom:14px;">🎯 Regra simples</h3>
+        <div class="rule">
+            <span class="badge add"><b>ADD</b><small>preparar</small></span>
+            <span class="arrow">→</span>
+            <span class="badge commit"><b>COMMIT</b><small>registrar</small></span>
+            <span class="arrow">→</span>
+            <span class="badge push"><b>PUSH</b><small>enviar</small></span>
+            <span class="arrow">→</span>
+            <span class="badge pull"><b>PULL</b><small>baixar atualizações</small></span>
+            <span class="arrow">→</span>
+            <span class="badge clone"><b>CLONE</b><small>copiar projeto</small></span>
+        </div>
+    </div>
+
+    <footer>
+        @Anderson-Farias.
+    </footer>
+
+</body>
+
+</html>
