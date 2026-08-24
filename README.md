@@ -44,6 +44,7 @@ Atualmente, o projeto conta com conteúdos relacionados a:
 | 🧠 **Lógica de Programação** | Conceitos fundamentais para o desenvolvimento do raciocínio lógico e programação. |
 |          🌐 **HTML**         | Conteúdos introdutórios sobre estrutura e criação de páginas web.                 |
 |          🎨 **CSS**          | Conceitos básicos de estilização e apresentação de páginas.                       |
+|   ⌨️ **Guia de Atalhos**     | Guia prático interativo com atalhos de teclado (ABNT2, Windows e VS Code).        |
 |   📑 **Materiais de Apoio**  | Arquivos, exemplos, atividades e outros materiais utilizados durante o curso.     |
 
 > 💡 Novos conteúdos serão adicionados conforme o andamento do curso.
