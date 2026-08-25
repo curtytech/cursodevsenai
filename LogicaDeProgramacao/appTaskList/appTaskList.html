@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt_BR">
 
 <head>
     <meta charset="UTF-8">
@@ -11,45 +11,93 @@
         href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- <script src="./assets/js/supabase.js"></script> -->
+
+    <script>
+        const SUPABASE_URL = "https://nzvkaaqcwexsctvxucay.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_lOoMpexRSVS-dUGKbNfe8Q_4eG69hNT";
+
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+        async function testar() {
+            // console.log("=== INÍCIO DO TESTE ===");
+
+            const resultado = await supabaseClient
+                .from("users")
+                .select("*");
+
+            // console.log("RESULTADO COMPLETO:", resultado);
+            // console.log("DATA:", resultado.data);
+            // console.log("QUANTIDADE:", resultado.data?.length);
+            // console.log("ERROR:", resultado.error);
+
+            if (resultado.data) {
+                resultado.data.forEach((user, index) => {
+                    console.log("USER " + index + ":", user);
+                });
+            }
+
+            console.log("=== FIM DO TESTE ===");
+        }
+
+        testar();
+    </script>
+
+    <style>
+        body {
+            background-image: url("./assets/wallpaper.jpg");
+            background-size: cover;
+        }
+    </style>
 </head>
 
-<body>
+<body class="">
 
-    <div class="flex justify-center mt-5">
+    <!-- <div class="bg-[url(./assets/wallpaper.jpg)] "></div> -->
+    <br>
 
-        <div class=" border border-gray-400 p-4 w-80 rounded-lg  ">
-            <h1 class="text-2xl text-center mt-5 font-bold animate-pulse text-blue-700">
-                <i class="ph-bold ph-list-checks"></i>
-                Lista de Tarefas
-                <i class="ph-bold ph-list-checks"></i>
+    <div class="flex justify-center mt-5 w-80 mx-auto rounded-lg bg-black shadow-lg border-5 ">
+
+        <div
+            class="border border-gray-800 p-4 w-80 rounded-lg shadow-lg bg-gradient-to-r from-blue-500 via-blue-400  to-blue-500">
+            <div class="flex justify-center items-center ">
+                <i class="text-4xl ph-bold ph-list-checks"></i>
+            </div>
+            <h1 class="text-2xl text-center mt-2 font-bold text-black">
+                <div class="flex justify-center items-center gap-2">
+                    <span class="animate-bounce [animation-duration:3s]">Senai</span>
+                    <span class="animate-bounce [animation-duration:3.5s] text-blue-800">TaskList</span>
+
+                </div>
             </h1>
             <div class="flex flex-col mt-5 w-full justify-center items-center ">
                 <div class="flex gap-5">
-                    <div class="flex justify-between items-center gap-2">
+                    <div class="flex justify-between items-center gap-4">
                         <input placeholder="Tarefa" type="text" name="tarefa" id="tarefa"
-                            class="rounded-lg border border-gray-500 text-black py-1 px-2 ">
+                            class="placeholder-gray-800 focus:outline-none rounded-lg border-2 border-gray-800 text-black py-1 px-2">
 
-                        <button class="btn bg-blue-700 text-white py-2 px-3 rounded-full" id="criar">
+                        <button class="btn bg-blue-700 text-white py-2 px-3 rounded-full hover:bg-blue-900" id="criar">
                             <i class="ph-bold ph-plus-circle"></i>
                         </button>
+
+                        <button hidden class="btn bg-blue-700 text-white py-2 px-3 rounded-full hover:bg-blue-900"
+                            id="confirmEdit">
+                            <i class="ph-bold ph-pencil-simple"></i>
+                        </button>
                     </div>
-
-                </div>
-
-                <div class="flex justify-center gap-2">
-                    <button hidden class="btn bg-blue-700 text-white p-3 rounded-lg mt-5" id="confirmEdit">
-                        <i class="ph-bold ph-pencil-simple"></i>
-                    </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="flex justify-center">
-        <div id="listaDeDados" class="flex flex-col gap-5 mt-5 w-80 justify-center items-center">
+    <div class="flex justify-center ">
+        <div id="listaDeDados" class="flex flex-col gap-5 mt-5 w-80 justify-center items-center ">
 
         </div>
     </div>
+
 
     <script>
         var tarefas = []
@@ -73,8 +121,6 @@
             return
         }
 
-        // document.getElementById("mostrarLista").addEventListener("click", mostrarLista);
-
         function mostrarLista() {
             let listaDeDados = document.getElementById("listaDeDados");
 
@@ -89,28 +135,28 @@
                 }
 
                 listaDeDados.innerHTML += `
-                    <div class="flex justify-between items-center w-80 border p-2 border-gray-400 rounded-lg">
+                    <div  class="flex justify-between items-center w-80 border-5 p-2 border-gray-800 rounded-lg rounded-lg shadow-lg bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500">
                         
-                        <span class="text-blue-500 font-bold px-3">
+                        <span class="text-black font-bold px-3">
                             ${tarefa[1]}
                         </span>
                             
                         <div class="flex gap-2">
                             <button 
                                 id="btnStatus${tarefa[0]}"  
-                                class="btn bg-green-700 text-white p-2 rounded btnStatus">                             
+                                class="btn bg-green-700 hover:bg-green-900 text-white p-2 rounded btnStatus">                             
                                 ${icon}
                             </button>
 
                             <button 
                             id="btnEdit${tarefa[0]}"  
-                            class="btn bg-blue-700 text-white p-2 rounded btnEdit">    
+                            class="btn bg-blue-700 hover:bg-blue-900 text-white p-2 rounded btnEdit">    
                                 <i id="btnEdit${tarefa[0]}" class="ph-bold ph-pencil-simple btnEdit"></i>
                             </button>
 
                             <button 
-                            id="btnDelete${tarefa[0]}"  
-                            class="btn bg-red-700 text-white p-2 rounded btnDelete">    
+                            id="btnDelete${tarefa[0]}"
+                            class="btn bg-red-700 hover:bg-red-900 text-white p-2 rounded btnDelete">    
                                 <i id="btnDelete${tarefa[0]}" class="ph-bold ph-trash btnDelete"></i>
                             </button>
                         </div>
@@ -132,19 +178,35 @@
             const id = elemento.id
             const idOnlyNumber = id.replace("btnEdit", '')
 
-            document.getElementById("tarefa").value = tarefas[idOnlyNumber][1]
+            const posicao = tarefas.findIndex(
+                item => item[0] === Number(idOnlyNumber)
+            );
+
+            console.log(posicao, 'posicao')
+            if (posicao === -1) {
+                console.log("Tarefa não encontrada");
+                return;
+            }
+
+            // console.log("tarefa Editada: " + tarefas[posicao][1]);
+
+            document.getElementById("tarefa").value = tarefas[posicao][1]
 
             document.getElementById("confirmEdit").removeAttribute("hidden")
 
-            document.getElementsByClassName("btnDelete")[0].setAttribute("hidden", true)
+            document.getElementById("btnDelete" + idOnlyNumber).setAttribute("hidden", true)
 
+            document.getElementById("criar").setAttribute("hidden", true)
+
+            document.getElementById("btnStatus" + idOnlyNumber).setAttribute("hidden", true)
+
+            document.getElementById("tarefa").setAttribute("idTarefaEdicao", posicao)
         }
 
-        document.getElementById("confirmEdit").addEventListener("click", function () {
-            confirmEdit(idTarefa);
-        });
+        document.getElementById("confirmEdit").addEventListener("click", confirmEdit);
 
-        function confirmEdit(idTarefa) {
+        function confirmEdit() {
+            const idTarefa = document.getElementById("tarefa").getAttribute("idTarefaEdicao");
 
             if (document.getElementById("tarefa").value == "") {
                 alert("Digite a tarefa!")
@@ -153,6 +215,7 @@
 
             tarefas[idTarefa][1] = document.getElementById("tarefa").value
 
+            document.getElementById("criar").removeAttribute("hidden")
             document.getElementById("confirmEdit").setAttribute("hidden", true)
 
             mostrarLista()
@@ -165,23 +228,29 @@
             if (event.target.classList.contains("btnStatus")) {
                 updateStatus(event.target);
             }
-
         });
 
         function updateStatus(idTarefa) {
-            const id = idTarefa.id
-            const idOnlyNumber = id.replace("btnStatus", '')
+            const id = idTarefa.id;
+            const idOnlyNumber = id.replace("btnStatus", "");
 
-            if (tarefas[idOnlyNumber][2] === true) {
-                tarefas[idOnlyNumber][2] = false
-            } else {
-                tarefas[idOnlyNumber][2] = true
+            const posicao = tarefas.findIndex(
+                item => item[0] === Number(idOnlyNumber)
+            );
+
+            if (posicao === -1) {
+                console.log("Tarefa não encontrada");
+                return;
             }
 
-            console.log("tarefa Editada" + tarefas[idOnlyNumber][2])
+            if (tarefas[posicao][2] === true) {
+                tarefas[posicao][2] = false;
+            } else {
+                tarefas[posicao][2] = true;
+            }
 
-            mostrarLista()
 
+            mostrarLista();
         }
 
         document.getElementById("listaDeDados").addEventListener("click", function (event) {
