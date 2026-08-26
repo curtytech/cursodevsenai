@@ -11,6 +11,7 @@
         href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.min.js"></script>
+    <script src="assets/js/supabase.js"></script>
 
 </head>
 
@@ -98,7 +99,7 @@
                 </div>
 
                 <div>
-                    <button type="submit"
+                    <button type="submit" onclick="loginUser()"
                         class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Entrar
                     </button>
                 </div>
@@ -112,6 +113,40 @@
 
         </div>
     </div>
+
+    <script>
+        async function loginUser() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            console.log("Email:", email);
+            console.log("Senha:", password);
+
+            event.preventDefault();
+
+            const resultado = await supabaseClient
+                .from("users")
+                .select()
+                .eq('email', email)
+
+
+            if (resultado.data.length > 0 && resultado.data[0].password === password) {
+                console.log("Login bem-sucedido!");
+                sessionStorage.setItem("email", email);
+                window.location.href = "appTaskList.html";
+            } else {
+                alert("Credenciais inválidas. Por favor, verifique seu email e senha.");
+                console.log("Credenciais inválidas.");
+            }
+
+            console.log("Resultado:", resultado);
+
+
+        }
+
+
+    </script>
+
 </body>
 
 </html>
