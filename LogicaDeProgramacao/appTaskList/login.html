@@ -133,6 +133,7 @@
             if (resultado.data.length > 0 && resultado.data[0].password === password) {
                 console.log("Login bem-sucedido!");
                 sessionStorage.setItem("email", email);
+                sessionStorage.setItem("userID", resultado.data[0].id);
                 window.location.href = "appTaskList.html";
             } else {
                 alert("Credenciais inválidas. Por favor, verifique seu email e senha.");
@@ -141,10 +142,7 @@
 
             console.log("Resultado:", resultado);
 
-
         }
-
-
     </script>
 
 </body>
