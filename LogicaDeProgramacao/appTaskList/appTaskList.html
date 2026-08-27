@@ -10,7 +10,6 @@
     <link rel="stylesheet" type="text/css"
         href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css" />
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.min.js"></script>
     <script src="assets/js/supabase.js"></script>
 
@@ -25,7 +24,7 @@
             console.log("RESULTADO COMPLETO:", resultado);
             console.log("DATA:", resultado.data);
             console.log("QUANTIDADE:", resultado.data?.length);
-            console.log("ERROR:", resultado.error);       
+            console.log("ERROR:", resultado.error);
             console.log("=== FIM DO TESTE ===");
             return resultado; // Retorna o resultado para uso posterior
         }
@@ -184,48 +183,60 @@
                 console.log('Tarefa criada com sucesso:', data)
             }
 
-
-
+            mostrarLista()
+            document.getElementById("tarefa").value = ""
             return
         }
 
-        function mostrarLista() {
+        mostrarLista()
+
+        async function mostrarLista() {
             let listaDeDados = document.getElementById("listaDeDados");
 
             listaDeDados.innerHTML = ``
 
-            tarefas.forEach(function (tarefa) {
+            const tasks = await supabaseClient
+                .from("tasks")
+                .select()
+                .eq('id_user', sessionStorage.getItem("userID"))
+
+            console.log("Tasks:", tasks);
+
+            const tasksData = tasks.data || [];
+
+            tasksData.forEach(function (item) {
                 let icon = ''
-                if (tarefa[2] == true) {
-                    icon = `<i id="btnStatus${tarefa[0]}" class="ph-bold ph-check-circle btnStatus"></i>`
+                if (item.status == true) {
+                    icon = `<i id="btnStatus${item.id}" status="${item.status}" class="ph-bold ph-check-circle btnStatus"></i>`
                 } else {
-                    icon = `<i id="btnStatus${tarefa[0]}" class="ph-bold ph-circle btnStatus"></i>`
+                    icon = `<i id="btnStatus${item.id}" status="${item.status}" class="ph-bold ph-circle btnStatus"></i>`
                 }
 
                 listaDeDados.innerHTML += `
                     <div  class="flex justify-between items-center w-80 border-5 p-2 border-gray-800 rounded-lg rounded-lg shadow-lg bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500">
                         
-                        <span class="text-black font-bold px-3">
-                            ${tarefa[1]}
+                        <span class="text-black font-bold px-3" id="tarefa${item.id}">
+                            ${item.name}
                         </span>
                             
                         <div class="flex gap-2">
                             <button 
-                                id="btnStatus${tarefa[0]}"  
+                                id="btnStatus${item.id}"  
+                                status="${item.status}"
                                 class="btn bg-green-700 hover:bg-green-900 text-white p-2 rounded btnStatus">                             
                                 ${icon}
                             </button>
 
                             <button 
-                            id="btnEdit${tarefa[0]}"  
+                            id="btnEdit${item.id}"  
                             class="btn bg-blue-700 hover:bg-blue-900 text-white p-2 rounded btnEdit">    
-                                <i id="btnEdit${tarefa[0]}" class="ph-bold ph-pencil-simple btnEdit"></i>
+                                <i id="btnEdit${item.id}" class="ph-bold ph-pencil-simple btnEdit"></i>
                             </button>
 
                             <button 
-                            id="btnDelete${tarefa[0]}"
+                            id="btnDelete${item.id}"
                             class="btn bg-red-700 hover:bg-red-900 text-white p-2 rounded btnDelete">    
-                                <i id="btnDelete${tarefa[0]}" class="ph-bold ph-trash btnDelete"></i>
+                                <i id="btnDelete${item.id}" class="ph-bold ph-trash btnDelete"></i>
                             </button>
                         </div>
 
@@ -246,19 +257,22 @@
             const id = elemento.id
             const idOnlyNumber = id.replace("btnEdit", '')
 
-            const posicao = tarefas.findIndex(
-                item => item[0] === Number(idOnlyNumber)
-            );
+            document.getElementById("tarefa").value = document.getElementById("tarefa" + idOnlyNumber).innerText
 
-            console.log(posicao, 'posicao')
-            if (posicao === -1) {
-                console.log("Tarefa não encontrada");
-                return;
-            }
+
+            // const posicao = tarefas.findIndex(
+            //     item => item[0] === Number(idOnlyNumber)
+            // );
+
+            // console.log(posicao, 'posicao')
+            // if (posicao === -1) {
+            //     console.log("Tarefa não encontrada");
+            //     return;
+            // }
 
             // console.log("tarefa Editada: " + tarefas[posicao][1]);
 
-            document.getElementById("tarefa").value = tarefas[posicao][1]
+            // document.getElementById("tarefa").value = tarefas[posicao][1]
 
             document.getElementById("confirmEdit").removeAttribute("hidden")
 
@@ -268,20 +282,25 @@
 
             document.getElementById("btnStatus" + idOnlyNumber).setAttribute("hidden", true)
 
-            document.getElementById("tarefa").setAttribute("idTarefaEdicao", posicao)
+            document.getElementById("tarefa").setAttribute("idTarefaEdicao", idOnlyNumber)
         }
 
         document.getElementById("confirmEdit").addEventListener("click", confirmEdit);
 
-        function confirmEdit() {
+        async function confirmEdit() {
             const idTarefa = document.getElementById("tarefa").getAttribute("idTarefaEdicao");
+
+            const tasks = await supabaseClient
+                .from("tasks")
+                .update({ name: document.getElementById("tarefa").value })
+                .eq('id', idTarefa)
 
             if (document.getElementById("tarefa").value == "") {
                 alert("Digite a tarefa!")
                 return
             }
 
-            tarefas[idTarefa][1] = document.getElementById("tarefa").value
+            // tarefas[idTarefa][1] = document.getElementById("tarefa").value
 
             document.getElementById("criar").removeAttribute("hidden")
             document.getElementById("confirmEdit").setAttribute("hidden", true)
@@ -298,25 +317,35 @@
             }
         });
 
-        function updateStatus(idTarefa) {
-            const id = idTarefa.id;
+        async function updateStatus(element) {
+            const id = element.id;
             const idOnlyNumber = id.replace("btnStatus", "");
+            console.log("ID da tarefa:", element);
+            // const posicao = tarefas.findIndex(
+            //     item => item[0] === Number(idOnlyNumber)
+            // );
 
-            const posicao = tarefas.findIndex(
-                item => item[0] === Number(idOnlyNumber)
-            );
+            // if (posicao === -1) {
+            //     console.log("Tarefa não encontrada");
+            //     return;
+            // }
 
-            if (posicao === -1) {
-                console.log("Tarefa não encontrada");
-                return;
-            }
+            // if (tarefas[posicao][2] === true) {
+            //     tarefas[posicao][2] = false;
+            // } else {
+            //     tarefas[posicao][2] = true;
+            // }
 
-            if (tarefas[posicao][2] === true) {
-                tarefas[posicao][2] = false;
-            } else {
-                tarefas[posicao][2] = true;
-            }
+            // if (tarefas[posicao][2] === true) {
+            //     tarefas[posicao][2] = false;
+            // } else {
+            //     tarefas[posicao][2] = true;
+            // }
 
+            const tasks = await supabaseClient
+                .from("tasks")
+                .update({ name: document.getElementById("tarefa").value })
+                .eq('id', idTarefa)
 
             mostrarLista();
         }
@@ -329,18 +358,25 @@
 
         });
 
-        function deleteTarefa(idTarefa) {
+        async function deleteTarefa(idTarefa) {
             const id = idTarefa.id;
             const idOnlyNumber = parseInt(id.replace("btnDelete", ''));
 
-            console.log("deletar:", idOnlyNumber);
+            // console.log("deletar:", idOnlyNumber);
 
-            tarefas = tarefas.filter(tarefa => tarefa[0] !== idOnlyNumber);
+            // tarefas = tarefas.filter(tarefa => tarefa[0] !== idOnlyNumber);
 
-            console.log("task:", tarefas);
+            // console.log("task:", tarefas);
+
+            const tasks = await supabaseClient
+                .from("tasks")
+                .delete()
+                .eq('id', idOnlyNumber)
 
             mostrarLista();
         }
+
+
 
     </script>
 
