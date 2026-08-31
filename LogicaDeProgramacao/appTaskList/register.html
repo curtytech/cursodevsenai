@@ -12,6 +12,16 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.min.js"></script>
     <script src="assets/js/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+
+    <script>
+
+    </script>
+
+
+
+
 </head>
 
 <body>
@@ -121,34 +131,86 @@
             const nome = document.getElementById("nome").value;
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
+            // const hashedPassword = bcrypt.hashSync(password, 10);
+
+            const bcrypt = dcodeIO.bcrypt;
+            const saltRounds = 10;
+
+            if (!nome || !email || !password) {
+                Swal.fire({
+                    position: "top-center",
+                    icon: "error",
+                    title: "Preencha todos os campos!",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                return;
+            }
 
             console.log("Nome:", nome);
             console.log("Email:", email);
             console.log("Senha:", password);
 
-            const { data, error } = await supabaseClient
-                .from('users')
-                .insert([
-                    { name: nome, email: email, password: password }
-                ])
+            // Asynchronously hash a password
+            bcrypt.hash(password, saltRounds, async function (err, hash) {
+                if (err) {
+                    console.error("Hashing failed:", err);
+                } else {
+                    console.log("Hashed Password:", hash);
 
-            if (error) {
-                console.error('Erro ao criar usuário:', error)
-            } else {
-                console.log('Usuário criado com sucesso:', data)
-            }
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .insert([
+                            { name: nome, email: email, password: hash }
+                        ])
 
-            event.preventDefault();
+                    if (error) {
+                        console.error('Erro ao criar usuário:', error)
 
-            window.location.replace("login.html");
+                        Swal.fire({
+                            position: "top-center",
+                            icon: "error",
+                            title: "Erro ao criar usuário!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
+                        console.log('Usuário criado com sucesso:', data)
+
+                        Swal.fire({
+                            position: "top-center",
+                            icon: "success",
+                            title: "Usuário criado com sucesso!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+                        setTimeout(() => {
+                            window.location.replace("login.html");
+                        }, 1500);
+
+                    }
+
+                    event.preventDefault();
+
+                    window.location.replace("login.html");
+
+                   
+                }
+            });
+
+
+            // return
+
+
+
+
+
+
 
             // document.getElementById("myForm").submit();
 
         }
-
-
-
-
         // console.log(SUPABASE_URL)
     </script>
 </body>

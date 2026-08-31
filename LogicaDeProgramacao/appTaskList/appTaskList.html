@@ -32,12 +32,14 @@
         testar();
 
         const usuario = sessionStorage.getItem("email");
+        const userName = sessionStorage.getItem("userName");
         const userID = sessionStorage.getItem("userID");
 
         if (!usuario) {
             window.location.href = "login.html";
         } else {
             console.log("Usuário logado:", usuario);
+            console.log("Nome do usuário:", userName);
             console.log("ID do usuário:", userID);
         }
 
@@ -87,7 +89,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
+                    id="userDiv">
+
+
                     <a href="login.html"
                         class="relative rounded-lg p-1 text-black bg-white p-2 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
                         Login
@@ -152,6 +157,29 @@
     <script>
         var tarefas = []
         let idTarefa = tarefas.length
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const userEmail = sessionStorage.getItem("email");
+            const userName = sessionStorage.getItem("userName");
+            const userID = sessionStorage.getItem("userID");
+
+            if (userEmail && userName && userID) {
+                const userDiv = document.getElementById("userDiv");
+                userDiv.innerHTML = `
+                    <span class="text-white font-bold">Bem-vindo, ${userName}</span>
+                    <button id="logoutButton" class="ml-4 bg-red-600 text-white px-3 py-1 rounded hover:bg-red-800">Logout</button>
+                `;
+
+                const logoutButton = document.getElementById("logoutButton");
+                logoutButton.addEventListener("click", () => {
+                    sessionStorage.clear();
+                    window.location.href = "login.html";
+                });
+            } else {
+                window.location.href = "login.html";
+            }
+
+        });
 
         document.getElementById("criar").addEventListener("click", criarTarefa);
 
@@ -342,10 +370,19 @@
             //     tarefas[posicao][2] = true;
             // }
 
-            const tasks = await supabaseClient
-                .from("tasks")
-                .update({ name: document.getElementById("tarefa").value })
-                .eq('id', idTarefa)
+            if (element.getAttribute("status") === "true") {
+                element.setAttribute("status", "false");
+                const tasks = await supabaseClient
+                    .from("tasks")
+                    .update({ status: false })
+                    .eq('id', idOnlyNumber)
+            } else {
+                element.setAttribute("status", "true");
+                const tasks = await supabaseClient
+                    .from("tasks")
+                    .update({ status: true })
+                    .eq('id', idOnlyNumber)
+            }
 
             mostrarLista();
         }
@@ -375,8 +412,6 @@
 
             mostrarLista();
         }
-
-
 
     </script>
 

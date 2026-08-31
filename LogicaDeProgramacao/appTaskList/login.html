@@ -12,6 +12,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.min.js"></script>
     <script src="assets/js/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 
 </head>
 
@@ -116,6 +118,8 @@
 
     <script>
         async function loginUser() {
+            const bcrypt = dcodeIO.bcrypt;
+
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
 
@@ -129,14 +133,22 @@
                 .select()
                 .eq('email', email)
 
-
-            if (resultado.data.length > 0 && resultado.data[0].password === password) {
-                console.log("Login bem-sucedido!");
-                sessionStorage.setItem("email", email);
-                sessionStorage.setItem("userID", resultado.data[0].id);
-                window.location.href = "appTaskList.html";
+            if (resultado.data.length > 0) {
+                bcrypt.compare(password, resultado.data[0].password, function (err, res) {
+                    sessionStorage.setItem("email", email);
+                    sessionStorage.setItem("userName", resultado.data[0].name);
+                    sessionStorage.setItem("userID", resultado.data[0].id);
+                    window.location.href = "appTaskList.html";
+                });
             } else {
-                alert("Credenciais inválidas. Por favor, verifique seu email e senha.");
+                // alert("Credenciais inválidas. Por favor, verifique seu email e senha.");
+                Swal.fire({
+                    position: "top-center",
+                    icon: "error",
+                    title: "Credenciais inválidas. Por favor, verifique seu email e senha!",
+                    showConfirmButton: true,
+                    // timer: 1500
+                });
                 console.log("Credenciais inválidas.");
             }
 
