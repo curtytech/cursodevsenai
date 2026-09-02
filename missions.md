@@ -1,14 +1,15 @@
 
 
-Criar Page Logica de Programação 
+
+Tech Lead - Anderson - Criar Page Logica de Programação 
 Colocar todos os pdfs e power points do conteudo escrito
 
-Criar page apps
-Link o app tasklist 
 
+Tech Lead - Oscar - Criar page apps
+Link o app tasklist 
 Criar page videos 
 
-Criar page alunos e curriculos
+Tech Lead - Matheus - Criar page alunos e curriculos
 
 
 
