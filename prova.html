@@ -1,0 +1,27 @@
+<iframe style="display: block; margin: 0 auto;"
+    src="https://docs.google.com/forms/d/e/1FAIpQLSccv9GjkdYXJgs9NqwAqRRz1UlhbqENBi2gmwSupsAd9VNWpg/viewform?embedded=true"
+    width="640" height="1226" frameborder="0" marginheight="0" marginwidth="0">Carregando…</iframe>
+
+<script>
+    const button = document.querySelector('#myButton');
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Alt") {
+            console.log("Alt pressionada");
+            alert('Não tente colar!');
+        }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            console.log("Usuário saiu da aba");
+            // alert('Não tente sair da aba!');
+        } else {
+            alert('Você esta saindo da aba! Seu acesso foi computado no banco de dados!');
+            console.log("Usuário voltou para a aba");
+        }
+    });
+
+
+
+</script>
