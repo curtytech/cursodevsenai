@@ -1,0 +1,727 @@
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilha VS Code — Tutorial para Iniciantes</title>
+<style>
+:root{
+  --red:#e30613; --dark:#20252b; --ink:#252a30; --muted:#68717a;
+  --bg:#f4f5f6; --card:#fff; --line:#e1e4e7; --accent:#f6c800;
+  --green:#198754; --shadow:0 8px 24px rgba(20,25,30,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65}
+button,input{font:inherit}
+a{color:var(--red)}
+.header{position:sticky;top:0;z-index:20;background:var(--dark);color:white;border-bottom:4px solid var(--red)}
+.header-inner{max-width:1250px;margin:auto;padding:14px 22px;display:flex;align-items:center;gap:22px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.3px;white-space:nowrap}
+.logo-mark{width:34px;height:34px;background:var(--red);display:grid;place-items:center;font-weight:900}
+.logo small{display:block;color:#cbd0d5;font-weight:500;font-size:11px}
+.search{margin-left:auto;position:relative}
+.search input{width:min(330px,40vw);padding:10px 14px;border-radius:6px;border:1px solid #555d65;background:#30363d;color:white;outline:none}
+.menu-btn{display:none;background:none;color:white;border:0;font-size:25px}
+.layout{max-width:1250px;margin:auto;display:grid;grid-template-columns:270px 1fr;gap:28px}
+.sidebar{position:sticky;top:78px;height:calc(100vh - 90px);overflow:auto;padding:25px 8px 30px 0}
+.sidebar h3{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:18px 12px 8px}
+.nav a{display:block;text-decoration:none;color:#394047;padding:9px 12px;border-left:3px solid transparent;border-radius:0 5px 5px 0}
+.nav a:hover,.nav a.active{background:#fff;border-left-color:var(--red);font-weight:700}
+.main{padding:38px 0 70px}
+.hero{background:var(--dark);color:white;border-radius:12px;padding:38px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-80px;bottom:-100px;width:260px;height:260px;border:35px solid var(--red);transform:rotate(20deg);opacity:.9}
+.eyebrow{color:var(--accent);font-weight:800;text-transform:uppercase;font-size:12px;letter-spacing:1.3px}
+.hero h1{font-size:clamp(30px,4vw,48px);line-height:1.1;margin:10px 0 15px;max-width:760px}
+.hero p{max-width:760px;color:#dce0e3}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.badge{background:#343b42;padding:6px 10px;border-radius:20px;font-size:12px}
+.progress-wrap{margin-top:24px;background:#343b42;border-radius:8px;padding:12px}
+.progress-bar{height:8px;background:#555d65;border-radius:20px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:var(--red);transition:.3s}
+.progress-text{font-size:12px;margin-top:7px;color:#dce0e3}
+.section{margin-top:30px}
+.section-title{font-size:28px;line-height:1.2;margin:0 0 8px}
+.lead{color:var(--muted);margin-top:0}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;box-shadow:var(--shadow)}
+.card .num{display:inline-grid;place-items:center;width:34px;height:34px;background:var(--red);color:white;font-weight:900;border-radius:50%}
+.card h3{margin:12px 0 6px}
+.card p{color:var(--muted);font-size:14px}
+.lesson{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:18px 0;overflow:hidden;box-shadow:var(--shadow)}
+.lesson-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:15px}
+.lesson-head h3{margin:0}
+.lesson-body{padding:22px}
+.tip,.warning,.practice{padding:15px 17px;border-radius:7px;margin:18px 0}
+.tip{background:#eef7ff;border-left:4px solid #1877c9}
+.warning{background:#fff8df;border-left:4px solid var(--accent)}
+.practice{background:#eef8f1;border-left:4px solid var(--green)}
+code{background:#eef0f2;padding:2px 5px;border-radius:4px;font-family:Consolas,monospace}
+pre{background:#1e2329;color:#f1f3f5;padding:18px;border-radius:7px;overflow:auto;font-size:13px}
+kbd{background:#fff;border:1px solid #c8cdd2;border-bottom-width:2px;padding:2px 6px;border-radius:4px;font-size:12px}
+table{width:100%;border-collapse:collapse;background:white}
+th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line)}
+th{background:#f0f2f3}
+.check{display:flex;gap:10px;align-items:flex-start;margin:9px 0}
+.check input{margin-top:6px;accent-color:var(--red)}
+.quiz button,.btn{border:0;background:var(--red);color:white;padding:10px 15px;border-radius:6px;cursor:pointer;font-weight:700}
+.quiz label{display:block;padding:8px;border:1px solid var(--line);margin:7px 0;border-radius:6px;cursor:pointer}
+.result{font-weight:800;margin-top:12px}
+.footer{background:var(--dark);color:#dce0e3;margin-top:30px;padding:30px}
+.footer-inner{max-width:1250px;margin:auto}
+.source-list{padding-left:20px}
+@media(max-width:900px){
+ .layout{grid-template-columns:1fr;padding:0 16px}
+ .sidebar{position:fixed;left:-290px;top:70px;width:270px;background:white;z-index:15;padding:20px;height:calc(100vh - 70px);box-shadow:var(--shadow);transition:.25s}
+ .sidebar.open{left:0}
+ .menu-btn{display:block}
+ .search{margin-left:auto}
+ .cards{grid-template-columns:1fr}
+ .hero{padding:27px}
+}
+@media(max-width:550px){.search input{width:145px}.header-inner{gap:10px}.hero h1{font-size:31px}}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <button class="menu-btn" onclick="toggleMenu()" aria-label="Abrir menu">☰</button>
+    <div class="logo"><div class="logo-mark">S</div><div>TRILHA DE DESENVOLVIMENTO<small>VS Code • nível iniciante ao avançado</small></div></div>
+    <div class="search"><input id="search" placeholder="Pesquisar na trilha..." oninput="searchLessons()"></div>
+  </div>
+</header>
+
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <nav class="nav">
+<h3>Fundamentos</h3>
+<a href="#inicio">Visão geral</a>
+<a href="#mentalidade">0. O que é o VS Code</a>
+<a href="#interface">1. Workbench</a>
+<a href="#explorer">2. Explorer e raiz</a>
+<a href="#workspace">3. Workspace</a>
+<a href="#editor">4. Editor</a>
+<a href="#edicao">5. Edição eficiente</a>
+<a href="#status">6. Status Bar</a>
+<h3>Operação</h3>
+<a href="#palette">7. Command Palette</a>
+<a href="#atalhos">8. Atalhos</a>
+<a href="#terminal">9. Terminal</a>
+<a href="#path">10. PATH</a>
+<a href="#painel">11. Problems e Output</a>
+<a href="#settings">12. Settings</a>
+<a href="#arquivos">13. Salvamento</a>
+<a href="#encoding">14. UTF-8 e CRLF/LF</a>
+<a href="#extensoes">15. Extensões</a>
+<a href="#trust">16. Workspace Trust</a>
+<h3>Produtividade</h3>
+<a href="#busca">17. Busca</a>
+<a href="#layout">18. Layout</a>
+<a href="#git">19. Git</a>
+<a href="#debug">20. Debug</a>
+<a href="#tasks">21. Tasks</a>
+<a href="#profiles">22. Profiles</a>
+<h3>Diagnóstico</h3>
+<a href="#recuperacao">23. Recuperação</a>
+<a href="#erros">24. Interpretar erros</a>
+<a href="#boas">25. Hábitos</a>
+<a href="#glossario">Glossário</a>
+<a href="#quiz">Quiz</a>
+</nav>
+</aside>
+
+<main class="main">
+<section class="hero" id="inicio">
+  <div class="eyebrow">Visual Studio Code • formação completa para iniciantes</div>
+  <h1>VS Code do zero, explicado com profundidade.</h1>
+  <p>Esta trilha foi feita para quem está começando e precisa entender <strong>o que cada parte do VS Code faz, por que ela existe e como ela se relaciona com o sistema operacional, linguagens, terminal, Git e extensões</strong>. A proposta não é decorar botões: é construir um mapa mental sólido.</p>
+  <div class="badges"><span class="badge">Workbench</span><span class="badge">Explorer</span><span class="badge">Editor</span><span class="badge">Terminal</span><span class="badge">Settings</span><span class="badge">Extensions</span><span class="badge">Git</span><span class="badge">Debug</span><span class="badge">Segurança</span></div>
+  <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="progress"></div></div><div class="progress-text" id="progressText">0% concluído</div></div>
+</section>
+
+<section class="section" id="mentalidade">
+<h2 class="section-title">0. Antes de tudo: o que o VS Code é — e o que ele não é</h2>
+<p class="lead">O VS Code é um editor de código extensível. Ele organiza arquivos, entende linguagens, integra terminal, depuração, controle de versão e extensões. Mas ele não substitui o sistema operacional, a linguagem, o compilador ou o navegador.</p>
+<div class="tip"><strong>Mapa mental:</strong> seus arquivos existem no computador → o VS Code abre uma pasta → o Explorer mostra os arquivos → o Editor altera → o Terminal executa comandos → Problems/Output/Debug mostram diagnósticos → Git registra mudanças.</div>
+<p><strong>Uma confusão clássica:</strong> “meu projeto está dentro do VS Code”. Na prática, não. O projeto está em uma pasta real do disco. O VS Code apenas mostra e trabalha com essa pasta. Se você fechar o editor, os arquivos continuam lá.</p>
+<p><strong>Outra confusão:</strong> “VS Code roda JavaScript”. Quem executa JavaScript pode ser o navegador ou o Node.js. O VS Code oferece o ambiente para escrever e acionar essas ferramentas.</p>
+<div class="rare"><strong>Coisa que quase ninguém ensina:</strong> muitos erros atribuídos ao VS Code pertencem a outra camada: PATH do sistema, shell, Git, Node, extensão, navegador ou linguagem. Aprender a identificar <em>qual camada está falhando</em> é uma habilidade profissional.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Consigo explicar a diferença entre VS Code, linguagem e sistema operacional.</label>
+</section>
+
+<section class="section" id="interface">
+<h2 class="section-title">1. Workbench: conhecendo a interface inteira</h2>
+<p class="lead">A janela principal do VS Code é chamada de <strong>Workbench</strong>. Ela é formada por regiões que têm responsabilidades diferentes.</p>
+
+<div class="lesson">
+  <div class="lesson-head">
+    <h3>Mapa visual da interface do VS Code</h3>
+    <span>Veja antes de decorar</span>
+  </div>
+  <div class="lesson-body">
+    <p>Antes de estudar cada item separadamente, observe a imagem abaixo. Ela funciona como um <strong>mapa da tela</strong>: cada número mostra onde fica uma parte importante do VS Code.</p>
+
+    <div style="background:#f7f8f9;border:1px solid var(--line);border-radius:10px;padding:14px;margin:18px 0;">
+      <img src="workbench_vscode_iniciantes.png"
+           alt="Mapa visual da interface do Visual Studio Code com Activity Bar, Side Bar, Editor, Minimap, painel inferior e barra de status identificados"
+           style="display:block;width:100%;height:auto;border-radius:8px;">
+    </div>
+
+    <div class="tip">
+      <strong>Como estudar esta imagem:</strong> abra o VS Code no seu computador e compare sua tela com o mapa. Não tente memorizar tudo de uma vez. Primeiro localize <strong>Activity Bar, Side Bar, Editor, Panel e Status Bar</strong>. Depois volte à imagem para os detalhes.
+    </div>
+
+    <div class="practice">
+      <strong>Exercício de observação:</strong> passe o mouse sobre os ícones da Activity Bar no seu VS Code e leia os nomes exibidos. Depois clique em <strong>Explorer</strong>, <strong>Search</strong>, <strong>Source Control</strong> e <strong>Extensions</strong> e observe o que muda na Side Bar.
+    </div>
+  </div>
+</div>
+<div class="cards">
+<div class="card"><span class="num">1</span><h3>Activity Bar</h3><p>Barra de ícones. Troca a visão exibida na lateral: Explorer, Search, Source Control, Run and Debug, Extensions e outras.</p></div>
+<div class="card"><span class="num">2</span><h3>Side Bar</h3><p>A área que recebe o conteúdo da visão escolhida. Explorer é uma visão dentro da Side Bar.</p></div>
+<div class="card"><span class="num">3</span><h3>Editor</h3><p>Área central onde arquivos são abertos. Pode ser dividida em grupos lado a lado.</p></div>
+<div class="card"><span class="num">4</span><h3>Panel</h3><p>Geralmente inferior. Pode conter Terminal, Problems, Output e Debug Console.</p></div>
+<div class="card"><span class="num">5</span><h3>Status Bar</h3><p>Barra inferior com linguagem, encoding, fim de linha, branch Git, posição do cursor e outros estados.</p></div>
+<div class="card"><span class="num">6</span><h3>Command Center</h3><p>Área superior usada para navegação e descoberta de comandos, dependendo da versão e configuração.</p></div>
+</div>
+<div class="warning"><strong>Activity Bar ≠ Side Bar.</strong> A primeira contém ícones. A segunda mostra o conteúdo. Essa diferença parece pequena, mas ajuda muito ao ler documentação.</div>
+<p>Se alguma parte “sumir”, não pense primeiro em erro. Ela pode ter sido ocultada ou movida. Abra a Command Palette e procure por comandos iniciados em <code>View:</code>.</p>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Identifiquei Activity Bar, Side Bar, Editor, Panel e Status Bar.</label>
+</section>
+
+<section class="section" id="explorer">
+<h2 class="section-title">2. Explorer: arquivos, pastas e a raiz do projeto</h2>
+<p class="lead">O Explorer é seu mapa de arquivos. Para iniciantes, entender “raiz”, caminhos e pasta aberta evita muitos problemas.</p>
+<pre>meu-projeto/
+├── index.html
+├── css/
+│   └── style.css
+├── js/
+│   └── app.js
+└── imagens/
+    └── logo.png</pre>
+<p>A pasta <code>meu-projeto</code> é a raiz. Um caminho como <code>js/app.js</code> é relativo a essa raiz.</p>
+<div class="tip"><strong>Abra a pasta, não apenas um arquivo.</strong> Quando você usa <strong>File → Open Folder</strong>, o VS Code passa a ter contexto do projeto. Isso influencia terminal, Git, configurações e extensões.</div>
+<p>Ao criar, mover ou renomear arquivos pelo Explorer, você está alterando arquivos reais no sistema. Não é uma “cópia virtual”.</p>
+<div class="rare"><strong>Detalhe pouco ensinado:</strong> o VS Code pode lembrar estado por workspace: arquivos abertos, layout e outras informações. Por isso dois projetos podem abrir com aparências diferentes.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Abri uma pasta e consigo apontar qual é a raiz do meu projeto.</label>
+</section>
+
+<section class="section" id="workspace">
+<h2 class="section-title">3. O que realmente é um Workspace</h2><div class="tip"><strong>Termo técnico — contexto:</strong> quando dizemos que o VS Code tem “contexto do projeto”, significa que ele sabe qual pasta/workspace está aberto e pode usar isso para localizar arquivos, configurações, Git e ferramentas. Não significa que ele automaticamente entende toda a lógica da aplicação.</div>
+<p class="lead">Workspace é o contexto de trabalho. Muitas vezes ele corresponde a uma pasta, mas também pode representar múltiplas pastas e configurações específicas.</p>
+<p><strong>Arquivo isolado:</strong> útil para uma edição rápida. <strong>Pasta/workspace:</strong> ideal para um projeto real.</p>
+<p>Configurações de workspace podem ser guardadas na pasta <code>.vscode</code>, dependendo do recurso. Isso permite que um projeto tenha comportamento específico sem mudar seus outros projetos.</p>
+<div class="warning"><strong>Não apague a pasta <code>.vscode</code> sem entender.</strong> Ela pode conter configurações, tasks ou launch configurations úteis ao projeto.</div>
+<div class="rare"><strong>Multi-root workspace:</strong> o VS Code pode trabalhar com mais de uma pasta no mesmo workspace. É útil em projetos maiores, mas você não precisa disso no início. O importante é saber que “workspace” é um conceito maior que “um arquivo”.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Entendi por que workspace é diferente de arquivo aberto.</label>
+</section>
+
+<section class="section" id="editor">
+<h2 class="section-title">4. Editor: edição, IntelliSense e recursos essenciais</h2><div class="tip"><strong>Termo técnico — símbolo:</strong> variável, função, classe ou método são exemplos de elementos nomeados que ferramentas podem tratar como símbolos. <strong>Language Server</strong> é um serviço que várias linguagens usam para analisar código em segundo plano e fornecer sugestões, definições, referências e diagnósticos.</div>
+<p class="lead">O editor não é apenas um bloco de notas. Ele entende linguagens e pode fornecer sugestões, navegação, formatação e refatoração.</p>
+<table>
+<tr><th>Recurso</th><th>O que faz</th><th>Quando ajuda</th></tr>
+<tr><td>Syntax Highlighting</td><td>Colore elementos do código.</td><td>Leitura e reconhecimento visual.</td></tr>
+<tr><td>IntelliSense</td><td>Sugestões, completions e informações contextuais.</td><td>Escrever código com menos digitação e mais contexto.</td></tr>
+<tr><td>Hover</td><td>Mostra informações ao passar o mouse.</td><td>Entender variável, função ou tipo.</td></tr>
+<tr><td>Go to Definition</td><td>Vai para a definição de um símbolo.</td><td>Explorar projetos maiores.</td></tr>
+<tr><td>Peek Definition</td><td>Mostra definição sem sair totalmente do contexto.</td><td>Consulta rápida.</td></tr>
+<tr><td>Format Document</td><td>Solicita formatação ao formatador disponível.</td><td>Indentação e padronização.</td></tr>
+</table>
+<p>Uma linha sublinhada em vermelho ou amarelo não significa sempre “o VS Code está errado”. Pode ser uma análise da linguagem, linter ou extensão.</p>
+<div class="rare"><strong>Coisa pouco ensinada:</strong> as cores do código não controlam o programa. Se o código muda de cor, isso pode ser apenas tema ou modo de linguagem. O funcionamento real depende da linguagem e execução.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Usei Go to Definition ou Peek Definition em algum código.</label>
+</section>
+
+<section class="section" id="edicao">
+<h2 class="section-title">5. Edição eficiente: recursos que economizam horas</h2>
+<p class="lead">Editar código não é apenas digitar. Um bom editor permite selecionar, mover, repetir, transformar e navegar pelo texto com muito menos esforço. Nesta aula, o objetivo é entender <strong>o que o VS Code faz no documento</strong>, e não apenas decorar atalhos.</p>
+<div class="tip"><strong>Ideia principal:</strong> produtividade não é digitar rápido. É reduzir ações repetitivas, cometer menos erros e manter sua atenção no problema.</div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.1 Cursor, seleção, linha e coluna</h3><span>Fundamento</span></div><div class="lesson-body">
+<p>O <strong>cursor</strong> indica onde o próximo caractere será inserido. Uma <strong>seleção</strong> é um trecho marcado para receber uma ação. Uma <strong>linha</strong> é delimitada por uma quebra de linha. A <strong>coluna</strong> indica a posição horizontal do cursor.</p>
+<pre>&lt;h1&gt;Olá, mundo!&lt;/h1&gt;
+               ↑ cursor</pre>
+<p>A Status Bar mostra algo como <code>Ln 15, Col 8</code>: linha 15, coluna 8. Esse detalhe é muito útil quando uma mensagem de erro aponta uma posição específica.</p>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.2 Mover linhas</h3><span>Alt + ↑ / ↓</span></div><div class="lesson-body">
+<p>No Windows/Linux, <kbd>Alt</kbd> + <kbd>↑</kbd> ou <kbd>Alt</kbd> + <kbd>↓</kbd> move a linha atual. É mais seguro e rápido que selecionar, recortar, procurar o destino e colar.</p>
+<pre>&lt;h1&gt;Título&lt;/h1&gt;
+&lt;p&gt;Primeiro&lt;/p&gt;
+&lt;p&gt;Segundo&lt;/p&gt;</pre>
+<div class="practice"><strong>Pratique:</strong> mova <code>Segundo</code> para cima e depois devolva ao lugar.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.3 Duplicar linha ou seleção</h3><span>Repetição controlada</span></div><div class="lesson-body">
+<p>Quando duas estruturas serão parecidas, duplicar evita redigitar tudo. Procure <code>Copy Line Down</code> na Command Palette e observe o atalho configurado no seu sistema.</p>
+<pre>&lt;button&gt;Salvar&lt;/button&gt;
+&lt;button&gt;Cancelar&lt;/button&gt;</pre>
+<div class="warning"><strong>Cuidado:</strong> a ferramenta é útil, mas copiar grandes blocos de código repetidamente pode ser sinal de que o programa deveria ser reorganizado.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.4 Múltiplos cursores</h3><span>Editar vários pontos</span></div><div class="lesson-body">
+<p>O VS Code permite manter várias posições de edição no mesmo documento. No Windows/Linux, uma forma comum é segurar <kbd>Alt</kbd> e clicar em diferentes posições.</p>
+<pre>&lt;li&gt;Produto&lt;/li&gt;
+&lt;li&gt;Produto&lt;/li&gt;
+&lt;li&gt;Produto&lt;/li&gt;</pre>
+<p>Com três cursores antes de <code>Produto</code>, digitar <code>Novo </code> altera as três linhas simultaneamente.</p>
+<div class="rare"><strong>O que acontece tecnicamente?</strong> Você continua editando um único arquivo. O editor mantém várias posições/seleções e aplica a mesma operação a elas.</div>
+<div class="warning"><kbd>Esc</kbd> normalmente retorna a um único cursor. Confira as posições antes de digitar.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.5 Selecionar próxima ocorrência</h3><span>Ctrl + D</span></div><div class="lesson-body">
+<p>Selecione uma palavra e use <kbd>Ctrl</kbd> + <kbd>D</kbd>. O VS Code adiciona a próxima ocorrência igual à seleção. É ótimo quando você quer alterar <strong>algumas</strong> ocorrências, não todas.</p>
+<div class="tip"><strong>Não confunda com Replace All:</strong> <kbd>Ctrl</kbd>+<kbd>D</kbd> permite escolher progressivamente. Replace All altera todas as correspondências dentro do escopo.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.6 Find, Replace e Replace All</h3><span>Ctrl + F / Ctrl + H</span></div><div class="lesson-body">
+<p><strong>Find</strong> procura texto. <strong>Replace</strong> procura e substitui. Opções como <em>Match Case</em> diferenciam maiúsculas/minúsculas; <em>Whole Word</em> exige palavra inteira; e Regex usa padrões especiais.</p>
+<div class="warning"><strong>Antes de Replace All:</strong> veja quantas ocorrências foram encontradas e confirme se a busca é específica o suficiente.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.7 Rename Symbol não é Replace</h3><span>F2 quando suportado</span></div><div class="lesson-body">
+<p>Replace trabalha com texto. <strong>Rename Symbol</strong> pode trabalhar com o significado do código quando o suporte da linguagem entende aquele símbolo.</p>
+<pre>const nome = "Magno";
+console.log(nome);</pre>
+<p>Uma variável, função, classe ou método pode ser um <strong>símbolo</strong>. Renomeá-lo com uma ferramenta de linguagem é uma forma simples de <strong>refatoração</strong>: reorganizar o código preservando sua intenção/comportamento.</p>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.8 Indentação: Spaces, Tabs e caracteres invisíveis</h3><span>Estrutura visual</span></div><div class="lesson-body">
+<pre>if (usuarioLogado) {
+    console.log("Bem-vindo");
+}</pre>
+<p>A Status Bar pode mostrar <code>Spaces: 4</code>. Pressionar a tecla Tab não significa obrigatoriamente salvar um caractere TAB: o editor pode inserir espaços conforme a configuração.</p>
+<div class="rare"><strong>Spaces × Tab:</strong> são diferentes. Espaços, tabs e quebras de linha são caracteres/estruturas que normalmente não enxergamos. Procure <code>Render Whitespace</code> para visualizá-los.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.9 Word Wrap</h3><span>Alt + Z</span></div><div class="lesson-body">
+<p>Word Wrap faz uma linha longa continuar visualmente embaixo quando falta espaço horizontal.</p>
+<div class="warning"><strong>Ele não adiciona Enter.</strong> O arquivo continua contendo a mesma linha. É uma mudança de visualização, não de conteúdo.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.10 Comentários</h3><span>Ctrl + /</span></div><div class="lesson-body">
+<p>Comentários são trechos que a linguagem normalmente ignora durante a execução e podem documentar decisões ou auxiliar testes temporários.</p>
+<pre>// comentário JavaScript
+/* comentário
+   em bloco */</pre>
+<p><strong>Toggle Line Comment</strong> usa a sintaxe adequada ao modo de linguagem atual.</p>
+<div class="warning">Não deixe grandes quantidades de código antigo comentado “por garantia”. Git existe para preservar histórico.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.11 Format Document e Format On Save</h3><span>Formatação ≠ correção lógica</span></div><div class="lesson-body">
+<p>Formatar reorganiza aspectos como indentação, espaços e quebras conforme regras de um <strong>formatador</strong>. Isso não significa corrigir a lógica do programa.</p>
+<p>Se houver mais de um formatador, pode ser necessário definir um <strong>Default Formatter</strong>. <strong>Format On Save</strong> solicita formatação quando o arquivo é salvo.</p>
+<div class="rare">Se Format On Save não fizer nada, pode não existir um formatador aplicável ou um padrão selecionado. A configuração sozinha não “inventa” um formatador.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.12 Undo, Redo e Git são coisas diferentes</h3><span>Histórico de edição</span></div><div class="lesson-body">
+<p><kbd>Ctrl</kbd>+<kbd>Z</kbd> desfaz operações recentes. Redo reaplica uma operação desfeita.</p>
+<div class="warning"><strong>Undo não é backup e não é Git.</strong> Undo pertence à edição atual. Git cria pontos de versionamento do projeto. São camadas diferentes.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.13 Preview Tab: por que uma aba parece desaparecer</h3><span>Comportamento do editor</span></div><div class="lesson-body">
+<p>Um único clique em um arquivo pode abri-lo em modo <strong>Preview</strong>. Ao clicar em outro arquivo, a aba de preview pode ser reutilizada.</p>
+<p>O arquivo não foi apagado. É apenas uma estratégia do VS Code para não criar dezenas de abas durante a navegação. Esse comportamento é relacionado a configurações como <code>workbench.editor.enablePreview</code>.</p>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.14 Fechamento automático de pares</h3><span>() [] {} ""</span></div><div class="lesson-body">
+<p>Ao digitar <code>(</code>, <code>[</code>, <code>{</code> ou aspas, o editor pode inserir automaticamente o fechamento. Ele também pode envolver uma seleção com determinados pares.</p>
+<div class="rare"><strong>“O editor digitou sozinho?”</strong> Algumas automações vêm do editor, outras do suporte da linguagem e outras de extensões. Saber que existem essas camadas ajuda a investigar comportamentos inesperados.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.15 Snippets e Emmet</h3><span>Automação consciente</span></div><div class="lesson-body">
+<p><strong>Snippet</strong> é um modelo de código expansível. <strong>Emmet</strong> permite abreviações muito úteis em HTML/CSS.</p>
+<pre>ul&gt;li*3</pre>
+<p>Em HTML, essa abreviação pode gerar uma lista com três itens quando o Emmet está disponível.</p>
+<div class="warning"><strong>Para aprender:</strong> use Emmet somente depois de entender o HTML gerado. Ele deve economizar digitação, não esconder o conhecimento.</div>
+</div></div>
+
+<div class="lesson"><div class="lesson-head"><h3>5.16 Exercício integrado</h3><span>10–15 minutos</span></div><div class="lesson-body">
+<ol>
+<li>Crie um arquivo <code>treino.html</code> e três elementos semelhantes.</li>
+<li>Duplique uma linha.</li><li>Mova uma linha para cima e para baixo.</li>
+<li>Use múltiplos cursores para editar três textos.</li>
+<li>Use <kbd>Ctrl</kbd>+<kbd>D</kbd>.</li><li>Faça uma busca e substituição.</li>
+<li>Ative/desative Word Wrap.</li><li>Comente e descomente uma linha.</li>
+<li>Use Format Document.</li><li>Desfaça e refaça uma alteração.</li>
+</ol>
+<div class="practice"><strong>Objetivo:</strong> explicar não apenas qual tecla apertou, mas qual transformação o editor realizou no documento.</div>
+</div></div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Pratiquei os recursos e sei diferenciar múltiplos cursores, Replace, Rename Symbol, formatação, indentação e Word Wrap.</label>
+</section>
+
+<section class="section" id="status">
+<h2 class="section-title">6. Status Bar: aprenda a ler a barra inferior</h2>
+<p class="lead">A Status Bar responde várias perguntas sem abrir menus.</p>
+<table>
+<tr><th>Exemplo</th><th>Significado</th></tr>
+<tr><td><code>Ln 20, Col 5</code></td><td>Cursor na linha 20, coluna 5.</td></tr>
+<tr><td><code>Spaces: 4</code></td><td>Indentação interpretada com largura 4.</td></tr>
+<tr><td><code>UTF-8</code></td><td>Encoding atual.</td></tr>
+<tr><td><code>CRLF</code> / <code>LF</code></td><td>Convenção de fim de linha.</td></tr>
+<tr><td><code>HTML</code>, <code>JavaScript</code>, etc.</td><td>Modo de linguagem.</td></tr>
+<tr><td>Nome de branch</td><td>Branch Git atual.</td></tr>
+</table>
+<div class="tip"><strong>Diagnóstico:</strong> seu arquivo JavaScript está sem cores e sugestões? Veja o modo de linguagem. Talvez esteja como <code>Plain Text</code>.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Sei localizar linguagem, encoding e fim de linha.</label>
+</section>
+
+<section class="section" id="palette">
+<h2 class="section-title">7. Command Palette: o comando mais importante para aprender</h2>
+<p class="lead">A Command Palette permite procurar ações pelo nome, mesmo quando você não sabe em qual menu elas estão.</p>
+<p>No Windows/Linux, use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>. Tente buscar:</p>
+<pre>Format Document
+Open Settings
+Change Language Mode
+Toggle Terminal
+Reload Window</pre>
+<div class="rare"><strong>Estratégia inteligente:</strong> não decore 50 atalhos. Decore a Command Palette. Quando um comando se tornar frequente, aprenda o atalho dele.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Executei pelo menos três comandos pela Command Palette.</label>
+</section>
+
+<section class="section" id="atalhos">
+<h2 class="section-title">8. Atalhos essenciais sem exagero</h2>
+<table>
+<tr><th>Ação</th><th>Windows/Linux</th></tr>
+<tr><td>Command Palette</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd></td></tr>
+<tr><td>Quick Open</td><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td></tr>
+<tr><td>Settings</td><td><kbd>Ctrl</kbd>+<kbd>,</kbd></td></tr>
+<tr><td>Terminal</td><td><kbd>Ctrl</kbd>+<kbd>`</kbd></td></tr>
+<tr><td>Buscar no arquivo</td><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td></tr>
+<tr><td>Buscar no projeto</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd></td></tr>
+<tr><td>Salvar</td><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
+<tr><td>Fechar editor</td><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td></tr>
+</table>
+<p>Atalho é ferramenta de velocidade, não requisito para entender programação. Use aos poucos.</p>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Consigo usar Command Palette, Quick Open e busca global sem mouse.</label>
+</section>
+
+<section class="section" id="terminal">
+<h2 class="section-title">9. Terminal integrado — do zero e sem mistério</h2>
+<p class="lead">O terminal é uma das partes que mais assustam iniciantes porque mistura VS Code, sistema operacional e ferramentas externas.</p>
+<div class="cards">
+<div class="card"><h3>Terminal</h3><p>A interface onde você digita e vê saída.</p></div>
+<div class="card"><h3>Shell</h3><p>O programa que interpreta os comandos: PowerShell, Bash, Zsh, entre outros.</p></div>
+<div class="card"><h3>Comando</h3><p>A instrução enviada ao shell: <code>cd</code>, <code>git</code>, <code>node</code>, etc.</p></div>
+</div>
+<p>Abra em <strong>View → Terminal</strong> ou com <kbd>Ctrl</kbd>+<kbd>`</kbd>.</p>
+<h3>Diretório atual</h3>
+<pre>PS C:\Users\Aluno\projetos\lista-tarefas></pre>
+<p>Esse texto indica que o terminal está dentro da pasta <code>lista-tarefas</code>. Muitos erros de “arquivo não encontrado” acontecem porque o terminal está em outra pasta.</p>
+<table>
+<tr><th>Comando</th><th>Ideia</th></tr>
+<tr><td><code>pwd</code></td><td>Mostra o diretório atual em shells compatíveis.</td></tr>
+<tr><td><code>ls</code></td><td>Lista itens.</td></tr>
+<tr><td><code>cd pasta</code></td><td>Entra em uma pasta.</td></tr>
+<tr><td><code>cd ..</code></td><td>Volta um nível.</td></tr>
+</table>
+<div class="rare"><strong>Shell Integration:</strong> o VS Code pode entender melhor comandos e diretórios do shell, adicionando navegação por comandos recentes, detecção de diretório e outras integrações. O terminal integrado é mais do que “uma caixa preta”.</div>
+<div class="warning"><strong>Nunca execute um comando desconhecido só porque foi copiado da internet.</strong> Terminal pode criar, apagar e executar arquivos.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Sei confirmar qual é o diretório atual antes de executar comandos.</label>
+</section>
+
+<section class="section" id="path">
+<h2 class="section-title">10. PATH: por que “git/node/code não é reconhecido”</h2><div class="tip"><strong>Executável e variável de ambiente:</strong> um executável é um programa que o sistema pode iniciar. PATH é uma <strong>variável de ambiente</strong> — um valor disponibilizado aos processos — que contém locais onde o shell pode procurar programas chamados pelo nome.</div>
+<p class="lead">Quando você digita o nome de um programa no terminal, o sistema precisa encontrá-lo.</p>
+<p><strong>PATH</strong> é, de forma simplificada, uma lista de diretórios onde o sistema procura executáveis.</p>
+<p>Se você instalou Node.js agora e um terminal antigo não reconhece <code>node</code>, fechar e reabrir o terminal — e às vezes o VS Code — pode fazer o novo ambiente ser carregado.</p>
+<div class="warning"><strong>Não edite PATH aleatoriamente.</strong> É uma configuração compartilhada por diversas ferramentas.</div>
+<div class="rare"><strong>Diagnóstico:</strong> se um comando funciona no PowerShell externo mas não no terminal do VS Code, compare shell, ambiente e quando cada processo foi aberto.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Entendo conceitualmente como PATH influencia comandos.</label>
+</section>
+
+<section class="section" id="painel">
+<h2 class="section-title">11. Problems, Output, Terminal e Debug Console</h2><div class="tip"><strong>Log × diagnóstico:</strong> um <strong>log</strong> é um registro de eventos produzido por uma ferramenta; nem todo log é erro. Um <strong>diagnóstico</strong> é uma mensagem de análise do código, como erro, aviso ou sugestão, e muitos aparecem em Problems.</div>
+<p class="lead">Essas áreas são confundidas o tempo todo.</p>
+<table>
+<tr><th>Área</th><th>Principal função</th></tr>
+<tr><td>Problems</td><td>Erros e avisos identificados por ferramentas de análise.</td></tr>
+<tr><td>Output</td><td>Logs do VS Code e de extensões.</td></tr>
+<tr><td>Terminal</td><td>Executar comandos no shell.</td></tr>
+<tr><td>Debug Console</td><td>Saída e avaliação durante uma sessão de depuração.</td></tr>
+</table>
+<div class="rare"><strong>Método profissional:</strong> ao ver um erro, pergunte “quem gerou esta mensagem?”. Navegador? Git? Terminal? Extensão? Linter? Debugger? A origem muda completamente a solução.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Sei diferenciar as quatro áreas.</label>
+</section>
+
+<section class="section" id="settings">
+<h2 class="section-title">12. Settings: User × Workspace</h2>
+<p class="lead">Quase todo comportamento do VS Code pode ser configurado. O ponto difícil é entender o escopo.</p>
+<div class="cards">
+<div class="card"><h3>User Settings</h3><p>Suas preferências gerais, aplicadas a vários projetos.</p></div>
+<div class="card"><h3>Workspace Settings</h3><p>Preferências específicas do projeto atual e que podem sobrescrever as de usuário.</p></div>
+<div class="card"><h3>Language-specific</h3><p>Algumas configurações podem valer apenas para uma linguagem.</p></div>
+</div>
+<p>Abra com <kbd>Ctrl</kbd>+<kbd>,</kbd>. A interface gráfica altera as mesmas configurações que também podem aparecer em <code>settings.json</code>.</p>
+<pre>{
+  "editor.fontSize": 16,
+  "editor.wordWrap": "on",
+  "files.autoSave": "afterDelay",
+  "editor.formatOnSave": true
+}</pre>
+<div class="warning"><strong>Format On Save não cria um formatador.</strong> Ele pede formatação ao salvar, mas precisa existir um formatador aplicável.</div>
+<div class="rare"><strong>Filtro útil:</strong> a busca de Settings suporta filtros como <code>@modified</code>, útil para ver o que você mudou em relação ao padrão.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Sei quando usar User Settings e Workspace Settings.</label>
+</section>
+
+<section class="section" id="arquivos">
+<h2 class="section-title">13. Auto Save, arquivos “sujos” e salvamento real</h2>
+<p class="lead">Modificar o conteúdo no editor e gravar no disco não são necessariamente a mesma coisa.</p>
+<p>Quando um arquivo tem alterações ainda não salvas, o VS Code apresenta um indicador na aba. Com Auto Save desativado, <kbd>Ctrl</kbd>+<kbd>S</kbd> grava manualmente.</p>
+<p>Auto Save pode ser configurado para diferentes comportamentos. Para estudar, salvar manualmente também tem valor porque ajuda a perceber quando o arquivo realmente foi gravado.</p>
+<div class="rare"><strong>Git vê arquivos gravados no disco.</strong> Se você está comparando mudanças e algo não aparece como esperado, verifique se o arquivo foi salvo.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Sei identificar quando um arquivo tem alterações não salvas.</label>
+</section>
+
+<section class="section" id="encoding">
+<h2 class="section-title">14. UTF-8, CRLF/LF e Language Mode</h2><div class="tip"><strong>Byte e caracteres invisíveis:</strong> arquivos são armazenados como bytes. O encoding define como bytes representam caracteres. Espaços, tabs e quebras de linha também fazem parte do arquivo, embora normalmente não apareçam como letras na tela.</div>
+<p class="lead">Três pequenos indicadores que podem causar problemas grandes.</p>
+<h3>Encoding</h3>
+<p>Encoding define como caracteres são representados em bytes. UTF-8 é extremamente comum em desenvolvimento web. Caracteres estranhos como acentos quebrados podem envolver codificação.</p>
+<h3>Fim de linha</h3>
+<p><code>CRLF</code> e <code>LF</code> são convenções de quebra de linha. Mudanças de uma convenção para outra podem fazer Git enxergar muitas linhas como alteradas.</p>
+<h3>Language Mode</h3>
+<p>Controla como o editor interpreta o arquivo. Se um arquivo <code>.js</code> estiver como Plain Text, você pode perder destaque e recursos inteligentes.</p>
+<div class="rare"><strong>Quase ninguém explica:</strong> o conteúdo “parece igual” visualmente, mas bytes e finais de linha podem ser diferentes. Ferramentas de versionamento percebem essas diferenças.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Consigo verificar encoding, fim de linha e linguagem pela Status Bar.</label>
+</section>
+
+<section class="section" id="extensoes">
+<h2 class="section-title">15. Extensões: como instalar sem bagunçar seu ambiente</h2>
+<p class="lead">Extensões adicionam linguagens, formatadores, debuggers, temas e integrações.</p>
+<p>Antes de instalar, pergunte:</p>
+<ol>
+<li>Qual problema ela resolve?</li>
+<li>O VS Code já faz isso?</li>
+<li>Quem publicou?</li>
+<li>Ela parece confiável e mantida?</li>
+<li>É necessária para este curso/projeto?</li>
+</ol>
+<div class="warning"><strong>Evite listas de “30 extensões obrigatórias”.</strong> Iniciantes aprendem melhor com um ambiente previsível.</div>
+<div class="rare"><strong>Diagnóstico avançado, mas simples:</strong> se um comportamento estranho apareceu, desabilitar temporariamente extensões ou testar um perfil limpo pode indicar se a causa está em uma extensão.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Consigo justificar por que cada extensão instalada no meu VS Code existe.</label>
+</section>
+
+<section class="section" id="trust">
+<h2 class="section-title">16. Workspace Trust e Restricted Mode</h2>
+<p class="lead">Esse aviso não existe para incomodar. Ele existe porque projetos podem conter coisas executáveis.</p>
+<p>Um workspace pode incluir tasks, configurações, scripts e integrações capazes de executar ações. Em <strong>Restricted Mode</strong>, vários recursos ficam limitados até que você confie na origem.</p>
+<div class="warning"><strong>Projeto aleatório baixado da internet?</strong> Não clique automaticamente em “Trust”. Leia o README, estrutura e scripts primeiro.</div>
+<p>Workspace Trust não torna uma extensão desconhecida automaticamente segura. Extensões também executam código e devem vir de fontes confiáveis.</p>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Entendo por que o VS Code pergunta se confio na pasta.</label>
+</section>
+
+<section class="section" id="busca">
+<h2 class="section-title">17. Busca e navegação em projetos</h2>
+<p class="lead">Em projetos maiores, procurar arquivo por arquivo deixa de funcionar.</p>
+<ul>
+<li><kbd>Ctrl</kbd>+<kbd>P</kbd>: abre arquivo pelo nome.</li>
+<li><kbd>Ctrl</kbd>+<kbd>F</kbd>: busca no arquivo atual.</li>
+<li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>: busca em todo o workspace.</li>
+<li><strong>Go to Definition:</strong> navega para definição.</li>
+<li><strong>References:</strong> mostra onde um símbolo é usado, quando suportado.</li>
+<li><strong>Breadcrumbs:</strong> ajuda a entender a posição no arquivo/projeto.</li>
+</ul>
+<div class="practice"><strong>Treino:</strong> encontre uma função pelo nome usando busca global, depois compare com procurar manualmente no Explorer.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Usei Quick Open e busca global.</label>
+</section>
+
+<section class="section" id="layout">
+<h2 class="section-title">18. Grupos de editor, split e organização da tela</h2>
+<p class="lead">Você pode abrir arquivos lado a lado.</p>
+<p>Um caso simples: HTML à esquerda e CSS à direita. Outro: código de um lado e teste do outro. Use split para reduzir troca de contexto.</p>
+<div class="warning"><strong>Mais painéis nem sempre significam mais produtividade.</strong> Se cada editor fica pequeno demais, a divisão atrapalha.</div>
+<p>O terminal também pode ser movido e dividido. Aprender a reorganizar a tela ajuda muito em notebooks e monitores pequenos.</p>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Dividi o editor em dois grupos e restaurei o layout depois.</label>
+</section>
+
+<section class="section" id="git">
+<h2 class="section-title">19. Source Control: o Git visto pelo VS Code</h2><div class="tip"><strong>Repositório e Staging Area:</strong> o repositório é a estrutura usada pelo Git para acompanhar histórico. Pense no fluxo <strong>Working Tree → Staging Area → Commit</strong>: você altera arquivos, escolhe quais mudanças entram no próximo registro e então cria o commit.</div>
+<p class="lead">O VS Code possui interface integrada de controle de versão, mas usa a instalação de Git do computador.</p>
+<p><strong>Git ≠ GitHub.</strong> Git registra versões. GitHub é uma plataforma de hospedagem e colaboração.</p>
+<ul>
+<li><strong>Changes:</strong> arquivos alterados.</li>
+<li><strong>Staged Changes:</strong> mudanças selecionadas para o próximo commit.</li>
+<li><strong>Commit:</strong> registro de um conjunto de mudanças.</li>
+<li><strong>Branch:</strong> linha de trabalho atual.</li>
+</ul>
+<div class="rare"><strong>Importante:</strong> usar a interface gráfica e usar comandos no terminal manipula o mesmo repositório. Você pode aprender os dois aos poucos.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Sei explicar Changes, Stage e Commit.</label>
+</section>
+
+<section class="section" id="debug">
+<h2 class="section-title">20. Run and Debug: observar o programa por dentro</h2><div class="tip"><strong>Processo e Call Stack:</strong> um programa em execução existe como um processo no sistema. A <strong>Call Stack</strong> acompanha a cadeia de chamadas de funções e ajuda a responder “como a execução chegou até aqui?”.</div>
+<p class="lead">Executar é obter resultado. Depurar é investigar a execução.</p>
+<ul>
+<li><strong>Breakpoint:</strong> ponto onde a execução pausa.</li>
+<li><strong>Variables:</strong> valores disponíveis naquele momento.</li>
+<li><strong>Call Stack:</strong> cadeia de chamadas que levou até ali.</li>
+<li><strong>Step Over:</strong> avança uma etapa sem entrar em determinada chamada.</li>
+<li><strong>Step Into:</strong> entra na chamada quando possível.</li>
+</ul>
+<div class="rare"><strong>Logs não substituem debugger.</strong> <code>console.log</code> é útil, mas breakpoint permite congelar o estado e investigar variáveis no momento exato.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Entendo o conceito de breakpoint e call stack.</label>
+</section>
+
+<section class="section" id="tasks">
+<h2 class="section-title">21. Tasks: automatizando comandos repetitivos</h2><div class="tip"><strong>Automação:</strong> transformar uma rotina manual repetitiva em uma ação executável de forma consistente. Uma Task normalmente organiza comandos que também poderiam ser executados no terminal.</div>
+<p class="lead">Tasks permitem ensinar ao VS Code como executar rotinas frequentes do projeto.</p>
+<p>Podem representar build, testes, geração de arquivos ou outros comandos. Em projetos reais, isso reduz trabalho repetitivo.</p>
+<div class="warning"><strong>Tasks podem executar comandos.</strong> Por isso também estão relacionadas a Workspace Trust.</div>
+<div class="rare"><strong>Para iniciante:</strong> você não precisa criar tasks agora. Primeiro entenda terminal e comandos. Depois, automação passa a fazer sentido.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Entendi por que uma Task existe.</label>
+</section>
+
+<section class="section" id="profiles">
+<h2 class="section-title">22. Profiles e Settings Sync</h2>
+<p class="lead">Profiles ajudam a separar ambientes diferentes dentro do VS Code.</p>
+<p>Você pode ter um perfil “Curso Básico” com poucas extensões, outro para JavaScript/React e outro para Python.</p>
+<div class="rare"><strong>Excelente para diagnóstico:</strong> um perfil limpo é útil para comparar comportamentos e descobrir se um problema vem de configuração ou extensão.</div>
+<p>Settings Sync pode sincronizar preferências entre dispositivos quando configurado.</p>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Entendo por que um perfil limpo pode ajudar no aprendizado.</label>
+</section>
+
+<section class="section" id="recuperacao">
+<h2 class="section-title">23. “Perdi meu código”: investigação antes do pânico</h2>
+<p class="lead">Muitas vezes o código não foi perdido; o contexto mudou.</p>
+<ol>
+<li>Você fechou o arquivo ou apagou?</li>
+<li>Abriu outra pasta?</li>
+<li>A aba estava em preview?</li>
+<li>O Explorer está filtrando ou ocultando algo?</li>
+<li>Undo recupera a alteração?</li>
+<li>Git tem uma versão anterior?</li>
+<li>Timeline/histórico disponível mostra versões?</li>
+</ol>
+<div class="rare"><strong>Salvamento, Undo e Git são camadas diferentes.</strong> Git não substitui salvar; Undo não substitui versionamento.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Tenho um roteiro para investigar quando um arquivo parece ter desaparecido.</label>
+</section>
+
+<section class="section" id="erros">
+<h2 class="section-title">24. Método para interpretar erros no VS Code</h2>
+<p class="lead">Não tente resolver erros olhando apenas a última linha.</p>
+<ol>
+<li><strong>Onde apareceu?</strong> Terminal, Problems, navegador, Debug Console?</li>
+<li><strong>Quem gerou?</strong> JavaScript, Node, Git, extensão, sistema?</li>
+<li><strong>Qual arquivo?</strong> Há caminho e número de linha?</li>
+<li><strong>Qual é a primeira mensagem importante?</strong> Uma falha inicial pode gerar várias mensagens depois.</li>
+<li><strong>O erro se repete em um projeto mínimo?</strong> Isolar o problema ajuda.</li>
+</ol>
+<pre>ReferenceError: exemplo is not defined
+    at app.js:15:3</pre>
+<p>Leia como: tipo do erro → mensagem → arquivo → linha/coluna. Essa disciplina é mais importante do que decorar soluções.</p>
+<div class="rare"><strong>Hábito excelente:</strong> antes de pesquisar o erro inteiro, tente explicar com suas palavras o que a mensagem está dizendo.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Consigo apontar origem, arquivo e linha em uma mensagem de erro.</label>
+</section>
+
+<section class="section" id="boas">
+<h2 class="section-title">25. Hábitos profissionais para aprender cedo</h2>
+<ul>
+<li>Abra a pasta correta do projeto.</li>
+<li>Confirme o diretório atual do terminal.</li>
+<li>Use poucas extensões e entenda cada uma.</li>
+<li>Leia a Status Bar.</li>
+<li>Use a Command Palette para descobrir recursos.</li>
+<li>Faça mudanças pequenas e teste.</li>
+<li>Leia mensagens de erro por origem, arquivo e linha.</li>
+<li>Não confunda VS Code com linguagem, runtime ou Git.</li>
+<li>Não execute comandos desconhecidos.</li>
+<li>Use Git cedo, mesmo em projetos pequenos.</li>
+</ul>
+<div class="practice"><strong>Meta final:</strong> você não precisa saber todos os botões. Deve conseguir se orientar, encontrar recursos, diagnosticar a camada do problema e trabalhar com confiança.</div>
+<label class="check"><input type="checkbox" onchange="saveProgress()"> Consigo explicar o mapa mental do VS Code para outra pessoa.</label>
+</section>
+
+<section class="section" id="glossario">
+<h2 class="section-title">Glossário essencial</h2>
+<table>
+<tr><th>Termo</th><th>Significado simples</th></tr>
+<tr><td>Workbench</td><td>Janela principal do VS Code.</td></tr>
+<tr><td>Workspace</td><td>Contexto de trabalho aberto no editor.</td></tr>
+<tr><td>Explorer</td><td>Visão de arquivos e pastas.</td></tr>
+<tr><td>Activity Bar</td><td>Barra de ícones de navegação entre visões.</td></tr>
+<tr><td>Side Bar</td><td>Área lateral que mostra uma visão.</td></tr>
+<tr><td>Panel</td><td>Área que pode hospedar Terminal, Problems, Output e Debug Console.</td></tr>
+<tr><td>Shell</td><td>Programa que interpreta comandos.</td></tr>
+<tr><td>PATH</td><td>Locais onde o sistema procura executáveis chamados pelo nome.</td></tr>
+<tr><td>Extension</td><td>Pacote que adiciona capacidades ao editor.</td></tr>
+<tr><td>IntelliSense</td><td>Recursos de assistência à escrita e compreensão do código.</td></tr>
+<tr><td>Breakpoint</td><td>Ponto usado pelo debugger para pausar execução.</td></tr>
+<tr><td>Encoding</td><td>Forma de representar caracteres em bytes.</td></tr>
+<tr><td>CRLF/LF</td><td>Convenções de fim de linha.</td></tr>
+<tr><td>Language Mode</td><td>Modo como o editor interpreta um arquivo.</td></tr>
+</table>
+</section>
+
+<section class="section" id="quiz">
+<h2 class="section-title">Revisão final</h2>
+<div class="lesson quiz"><div class="lesson-body">
+<p><strong>1. Abrir um arquivo isolado é sempre a mesma coisa que abrir a pasta inteira?</strong></p>
+<label><input type="radio" name="q1" value="a"> Sim</label><label><input type="radio" name="q1" value="b"> Não</label>
+<p><strong>2. Onde você executaria <code>git status</code>?</strong></p>
+<label><input type="radio" name="q2" value="a"> Problems</label><label><input type="radio" name="q2" value="b"> Terminal</label>
+<p><strong>3. Workspace Settings podem sobrescrever User Settings?</strong></p>
+<label><input type="radio" name="q3" value="a"> Sim</label><label><input type="radio" name="q3" value="b"> Não</label>
+<button onclick="quiz()">Corrigir quiz</button><div class="result" id="result"></div>
+</div></div>
+</section>
+
+<section class="section">
+<h2 class="section-title">Fontes para aprofundamento</h2>
+<ul class="source-list">
+<li><a href="https://code.visualstudio.com/docs/editing/getting-started/editor-tutorial" target="_blank">Tutorial oficial do editor</a></li>
+<li><a href="https://code.visualstudio.com/docs/editing/getting-started/overview" target="_blank">Core editor features</a></li>
+<li><a href="https://code.visualstudio.com/docs/configure/settings" target="_blank">User and Workspace Settings</a></li>
+<li><a href="https://code.visualstudio.com/docs/terminal/getting-started" target="_blank">Integrated Terminal</a></li>
+<li><a href="https://code.visualstudio.com/docs/terminal/shell-integration" target="_blank">Shell Integration</a></li>
+<li><a href="https://code.visualstudio.com/docs/editing/workspaces/workspace-trust" target="_blank">Workspace Trust</a></li>
+<li><a href="https://code.visualstudio.com/docs/sourcecontrol/overview" target="_blank">Source Control</a></li>
+<li><a href="https://code.visualstudio.com/docs/editing/getting-started/tips-and-tricks" target="_blank">Tips and Tricks</a></li>
+</ul>
+<p class="lead">Trilha educacional independente com identidade visual inspirada em ambientes brasileiros de formação profissional. Não é um site oficial do SENAI/Firjan.</p>
+</section>
+</main>
+</div>
+
+<footer class="footer"><div class="footer-inner"><strong>TRILHA VS CODE</strong><br>Aprender programação é construir entendimento passo a passo. © 2026</div></footer>
+
+<script>
+const checks=[...document.querySelectorAll('.check input')];
+function saveProgress(){
+  const done=checks.filter(c=>c.checked).length;
+  localStorage.setItem('vscodeTrilhaProgress', JSON.stringify(checks.map(c=>c.checked)));
+  const pct=Math.round(done/checks.length*100);
+  document.getElementById('progress').style.width=pct+'%';
+  document.getElementById('progressText').textContent=pct+'% concluído';
+}
+function loadProgress(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('vscodeTrilhaProgress'));
+    if(saved) checks.forEach((c,i)=>c.checked=!!saved[i]);
+  }catch(e){}
+  saveProgress();
+}
+function toggleMenu(){document.getElementById('sidebar').classList.toggle('open')}
+function searchLessons(){
+  const q=document.getElementById('search').value.toLowerCase().trim();
+  document.querySelectorAll('.section').forEach(s=>{
+    if(!q){s.classList.remove('hidden');return}
+    s.classList.toggle('hidden', !s.innerText.toLowerCase().includes(q));
+  });
+}
+function quiz(){
+  const answers={q1:'b',q2:'b',q3:'a'};
+  let score=0;
+  Object.entries(answers).forEach(([q,a])=>{
+    const chosen=document.querySelector('input[name="'+q+'"]:checked');
+    if(chosen && chosen.value===a) score++;
+  });
+  const msg=score===3?'Excelente! Você dominou os conceitos principais.':score>=2?'Muito bom! Revise o ponto que errou.':'Vale uma revisão dos fundamentos antes de avançar.';
+  document.getElementById('result').textContent=`Você acertou ${score}/3. ${msg}`;
+}
+loadProgress();
+</script>
+</body>
+</html>
