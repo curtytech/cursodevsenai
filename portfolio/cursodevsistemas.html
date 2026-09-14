@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+        content="Portal SENAI - Cursos, educação, tecnologia e inovação">
+        
+            <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+
+          <link rel="stylesheet" type='text/css' href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" />
+
+    <link rel="icon"
+        type="image/x-icon"
+        href="https://icons.iconarchive.com/icons/icons-land/vista-hardware-devices/256/Computer-icon.png">
+
+    <title>SENAI | TI</title>
+
+
+    <style>
+
+        /* =========================
+           RESET
+        ========================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        button,
+        a {
+            font-family: inherit;
+        }
+
+
+        /* =========================
+           CABEÇALHO
+        ========================= */
+
+        header {
+            width: 100%;
+
+            background: rgba(0, 20, 35, 0.95);
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 18px 8%;
+
+            box-shadow:
+                0 3px 20px rgba(0, 91, 150, 0.35);
+
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            backdrop-filter: blur(12px);
+
+            border-bottom:
+                1px solid rgba(0, 183, 255, 0.2);
+        }
+
+
+        .logo {
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 2px;
+
+            color: #fff;
+
+            text-shadow:
+                0 0 10px #008cff,
+                0 0 25px rgba(0, 140, 255, 0.6);
+
+            transition: 0.3s ease;
+        }
+
+
+        .logo:hover {
+            transform: scale(1.08);
+
+            text-shadow:
+                0 0 15px #00b7ff,
+                0 0 35px #005b96;
+        }
+
+
+        /* =========================
+           MENU
+        ========================= */
+
+        .menu {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+
+            position: relative;
+
+            transition: color 0.3s ease;
+        }
+
+
+        .menu a::after {
+            content: "";
+
+            position: absolute;
+
+            width: 0;
+            height: 2px;
+
+            background: #ffd200;
+
+            left: 50%;
+            bottom: -6px;
+
+            transition:
+                width 0.3s ease,
+                left 0.3s ease;
+        }
+
+
+        .menu a:hover {
+            color: #ffd200;
+        }
+
+
+        .menu a:hover::after {
+            width: 100%;
+            left: 0;
+        }
+
+
+        /* =========================
+           CONTEÚDO
+        ========================= */
+
+        main {
+            width: 84%;
+            max-width: 1200px;
+            margin: 35px auto;
+        }
+
+
+        /* =========================
+           BANNER
+        ========================= */
+
+        .banner {
+            min-height: 280px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #003b63,
+                    #000814,
+                    #001d35
+                );
+
+            color: white;
+
+            box-shadow:
+                0 10px 40px rgba(0, 91, 150, 0.35);
+
+            position: relative;
+            overflow: hidden;
+
+            border:
+                1px solid rgba(0, 183, 255, 0.25);
+
+            animation:
+                bannerEntrada 1s ease;
+        }
+
+
+        .banner::before {
+            content: "";
+
+            position: absolute;
+
+            width: 300px;
+            height: 300px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(255, 210, 0, 0.12);
+
+            top: -100px;
+            right: -50px;
+
+            animation:
+                flutuar 5s ease-in-out infinite;
+        }
+
+
+        .banner::after {
+            content: "";
+
+            position: absolute;
+
+            width: 200px;
+            height: 200px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(0, 183, 255, 0.08);
+
+            bottom: -80px;
+            left: 10%;
+
+            animation:
+                flutuar 7s ease-in-out infinite reverse;
+        }
+
+
+        .banner h1 {
+            position: relative;
+            z-index: 1;
+
+            font-size:
+                clamp(45px, 8vw, 85px);
+
+            letter-spacing: 8px;
+
+            text-shadow:
+                0 0 10px #fff,
+                0 0 25px #008cff,
+                0 0 50px #005b96;
+
+            animation:
+                brilho 3s ease-in-out infinite;
+        }
+
+
+        /* =========================
+           TÍTULOS
+        ========================= */
+
+        .section-title {
+            text-align: center;
+            margin: 45px 0 25px;
+        }
+
+
+        .section-title h2 {
+            color: #00aaff;
+            font-size: 32px;
+
+            text-shadow:
+                0 0 15px rgba(0, 170, 255, 0.4);
+        }
+
+
+        .section-title p {
+            color: #888;
+            margin-top: 8px;
+        }
+
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .cards {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 25px;
+
+            margin: 30px 0;
+        }
+
+
+        .card {
+            background:
+                linear-gradient(
+                    145deg,
+                    #111,
+                    #050505
+                );
+
+            padding: 30px 25px 35px;
+
+            border-radius: 15px;
+
+            text-align: center;
+
+            box-shadow:
+                0 5px 25px rgba(0, 0, 0, 0.7);
+
+            border-top:
+                5px solid #005b96;
+
+            border-left:
+                1px solid rgba(255, 255, 255, 0.05);
+
+            border-right:
+                1px solid rgba(255, 255, 255, 0.05);
+
+            transition:
+                transform 0.4s ease,
+                box-shadow 0.4s ease,
+                border-color 0.4s ease;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        /* =========================
+           ÍCONE DO CURSO
+        ========================= */
+
+        .course-icon {
+            width: 85px;
+            height: 85px;
+
+            margin: 0 auto 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 22px;
+
+            font-size: 44px;
+
+            background:
+                rgba(0, 140, 255, 0.12);
+
+            border:
+                1px solid rgba(0, 170, 255, 0.25);
+
+            box-shadow:
+                0 0 25px rgba(0, 140, 255, 0.15);
+
+            position: relative;
+            z-index: 1;
+
+            transition:
+                transform 0.4s ease,
+                box-shadow 0.4s ease;
+        }
+
+
+        .card:hover .course-icon {
+            transform:
+                translateY(-5px)
+                scale(1.12);
+
+            box-shadow:
+                0 0 30px currentColor;
+        }
+
+
+        /* Cores dos ícones */
+
+        .card:nth-child(1) .course-icon {
+            color: #00aaff;
+            background: rgba(0, 170, 255, 0.12);
+        }
+
+
+        .card:nth-child(2) .course-icon {
+            color: #ffd200;
+            background: rgba(255, 210, 0, 0.12);
+        }
+
+
+        .card:nth-child(3) .course-icon {
+            color: #e30613;
+            background: rgba(227, 6, 19, 0.12);
+        }
+
+
+        .card:nth-child(4) .course-icon {
+            color: #00c853;
+            background: rgba(0, 200, 83, 0.12);
+        }
+
+
+        .card:nth-child(5) .course-icon {
+            color: #b56cff;
+            background: rgba(142, 68, 173, 0.12);
+        }
+
+
+        .card:nth-child(6) .course-icon {
+            color: #ff7b00;
+            background: rgba(255, 123, 0, 0.12);
+        }
+
+
+        /* =========================
+           EFEITO DO CARD
+        ========================= */
+
+        .card::before {
+            content: "";
+
+            position: absolute;
+
+            width: 120px;
+            height: 120px;
+
+            background:
+                rgba(0, 140, 255, 0.08);
+
+            border-radius: 50%;
+
+            top: -60px;
+            right: -60px;
+
+            transition: 0.5s ease;
+        }
+
+
+        .card:hover::before {
+            transform: scale(2.5);
+        }
+
+
+        .card:hover {
+            transform:
+                translateY(-10px)
+                scale(1.02);
+
+            box-shadow:
+                0 15px 45px rgba(0, 110, 255, 0.25);
+
+            border-top-color:
+                #00aaff;
+        }
+
+
+        .card:nth-child(2) {
+            border-top-color: #ffd200;
+        }
+
+
+        .card:nth-child(2):hover {
+            box-shadow:
+                0 15px 45px rgba(255, 210, 0, 0.2);
+        }
+
+
+        .card:nth-child(3) {
+            border-top-color: #e30613;
+        }
+
+
+        .card:nth-child(3):hover {
+            box-shadow:
+                0 15px 45px rgba(227, 6, 19, 0.25);
+        }
+
+
+        .card:nth-child(4) {
+            border-top-color: #00c853;
+        }
+
+
+        .card:nth-child(5) {
+            border-top-color: #8e44ad;
+        }
+
+
+        .card:nth-child(6) {
+            border-top-color: #ff7b00;
+        }
+
+
+        /* =========================
+           TÍTULO DOS CARDS
+        ========================= */
+
+        .card h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+
+            color: #00aaff;
+
+            position: relative;
+            z-index: 1;
+
+            transition: 0.3s ease;
+        }
+
+
+        .card:hover h2 {
+            transform: scale(1.08);
+
+            text-shadow:
+                0 0 15px currentColor;
+        }
+
+
+        .card:nth-child(2) h2 {
+            color: #ffd200;
+        }
+
+
+        .card:nth-child(3) h2 {
+            color: #e30613;
+        }
+
+
+        .card:nth-child(4) h2 {
+            color: #00c853;
+        }
+
+
+        .card:nth-child(5) h2 {
+            color: #b56cff;
+        }
+
+
+        .card:nth-child(6) h2 {
+            color: #ff7b00;
+        }
+
+
+        .card p {
+            color: #aaa;
+
+            margin-bottom: 25px;
+
+            position: relative;
+            z-index: 1;
+        }
+
+
+        /* =========================
+           BOTÕES
+        ========================= */
+
+        .card button {
+            border: none;
+
+            background: #005b96;
+            color: white;
+
+            padding: 12px 25px;
+
+            border-radius: 25px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+            transition:
+                transform 0.3s ease,
+                filter 0.3s ease,
+                box-shadow 0.3s ease;
+
+            position: relative;
+            z-index: 1;
+        }
+
+
+        .card:nth-child(2) button {
+            background: #c69a00;
+        }
+
+
+        .card:nth-child(3) button {
+            background: #e30613;
+        }
+
+
+        .card:nth-child(4) button {
+            background: #008f3c;
+        }
+
+
+        .card:nth-child(5) button {
+            background: #7b2cbf;
+        }
+
+
+        .card:nth-child(6) button {
+            background: #d96500;
+        }
+
+
+        .card button:hover {
+            transform: scale(1.08);
+
+            filter: brightness(1.2);
+
+            box-shadow:
+                0 0 20px currentColor;
+        }
+
+
+        .card button:active {
+            transform: scale(0.95);
+        }
+
+
+        /* =========================
+           INFORMAÇÕES
+        ========================= */
+
+        .info-section {
+            margin: 55px 0;
+        }
+
+
+        .info-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 20px;
+        }
+
+
+        .info-box {
+            background:
+                linear-gradient(
+                    145deg,
+                    #0d0d0d,
+                    #050505
+                );
+
+            border:
+                1px solid rgba(0, 170, 255, 0.15);
+
+            border-radius: 14px;
+
+            padding: 25px;
+
+            transition:
+                transform 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+
+
+        .info-box:hover {
+            transform: translateY(-5px);
+
+            border-color:
+                rgba(0, 170, 255, 0.5);
+
+            box-shadow:
+                0 10px 30px rgba(0, 140, 255, 0.12);
+        }
+
+
+        .info-box h3 {
+            color: #00aaff;
+            margin-bottom: 10px;
+        }
+
+
+        .info-box p {
+            color: #999;
+        }
+
+
+        /* =========================
+           ESTATÍSTICAS
+        ========================= */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
+
+            margin: 45px 0;
+        }
+
+
+        .stat {
+            text-align: center;
+
+            padding: 25px 15px;
+
+            background: #080808;
+
+            border-radius: 12px;
+
+            border-bottom:
+                3px solid #005b96;
+
+            transition: 0.3s ease;
+        }
+
+
+        .stat:hover {
+            transform: translateY(-5px);
+
+            border-bottom-color:
+                #ffd200;
+        }
+
+
+        .stat strong {
+            display: block;
+
+            color: #00aaff;
+
+            font-size: 30px;
+        }
+
+
+        .stat span {
+            color: #888;
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           MODAL
+        ========================= */
+
+        .video-modal {
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(0, 0, 0, 0.90);
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            z-index: 2000;
+
+            backdrop-filter:
+                blur(8px);
+        }
+
+
+        .video-modal.active {
+            display: flex;
+        }
+
+
+        .modal-content {
+            width: 100%;
+            max-width: 850px;
+
+            background: #0a0a0a;
+
+            color: white;
+
+            border-radius: 18px;
+
+            padding: 30px;
+
+            position: relative;
+
+            border:
+                1px solid rgba(0, 170, 255, 0.3);
+
+            box-shadow:
+                0 0 50px rgba(0, 100, 255, 0.2);
+
+            animation:
+                aparecer 0.3s ease;
+        }
+
+
+        .modal-content h2 {
+            color: #00aaff;
+
+            margin-bottom: 20px;
+
+            text-shadow:
+                0 0 15px rgba(0, 170, 255, 0.5);
+        }
+
+
+        /* =========================
+           BOTÃO FECHAR
+        ========================= */
+
+        .close {
+            position: absolute;
+
+            top: 15px;
+            right: 20px;
+
+            width: 40px;
+            height: 40px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background: #e30613;
+            color: white;
+
+            font-size: 25px;
+
+            cursor: pointer;
+
+            transition: 0.3s ease;
+        }
+
+
+        .close:hover {
+            transform:
+                rotate(90deg)
+                scale(1.1);
+
+            background: #b9000e;
+
+            box-shadow:
+                0 0 20px #e30613;
+        }
+
+
+        /* =========================
+           PLAYER
+        ========================= */
+
+        .video-container {
+            width: 100%;
+
+            aspect-ratio: 16 / 9;
+
+            background: #000;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 0 25px rgba(0, 0, 0, 0.8);
+        }
+
+
+        #youtubePlayer {
+            width: 100%;
+            height: 100%;
+
+            display: block;
+
+            border: none;
+        }
+
+
+        /* =========================
+           RODAPÉ
+        ========================= */
+
+        footer {
+            margin-top: 60px;
+
+            background: #050505;
+
+            color: white;
+
+            text-align: center;
+
+            padding: 30px 20px;
+
+            border-top:
+                1px solid rgba(0, 140, 255, 0.2);
+
+            box-shadow:
+                0 -5px 25px rgba(0, 0, 0, 0.7);
+        }
+
+
+        footer p {
+            font-weight: bold;
+
+            letter-spacing: 2px;
+
+            color: #00aaff;
+
+            text-shadow:
+                0 0 10px #005b96;
+        }
+
+
+        footer span {
+            display: block;
+
+            margin-top: 8px;
+
+            color: #888;
+
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           ANIMAÇÕES
+        ========================= */
+
+        @keyframes brilho {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.75;
+            }
+        }
+
+
+        @keyframes flutuar {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(20px);
+            }
+        }
+
+
+        @keyframes bannerEntrada {
+
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        @keyframes aparecer {
+
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+
+        /* =========================
+           RESPONSIVIDADE
+        ========================= */
+
+        @media (max-width: 768px) {
+
+            header {
+                padding: 15px 5%;
+
+                flex-direction: column;
+
+                gap: 15px;
+            }
+
+
+            .menu {
+                gap: 18px;
+            }
+
+
+            main {
+                width: 90%;
+            }
+
+
+            .banner {
+                min-height: 220px;
+            }
+
+
+            .banner h1 {
+                letter-spacing: 4px;
+            }
+
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+
+            .modal-content {
+                padding: 22px;
+            }
+
+        }
+
+
+        @media (max-width: 480px) {
+
+            .logo {
+                font-size: 25px;
+            }
+
+
+            .menu {
+                width: 100%;
+
+                justify-content: space-between;
+
+                gap: 10px;
+            }
+
+
+            .menu a {
+                font-size: 13px;
+            }
+
+
+            .banner {
+                min-height: 180px;
+            }
+
+
+            .card {
+                padding: 30px 20px;
+            }
+
+
+            .course-icon {
+                width: 75px;
+                height: 75px;
+                font-size: 38px;
+            }
+
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+
+            .modal-content {
+                padding: 20px 15px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         CABEÇALHO
+    ========================= -->
+
+    <header>
+
+        <div class="logo">
+            SENAI
+        </div>
+
+
+        <nav aria-label="Menu principal">
+
+            <ul class="menu">
+
+                <li>
+                    <a href="#inicio">
+                        Início
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#cursos">
+                        Cursos
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#tecnologia">
+                        Tecnologia
+                    </a>
+                </li>
+
+                
+
+            </ul>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =========================
+         CONTEÚDO
+    ========================= -->
+
+    <main id="inicio">
+
+
+        <!-- BANNER -->
+
+        <section
+            class="banner"
+            aria-label="Banner principal">
+
+             <img src="https://media.licdn.com/dms/image/v2/D4D1BAQFknofuOJsJ-Q/company-background_10000/company-background_10000/0/1658493207949/senai_solues_digitais_cover?e=2147483647&v=beta&t=tm1oWeWoD7iY5KGSVRm32L-gDLeWCZFFiDMN_F_kQeA" alt="SENAI" style="height: 380px";>
+
+        </section>
+
+
+        <!-- =========================
+             CURSOS
+        ========================= -->
+
+        <div
+            class="section-title"
+            id="cursos">
+
+            <h2>
+                Desenvolvimento de Sistemas 
+            </h2>
+
+            <p>
+                Do código à solução: desenvolva suas habilidades em tecnologia.
+            </p>
+
+        </div>
+
+
+        <section
+            class="cards"
+            aria-label="Cursos de tecnologia">
+
+
+            <!-- =========================
+                 PROGRAMAÇÃO
+            ========================= -->
+
+            <article class="card">
+
+                <div class="course-icon"
+                    aria-label="Ícone de programação">
+                    <i class="fa-solid fa-desktop"></i>
+                </div>
+
+                <h2>
+                    Programação
+                </h2>
+
+                <p>
+                    Transforme ideias em código, sistemas e aplicações.
+                </p>
+
+                <button
+                    type="button"
+                    class="open-video"
+                    data-video="https://www.youtube.com/embed/zOjov-2OZ0E"
+                    data-title="Programação">
+
+                    ▶ Assistir
+
+                </button>
+
+            </article>
+
+
+            <!-- =========================
+                 REDES
+            ========================= -->
+
+            <article class="card">
+
+                <div class="course-icon"
+                    aria-label="Ícone de redes">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
+
+                <h2>
+                    Redes
+                </h2>
+
+                <p>
+                    Aprenda sobre redes, infraestrutura, servidores e conectividade.
+                </p>
+
+                <button
+                    type="button"
+                    class="open-video"
+                    data-video="https://www.youtube.com/embed/qiQR5rTSshw"
+                    data-title="Redes de Computadores">
+
+                    ▶ Assistir
+
+                </button>
+
+            </article>
+
+
+            <!-- =========================
+                 IA
+            ========================= -->
+
+            <article class="card">
+
+                <div class="course-icon"
+                    aria-label="Ícone de inteligência artificial">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+
+                <h2>
+                    IA & Dados
+                </h2>
+
+                <p>
+                    Transforme dados em insights e inovação com inteligência artificial.
+                </p>
+
+                <button
+                    type="button"
+                    class="open-video"
+                    data-video="https://www.youtube.com/embed/JaykXWMCCrM?si=YnKAdNKQwzIkFAUc"
+                    data-title="Inteligência Artificial e Dados">
+
+                    ▶ Assistir
+
+                </button>
+
+            </article>
+
+
+            <!-- =========================
+                 CIBERSEGURANÇA
+            ========================= -->
+
+            <article class="card">
+
+                <div class="course-icon"
+                    aria-label="Ícone de cibersegurança">
+
+                     <i class="fa-solid fa-user-lock"></i>
+                </div>
+
+                <h2>
+                    Cibersegurança
+                </h2>
+
+                <p>
+                    Aprenda a proteger sistemas, redes e dados no mundo digital.
+                </p>
+
+                <button
+                    type="button"
+                    class="open-video"
+                    data-video="https://www.youtube.com/embed/inWWhr5tnEA"
+                    data-title="Cibersegurança">
+
+                    ▶ Assistir
+
+                </button>
+
+            </article>
+
+
+            <!-- =========================
+                 GITHUB
+            ========================= -->
+
+            <article class="card">
+
+                <div class="course-icon"
+                    aria-label="Ícone do GitHub">
+                    
+            <i class="devicon-github-original colored" style= "font-size: 50px; color: purple"></i>
+          
+                </div>
+
+                <h2>
+                    GitHub
+                </h2>
+
+                <p>
+                    Versione, colabore e desenvolva projetos de forma profissional.
+                </p>
+
+                <button
+                    type="button"
+                    class="open-video"
+                    data-video="https://www.youtube.com/embed/RGOj5yH7evk"
+                    data-title="GitHub">
+
+                    ▶ Assistir
+
+                </button>
+
+            </article>
+
+
+            <!-- =========================
+                 HTML
+            ========================= -->
+
+            <article class="card">
+
+                <div class="course-icon"
+                    aria-label="Ícone de HTML">
+                    <i class="fa-brands fa-html5"></i>
+                </div>
+
+                <h2>
+                    HTML
+                </h2>
+
+                <p>
+                    Aprenda a estruturar páginas web e criar interfaces com HTML.
+                </p>
+
+                <button
+                    type="button"
+                    class="open-video"
+                    data-video="https://www.youtube.com/embed/qz0aGYrrlhU"
+                    data-title="HTML">
+
+                    ▶ Assistir
+
+                </button>
+
+            </article>
+
+        </section>
+
+
+        <!-- =========================
+             ÁREAS DE TECNOLOGIA
+        ========================= -->
+
+        <section
+            class="info-section"
+            id="tecnologia">
+
+            <div class="section-title">
+
+                <h2>
+                    Áreas de Tecnologia
+                </h2>
+
+                <p>
+                    Conheça algumas das principais áreas
+                    para desenvolver sua carreira.
+                </p>
+
+            </div>
+
+
+            <div class="info-grid">
+
+                <article class="info-box">
+
+                    <h3>
+                        💻 Desenvolvimento
+                    </h3>
+
+                    <p>
+                        Aprenda a criar sites, sistemas,
+                        aplicações e soluções digitais
+                        utilizando diferentes tecnologias
+                        de programação.
+                    </p>
+
+                </article>
+
+
+                <article class="info-box">
+                
+                    <h3>
+                        🔒 Cibersegurança
+                    </h3>
+                         
+          
+                    <p>
+                        Conheça conceitos de proteção
+                        de dados, redes, sistemas e
+                        segurança da informação.
+                    </p>
+
+                </article>
+
+
+                <article class="info-box">
+
+                    <h3>
+                        🤖 Inteligência Artificial
+                    </h3>
+
+                    <p>
+                        Explore automação, aprendizado
+                        de máquina, análise de dados e
+                        novas aplicações de inteligência
+                        artificial.
+                    </p>
+
+                </article>
+
+
+                <article class="info-box">
+
+                    <h3>
+                        🌐 Redes e Infraestrutura
+                    </h3>
+
+                    <p>
+                        Desenvolva conhecimentos sobre
+                        redes, servidores, infraestrutura
+                        e conectividade.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             ESTATÍSTICAS
+        ========================= -->
+
+        <section class="stats">
+
+            <div class="stat">
+
+                <strong>
+                    100%
+                </strong>
+
+                <span>
+                    Foco em tecnologia
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <strong>
+                    6
+                </strong>
+
+                <span>
+                    Conteúdos em destaque
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <strong>
+                    4+
+                </strong>
+
+                <span>
+                    Áreas tecnológicas
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <strong>
+                    ∞
+                </strong>
+
+                <span>
+                    Possibilidades
+                </span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         MODAL DE VÍDEO
+    ========================= -->
+
+    <section
+        class="video-modal"
+        id="videoModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitulo"
+        aria-hidden="true">
+
+
+        <div class="modal-content">
+
+
+            <button
+                type="button"
+                class="close"
+                id="closeModal"
+                aria-label="Fechar vídeo">
+
+                &times;
+
+            </button>
+
+
+            <h2 id="modalTitulo">
+                Vídeo do curso
+            </h2>
+
+
+            <div class="video-container">
+
+                <iframe
+                    id="youtubePlayer"
+                    src="about:blank"
+                    title="Vídeo explicativo do curso"
+                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                    allowfullscreen>
+                </iframe>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         RODAPÉ
+    ========================= -->
+
+    <footer id="contato">
+
+        <p>
+            SENAI
+        </p>
+
+        <span>
+            Educação, tecnologia e inovação.
+        </span>
+
+        <span>
+            Cursos • Desenvolvimento • Tecnologia • Futuro
+        </span>
+
+    </footer>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        const modal =
+            document.getElementById(
+                "videoModal"
+            );
+
+
+        const player =
+            document.getElementById(
+                "youtubePlayer"
+            );
+
+
+        const closeButton =
+            document.getElementById(
+                "closeModal"
+            );
+
+
+        const modalTitulo =
+            document.getElementById(
+                "modalTitulo"
+            );
+
+
+        const openButtons =
+            document.querySelectorAll(
+                ".open-video"
+            );
+
+
+        /* =========================
+           ABRIR VÍDEO
+        ========================= */
+
+        openButtons.forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const video =
+                            button.getAttribute(
+                                "data-video"
+                            );
+
+
+                        const titulo =
+                            button.getAttribute(
+                                "data-title"
+                            );
+
+
+                        modalTitulo.textContent =
+                            titulo;
+
+
+                        player.src =
+                            video +
+                            "?autoplay=1&rel=0";
+
+
+                        modal.classList.add(
+                            "active"
+                        );
+
+
+                        modal.setAttribute(
+                            "aria-hidden",
+                            "false"
+                        );
+
+
+                        document.body.classList.add(
+                            "modal-open"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =========================
+           FECHAR VÍDEO
+        ========================= */
+
+        function fecharModal() {
+
+            player.src =
+                "about:blank";
+
+
+            modal.classList.remove(
+                "active"
+            );
+
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            document.body.classList.remove(
+                "modal-open"
+            );
+
+        }
+
+
+        /* BOTÃO X */
+
+        closeButton.addEventListener(
+            "click",
+            fecharModal
+        );
+
+
+        /* CLICAR FORA */
+
+        modal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === modal
+                ) {
+
+                    fecharModal();
+
+                }
+
+            }
+        );
+
+
+        /* TECLA ESC */
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Escape" &&
+                    modal.classList.contains(
+                        "active"
+                    )
+                ) {
+
+                    fecharModal();
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
