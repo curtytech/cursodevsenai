@@ -141,7 +141,7 @@ th{background:#f0f2f3}
 </section>
 
 <section class="section" id="mentalidade">
-<h2 class="section-title">0. Antes de tudo: o que o VS Code é — e o que ele não é</h2>
+<h2 class="section-title">0. Antes de tudo: o que o VS Code é — e o que ele não é</h2><div class="concept"><strong>Traduzindo para quem nunca programou:</strong> pense no VS Code como uma bancada de trabalho. Na bancada você abre seus arquivos, escreve, pesquisa e usa ferramentas. Mas a madeira, o martelo e os parafusos continuam sendo coisas diferentes. Do mesmo modo, VS Code, JavaScript, Git e navegador são ferramentas diferentes que trabalham juntas.</div>
 <p class="lead">O VS Code é um editor de código extensível. Ele organiza arquivos, entende linguagens, integra terminal, depuração, controle de versão e extensões. Mas ele não substitui o sistema operacional, a linguagem, o compilador ou o navegador.</p>
 <div class="tip"><strong>Mapa mental:</strong> seus arquivos existem no computador → o VS Code abre uma pasta → o Explorer mostra os arquivos → o Editor altera → o Terminal executa comandos → Problems/Output/Debug mostram diagnósticos → Git registra mudanças.</div>
 <p><strong>Uma confusão clássica:</strong> “meu projeto está dentro do VS Code”. Na prática, não. O projeto está em uma pasta real do disco. O VS Code apenas mostra e trabalha com essa pasta. Se você fechar o editor, os arquivos continuam lá.</p>
@@ -191,7 +191,7 @@ th{background:#f0f2f3}
 </section>
 
 <section class="section" id="explorer">
-<h2 class="section-title">2. Explorer: arquivos, pastas e a raiz do projeto</h2>
+<h2 class="section-title">2. Explorer: arquivos, pastas e a raiz do projeto</h2><div class="concept"><strong>Para leigos — o que é “raiz”?</strong> É a pasta principal a partir da qual você está organizando o projeto. Se sua aplicação está em <code>C:\Projetos\MinhaApp</code>, então <code>MinhaApp</code> pode ser a raiz aberta no VS Code. As subpastas ficam “dentro” dela.</div>
 <p class="lead">O Explorer é seu mapa de arquivos. Para iniciantes, entender “raiz”, caminhos e pasta aberta evita muitos problemas.</p>
 <pre>meu-projeto/
 ├── index.html
@@ -209,7 +209,7 @@ th{background:#f0f2f3}
 </section>
 
 <section class="section" id="workspace">
-<h2 class="section-title">3. O que realmente é um Workspace</h2><div class="tip"><strong>Termo técnico — contexto:</strong> quando dizemos que o VS Code tem “contexto do projeto”, significa que ele sabe qual pasta/workspace está aberto e pode usar isso para localizar arquivos, configurações, Git e ferramentas. Não significa que ele automaticamente entende toda a lógica da aplicação.</div>
+<h2 class="section-title">3. O que realmente é um Workspace</h2><div class="concept"><strong>Uma comparação simples:</strong> arquivo é uma folha; pasta é uma pasta física com várias folhas; workspace é a “mesa de trabalho” que o VS Code considera como seu contexto atual, podendo incluir uma ou até várias pastas.</div><div class="tip"><strong>Termo técnico — contexto:</strong> quando dizemos que o VS Code tem “contexto do projeto”, significa que ele sabe qual pasta/workspace está aberto e pode usar isso para localizar arquivos, configurações, Git e ferramentas. Não significa que ele automaticamente entende toda a lógica da aplicação.</div>
 <p class="lead">Workspace é o contexto de trabalho. Muitas vezes ele corresponde a uma pasta, mas também pode representar múltiplas pastas e configurações específicas.</p>
 <p><strong>Arquivo isolado:</strong> útil para uma edição rápida. <strong>Pasta/workspace:</strong> ideal para um projeto real.</p>
 <p>Configurações de workspace podem ser guardadas na pasta <code>.vscode</code>, dependendo do recurso. Isso permite que um projeto tenha comportamento específico sem mudar seus outros projetos.</p>
@@ -219,7 +219,7 @@ th{background:#f0f2f3}
 </section>
 
 <section class="section" id="editor">
-<h2 class="section-title">4. Editor: edição, IntelliSense e recursos essenciais</h2><div class="tip"><strong>Termo técnico — símbolo:</strong> variável, função, classe ou método são exemplos de elementos nomeados que ferramentas podem tratar como símbolos. <strong>Language Server</strong> é um serviço que várias linguagens usam para analisar código em segundo plano e fornecer sugestões, definições, referências e diagnósticos.</div>
+<h2 class="section-title">4. Editor: edição, IntelliSense e recursos essenciais</h2><div class="concept"><strong>Para leigos — o que é IntelliSense?</strong> É o conjunto de ajudas que aparece enquanto você escreve: sugestões, nomes de funções, informações de parâmetros e outros avisos. Ele não “programa sozinho”; ele usa informações da linguagem e do projeto para ajudar você.</div><div class="tip"><strong>Termo técnico — símbolo:</strong> variável, função, classe ou método são exemplos de elementos nomeados que ferramentas podem tratar como símbolos. <strong>Language Server</strong> é um serviço que várias linguagens usam para analisar código em segundo plano e fornecer sugestões, definições, referências e diagnósticos.</div>
 <p class="lead">O editor não é apenas um bloco de notas. Ele entende linguagens e pode fornecer sugestões, navegação, formatação e refatoração.</p>
 <table>
 <tr><th>Recurso</th><th>O que faz</th><th>Quando ajuda</th></tr>
@@ -317,9 +317,163 @@ console.log(nome);</pre>
 <div class="rare">Se Format On Save não fizer nada, pode não existir um formatador aplicável ou um padrão selecionado. A configuração sozinha não “inventa” um formatador.</div>
 </div></div>
 
-<div class="lesson"><div class="lesson-head"><h3>5.12 Undo, Redo e Git são coisas diferentes</h3><span>Histórico de edição</span></div><div class="lesson-body">
-<p><kbd>Ctrl</kbd>+<kbd>Z</kbd> desfaz operações recentes. Redo reaplica uma operação desfeita.</p>
-<div class="warning"><strong>Undo não é backup e não é Git.</strong> Undo pertence à edição atual. Git cria pontos de versionamento do projeto. São camadas diferentes.</div>
+<div class="lesson"><div class="lesson-head"><h3>5.12 Undo, Redo e Git são coisas diferentes</h3><span>Desfazer não é versionar</span></div><div class="lesson-body">
+
+<p>É muito comum um iniciante pensar que <strong>Undo, Redo e Git fazem quase a mesma coisa</strong>. Eles realmente têm relação com mudanças no código, mas trabalham em níveis diferentes.</p>
+
+<div class="tip"><strong>Explicando de forma simples:</strong><br>
+<strong>Undo</strong> = “volte uma ação”.<br>
+<strong>Redo</strong> = “refaça a ação que eu desfiz”.<br>
+<strong>Git</strong> = “guarde um ponto importante da história do meu projeto”.</div>
+
+<h4>1. O que é Undo?</h4>
+<p><strong>Undo</strong> significa <em>desfazer</em>. No Windows/Linux, o atalho mais comum é <kbd>Ctrl</kbd> + <kbd>Z</kbd>.</p>
+
+<p>Imagine que você tinha:</p>
+<pre>const nome = "Ana";</pre>
+
+<p>Sem querer, você alterou para:</p>
+<pre>const nome = "Ana123ABC";</pre>
+
+<p>Ao usar <kbd>Ctrl</kbd> + <kbd>Z</kbd>, o VS Code volta para a edição anterior:</p>
+<pre>const nome = "Ana";</pre>
+
+<div class="concept"><strong>O que aconteceu?</strong> O VS Code lembrou de uma operação recente de edição e aplicou o caminho inverso. Ele não criou um “backup profissional” do projeto.</div>
+
+<h4>2. O que é Redo?</h4>
+<p><strong>Redo</strong> significa <em>refazer</em>. Ele é útil quando você usa Undo e percebe que queria manter a mudança.</p>
+
+<p>Exemplo:</p>
+<pre>PASSO 1
+const idade = 20;
+
+PASSO 2
+const idade = 21;
+
+PASSO 3
+Ctrl + Z
+→ volta para 20
+
+PASSO 4
+Redo
+→ retorna para 21</pre>
+
+<p>O atalho de Redo pode variar de acordo com sistema e configuração. Se tiver dúvida, abra a <strong>Command Palette</strong> e procure por <code>Redo</code>.</p>
+
+<h4>3. Um exemplo prático com várias ações</h4>
+<p>Digite este HTML:</p>
+<pre>&lt;h1&gt;Minha página&lt;/h1&gt;
+&lt;p&gt;Primeiro texto&lt;/p&gt;</pre>
+
+<p>Agora faça, nesta ordem:</p>
+<ol>
+<li>Troque <code>Minha página</code> por <code>Meu site</code>.</li>
+<li>Troque <code>Primeiro texto</code> por <code>Bem-vindo ao meu site</code>.</li>
+<li>Adicione um botão.</li>
+</ol>
+
+<p>Seu código pode ficar assim:</p>
+<pre>&lt;h1&gt;Meu site&lt;/h1&gt;
+&lt;p&gt;Bem-vindo ao meu site&lt;/p&gt;
+&lt;button&gt;Entrar&lt;/button&gt;</pre>
+
+<p>Agora pressione <kbd>Ctrl</kbd> + <kbd>Z</kbd> algumas vezes. Você verá as alterações sendo desfeitas em sequência.</p>
+
+<div class="practice"><strong>Exercício:</strong> faça três mudanças diferentes, use Undo três vezes e depois Redo duas vezes. Observe cuidadosamente qual alteração desaparece e qual retorna.</div>
+
+<h4>4. Então por que precisamos de Git?</h4>
+<p>Porque o histórico de Undo é um recurso de edição, não um sistema completo de controle de versões.</p>
+
+<p>Imagine que você trabalhou durante dois dias em uma aplicação:</p>
+<pre>Versão da manhã
+   ↓
+adicionou login
+   ↓
+adicionou cadastro
+   ↓
+alterou layout
+   ↓
+quebrou alguma coisa</pre>
+
+<p>Undo pode ajudar em alterações recentes, mas não é a ferramenta correta para administrar a história de um projeto inteiro.</p>
+
+<p>Com Git, você pode criar pontos importantes chamados <strong>commits</strong>:</p>
+<pre>Commit 1 → "Página inicial funcionando"
+
+Commit 2 → "Adiciona tela de cadastro"
+
+Commit 3 → "Adiciona login"
+
+Commit 4 → "Melhora layout"</pre>
+
+<p>Você passa a ter uma linha histórica do desenvolvimento.</p>
+
+<div class="rare"><strong>Uma comparação fácil:</strong><br><br>
+📝 <strong>Undo/Redo</strong> é como apagar e reescrever enquanto você está fazendo uma atividade no caderno.<br><br>
+📸 <strong>Git commit</strong> é como tirar uma fotografia de uma etapa importante do trabalho e guardar essa fotografia com um nome e uma data.</div>
+
+<h4>5. Undo funciona mesmo sem Git?</h4>
+<p>Sim. Undo e Redo pertencem ao editor. Você pode usar os dois em um arquivo que nunca teve Git.</p>
+
+<h4>6. Git funciona sem Undo?</h4>
+<p>Também. Git acompanha versões salvas do projeto independentemente da pilha de Undo do editor.</p>
+
+<h4>7. Git salva automaticamente cada tecla que você digita?</h4>
+<p><strong>Não.</strong> Essa é uma confusão importante.</p>
+
+<p>Normalmente o fluxo é:</p>
+<pre>1. Você altera um arquivo
+       ↓
+2. Salva o arquivo
+       ↓
+3. Git percebe que ele mudou
+       ↓
+4. Você seleciona mudanças para o commit
+       ↓
+5. Cria o commit</pre>
+
+<p>Ou seja: Git não é uma gravação de tela de tudo o que você digitou.</p>
+
+<h4>8. Exemplo real: quando usar cada um</h4>
+<table>
+<tr><th>Situação</th><th>Ferramenta mais adequada</th><th>Por quê?</th></tr>
+<tr><td>Digitei uma letra errada agora</td><td>Undo</td><td>É uma mudança recente e simples.</td></tr>
+<tr><td>Desfiz uma linha e me arrependi</td><td>Redo</td><td>Você quer reaplicar o que acabou de desfazer.</td></tr>
+<tr><td>Minha tela de login estava funcionando ontem</td><td>Git</td><td>Você quer consultar uma versão anterior relevante.</td></tr>
+<tr><td>Quero registrar que finalizei o cadastro</td><td>Git commit</td><td>É um marco importante do projeto.</td></tr>
+<tr><td>Apaguei sem querer um trecho há poucos segundos</td><td>Undo</td><td>É a forma mais rápida.</td></tr>
+</table>
+
+<h4>9. Cuidado: salvar não é a mesma coisa que criar um commit</h4>
+<p><kbd>Ctrl</kbd> + <kbd>S</kbd> salva o estado atual do arquivo no disco.</p>
+
+<p>Um commit Git registra um ponto na história do projeto.</p>
+
+<pre>Ctrl + S
+→ "grave este arquivo no computador"
+
+Git Commit
+→ "registre este conjunto de mudanças na história do projeto"</pre>
+
+<div class="warning"><strong>Não use Git como desculpa para não salvar.</strong> Salvamento, Undo/Redo e Git são três mecanismos diferentes.</div>
+
+<h4>10. Miniatividade: simulando os três níveis</h4>
+<p>Crie <code>teste.html</code>:</p>
+<pre>&lt;h1&gt;Curso VS Code&lt;/h1&gt;</pre>
+
+<ol>
+<li>Salve com <kbd>Ctrl</kbd> + <kbd>S</kbd>.</li>
+<li>Troque o título para <code>Curso Completo de VS Code</code>.</li>
+<li>Use Undo e observe voltar.</li>
+<li>Use Redo e observe retornar.</li>
+<li>Se seu projeto já usa Git, abra Source Control e observe que o arquivo aparece como alterado.</li>
+<li>Não precisa criar commit se você ainda não estudou Git; apenas observe a diferença.</li>
+</ol>
+
+<div class="practice"><strong>Você entendeu se consegue responder:</strong><br>
+“Se eu fechar um projeto e quiser voltar para uma versão importante de vários dias atrás, devo confiar apenas em Ctrl+Z?”<br><br>
+Resposta: <strong>não</strong>. É justamente para esse tipo de histórico que usamos controle de versão como Git.</div>
+
 </div></div>
 
 <div class="lesson"><div class="lesson-head"><h3>5.13 Preview Tab: por que uma aba parece desaparecer</h3><span>Comportamento do editor</span></div><div class="lesson-body">
@@ -332,11 +486,279 @@ console.log(nome);</pre>
 <div class="rare"><strong>“O editor digitou sozinho?”</strong> Algumas automações vêm do editor, outras do suporte da linguagem e outras de extensões. Saber que existem essas camadas ajuda a investigar comportamentos inesperados.</div>
 </div></div>
 
-<div class="lesson"><div class="lesson-head"><h3>5.15 Snippets e Emmet</h3><span>Automação consciente</span></div><div class="lesson-body">
-<p><strong>Snippet</strong> é um modelo de código expansível. <strong>Emmet</strong> permite abreviações muito úteis em HTML/CSS.</p>
+<div class="lesson"><div class="lesson-head"><h3>5.15 Snippets e Emmet</h3><span>Escrever menos sem entender menos</span></div><div class="lesson-body">
+
+<p>Depois que você aprende a estrutura básica do código, começa a perceber que algumas coisas são digitadas várias vezes. É aí que entram <strong>Snippets</strong> e <strong>Emmet</strong>.</p>
+
+<div class="tip"><strong>Ideia principal:</strong> essas ferramentas servem para reduzir digitação repetitiva. Elas não substituem o conhecimento de HTML, CSS ou programação.</div>
+
+<h4>1. O que é um Snippet?</h4>
+<p><strong>Snippet</strong> significa, aproximadamente, um pequeno modelo ou trecho reutilizável de código.</p>
+
+<p>Em vez de escrever toda uma estrutura manualmente, você digita uma abreviação e o editor oferece um modelo.</p>
+
+<p>Exemplo conceitual:</p>
+<pre>Você digita:
+modelo-botao
+
+O snippet poderia gerar:
+
+&lt;button class="btn"&gt;
+    Clique aqui
+&lt;/button&gt;</pre>
+
+<p>Snippets podem vir do próprio suporte da linguagem, de extensões ou serem criados por você.</p>
+
+<h4>2. Por que snippets são úteis?</h4>
+<p>Eles são especialmente úteis para:</p>
+<ul>
+<li>estruturas repetidas;</li>
+<li>modelos de funções;</li>
+<li>blocos HTML;</li>
+<li>componentes;</li>
+<li>comentários padronizados;</li>
+<li>código que sua equipe escreve frequentemente.</li>
+</ul>
+
+<div class="rare"><strong>Mas existe uma regra importante:</strong> se você não entende o código gerado pelo snippet, ele está acelerando sua digitação antes de acelerar seu conhecimento.</div>
+
+<h4>3. O que é Emmet?</h4>
+<p><strong>Emmet</strong> é um sistema de abreviações muito usado para escrever HTML e CSS rapidamente. O VS Code possui suporte a Emmet em vários contextos.</p>
+
+<p>Você digita uma expressão curta e pede para o editor expandir.</p>
+
+<h4>4. Primeiro exemplo: criando uma tag</h4>
+<p>Em um arquivo HTML, digite:</p>
+<pre>h1</pre>
+
+<p>Com a sugestão/expansão do Emmet, isso pode virar:</p>
+<pre>&lt;h1&gt;&lt;/h1&gt;</pre>
+
+<p>Perceba: <strong>Emmet não criou uma nova linguagem</strong>. Ele apenas transformou uma abreviação em HTML normal.</p>
+
+<h4>5. Criando uma classe rapidamente</h4>
+<p>Digite:</p>
+<pre>div.container</pre>
+
+<p>Resultado esperado:</p>
+<pre>&lt;div class="container"&gt;&lt;/div&gt;</pre>
+
+<p>A lógica da abreviação é:</p>
+<pre>div        → tag
+.          → classe
+container  → nome da classe</pre>
+
+<h4>6. Criando um ID</h4>
+<p>Digite:</p>
+<pre>section#principal</pre>
+
+<p>Expansão:</p>
+<pre>&lt;section id="principal"&gt;&lt;/section&gt;</pre>
+
+<p>Aqui:</p>
+<pre># → representa ID na abreviação Emmet</pre>
+
+<h4>7. Criando elementos dentro de elementos</h4>
+<p>O símbolo <code>&gt;</code> significa “filho de”.</p>
+
+<p>Digite:</p>
+<pre>ul&gt;li</pre>
+
+<p>Resultado:</p>
+<pre>&lt;ul&gt;
+    &lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;</pre>
+
+<p>Leia como:</p>
+<pre>ul
+└── contém
+    └── li</pre>
+
+<h4>8. Repetindo elementos</h4>
+<p>O símbolo <code>*</code> pode indicar repetição.</p>
+
+<p>Digite:</p>
 <pre>ul&gt;li*3</pre>
-<p>Em HTML, essa abreviação pode gerar uma lista com três itens quando o Emmet está disponível.</p>
-<div class="warning"><strong>Para aprender:</strong> use Emmet somente depois de entender o HTML gerado. Ele deve economizar digitação, não esconder o conhecimento.</div>
+
+<p>Expansão:</p>
+<pre>&lt;ul&gt;
+    &lt;li&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;</pre>
+
+<div class="practice"><strong>Faça você mesmo:</strong> tente criar cinco itens usando <code>ul&gt;li*5</code>.</div>
+
+<h4>9. Adicionando texto</h4>
+<p>Emmet permite inserir conteúdo com chaves em diversas abreviações.</p>
+
+<p>Exemplo:</p>
+<pre>button{Salvar}</pre>
+
+<p>Pode gerar:</p>
+<pre>&lt;button&gt;Salvar&lt;/button&gt;</pre>
+
+<p>Agora combine:</p>
+<pre>button.btn{Salvar}</pre>
+
+<p>Resultado:</p>
+<pre>&lt;button class="btn"&gt;Salvar&lt;/button&gt;</pre>
+
+<h4>10. Exemplo completo: criando um card</h4>
+<p>Imagine que você quer escrever:</p>
+<pre>&lt;div class="card"&gt;
+    &lt;h2&gt;Produto&lt;/h2&gt;
+    &lt;p&gt;Descrição do produto&lt;/p&gt;
+    &lt;button&gt;Comprar&lt;/button&gt;
+&lt;/div&gt;</pre>
+
+<p>Uma abreviação Emmet possível é:</p>
+<pre>div.card&gt;h2{Produto}+p{Descrição do produto}+button{Comprar}</pre>
+
+<p>Observe o significado:</p>
+<pre>div.card
+    → cria div com class="card"
+
+&gt;
+    → os próximos elementos ficam dentro da div
+
+h2{Produto}
+    → cria h2 com o texto Produto
+
++
+    → cria um elemento irmão, no mesmo nível
+
+p{Descrição do produto}
+    → cria o parágrafo
+
++
+    → outro irmão
+
+button{Comprar}
+    → cria o botão</pre>
+
+<div class="rare"><strong>Essa leitura da abreviação é mais importante que decorar.</strong> Quando você entende <code>.</code>, <code>#</code>, <code>&gt;</code>, <code>+</code>, <code>*</code> e <code>{texto}</code>, consegue construir várias combinações.</div>
+
+<h4>11. Emmet para estrutura inicial do HTML</h4>
+<p>Em um arquivo <code>.html</code> vazio, digite:</p>
+<pre>!</pre>
+
+<p>Dependendo do contexto e sugestões ativas, o Emmet pode oferecer a estrutura base de um documento HTML.</p>
+
+<p>Algo semelhante a:</p>
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+<div class="warning"><strong>Para o iniciante:</strong> não aceite essa estrutura como “mágica”. Você deve saber o que são <code>DOCTYPE</code>, <code>html</code>, <code>head</code>, <code>meta</code>, <code>title</code> e <code>body</code>.</div>
+
+<h4>12. Quando a abreviação não expande?</h4>
+<p>Antes de achar que o VS Code está quebrado, verifique:</p>
+<ol>
+<li>O arquivo está realmente salvo como <code>.html</code> ou <code>.css</code>?</li>
+<li>O <strong>Language Mode</strong> da Status Bar está correto?</li>
+<li>A sugestão do Emmet apareceu na lista?</li>
+<li>Você está em um lugar onde aquela abreviação faz sentido?</li>
+<li>Alguma configuração/extensão mudou o comportamento?</li>
+</ol>
+
+<div class="tip"><strong>Diagnóstico simples:</strong> se você está em um arquivo chamado <code>pagina.txt</code>, o VS Code pode tratá-lo como texto comum. Renomear para <code>pagina.html</code> ou alterar o Language Mode muda o contexto.</div>
+
+<h4>13. Emmet em CSS</h4>
+<p>Emmet também pode ajudar no CSS.</p>
+
+<p>Por exemplo, dependendo das sugestões disponíveis:</p>
+<pre>m10</pre>
+
+<p>pode sugerir algo equivalente a:</p>
+<pre>margin: 10px;</pre>
+
+<p>Outro exemplo:</p>
+<pre>p20</pre>
+
+<p>pode resultar em:</p>
+<pre>padding: 20px;</pre>
+
+<p>Essas abreviações são úteis, mas não tente decorar centenas delas. Use as que aparecem naturalmente no seu trabalho.</p>
+
+<h4>14. Snippet × Emmet: qual é a diferença?</h4>
+<table>
+<tr><th>Snippets</th><th>Emmet</th></tr>
+<tr><td>Modelos de código pré-definidos.</td><td>Sistema de abreviações, muito popular em HTML/CSS.</td></tr>
+<tr><td>Podem existir para várias linguagens.</td><td>É especialmente conhecido por HTML e CSS.</td></tr>
+<tr><td>Podem ter campos editáveis.</td><td>Expande uma expressão abreviada.</td></tr>
+<tr><td>Você também pode criar snippets personalizados.</td><td>Usa uma sintaxe própria de abreviações.</td></tr>
+</table>
+
+<h4>15. Criando seu próprio snippet — entendendo a ideia</h4>
+<p>O VS Code permite criar snippets personalizados. Você não precisa dominar isso agora, mas é interessante entender o formato.</p>
+
+<p>Um snippet poderia ser configurado conceitualmente assim:</p>
+<pre>{
+  "Botão padrão": {
+    "prefix": "meubotao",
+    "body": [
+      "&lt;button class=\"btn\"&gt;$1&lt;/button&gt;"
+    ],
+    "description": "Cria um botão padrão"
+  }
+}</pre>
+
+<p>Nesse exemplo:</p>
+<ul>
+<li><code>prefix</code> é o que você digitaria para encontrar o snippet;</li>
+<li><code>body</code> é o código gerado;</li>
+<li><code>$1</code> representa uma posição onde o cursor poderá parar;</li>
+<li><code>description</code> explica o snippet.</li>
+</ul>
+
+<div class="rare"><strong>Esse é um ótimo exemplo de automação saudável:</strong> você primeiro entende o HTML, depois automatiza um padrão que já domina.</div>
+
+<h4>16. Exercício prático de Emmet</h4>
+<p>Crie um arquivo chamado <code>emmet.html</code>. Depois tente gerar, sem copiar o resultado pronto:</p>
+
+<p><strong>Desafio A</strong></p>
+<pre>div.container</pre>
+
+<p><strong>Desafio B</strong></p>
+<pre>nav&gt;ul&gt;li*4</pre>
+
+<p><strong>Desafio C</strong></p>
+<pre>div.card&gt;h2{Curso VS Code}+p{Aprenda do zero}+button{Começar}</pre>
+
+<p>Depois de expandir, leia o HTML gerado linha por linha e explique:</p>
+<ul>
+<li>qual elemento é pai;</li>
+<li>quais são filhos;</li>
+<li>quais são irmãos;</li>
+<li>onde há classe;</li>
+<li>onde há texto.</li>
+</ul>
+
+<h4>17. O exercício mais importante: fazer sem Emmet</h4>
+<p>Depois de criar o card com Emmet, apague-o e escreva o mesmo HTML manualmente.</p>
+
+<div class="practice"><strong>Por quê?</strong> Porque o objetivo desta aula não é transformar você em alguém que sabe digitar abreviações. É transformar você em alguém que entende HTML e usa o VS Code para trabalhar mais rápido.</div>
+
+<h4>18. Quando usar Emmet e quando evitar</h4>
+<table>
+<tr><th>Use Emmet quando...</th><th>Evite depender dele quando...</th></tr>
+<tr><td>Você já entende a estrutura que será criada.</td><td>Você ainda não sabe explicar o HTML gerado.</td></tr>
+<tr><td>Está repetindo estruturas simples.</td><td>Está tentando “adivinhar” abreviações sem compreender.</td></tr>
+<tr><td>Quer economizar digitação.</td><td>Está aprendendo pela primeira vez uma tag importante.</td></tr>
+<tr><td>Consegue revisar o resultado.</td><td>Você aceita qualquer código gerado sem ler.</td></tr>
+</table>
+
+<div class="practice"><strong>Você dominou esta seção se conseguir olhar para:</strong><br><code>section.produtos&gt;div.card*3</code><br><br>e explicar, antes mesmo de expandir, que será criada uma <code>section</code> com a classe <code>produtos</code> contendo três <code>div</code> com a classe <code>card</code>.</div>
+
 </div></div>
 
 <div class="lesson"><div class="lesson-head"><h3>5.16 Exercício integrado</h3><span>10–15 minutos</span></div><div class="lesson-body">
@@ -354,7 +776,7 @@ console.log(nome);</pre>
 </section>
 
 <section class="section" id="status">
-<h2 class="section-title">6. Status Bar: aprenda a ler a barra inferior</h2>
+<h2 class="section-title">6. Status Bar: aprenda a ler a barra inferior</h2><div class="concept"><strong>Por que isso importa?</strong> A Status Bar funciona como o painel de um carro: você não dirige olhando só para ele, mas alguns indicadores ajudam a perceber rapidamente o estado atual do arquivo e do projeto.</div>
 <p class="lead">A Status Bar responde várias perguntas sem abrir menus.</p>
 <table>
 <tr><th>Exemplo</th><th>Significado</th></tr>
@@ -370,7 +792,7 @@ console.log(nome);</pre>
 </section>
 
 <section class="section" id="palette">
-<h2 class="section-title">7. Command Palette: o comando mais importante para aprender</h2>
+<h2 class="section-title">7. Command Palette: o comando mais importante para aprender</h2><div class="concept"><strong>Para leigos:</strong> pense na Command Palette como a busca de comandos do VS Code. Você não precisa saber em qual menu um recurso está; pode procurar pelo que deseja fazer.</div>
 <p class="lead">A Command Palette permite procurar ações pelo nome, mesmo quando você não sabe em qual menu elas estão.</p>
 <p>No Windows/Linux, use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>. Tente buscar:</p>
 <pre>Format Document
@@ -400,7 +822,7 @@ Reload Window</pre>
 </section>
 
 <section class="section" id="terminal">
-<h2 class="section-title">9. Terminal integrado — do zero e sem mistério</h2>
+<h2 class="section-title">9. Terminal integrado — do zero e sem mistério</h2><div class="concept"><strong>Para quem nunca usou terminal:</strong> em vez de clicar em botões, você escreve instruções em texto. Por exemplo, <code>cd</code> muda de pasta e <code>git status</code> pede ao Git informações sobre o projeto. O terminal não é “programação”; é uma forma de conversar com ferramentas por comandos.</div>
 <p class="lead">O terminal é uma das partes que mais assustam iniciantes porque mistura VS Code, sistema operacional e ferramentas externas.</p>
 <div class="cards">
 <div class="card"><h3>Terminal</h3><p>A interface onde você digita e vê saída.</p></div>
@@ -448,7 +870,7 @@ Reload Window</pre>
 </section>
 
 <section class="section" id="settings">
-<h2 class="section-title">12. Settings: User × Workspace</h2>
+<h2 class="section-title">12. Settings: User × Workspace</h2><div class="concept"><strong>Comparação simples:</strong> User Settings são como suas preferências pessoais de celular. Workspace Settings são como regras específicas daquele projeto. Uma regra do projeto pode ser diferente da sua preferência geral.</div>
 <p class="lead">Quase todo comportamento do VS Code pode ser configurado. O ponto difícil é entender o escopo.</p>
 <div class="cards">
 <div class="card"><h3>User Settings</h3><p>Suas preferências gerais, aplicadas a vários projetos.</p></div>
@@ -477,7 +899,7 @@ Reload Window</pre>
 </section>
 
 <section class="section" id="encoding">
-<h2 class="section-title">14. UTF-8, CRLF/LF e Language Mode</h2><div class="tip"><strong>Byte e caracteres invisíveis:</strong> arquivos são armazenados como bytes. O encoding define como bytes representam caracteres. Espaços, tabs e quebras de linha também fazem parte do arquivo, embora normalmente não apareçam como letras na tela.</div>
+<h2 class="section-title">14. UTF-8, CRLF/LF e Language Mode</h2><div class="concept"><strong>Não se assuste com os nomes.</strong> UTF-8 diz como texto é armazenado; CRLF/LF diz como as quebras de linha são registradas; Language Mode diz como o VS Code deve interpretar o tipo de arquivo. Você não precisa decorar tudo agora — precisa reconhecer para que serve cada indicador.</div><div class="tip"><strong>Byte e caracteres invisíveis:</strong> arquivos são armazenados como bytes. O encoding define como bytes representam caracteres. Espaços, tabs e quebras de linha também fazem parte do arquivo, embora normalmente não apareçam como letras na tela.</div>
 <p class="lead">Três pequenos indicadores que podem causar problemas grandes.</p>
 <h3>Encoding</h3>
 <p>Encoding define como caracteres são representados em bytes. UTF-8 é extremamente comum em desenvolvimento web. Caracteres estranhos como acentos quebrados podem envolver codificação.</p>
@@ -539,7 +961,7 @@ Reload Window</pre>
 </section>
 
 <section class="section" id="git">
-<h2 class="section-title">19. Source Control: o Git visto pelo VS Code</h2><div class="tip"><strong>Repositório e Staging Area:</strong> o repositório é a estrutura usada pelo Git para acompanhar histórico. Pense no fluxo <strong>Working Tree → Staging Area → Commit</strong>: você altera arquivos, escolhe quais mudanças entram no próximo registro e então cria o commit.</div>
+<h2 class="section-title">19. Source Control: o Git visto pelo VS Code</h2><div class="concept"><strong>Comparação simples:</strong> pense no Git como um histórico organizado de versões importantes do projeto. Ele permite registrar etapas e comparar mudanças sem depender apenas de cópias como <code>projeto-final-final-agora-vai.zip</code>.</div><div class="tip"><strong>Repositório e Staging Area:</strong> o repositório é a estrutura usada pelo Git para acompanhar histórico. Pense no fluxo <strong>Working Tree → Staging Area → Commit</strong>: você altera arquivos, escolhe quais mudanças entram no próximo registro e então cria o commit.</div>
 <p class="lead">O VS Code possui interface integrada de controle de versão, mas usa a instalação de Git do computador.</p>
 <p><strong>Git ≠ GitHub.</strong> Git registra versões. GitHub é uma plataforma de hospedagem e colaboração.</p>
 <ul>
@@ -553,7 +975,7 @@ Reload Window</pre>
 </section>
 
 <section class="section" id="debug">
-<h2 class="section-title">20. Run and Debug: observar o programa por dentro</h2><div class="tip"><strong>Processo e Call Stack:</strong> um programa em execução existe como um processo no sistema. A <strong>Call Stack</strong> acompanha a cadeia de chamadas de funções e ajuda a responder “como a execução chegou até aqui?”.</div>
+<h2 class="section-title">20. Run and Debug: observar o programa por dentro</h2><div class="concept"><strong>Para leigos:</strong> executar é deixar o programa correr normalmente. Depurar é colocar “pontos de parada” para observar valores e acompanhar o caminho da execução, como investigar um motor enquanto ele funciona.</div><div class="tip"><strong>Processo e Call Stack:</strong> um programa em execução existe como um processo no sistema. A <strong>Call Stack</strong> acompanha a cadeia de chamadas de funções e ajuda a responder “como a execução chegou até aqui?”.</div>
 <p class="lead">Executar é obter resultado. Depurar é investigar a execução.</p>
 <ul>
 <li><strong>Breakpoint:</strong> ponto onde a execução pausa.</li>
@@ -601,7 +1023,7 @@ Reload Window</pre>
 </section>
 
 <section class="section" id="erros">
-<h2 class="section-title">24. Método para interpretar erros no VS Code</h2>
+<h2 class="section-title">24. Método para interpretar erros no VS Code</h2><div class="concept"><strong>Regra de ouro para iniciante:</strong> erro não é uma sentença dizendo “você não sabe programar”. É uma mensagem técnica com pistas. Seu trabalho é descobrir: quem reclamou, em qual arquivo, em qual linha e sobre o quê.</div>
 <p class="lead">Não tente resolver erros olhando apenas a última linha.</p>
 <ol>
 <li><strong>Onde apareceu?</strong> Terminal, Problems, navegador, Debug Console?</li>
