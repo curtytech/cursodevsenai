@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu App Vue.js</title>
+
+  <!-- Vue.js -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <h1>{{ mensagem }}</h1>
+
+    <p>Contador: {{ contador }}</p>
+
+    <button @click="incrementar">
+      Clique aqui
+    </button>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue;
+
+    createApp({
+      setup() {
+        const mensagem = ref("Olá, Vue.js!");
+        const contador = ref(0);
+
+        function incrementar() {
+          contador.value++;
+        }
+
+        return {
+          mensagem,
+          contador,
+          incrementar
+        };
+      }
+    }).mount("#app");
+  </script>
+</body>
+</html>
