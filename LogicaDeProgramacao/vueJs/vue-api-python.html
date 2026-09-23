@@ -88,6 +88,8 @@
               throw new Error(`Erro ao carregar alunos: ${resposta.status}`);
             }
 
+            console.log(resposta);
+
             resultado.value = await resposta.json();
 
           } catch (erro) {

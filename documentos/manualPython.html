@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Python do Zero — Guia Básico</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pythonBlue: "#3776AB",
+                        pythonYellow: "#FFD343"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-950 text-slate-200">
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+    <header class="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+
+        <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+
+            <a href="#" class="flex items-center gap-3">
+                <div
+                    class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-blue-500 font-black text-slate-950">
+                    Py
+                </div>
+
+                <div>
+                    <span class="block font-bold text-white">Python do Zero</span>
+                    <span class="text-xs text-slate-400">Guia básico</span>
+                </div>
+            </a>
+
+            <div class="hidden items-center gap-8 text-sm text-slate-400 md:flex">
+                <a href="#fundamentos" class="transition hover:text-white">Fundamentos</a>
+                <a href="#condicoes" class="transition hover:text-white">Condições</a>
+                <a href="#funcoes" class="transition hover:text-white">Funções</a>
+                <a href="#operadores" class="transition hover:text-white">Operadores</a>
+            </div>
+
+            <a href="#comecar"
+                class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-yellow-300">
+                Começar
+            </a>
+
+        </nav>
+    </header>
+
+
+    <!-- =========================
+         HERO
+    ========================== -->
+    <main>
+
+        <section id="comecar" class="relative overflow-hidden pt-36 pb-24">
+
+            <!-- Background decorations -->
+            <div class="absolute -left-40 top-20 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl"></div>
+            <div class="absolute -right-40 top-10 h-96 w-96 rounded-full bg-yellow-400/10 blur-3xl"></div>
+
+            <div class="relative mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2">
+
+                <!-- Text -->
+                <div>
+
+                    <div
+                        class="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-4 py-2 text-sm text-blue-300">
+                        <span class="h-2 w-2 rounded-full bg-green-400"></span>
+                        Guia para iniciantes
+                    </div>
+
+                    <h1 class="max-w-3xl text-5xl font-black tracking-tight text-white md:text-7xl">
+                        Aprenda a
+                        <span class="bg-gradient-to-r from-yellow-300 to-blue-400 bg-clip-text text-transparent">
+                            ler Python
+                        </span>
+                    </h1>
+
+                    <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-400">
+                        Entenda a estrutura básica do Python, variáveis,
+                        tipos de dados, condições, funções, operadores
+                        e muito mais — sem complicação.
+                    </p>
+
+                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+
+                        <a href="#fundamentos"
+                            class="rounded-xl bg-blue-500 px-6 py-3 text-center font-bold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400">
+                            Começar agora →
+                        </a>
+
+                        <a href="#mapa"
+                            class="rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-center font-semibold text-white transition hover:bg-white/10">
+                            Ver mapa mental
+                        </a>
+
+                    </div>
+
+                    <div class="mt-10 flex gap-8 text-sm">
+                        <div>
+                            <strong class="block text-xl text-white">10+</strong>
+                            <span class="text-slate-500">conceitos</span>
+                        </div>
+
+                        <div>
+                            <strong class="block text-xl text-white">100%</strong>
+                            <span class="text-slate-500">iniciante</span>
+                        </div>
+
+                        <div>
+                            <strong class="block text-xl text-white">Python</strong>
+                            <span class="text-slate-500">3.x</span>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- Code card -->
+                <div class="relative">
+
+                    <div
+                        class="absolute -inset-4 rounded-3xl bg-gradient-to-r from-blue-500/20 to-yellow-400/10 blur-2xl">
+                    </div>
+
+                    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-2xl">
+
+                        <!-- Terminal header -->
+                        <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
+
+                            <div class="flex gap-2">
+                                <span class="h-3 w-3 rounded-full bg-red-400"></span>
+                                <span class="h-3 w-3 rounded-full bg-yellow-400"></span>
+                                <span class="h-3 w-3 rounded-full bg-green-400"></span>
+                            </div>
+
+                            <span class="font-mono text-xs text-slate-500">
+                                exemplo.py
+                            </span>
+
+                        </div>
+
+                        <pre class="overflow-x-auto p-6 text-sm leading-8"><code><span class="text-purple-400">def</span> <span class="text-blue-400">saudacao</span>(nome):
+
+    <span class="text-purple-400">if</span> nome:
+        <span class="text-purple-400">return</span> <span class="text-green-400">f"Olá, {nome}!"</span>
+
+    <span class="text-purple-400">return</span> <span class="text-green-400">"Olá!"</span>
+
+
+nome = <span class="text-yellow-300">"Maria"</span>
+
+mensagem = saudacao(nome)
+
+<span class="text-blue-400">print</span>(mensagem)</code></pre>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- =========================
+             FUNDAMENTOS
+        ========================== -->
+        <section id="fundamentos" class="border-t border-white/5 py-24">
+
+            <div class="mx-auto max-w-7xl px-6">
+
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-blue-400">
+                        01 — Fundamentos
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Comece pelos blocos básicos
+                    </h2>
+
+                    <p class="mt-4 text-slate-400">
+                        Antes de criar programas complexos, você precisa
+                        entender como Python guarda e manipula informações.
+                    </p>
+                </div>
+
+
+                <div class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+
+                    <!-- Card -->
+                    <div
+                        class="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-blue-400/30 hover:bg-white/[0.05]">
+
+                        <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-2xl">
+                            📦
+                        </div>
+
+                        <h3 class="text-lg font-bold text-white">
+                            Variáveis
+                        </h3>
+
+                        <p class="mt-2 text-sm leading-6 text-slate-400">
+                            Guardam informações que podem ser utilizadas
+                            durante a execução do programa.
+                        </p>
+
+                        <pre class="mt-5 rounded-xl bg-slate-950 p-4 text-xs text-green-300"><code>nome = "João"
+idade = 25</code></pre>
+
+                    </div>
+
+
+                    <!-- Card -->
+                    <div
+                        class="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-yellow-400/30 hover:bg-white/[0.05]">
+
+                        <div
+                            class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-400/10 text-2xl">
+                            🔤
+                        </div>
+
+                        <h3 class="text-lg font-bold text-white">
+                            Strings
+                        </h3>
+
+                        <p class="mt-2 text-sm leading-6 text-slate-400">
+                            Textos são representados normalmente entre
+                            aspas simples ou duplas.
+                        </p>
+
+                        <pre
+                            class="mt-5 rounded-xl bg-slate-950 p-4 text-xs text-green-300"><code>nome = "Maria"</code></pre>
+
+                    </div>
+
+
+                    <!-- Card -->
+                    <div
+                        class="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-green-400/30 hover:bg-white/[0.05]">
+
+                        <div
+                            class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-green-400/10 text-2xl">
+                            🔢
+                        </div>
+
+                        <h3 class="text-lg font-bold text-white">
+                            Números
+                        </h3>
+
+                        <p class="mt-2 text-sm leading-6 text-slate-400">
+                            Python trabalha com números inteiros,
+                            decimais e operações matemáticas.
+                        </p>
+
+                        <pre class="mt-5 rounded-xl bg-slate-950 p-4 text-xs text-green-300"><code>idade = 25
+preco = 19.90</code></pre>
+
+                    </div>
+
+
+                    <!-- Card -->
+                    <div
+                        class="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-purple-400/30 hover:bg-white/[0.05]">
+
+                        <div
+                            class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-400/10 text-2xl">
+                            ✓
+                        </div>
+
+                        <h3 class="text-lg font-bold text-white">
+                            Booleanos
+                        </h3>
+
+                        <p class="mt-2 text-sm leading-6 text-slate-400">
+                            Representam apenas dois estados:
+                            verdadeiro ou falso.
+                        </p>
+
+                        <pre class="mt-5 rounded-xl bg-slate-950 p-4 text-xs text-green-300"><code>logado = True
+bloqueado = False</code></pre>
+
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================
+             TIPOS
+        ========================== -->
+        <section class="bg-slate-900/50 py-24">
+
+            <div class="mx-auto max-w-7xl px-6">
+
+                <div class="grid gap-12 lg:grid-cols-2">
+
+                    <div>
+
+                        <span class="text-sm font-bold uppercase tracking-widest text-yellow-400">
+                            Tipos de dados
+                        </span>
+
+                        <h2 class="mt-3 text-4xl font-black text-white">
+                            Conheça os principais tipos
+                        </h2>
+
+                        <p class="mt-5 leading-7 text-slate-400">
+                            O tipo indica que tipo de informação uma variável
+                            está armazenando.
+                        </p>
+
+                    </div>
+
+
+                    <div class="grid grid-cols-2 gap-4">
+
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                            <span class="font-mono text-blue-400">str</span>
+                            <h3 class="mt-2 font-bold text-white">Texto</h3>
+                            <p class="mt-1 text-sm text-slate-500">"Olá"</p>
+                        </div>
+
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                            <span class="font-mono text-yellow-400">int</span>
+                            <h3 class="mt-2 font-bold text-white">Inteiro</h3>
+                            <p class="mt-1 text-sm text-slate-500">25</p>
+                        </div>
+
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                            <span class="font-mono text-green-400">float</span>
+                            <h3 class="mt-2 font-bold text-white">Decimal</h3>
+                            <p class="mt-1 text-sm text-slate-500">19.90</p>
+                        </div>
+
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                            <span class="font-mono text-purple-400">bool</span>
+                            <h3 class="mt-2 font-bold text-white">Booleano</h3>
+                            <p class="mt-1 text-sm text-slate-500">True / False</p>
+                        </div>
+
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                            <span class="font-mono text-pink-400">list</span>
+                            <h3 class="mt-2 font-bold text-white">Lista</h3>
+                            <p class="mt-1 text-sm text-slate-500">[1, 2, 3]</p>
+                        </div>
+
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                            <span class="font-mono text-orange-400">dict</span>
+                            <h3 class="mt-2 font-bold text-white">Dicionário</h3>
+                            <p class="mt-1 text-sm text-slate-500">{ "nome": "João" }</p>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- =========================
+     CONDICOES E CONTROLE
+========================== -->
+        <section class="bg-slate-900/50 py-24">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-blue-400">
+                        02 — Condições e controle
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Estruture decisões com clareza
+                    </h2>
+                </div>
+
+                <div class="mt-12 grid gap-8 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">ELIF</h3>
+                        <p class="mt-3 text-slate-400">
+                            O <strong class="text-white">elif</strong> significa "senão, se".
+                            Ele é usado quando precisamos verificar mais de uma condição.
+                        </p>
+
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>idade = 15
+
+if idade >= 18:
+    print("Adulto")
+elif idade >= 13:
+    print("Adolescente")
+else:
+    print("Criança")</code></pre>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">Operadores de comparação</h3>
+                        <table class="mt-5 w-full text-left text-sm text-slate-300">
+                            <thead>
+                                <tr class="border-b border-white/10 text-slate-200">
+                                    <th class="pb-3 pr-4 font-semibold">Operador</th>
+                                    <th class="pb-3 font-semibold">Significado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">==</code></td>
+                                    <td>igual</td>
+                                </tr>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">!=</code></td>
+                                    <td>diferente</td>
+                                </tr>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">&gt;</code></td>
+                                    <td>maior</td>
+                                </tr>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">&lt;</code></td>
+                                    <td>menor</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 pr-4"><code class="text-blue-300">&gt;=</code></td>
+                                    <td>maior ou igual</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-8 grid gap-8 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">Diferença entre = e ==</h3>
+                        <p class="mt-3 text-slate-400">
+                            O símbolo <code class="text-blue-300">=</code> atribui valor. Já
+                            <code class="text-blue-300">==</code> compara valores.
+                        </p>
+
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>idade = 20
+
+if idade == 20:
+    print("A idade é 20")</code></pre>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">Operadores lógicos</h3>
+                        <table class="mt-5 w-full text-left text-sm text-slate-300">
+                            <thead>
+                                <tr class="border-b border-white/10 text-slate-200">
+                                    <th class="pb-3 pr-4 font-semibold">Operador</th>
+                                    <th class="pb-3 font-semibold">Significado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">and</code></td>
+                                    <td>E</td>
+                                </tr>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">or</code></td>
+                                    <td>OU</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 pr-4"><code class="text-blue-300">not</code></td>
+                                    <td>NÃO</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================
+     BOLEANOS E LISTAS
+========================== -->
+        <section class="py-24">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-purple-400">
+                        03 — Booleanos e estruturas
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Trabalhe com decisões, listas e laços
+                    </h2>
+                </div>
+
+                <div class="mt-12 grid gap-8 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">AND, OR e NOT</h3>
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>idade = 25
+tem_documento = True
+
+if idade >= 18 and tem_documento:
+    print("Entrada permitida")
+
+if tem_dinheiro or tem_cartao:
+    print("Pode pagar")
+
+if not usuario_bloqueado:
+    print("Usuário liberado")</code></pre>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">True e False</h3>
+                        <p class="mt-3 text-slate-400">
+                            Em Python, valores booleanos representam verdadeiro ou falso.
+                        </p>
+
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>usuario_logado = True
+usuario_bloqueado = False</code></pre>
+                    </div>
+                </div>
+
+                <div class="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                    <h3 class="text-xl font-bold text-white">Listas</h3>
+                    <p class="mt-3 text-slate-400">
+                        Uma lista armazena vários valores em uma mesma variável.
+                    </p>
+
+                    <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>frutas = ["maçã", "banana", "laranja"]
+print(frutas[0])
+
+if "banana" in frutas:
+    print("Banana encontrada")</code></pre>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================
+     REPETICOES
+========================== -->
+        <section class="border-t border-white/5 bg-slate-900/60 py-24">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-yellow-400">
+                        04 — Repetições
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Repita trechos com eficiência
+                    </h2>
+                </div>
+
+                <div class="mt-12 grid gap-8 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">FOR</h3>
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>frutas = ["maçã", "banana", "laranja"]
+
+for fruta in frutas:
+    print(fruta)</code></pre>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">RANGE</h3>
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>for numero in range(1, 6):
+    print(numero)</code></pre>
+                    </div>
+                </div>
+
+                <div class="mt-8 grid gap-8 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">WHILE</h3>
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>contador = 0
+
+while contador &lt; 5:
+    print(contador)
+    contador += 1</code></pre>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">BREAK e CONTINUE</h3>
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>for numero in range(10):
+    if numero == 5:
+        break
+
+    if numero == 2:
+        continue
+
+    print(numero)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================
+     FUNCOES E ENTRADAS
+========================== -->
+        <section class="py-24">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-green-400">
+                        05 — Funções e entradas
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Organize seu código e receba dados
+                    </h2>
+                </div>
+
+                <div class="mt-12 grid gap-8 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">Funções</h3>
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>def saudacao(nome):
+    return f"Olá, {nome}!"
+
+print(saudacao("Maria"))</code></pre>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">INPUT</h3>
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>nome = input("Digite seu nome: ")
+print(f"Olá, {nome}!")</code></pre>
+                    </div>
+                </div>
+
+                <div class="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                    <h3 class="text-xl font-bold text-white">Conversão de tipos</h3>
+                    <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>idade = int("25")
+preco = float("19.90")
+texto = str(25)</code></pre>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================
+     DICIONARIOS
+========================== -->
+        <section class="border-t border-white/5 bg-slate-900/60 py-24">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-orange-400">
+                        06 — Estruturas de dados
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Dicionários e organização de dados
+                    </h2>
+                </div>
+
+                <div class="mt-12 grid gap-8 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">Dicionários</h3>
+                        <p class="mt-3 text-slate-400">
+                            Dicionários armazenam dados no formato <strong class="text-white">chave → valor</strong>.
+                        </p>
+
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>pessoa = {
+    "nome": "Carlos",
+    "idade": 25,
+    "cidade": "Rio de Janeiro"
+}
+
+print(pessoa["nome"])</code></pre>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">Principais tipos</h3>
+                        <ul class="mt-5 space-y-3 text-sm text-slate-300">
+                            <li><span class="font-mono text-blue-300">str</span> → texto</li>
+                            <li><span class="font-mono text-yellow-300">int</span> → inteiro</li>
+                            <li><span class="font-mono text-green-300">float</span> → decimal</li>
+                            <li><span class="font-mono text-purple-300">bool</span> → verdadeiro/falso</li>
+                            <li><span class="font-mono text-pink-300">list</span> → lista</li>
+                            <li><span class="font-mono text-orange-300">dict</span> → dicionário</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================
+     OPERADORES
+========================== -->
+        <section id="operadores" class="py-24">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-purple-400">
+                        05 — Operadores
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Operadores matemáticos e lógicos
+                    </h2>
+
+                    <p class="mt-4 text-slate-400">
+                        Com eles você faz cálculos, compara valores e controla decisões no programa.
+                    </p>
+                </div>
+
+                <div class="mt-12 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60">
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="bg-slate-950 text-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-semibold">Operador</th>
+                                <th class="px-6 py-4 font-semibold">Função</th>
+                                <th class="px-6 py-4 font-semibold">Exemplo</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr class="border-t border-white/10">
+                                <td class="px-6 py-4"><code class="text-blue-300">+</code></td>
+                                <td class="px-6 py-4">Soma</td>
+                                <td class="px-6 py-4"><code class="text-green-300">10 + 5</code></td>
+                            </tr>
+
+                            <tr class="border-t border-white/10">
+                                <td class="px-6 py-4"><code class="text-blue-300">-</code></td>
+                                <td class="px-6 py-4">Subtração</td>
+                                <td class="px-6 py-4"><code class="text-green-300">10 - 3</code></td>
+                            </tr>
+
+                            <tr class="border-t border-white/10">
+                                <td class="px-6 py-4"><code class="text-blue-300">*</code></td>
+                                <td class="px-6 py-4">Multiplicação</td>
+                                <td class="px-6 py-4"><code class="text-green-300">4 * 5</code></td>
+                            </tr>
+
+                            <tr class="border-t border-white/10">
+                                <td class="px-6 py-4"><code class="text-blue-300">/</code></td>
+                                <td class="px-6 py-4">Divisão</td>
+                                <td class="px-6 py-4"><code class="text-green-300">20 / 4</code></td>
+                            </tr>
+
+                            <tr class="border-t border-white/10">
+                                <td class="px-6 py-4"><code class="text-blue-300">%</code></td>
+                                <td class="px-6 py-4">Resto da divisão</td>
+                                <td class="px-6 py-4"><code class="text-green-300">10 % 3</code></td>
+                            </tr>
+
+                            <tr class="border-t border-white/10">
+                                <td class="px-6 py-4"><code class="text-blue-300">**</code></td>
+                                <td class="px-6 py-4">Potenciação</td>
+                                <td class="px-6 py-4"><code class="text-green-300">2 ** 3</code></td>
+                            </tr>
+
+                            <tr class="border-t border-white/10">
+                                <td class="px-6 py-4"><code class="text-blue-300">//</code></td>
+                                <td class="px-6 py-4">Divisão inteira</td>
+                                <td class="px-6 py-4"><code class="text-green-300">9 // 2</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-12 grid gap-8 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">Operadores de atribuição</h3>
+                        <p class="mt-3 text-slate-400">
+                            Eles servem para alterar o valor de uma variável de forma curta.
+                        </p>
+
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>valor = 10
+valor += 5
+valor *= 2</code></pre>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">Exemplo prático</h3>
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>numero1 = 10
+numero2 = 3
+
+soma = numero1 + numero2
+print(soma)
+# resultado: 13</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================
+     CONDICOES
+========================== -->
+        <section id="condicoes" class="border-t border-white/5 bg-slate-900/60 py-24">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-blue-400">
+                        02 — Condições
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Decida o fluxo do programa
+                    </h2>
+                </div>
+
+                <div class="mt-12 grid gap-8 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">if, elif e else</h3>
+                        <p class="mt-3 text-slate-400">
+                            As condições ajudam a executar trechos diferentes conforme o valor das variáveis.
+                        </p>
+
+                        <pre class="mt-5 overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>idade = 18
+
+if idade >= 18:
+    print("Maior de idade")
+elif idade >= 13:
+    print("Adolescente")
+else:
+    print("Criança")</code></pre>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <h3 class="text-xl font-bold text-white">Comparações</h3>
+                        <table class="mt-5 w-full text-left text-sm text-slate-300">
+                            <thead>
+                                <tr class="border-b border-white/10 text-slate-200">
+                                    <th class="pb-3 pr-4 font-semibold">Operador</th>
+                                    <th class="pb-3 font-semibold">Significado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">==</code></td>
+                                    <td>igual</td>
+                                </tr>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">!=</code></td>
+                                    <td>diferente</td>
+                                </tr>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">&gt;</code></td>
+                                    <td>maior</td>
+                                </tr>
+                                <tr class="border-b border-white/10">
+                                    <td class="py-3 pr-4"><code class="text-blue-300">&lt;</code></td>
+                                    <td>menor</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 pr-4"><code class="text-blue-300">&gt;=</code></td>
+                                    <td>maior ou igual</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================
+     FUNCOES
+========================== -->
+        <section id="funcoes" class="py-24">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-green-400">
+                        03 — Funções
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Reaproveite trechos de código
+                    </h2>
+                </div>
+
+                <div class="mt-12 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                    <pre class="overflow-x-auto rounded-xl bg-slate-950 p-4 text-sm text-green-300"><code>def saudacao(nome):
+    return f"Olá, {nome}!"
+
+print(saudacao("Maria"))
+print(saudacao("João"))</code></pre>
+
+                    <p class="mt-5 text-slate-400">
+                        Uma função organiza a lógica do programa em pequenos blocos reutilizáveis.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================
+     MAPA MENTAL
+========================== -->
+        <section id="mapa" class="border-t border-white/5 bg-slate-900/60 py-24">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="max-w-2xl">
+                    <span class="text-sm font-bold uppercase tracking-widest text-yellow-400">
+                        Mapa mental
+                    </span>
+
+                    <h2 class="mt-3 text-4xl font-black text-white">
+                        Em poucas palavras: como pensar em Python
+                    </h2>
+                </div>
+
+                <div class="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                        <h3 class="text-lg font-bold text-white">Variáveis</h3>
+                        <p class="mt-2 text-sm text-slate-400">Guardam dados.</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                        <h3 class="text-lg font-bold text-white">Condicionais</h3>
+                        <p class="mt-2 text-sm text-slate-400">Tomam decisões.</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                        <h3 class="text-lg font-bold text-white">Laços</h3>
+                        <p class="mt-2 text-sm text-slate-400">Repetem ações.</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                        <h3 class="text-lg font-bold text-white">Funções</h3>
+                        <p class="mt-2 text-sm text-slate-400">Organizam o código.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <footer class="border-t border-white/10 py-10">
+            <div class="mx-auto max-w-7xl px-6 text-center text-sm text-slate-400">
+                Python do Zero — guia básico para iniciantes.
+                <span class="text-slate-500">Pratique, teste e continue aprendendo.</span>
+            </div>
+        </footer>
+
+    </main>
+</body>
+
+</html>

@@ -20,6 +20,8 @@ def inicio():
     return jsonify({
         "mensagem": "API de alunos funcionando!"
     })
+
+    
 @app.route("/alunos", methods=["GET"])
 def listar_alunos():
     return jsonify(alunos)
