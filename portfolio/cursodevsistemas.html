@@ -9,17 +9,17 @@
         content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
-        content="Portal SENAI - Cursos, educação, tecnologia e inovação">
+        content="DevTube SENAI - Cursos, educação, tecnologia e inovação">
         
-            <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+    <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
 
-          <link rel="stylesheet" type='text/css' href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" />
+    <link rel="stylesheet" type='text/css' href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <link rel="icon"
         type="image/x-icon"
         href="https://icons.iconarchive.com/icons/icons-land/vista-hardware-devices/256/Computer-icon.png">
 
-    <title>SENAI | TI</title>
+    <title>DevTube SENAI | Cursos</title>
 
 
     <style>
@@ -44,6 +44,7 @@
             color: #fff;
             line-height: 1.5;
             overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         body.modal-open {
@@ -83,11 +84,13 @@
 
             border-bottom:
                 1px solid rgba(0, 183, 255, 0.2);
+
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
 
         .logo {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 900;
             letter-spacing: 2px;
 
@@ -98,11 +101,25 @@
                 0 0 25px rgba(0, 140, 255, 0.6);
 
             transition: 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
         }
 
+        .logo i {
+            color: #e30613;
+            font-size: 32px;
+            filter: drop-shadow(0 0 8px rgba(227, 6, 19, 0.6));
+        }
+
+        .logo span {
+            color: #00aaff;
+            transition: color 0.3s ease;
+        }
 
         .logo:hover {
-            transform: scale(1.08);
+            transform: scale(1.06);
 
             text-shadow:
                 0 0 15px #00b7ff,
@@ -111,8 +128,14 @@
 
 
         /* =========================
-           MENU
+           MENU E AÇÕES
         ========================= */
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
 
         .menu {
             display: flex;
@@ -163,6 +186,32 @@
 
 
         /* =========================
+           BOTÃO TEMA (WHITE/DARK)
+        ========================= */
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffd200;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.12) rotate(15deg);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 15px rgba(255, 210, 0, 0.5);
+        }
+
+
+        /* =========================
            CONTEÚDO
         ========================= */
 
@@ -184,8 +233,6 @@
             align-items: center;
             justify-content: center;
 
-            text-align: center;
-
             border-radius: 20px;
 
             background:
@@ -195,8 +242,6 @@
                     #000814,
                     #001d35
                 );
-
-            color: white;
 
             box-shadow:
                 0 10px 40px rgba(0, 91, 150, 0.35);
@@ -209,67 +254,16 @@
 
             animation:
                 bannerEntrada 1s ease;
+
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
         }
 
-
-        .banner::before {
-            content: "";
-
-            position: absolute;
-
-            width: 300px;
-            height: 300px;
-
-            border-radius: 50%;
-
-            background:
-                rgba(255, 210, 0, 0.12);
-
-            top: -100px;
-            right: -50px;
-
-            animation:
-                flutuar 5s ease-in-out infinite;
-        }
-
-
-        .banner::after {
-            content: "";
-
-            position: absolute;
-
-            width: 200px;
-            height: 200px;
-
-            border-radius: 50%;
-
-            background:
-                rgba(0, 183, 255, 0.08);
-
-            bottom: -80px;
-            left: 10%;
-
-            animation:
-                flutuar 7s ease-in-out infinite reverse;
-        }
-
-
-        .banner h1 {
-            position: relative;
-            z-index: 1;
-
-            font-size:
-                clamp(45px, 8vw, 85px);
-
-            letter-spacing: 8px;
-
-            text-shadow:
-                0 0 10px #fff,
-                0 0 25px #008cff,
-                0 0 50px #005b96;
-
-            animation:
-                brilho 3s ease-in-out infinite;
+        .banner img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 20px;
+            display: block;
         }
 
 
@@ -289,12 +283,15 @@
 
             text-shadow:
                 0 0 15px rgba(0, 170, 255, 0.4);
+
+            transition: color 0.3s ease, text-shadow 0.3s ease;
         }
 
 
         .section-title p {
             color: #888;
             margin-top: 8px;
+            transition: color 0.3s ease;
         }
 
 
@@ -343,11 +340,17 @@
             transition:
                 transform 0.4s ease,
                 box-shadow 0.4s ease,
-                border-color 0.4s ease;
+                border-color 0.4s ease,
+                background 0.3s ease;
 
             position: relative;
 
             overflow: hidden;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
         }
 
 
@@ -400,8 +403,9 @@
         /* Cores dos ícones */
 
         .card:nth-child(1) .course-icon {
-            color: #00aaff;
-            background: rgba(0, 170, 255, 0.12);
+            color: #42b883;
+            background: rgba(66, 184, 131, 0.12);
+            border-color: rgba(66, 184, 131, 0.3);
         }
 
 
@@ -471,16 +475,20 @@
 
             box-shadow:
                 0 15px 45px rgba(0, 110, 255, 0.25);
-
-            border-top-color:
-                #00aaff;
         }
 
+        .card:nth-child(1) {
+            border-top-color: #42b883;
+        }
+
+        .card:nth-child(1):hover {
+            box-shadow:
+                0 15px 45px rgba(66, 184, 131, 0.3);
+        }
 
         .card:nth-child(2) {
             border-top-color: #ffd200;
         }
-
 
         .card:nth-child(2):hover {
             box-shadow:
@@ -491,7 +499,6 @@
         .card:nth-child(3) {
             border-top-color: #e30613;
         }
-
 
         .card:nth-child(3):hover {
             box-shadow:
@@ -539,6 +546,11 @@
         }
 
 
+        .card:nth-child(1) h2 {
+            color: #42b883;
+        }
+
+
         .card:nth-child(2) h2 {
             color: #ffd200;
         }
@@ -571,39 +583,64 @@
 
             position: relative;
             z-index: 1;
+
+            transition: color 0.3s ease;
         }
 
 
         /* =========================
-           BOTÕES
+           BOTÕES DOS CARDS
         ========================= */
 
-        .card button {
+        .card button,
+        .card a.btn-assistir {
             border: none;
 
             background: #005b96;
             color: white;
 
-            padding: 12px 25px;
+            padding: 12px 28px;
 
             border-radius: 25px;
 
             cursor: pointer;
 
             font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 15px;
 
             transition:
                 transform 0.3s ease,
                 filter 0.3s ease,
-                box-shadow 0.3s ease;
+                box-shadow 0.3s ease,
+                background 0.3s ease;
 
             position: relative;
             z-index: 1;
         }
 
 
-        .card:nth-child(2) button {
+        /* Card 1: Vue (link para a playlist) */
+        .card:nth-child(1) a.btn-assistir {
+            background: #1b8352;
+        }
+
+        .card:nth-child(1) a.btn-assistir:hover {
+            background: #156d43;
+            box-shadow: 0 0 20px rgba(66, 184, 131, 0.6);
+        }
+
+         .card:nth-child(2) button,
+        .card:nth-child(2) a.btn-assistir {
             background: #c69a00;
+        }
+        .card:nth-child(2) a.btn-assistir:hover {
+            background: #a88200;
+            box-shadow: 0 0 20px rgba(255, 210, 0, 0.6);
         }
 
 
@@ -627,7 +664,8 @@
         }
 
 
-        .card button:hover {
+        .card button:hover,
+        .card a.btn-assistir:hover {
             transform: scale(1.08);
 
             filter: brightness(1.2);
@@ -637,7 +675,8 @@
         }
 
 
-        .card button:active {
+        .card button:active,
+        .card a.btn-assistir:active {
             transform: scale(0.95);
         }
 
@@ -679,7 +718,8 @@
             transition:
                 transform 0.3s ease,
                 border-color 0.3s ease,
-                box-shadow 0.3s ease;
+                box-shadow 0.3s ease,
+                background 0.3s ease;
         }
 
 
@@ -697,11 +737,13 @@
         .info-box h3 {
             color: #00aaff;
             margin-bottom: 10px;
+            transition: color 0.3s ease;
         }
 
 
         .info-box p {
             color: #999;
+            transition: color 0.3s ease;
         }
 
 
@@ -751,12 +793,14 @@
             color: #00aaff;
 
             font-size: 30px;
+            transition: color 0.3s ease;
         }
 
 
         .stat span {
             color: #888;
             font-size: 13px;
+            transition: color 0.3s ease;
         }
 
 
@@ -813,6 +857,8 @@
 
             animation:
                 aparecer 0.3s ease;
+
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
 
@@ -823,6 +869,8 @@
 
             text-shadow:
                 0 0 15px rgba(0, 170, 255, 0.5);
+
+            transition: color 0.3s ease;
         }
 
 
@@ -916,6 +964,8 @@
 
             box-shadow:
                 0 -5px 25px rgba(0, 0, 0, 0.7);
+
+            transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
 
@@ -928,6 +978,8 @@
 
             text-shadow:
                 0 0 10px #005b96;
+            font-size: 18px;
+            transition: color 0.3s ease;
         }
 
 
@@ -939,38 +991,221 @@
             color: #888;
 
             font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+
+        /* ===================================================
+           WHITE MODE / TEMA CLARO
+        =================================================== */
+
+        body.white-mode {
+            background: #f4f6f9;
+            color: #1e293b;
+        }
+
+        body.white-mode header {
+            background: rgba(255, 255, 255, 0.96);
+            color: #0f172a;
+            border-bottom: 1px solid rgba(0, 91, 150, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        body.white-mode .logo {
+            color: #003b63;
+            text-shadow: none;
+        }
+
+        body.white-mode .logo span {
+            color: #0077cc;
+        }
+
+        body.white-mode .logo:hover {
+            text-shadow: 0 0 15px rgba(0, 119, 204, 0.3);
+        }
+
+        body.white-mode .menu a {
+            color: #334155;
+        }
+
+        body.white-mode .menu a:hover {
+            color: #005b96;
+        }
+
+        body.white-mode .menu a::after {
+            background: #005b96;
+        }
+
+        body.white-mode .theme-toggle {
+            background: rgba(0, 91, 150, 0.08);
+            border: 1px solid rgba(0, 91, 150, 0.2);
+            color: #005b96;
+        }
+
+        body.white-mode .theme-toggle:hover {
+            background: rgba(0, 91, 150, 0.16);
+            box-shadow: 0 0 15px rgba(0, 91, 150, 0.25);
+        }
+
+        body.white-mode .banner {
+            box-shadow: 0 10px 35px rgba(0, 91, 150, 0.15);
+            border: 1px solid rgba(0, 91, 150, 0.15);
+        }
+
+        body.white-mode .section-title h2 {
+            color: #005b96;
+            text-shadow: none;
+        }
+
+        body.white-mode .section-title p {
+            color: #64748b;
+        }
+
+        body.white-mode .card {
+            background: #ffffff;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.06);
+            border-left: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        body.white-mode .card::before {
+            background: rgba(0, 119, 204, 0.04);
+        }
+
+        body.white-mode .card:hover {
+            box-shadow: 0 15px 35px rgba(0, 91, 150, 0.15);
+        }
+
+        body.white-mode .card:nth-child(1):hover {
+            box-shadow: 0 15px 35px rgba(27, 131, 82, 0.2);
+        }
+
+        body.white-mode .card:nth-child(2):hover {
+            box-shadow: 0 15px 35px rgba(198, 154, 0, 0.2);
+        }
+
+        body.white-mode .card:nth-child(3):hover {
+            box-shadow: 0 15px 35px rgba(227, 6, 19, 0.2);
+        }
+
+        body.white-mode .card:nth-child(4):hover {
+            box-shadow: 0 15px 35px rgba(0, 143, 60, 0.2);
+        }
+
+        body.white-mode .card:nth-child(5):hover {
+            box-shadow: 0 15px 35px rgba(123, 44, 191, 0.2);
+        }
+
+        body.white-mode .card:nth-child(6):hover {
+            box-shadow: 0 15px 35px rgba(217, 101, 0, 0.2);
+        }
+
+        body.white-mode .card h2 {
+            text-shadow: none;
+        }
+
+        body.white-mode .card:hover h2 {
+            text-shadow: none;
+        }
+
+        body.white-mode .card:nth-child(1) h2 {
+            color: #1b8352;
+        }
+
+        body.white-mode .card:nth-child(2) h2 {
+            color: #b08500;
+        }
+
+        body.white-mode .card:nth-child(3) h2 {
+            color: #cc0000;
+        }
+
+        body.white-mode .card:nth-child(4) h2 {
+            color: #008f3c;
+        }
+
+        body.white-mode .card:nth-child(5) h2 {
+            color: #7b2cbf;
+        }
+
+        body.white-mode .card:nth-child(6) h2 {
+            color: #d96500;
+        }
+
+        body.white-mode .card p {
+            color: #64748b;
+        }
+
+        body.white-mode .info-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+        }
+
+        body.white-mode .info-box:hover {
+            border-color: rgba(0, 119, 204, 0.4);
+            box-shadow: 0 10px 25px rgba(0, 91, 150, 0.1);
+        }
+
+        body.white-mode .info-box h3 {
+            color: #005b96;
+        }
+
+        body.white-mode .info-box p {
+            color: #64748b;
+        }
+
+        body.white-mode .stat {
+            background: #ffffff;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+            border-bottom: 3px solid #005b96;
+        }
+
+        body.white-mode .stat:hover {
+            border-bottom-color: #ffd200;
+        }
+
+        body.white-mode .stat strong {
+            color: #005b96;
+        }
+
+        body.white-mode .stat span {
+            color: #64748b;
+        }
+
+        body.white-mode .modal-content {
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        body.white-mode .modal-content h2 {
+            color: #005b96;
+            text-shadow: none;
+        }
+
+        body.white-mode footer {
+            background: #ffffff;
+            color: #334155;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        body.white-mode footer p {
+            color: #005b96;
+            text-shadow: none;
+        }
+
+        body.white-mode footer span {
+            color: #64748b;
         }
 
 
         /* =========================
            ANIMAÇÕES
         ========================= */
-
-        @keyframes brilho {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.75;
-            }
-        }
-
-
-        @keyframes flutuar {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(20px);
-            }
-        }
-
 
         @keyframes bannerEntrada {
 
@@ -1015,6 +1250,11 @@
             }
 
 
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
             .menu {
                 gap: 18px;
             }
@@ -1029,11 +1269,9 @@
                 min-height: 220px;
             }
 
-
-            .banner h1 {
-                letter-spacing: 4px;
+            .banner img {
+                height: 240px;
             }
-
 
             .cards {
                 grid-template-columns: 1fr;
@@ -1066,10 +1304,6 @@
 
 
             .menu {
-                width: 100%;
-
-                justify-content: space-between;
-
                 gap: 10px;
             }
 
@@ -1083,6 +1317,9 @@
                 min-height: 180px;
             }
 
+            .banner img {
+                height: 190px;
+            }
 
             .card {
                 padding: 30px 20px;
@@ -1121,38 +1358,49 @@
 
     <header>
 
-        <div class="logo">
-            SENAI
+        <a href="#inicio" class="logo">
+            <i class="fa-brands fa-youtube"></i> DevTube <span>SENAI</span>
+        </a>
+
+        <div class="header-actions">
+
+            <nav aria-label="Menu principal">
+
+                <ul class="menu">
+
+                    <li>
+                        <a href="#inicio">
+                            Início
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#cursos">
+                            Cursos
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#tecnologia">
+                            Tecnologia
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+            <!-- Botão de Alternância de Tema -->
+            <button
+                type="button"
+                id="themeToggle"
+                class="theme-toggle"
+                aria-label="Alternar tema claro/escuro"
+                title="Alternar tema claro/escuro">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
         </div>
-
-
-        <nav aria-label="Menu principal">
-
-            <ul class="menu">
-
-                <li>
-                    <a href="#inicio">
-                        Início
-                    </a>
-                </li>
-
-                <li>
-                    <a href="#cursos">
-                        Cursos
-                    </a>
-                </li>
-
-                <li>
-                    <a href="#tecnologia">
-                        Tecnologia
-                    </a>
-                </li>
-
-                
-
-            </ul>
-
-        </nav>
 
     </header>
 
@@ -1170,7 +1418,7 @@
             class="banner"
             aria-label="Banner principal">
 
-             <img src="https://media.licdn.com/dms/image/v2/D4D1BAQFknofuOJsJ-Q/company-background_10000/company-background_10000/0/1658493207949/senai_solues_digitais_cover?e=2147483647&v=beta&t=tm1oWeWoD7iY5KGSVRm32L-gDLeWCZFFiDMN_F_kQeA" alt="SENAI" style="height: 380px";>
+             <img src="https://media.licdn.com/dms/image/v2/D4D1BAQFknofuOJsJ-Q/company-background_10000/company-background_10000/0/1658493207949/senai_solues_digitais_cover?e=2147483647&v=beta&t=tm1oWeWoD7iY5KGSVRm32L-gDLeWCZFFiDMN_F_kQeA" alt="SENAI">
 
         </section>
 
@@ -1200,71 +1448,71 @@
 
 
             <!-- =========================
-                 PROGRAMAÇÃO
+                 VUE (LINK DIRETO PLAYLIST)
             ========================= -->
 
             <article class="card">
 
                 <div class="course-icon"
-                    aria-label="Ícone de programação">
-                    <i class="fa-solid fa-desktop"></i>
+                    aria-label="Ícone de Vue">
+                    <i class="devicon-vuejs-plain colored"></i>
                 </div>
 
                 <h2>
-                    Programação
+                    Vue
                 </h2>
 
                 <p>
-                    Transforme ideias em código, sistemas e aplicações.
+                    Construa interfaces modernas e reativas com Vue.js 3.
                 </p>
 
-                <button
-                    type="button"
-                    class="open-video"
-                    data-video="https://www.youtube.com/embed/zOjov-2OZ0E"
-                    data-title="Programação">
+                <a
+                    href="https://oscarmoraes.github.io/VueGamificado/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn-assistir">
 
                     ▶ Assistir
 
-                </button>
+                </a>
 
             </article>
 
 
-            <!-- =========================
-                 REDES
+                        <!-- =========================
+                 FLASK & PYTHON (LINK DIRETO PLAYLIST)
             ========================= -->
 
             <article class="card">
 
                 <div class="course-icon"
-                    aria-label="Ícone de redes">
-                    <i class="fa-solid fa-globe"></i>
+                    aria-label="Ícone de Flask e Python">
+                    <i class="devicon-flask-original"></i>
                 </div>
 
                 <h2>
-                    Redes
+                    Flask
                 </h2>
 
                 <p>
-                    Aprenda sobre redes, infraestrutura, servidores e conectividade.
+                    Crie servidores web, rotas, templates e APIs com Flask e Python.
                 </p>
 
-                <button
-                    type="button"
-                    class="open-video"
-                    data-video="https://www.youtube.com/embed/qiQR5rTSshw"
-                    data-title="Redes de Computadores">
+                <a
+                    href="https://oscarmoraes.github.io/FlaskGamificado/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn-assistir">
 
                     ▶ Assistir
 
-                </button>
+                </a>
 
             </article>
 
 
             <!-- =========================
-                 IA
+                 IA & DADOS
             ========================= -->
 
             <article class="card">
@@ -1337,7 +1585,7 @@
                 <div class="course-icon"
                     aria-label="Ícone do GitHub">
                     
-            <i class="devicon-github-original colored" style= "font-size: 50px; color: purple"></i>
+                    <i class="devicon-github-original colored" style="font-size: 50px; color: purple"></i>
           
                 </div>
 
@@ -1605,7 +1853,7 @@
     <footer id="contato">
 
         <p>
-            SENAI
+            DevTube SENAI
         </p>
 
         <span>
@@ -1624,6 +1872,79 @@
     ========================= -->
 
     <script>
+
+        /* =========================
+           GERENCIAMENTO DO TEMA
+        ========================= */
+
+        const themeToggle =
+            document.getElementById(
+                "themeToggle"
+            );
+
+        const themeIcon =
+            themeToggle.querySelector(
+                "i"
+            );
+
+        // Recupera tema salvo no localStorage
+        const savedTheme =
+            localStorage.getItem(
+                "devtube_theme"
+            );
+
+        if (savedTheme === "white") {
+            document.body.classList.add(
+                "white-mode"
+            );
+            themeIcon.classList.remove(
+                "fa-moon"
+            );
+            themeIcon.classList.add(
+                "fa-sun"
+            );
+        }
+
+        themeToggle.addEventListener(
+            "click",
+            function () {
+
+                const isWhite =
+                    document.body.classList.toggle(
+                        "white-mode"
+                    );
+
+                if (isWhite) {
+                    themeIcon.classList.remove(
+                        "fa-moon"
+                    );
+                    themeIcon.classList.add(
+                        "fa-sun"
+                    );
+                    localStorage.setItem(
+                        "devtube_theme",
+                        "white"
+                    );
+                } else {
+                    themeIcon.classList.remove(
+                        "fa-sun"
+                    );
+                    themeIcon.classList.add(
+                        "fa-moon"
+                    );
+                    localStorage.setItem(
+                        "devtube_theme",
+                        "dark"
+                    );
+                }
+
+            }
+        );
+
+
+        /* =========================
+           MODAL DE VÍDEO
+        ========================= */
 
         const modal =
             document.getElementById(
@@ -1684,7 +2005,8 @@
 
                         player.src =
                             video +
-                            "?autoplay=1&rel=0";
+                            (video.includes("?") ? "&" : "?") +
+                            "autoplay=1&rel=0";
 
 
                         modal.classList.add(
