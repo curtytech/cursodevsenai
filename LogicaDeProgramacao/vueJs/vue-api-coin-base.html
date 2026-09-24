@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu App Vue One.js</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Vue.js -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
+  <div id="app" class="relative isolate flex min-h-screen items-center justify-center overflow-hidden px-6 py-12">
+    <div
+      class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_rgba(20,184,166,0.18),_transparent_38%),radial-gradient(circle_at_bottom_left,_rgba(14,165,233,0.14),_transparent_42%)]">
+    </div>
+    <div
+      class="absolute inset-0 -z-10 opacity-20 [background-image:linear-gradient(rgba(148,163,184,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.12)_1px,transparent_1px)] [background-size:42px_42px]">
+    </div>
+
+    <main class="w-full max-w-md">
+      <section
+        class="overflow-hidden rounded-3xl border border-white/10 bg-slate-900/80 shadow-2xl shadow-cyan-950/40 backdrop-blur-xl">
+        <div class="border-b border-white/10 px-8 pb-7 pt-8 sm:px-10 animate animate-pulse">         
+
+          <p class="mb-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-300">Experimento 05</p>
+          <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">{{ mensagem }}</h1>
+        </div>
+
+        <div class="px-8 py-8 sm:px-10 sm:py-10">                   
+
+          <div v-if="resultado" class="rounded-2xl border border-white/10 bg-slate-950/60 p-6 text-center">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Resultado</p>            
+            <span class="mt-4 block text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Preço atual do bitcoin : {{preco}}
+            </span>
+            
+          </div>
+          
+
+        </div>
+      </section>
+      
+    </main>
+  </div>
+
+  <script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const mensagem = ref("Cosumindo Coinbase com Vue.js!");
+        const contador = ref(0);
+        const cep = ref("");
+        const resultado = ref([]);
+        const preco = ref("");
+
+        async function buscarPreco() {
+          try {
+            const resposta = await fetch(`http://api.exchange.coinbase.com/products/btc-usd/ticker`, {
+              method: "GET"
+            });
+
+            if (!resposta.ok) {
+              throw new Error(`Erro ao carregar preco: ${resposta.status}`);
+            }
+
+            console.log(resposta);
+
+            resultado.value = await resposta.json();
+
+            preco.value = resultado.value.price;
+
+          } catch (erro) {
+            console.error("Não foi possível carregar os preco:", erro);
+
+          } finally {
+            console.log("Busca de preco finalizada.");
+          }
+        }
+
+        onMounted(buscarPreco);
+
+        return {
+          mensagem,
+          contador,
+          cep,
+          buscarPreco,
+          resultado,
+          preco
+        };
+      }
+    }).mount("#app");
+  </script>
+</body>
+
+</html>
