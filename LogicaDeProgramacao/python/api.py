@@ -3,25 +3,20 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 app.json.ensure_ascii = False
 
-
-@app.after_request
-def permitir_cors(resposta):
-    resposta.headers["Access-Control-Allow-Origin"] = "*"
-    return resposta
-
 alunos = [
     {"id": 1, "nome": "João", "idade": 20},
-    {"id": 2, "nome": "Maria", "idade": 22}
+    {"id": 2, "nome": "Maria", "idade": 22},
+    {"id": 3, "nome": "Pedro", "idade": 25}
 ]
 
 
 @app.route("/")
 def inicio():
     return jsonify({
-        "mensagem": "API de alunos funcionando!"
+        "mensagem": "API de alunos funcionando teste!"
     })
 
-    
+
 @app.route("/alunos", methods=["GET"])
 def listar_alunos():
     return jsonify(alunos)
