@@ -99,6 +99,11 @@
         </div>
     </nav>
 
+    <div c-container="{{ url_for('cliente.form_cliente')}}"></div>
+
+
+    <div c-container="{{ url_for('cliente.lista_clientes')}}"></div>
+
     <div class="container mt-5">
         <h1>Criando um Sistema com Python e Bootstrap 5</h1>
         <p>lore ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
@@ -147,6 +152,8 @@
             </button>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='js/cru.js') }}"></script>
 
 </body>
 

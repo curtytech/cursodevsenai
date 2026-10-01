@@ -1,0 +1,10 @@
+
+<tr>
+    <td>{{ cliente.id }}</td>
+    <td>{{ cliente.nome }}</td>
+    <td>{{ cliente.email }}</td>
+    <td>
+        <a href="/{{ cliente.id }}/edit" class="btn btn-sm btn-outline-primary">Editar</a>
+        <a href="/{{ cliente.id }}" class="btn btn-sm btn-outline-danger">Excluir</a>
+    </td>
+</tr>
