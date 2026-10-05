@@ -9,6 +9,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
@@ -17,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <style> 
+    <style>
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -50,13 +51,13 @@
 
                 <div class="flex items-center gap-3">
 
-                    <div class="w-13 h-12 rounded-lg bg-yellow-300 flex items-center border-3 border-yellow-600 justify-center">
-                        <i class="fa-solid fa-circle-dollar-to-slot text-3xl text-yellow-600"></i>
+                    <div class="w-13 h-12 rounded-lg bg-blue-500 flex items-center border-3 justify-center">
+                        <i class="fa-solid fa-circle-dollar-to-slot text-3xl"></i>
                     </div>
 
                     <div>
                         <h1 class="font-bold text-4xl">
-                            Senai <span class="text-yellow-600 text-shadow-lg/60">Coins</span>
+                            Senai <span class="text-blue-500 text-shadow-lg/60">Coins</span>
                         </h1>
 
 
@@ -85,15 +86,18 @@
                 <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
                     <i class="fa-solid fa-ranking-star"></i>
                     Ranking de
-                    Senai <span class="text-yellow-600 text-shadow-lg/60">Coins</span>
+                    Senai <span class="text-blue-500 text-shadow-lg/60">Coins</span>
 
                 </h2>
 
-                
+                <p class="text-slate-400 max-w-xl mx-auto">
+
+                    Confira os alunos que mais acumularam Senaicoins
+                    através de atividades, participação e desempenho.
+
+                </p>
 
             </section>
-
-            <br>
 
 
 
@@ -345,10 +349,16 @@
 
 
 
-                        <div
-                            class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-lg shrink-0">
+                        <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-slate-800">
 
-                            {{ aluno.nome.charAt(0) }}
+                            <img v-if="aluno.foto" :src="aluno.foto" :alt="`Foto de ${aluno.nome}`"
+                                class="w-full h-full object-cover"
+                                @error="$event.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(aluno.nome)}&background=1d4ed8&color=fff&size=128`">
+
+                            <div v-else
+                                class="w-full h-full flex items-center justify-center font-bold text-lg bg-gradient-to-br from-blue-500 to-indigo-600">
+                                {{ aluno.nome.charAt(0) }}
+                            </div>
 
                         </div>
 
@@ -435,6 +445,24 @@
 
         const { createApp, onMounted, ref } = Vue;
 
+        // ============================================================
+        // CONFIGURAÇÃO DO SUPABASE
+        // ============================================================
+
+        const SUPABASE_URL = 'https://eempgprspimlhzlofvjx.supabase.co';
+        const SUPABASE_ANON_KEY =
+            'sb_publishable_H8eepB7xyJndr_TdsvuiVw_pJbsPC5k';
+
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY,
+            {
+                auth: {
+                    persistSession: false
+                }
+            }
+        );
+
         createApp({
 
             setup() {
@@ -451,22 +479,75 @@
 
                     try {
 
+                        // ==========================================
+                        // 1. BUSCA OS COINS NA API
+                        // ==========================================
+
                         const resposta = await fetch(
                             "https://onlinestorage.you.tec.br/api/getkey/senai/coins"
                         );
 
+                        if (!resposta.ok) {
+                            throw new Error(
+                                `Erro na API de Coins: ${resposta.status}`
+                            );
+                        }
+
                         const dados = await resposta.json();
 
-                        console.log("Dados recebidos da API:", dados);
+                        console.log("Coins recebidos:", dados);
 
 
-                        // Transforma o objeto da API em uma lista de alunos
-                        alunos.value = Object.entries(dados.value).map(
+                        // ==========================================
+                        // 2. BUSCA NOME + FOTO NO SUPABASE
+                        // ==========================================
+
+                        const { data: membros, error } = await supabaseClient
+                            .from('aluno')
+                            .select('nome, foto_url');
+
+                        if (error) {
+                            throw error;
+                        }
+
+                        console.log("Alunos do Supabase:", membros);
+
+
+                        // ==========================================
+                        // 3. CRIA UM MAPA NOME -> FOTO
+                        // ==========================================
+
+                        const fotosPorNome = {};
+
+                        (membros || []).forEach(membro => {
+
+                            if (membro.nome) {
+
+                                fotosPorNome[
+                                    membro.nome.trim().toLowerCase()
+                                ] = membro.foto_url || null;
+
+                            }
+
+                        });
+
+
+                        // ==========================================
+                        // 4. JUNTA COINS + FOTO
+                        // ==========================================
+
+                        alunos.value = Object.entries(dados.value || {}).map(
                             ([nome, coins]) => {
 
+                                const nomeLimpo = nome.trim();
+
                                 return {
-                                    nome: nome.trim(),
-                                    coins: coins,
+                                    nome: nomeLimpo,
+                                    coins: Number(coins) || 0,
+                                    foto:
+                                        fotosPorNome[
+                                        nomeLimpo.toLowerCase()
+                                        ] || null,
                                     liderancas: 0
                                 };
 
@@ -474,7 +555,13 @@
                         );
 
 
-                        // Descobre quem é o líder atual
+                        console.log("Alunos finais:", alunos.value);
+
+
+                        // ==========================================
+                        // 5. DESCOBRE O LÍDER ATUAL
+                        // ==========================================
+
                         if (alunos.value.length > 0) {
 
                             const lider = [...alunos.value]
@@ -488,7 +575,7 @@
                     } catch (erro) {
 
                         console.error(
-                            "Erro ao conectar com a API:",
+                            "Erro ao carregar Coins/Supabase:",
                             erro
                         );
 
