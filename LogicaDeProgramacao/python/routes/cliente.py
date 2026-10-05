@@ -19,7 +19,7 @@ def inserir_cliente():
     
     CLIENTES.append(novo_usuario)
     
-    return {'ok': 'ok'}
+    return render_template('item_cliente.html', cliente=novo_usuario)
 
 @cliente_route.route('/new')
 def form_cliente():
@@ -31,7 +31,12 @@ def obter_cliente(cliente_id):
 
 @cliente_route.route('/<int:cliente_id>/edit')
 def form_edit_cliente(cliente_id):
-    return render_template('form_edit_cliente.html', cliente_id=cliente_id)
+    cliente = None
+    for c in CLIENTES:
+        if c['id'] == cliente_id:
+            cliente = c
+    
+    return render_template('form_cliente.html', cliente=cliente)
 
 @cliente_route.route('/<int:cliente_id>/' , methods=['PUT'])
 def update_cliente(cliente_id):
@@ -39,4 +44,9 @@ def update_cliente(cliente_id):
 
 @cliente_route.route('/<int:cliente_id>/' , methods=['DELETE'])
 def delete_cliente(cliente_id):
-    pass
+
+    global CLIENTES
+
+    CLIENTES = [ c for c in CLIENTES if c['id'] != cliente_id ]
+    
+    return jsonify({'message': 'Cliente excluído com sucesso!'})
