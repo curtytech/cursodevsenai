@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Senai Coins | Ranking de Alunos</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style> 
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .coin {
+            animation: floating 2s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+
+<body class="box-decoration-clone bg-linear-to-t from-blue-600 to-slate-950  text-white min-h-screen">
+
+    <div id="app">
+
+
+        <header class="box-decoration-clone bg-linear-to-b from-slate-900 to-blue-600 border-b-2 backdrop-blur">
+            <div class="max-w-7xl mx-auto px-6 py-7 flex items-center justify-between">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-13 h-12 rounded-lg bg-yellow-300 flex items-center border-3 border-yellow-600 justify-center">
+                        <i class="fa-solid fa-circle-dollar-to-slot text-3xl text-yellow-600"></i>
+                    </div>
+
+                    <div>
+                        <h1 class="font-bold text-4xl">
+                            Senai <span class="text-yellow-600 text-shadow-lg/60">Coins</span>
+                        </h1>
+
+
+                    </div>
+
+                </div>
+
+
+                <div class="hidden sm:flex items-center gap-2 text-lg text-green-400 animate-pulse">
+                    <i class="fa-solid fa-signal"></i>
+                    Sistema online
+                </div>
+
+            </div>
+        </header>
+
+
+
+        <main class="max-w-6xl mx-auto px-6 py-10">
+
+
+            <section class="text-center mb-10">
+
+
+
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    Ranking de
+                    Senai <span class="text-yellow-600 text-shadow-lg/60">Coins</span>
+
+                </h2>
+
+                
+
+            </section>
+
+            <br>
+
+
+
+            <div class="grid md:grid-cols-2 gap-5 mb-8 ">
+
+
+                <div
+                    class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg shadow-green-300/50 transition transition delay-150 duration-300 ease-in-out hover:scale-105 divide-y-2 divide-green-500">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-2xl font-bold mt-2">
+                                Tarefas simples
+                            </p>
+
+                            <p class="text-2xl text-slate-400">
+                                100 Moedas
+                            </p>
+                        </div>
+
+
+
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-300/10 text-green-400 flex items-center justify-center text-2xl">
+
+                            <i class="fa-regular fa-handshake"></i>
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-2xl font-bold mt-2">
+                                Tarefas medias
+                            </p>
+
+                            <p class="text-2xl text-slate-400">
+                                200 Moedas
+                            </p>
+                        </div>
+
+
+
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-300/10 text-green-400 flex items-center justify-center text2xl">
+
+                            <i class="fa-solid fa-percent"></i>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-2xl font-bold mt-2">
+                                Tarefas dificeis
+                            </p>
+
+                            <p class="text-2xl text-slate-400">
+                                300 Moedas
+                            </p>
+                        </div>
+
+
+
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center text-2xl">
+
+                            <i class="fa-solid fa-head-side-virus"></i>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-2xl font-bold mt-2">
+                                4 Presenças na semana
+                            </p>
+
+                            <p class="text-2xl text-slate-400">
+                                200 Moedas
+                            </p>
+                        </div>
+
+
+
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-500/10 text-green-500 flex items-center justify-center text-2xl">
+
+                            <i class="fa-regular fa-square-check"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div
+                    class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg shadow-yellow-300/50 transition transition delay-150 duration-300 ease-in-out hover:scale-105 ">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <p class="text-sm text-slate-400">
+                                Senaicoins em circulação
+                            </p>
+
+                            <p class="text-3xl font-bold mt-2">
+                                {{ totalCoins.toLocaleString('pt-BR') }}
+                            </p>
+
+                        </div>
+
+                        <div
+                            class="w-12 h-12 rounded-xl bg-yellow-500/10 text-yellow-400 flex items-center justify-center text-2xl">
+
+                            <i class="fa-solid fa-coins text-xl"></i>
+
+
+
+                        </div>
+
+
+
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <p class="text-sm text-slate-400">
+                                Líder do ranking atual
+                            </p>
+
+                            <p class="text-xl font-bold mt-2">
+                                {{ alunosOrdenados[0]?.nome }}
+                            </p>
+
+                        </div>
+
+                        <div
+                            class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-2xl">
+
+                            <i class="fa-solid fa-trophy"></i>
+
+                        </div>
+
+
+
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-sm text-slate-400">Média de Senaicoins por aluno</p>
+
+                            <p class="text-xl font-bold mt-2">
+                                {{ mediaCoins.toFixed(0) }}
+                            </p>
+                        </div>
+
+                        <div
+                            class="w-12 h-12 rounded-xl bg-pink-300/10 text-pink-500 flex items-center justify-center text-2xl">
+
+                            <i class="fa-solid fa-piggy-bank"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+            </div>
+
+
+
+            <section
+                class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl shadow-lg shadow-violet-800/90">
+
+
+                <div
+                    class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+                    <div>
+
+                        <h3 class="text-xl font-bold">
+                            Ranking dos alunos
+                        </h3>
+
+                        <p class="text-sm text-slate-400 mt-1">
+                            Classificação por quantidade de Senaicoins
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="relative">
+
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                        </i>
+
+                        <input v-model="pesquisa" type="text" placeholder="Pesquisar aluno"
+                            class="bg-slate-950 border border-slate-700 rounded-xl py-3 pl-11 pr-4 outline-none focus:border-blue-500 transition w-full md:w-64">
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="divide-y-3 divide-slate-800">
+
+                    <div v-for="(aluno, index) in alunosFiltrados" :key="aluno.nome"
+                        class="p-5 flex items-center gap-4 hover:bg-blue-800/50 transition">
+
+
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold shrink-0"
+                            :class="getClassePosicao(index)">
+
+                            <span v-if="index > 2">
+                                {{ index + 1 }}
+                            </span>
+
+                            <i v-else class="fa-solid" :class="getIconePosicao(index)">
+                            </i>
+
+                        </div>
+
+
+
+                        <div
+                            class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-lg shrink-0">
+
+                            {{ aluno.nome.charAt(0) }}
+
+                        </div>
+
+
+
+                        <div class="flex-1 min-w-0">
+
+                            <p class="font-semibold truncate">
+                                {{ aluno.nome }}
+                            </p>
+
+                            <p class="text-xs text-slate-500">
+                                Aluno SENAI
+                            </p>
+
+                        </div>
+
+
+
+                        <div class="flex items-center gap-2">
+
+                            <div
+                                class="coin w-9 h-9 rounded-full bg-yellow-400 text-yellow-900 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+
+                                <i class="fa-solid fa-coins text-sm"></i>
+
+                            </div>
+
+                            <div class="text-right">
+
+                                <p class="font-bold text-yellow-400">
+                                    {{ aluno.coins.toLocaleString('pt-BR') }}
+                                </p>
+
+                                <p class="text-xs text-yellow-300">
+                                    Senaicoins
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div v-if="alunosFiltrados.length === 0" class="py-16 text-center">
+
+                        <i class="fa-solid fa-user-slash text-4xl text-slate-600 mb-4">
+                        </i>
+
+                        <p class="font-semibold">
+                            Nenhum aluno encontrado
+                        </p>
+
+                        <p class="text-sm text-slate-500 mt-1">
+                            Tente pesquisar por outro nome.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <footer class="text-center text-sm text-white mt-8">
+
+                <p>
+                    SENAI Coins • Sistema de recompensas estudantis
+                </p>
+
+
+
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <script>
+
+        const { createApp, onMounted, ref } = Vue;
+
+        createApp({
+
+            setup() {
+
+                const alunos = ref([]);
+
+                const pesquisa = ref("");
+
+                const liderAtual = ref(null);
+
+
+                // Conecta com a API quando a página carregar
+                onMounted(async () => {
+
+                    try {
+
+                        const resposta = await fetch(
+                            "https://onlinestorage.you.tec.br/api/getkey/senai/coins"
+                        );
+
+                        const dados = await resposta.json();
+
+                        console.log("Dados recebidos da API:", dados);
+
+
+                        // Transforma o objeto da API em uma lista de alunos
+                        alunos.value = Object.entries(dados.value).map(
+                            ([nome, coins]) => {
+
+                                return {
+                                    nome: nome.trim(),
+                                    coins: coins,
+                                    liderancas: 0
+                                };
+
+                            }
+                        );
+
+
+                        // Descobre quem é o líder atual
+                        if (alunos.value.length > 0) {
+
+                            const lider = [...alunos.value]
+                                .sort((a, b) => b.coins - a.coins)[0];
+
+                            liderAtual.value = lider.nome;
+
+                        }
+
+
+                    } catch (erro) {
+
+                        console.error(
+                            "Erro ao conectar com a API:",
+                            erro
+                        );
+
+                    }
+
+                });
+
+
+                return {
+
+                    alunos,
+
+                    pesquisa,
+
+                    liderAtual
+
+                };
+
+            },
+
+
+            computed: {
+
+                alunosOrdenados() {
+                    return [...this.alunos].sort((a, b) => b.coins - a.coins);
+                },
+
+                alunosFiltrados() {
+                    return this.alunosOrdenados.filter(aluno =>
+                        aluno.nome.toLowerCase().includes(this.pesquisa.toLowerCase())
+                    );
+                },
+
+                totalCoins() {
+                    return this.alunos.reduce((total, aluno) => total + aluno.coins, 0);
+                },
+
+                mediaCoins() {
+                    if (this.alunos.length === 0) return 0;
+
+                    return this.totalCoins / this.alunos.length;
+                },
+            },
+
+
+            methods: {
+
+                // Verifica se houve troca de líder
+                verificarLideranca() {
+
+                    const lider = [...this.alunos]
+                        .sort((a, b) => b.coins - a.coins)[0];
+
+
+                    if (!lider) {
+                        return;
+                    }
+
+
+                    // Primeira liderança
+                    if (this.liderAtual === null) {
+
+                        lider.liderancas++;
+
+                        this.liderAtual = lider.nome;
+
+                        return;
+
+                    }
+
+
+                    // Alguém passou o líder atual
+                    if (this.liderAtual !== lider.nome) {
+
+                        const antigoLider = this.alunos.find(
+                            aluno =>
+                                aluno.nome === this.liderAtual
+                        );
+
+
+                        if (
+                            antigoLider &&
+                            lider.coins > antigoLider.coins
+                        ) {
+
+                            lider.liderancas++;
+
+                            this.liderAtual = lider.nome;
+
+                        }
+
+                    }
+
+                },
+
+
+                getClassePosicao(index) {
+
+                    if (index === 0)
+                        return "bg-yellow-400 text-yellow-900";
+
+                    if (index === 1)
+                        return "bg-slate-300 text-slate-800";
+
+                    if (index === 2)
+                        return "bg-orange-400 text-orange-950";
+
+                    return "bg-slate-800 text-slate-400";
+
+                },
+
+
+                getIconePosicao(index) {
+
+                    if (index === 0)
+                        return "fa-medal";
+
+                    if (index === 1)
+                        return "fa-medal";
+
+                    return "fa-medal";
+
+                }
+
+            },
+
+
+            watch: {
+
+                alunos: {
+
+                    deep: true,
+
+                    handler() {
+
+                        this.verificarLideranca();
+
+                    }
+
+                }
+
+            }
+
+        }).mount("#app");
+
+    </script>
+
+
+
+</body>
+
+</html>

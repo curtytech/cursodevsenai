@@ -20,9 +20,231 @@
     <div class="container mx-auto px-4 py-10 max-w-6xl">
 
         <!-- HEADER -->
-        <header class="mb-12 text-center">
+        <header class="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+            <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+
+                <!-- LOGO (LADO ESQUERDO) -->
+                <div class="flex items-center gap-3">
+                    <div
+                        class="inline-flex items-center justify-center w-10 h-10 bg-white text-blue-600 outline rounded-lg shadow-xl">
+                        <i class="fa-brands fa-stripe-s"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-2xl text-white">Nosso Senai</h1>
+                    </div>
+                </div>
+
+                <!-- DROPDOWN PRINCIPAL DA NAVEGAÇÃO -->
+                <div class="relative inline-block text-left group">
+
+                    <!-- Botão Gatilho Principal -->
+                    <button
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/15 rounded-xl transition-all duration-200">
+                        <i class="fas fa-compass text-blue-400"></i>
+                        <span>Navegação Rápida</span>
+                        <i
+                            class="fas fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180 text-blue-200"></i>
+                    </button>
+
+                    <!-- Menu Principal (Dropdown Nível 1) -->
+                    <div
+                        class="absolute right-0 w-64 pt-2 origin-top-right transition-all duration-200 opacity-0 invisible scale-95 group-hover:opacity-100 group-hover:visible group-hover:scale-100 z-50">
+                        <div
+                            class="bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl p-2 text-sm space-y-1">
+
+                            <!-- 1. CATEGORIA: DESTAQUES (SUBMENU) -->
+                            <div class="relative group/sub">
+                                <button
+                                    class="w-full flex items-center justify-between px-3 py-2 text-gray-200 rounded-lg hover:bg-white/10 hover:text-white transition-colors">
+                                    <div class="flex items-center gap-2.5">
+                                        <i class="fas fa-star text-amber-400 w-4"></i>
+                                        <span>Destaques da Turma</span>
+                                    </div>
+                                    <i
+                                        class="fas fa-chevron-right text-xs text-gray-400 group-hover/sub:translate-x-0.5 transition-transform"></i>
+                                </button>
+
+                                <!-- Submenu Destaques -->
+                                <div
+                                    class="absolute right-full top-0 pr-2 w-60 opacity-0 invisible scale-95 group-hover/sub:opacity-100 group-hover/sub:visible group-hover/sub:scale-100 transition-all duration-200">
+                                    <div
+                                        class="bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl p-2 space-y-1">
+                                        <a href="https://curriculos-turma.vercel.app/" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-emerald-500/20 hover:text-emerald-300 transition-colors">
+                                            <i class="fas fa-user-graduate text-emerald-400 w-4"></i>
+                                            <span>Mural de Currículos</span>
+                                        </a>
+                                        <a href="https://matheussantos-web.github.io/simuladodev/" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-purple-500/20 hover:text-purple-300 transition-colors">
+                                            <i class="fas fa-brain text-purple-400 w-4"></i>
+                                            <span>DevCheck SENAI</span>
+                                        </a>
+                                        <a href="./portfolio/cursodevsistemas.html" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-colors">
+                                            <i class="fab fa-youtube text-red-400 w-4"></i>
+                                            <span>DevTube SENAI</span>
+                                        </a>
+                                        <a href="./portfolio/view-coins.html" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-yellow-500/20 hover:text-yellow-300 transition-colors">
+                                            <i class="fa-solid fa-ranking-star text-yellow-400 w-4"></i>
+                                            <span>Ranking de Coins</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- 2. CATEGORIA: CONTEÚDO DAS AULAS (SUBMENU) -->
+                            <div class="relative group/sub">
+                                <button
+                                    class="w-full flex items-center justify-between px-3 py-2 text-gray-200 rounded-lg hover:bg-white/10 hover:text-white transition-colors">
+                                    <div class="flex items-center gap-2.5">
+                                        <i class="fas fa-folder-open text-amber-500 w-4"></i>
+                                        <span>Conteúdo das Aulas</span>
+                                    </div>
+                                    <i
+                                        class="fas fa-chevron-right text-xs text-gray-400 group-hover/sub:translate-x-0.5 transition-transform"></i>
+                                </button>
+
+                                <!-- Submenu Conteúdo das Aulas -->
+                                <div
+                                    class="absolute right-full top-0 pr-2 w-64 opacity-0 invisible scale-95 group-hover/sub:opacity-100 group-hover/sub:visible group-hover/sub:scale-100 transition-all duration-200">
+                                    <div
+                                        class="bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl p-2 space-y-1">
+                                        <a href="LogicaDeProgramacao/Conteudo/repositorio.html" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-emerald-500/20 hover:text-emerald-300 transition-colors">
+                                            <i class="fas fa-terminal text-emerald-700 w-4"></i>
+                                            <span>Lógica de Programação</span>
+                                        </a>
+                                        <a href="./LogicaDeProgramacao/html-basic.html" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-orange-500/20 hover:text-orange-300 transition-colors">
+                                            <i class="fa-solid fa-up-right-from-square text-orange-400 w-4"></i>
+                                            <span>Aula de HTML (Site)</span>
+                                        </a>
+                                        <a href="https://github.com/curtytech/cursodevsenai/blob/main/LogicaDeProgramacao/html-basic.html"
+                                            target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-orange-500/20 hover:text-orange-300 transition-colors">
+                                            <i class="fas fa-code text-orange-400 w-4"></i>
+                                            <span>Aula de HTML (Código)</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. CATEGORIA: MANUAIS E GUIAS (SUBMENU) -->
+                            <div class="relative group/sub">
+                                <button
+                                    class="w-full flex items-center justify-between px-3 py-2 text-gray-200 rounded-lg hover:bg-white/10 hover:text-white transition-colors">
+                                    <div class="flex items-center gap-2.5">
+                                        <i class="fas fa-book-bookmark text-indigo-400 w-4"></i>
+                                        <span>Manuais e Guias</span>
+                                    </div>
+                                    <i
+                                        class="fas fa-chevron-right text-xs text-gray-400 group-hover/sub:translate-x-0.5 transition-transform"></i>
+                                </button>
+
+                                <!-- Submenu Manuais -->
+                                <div
+                                    class="absolute right-full top-0 pr-2 w-64 opacity-0 invisible scale-95 group-hover/sub:opacity-100 group-hover/sub:visible group-hover/sub:scale-100 transition-all duration-200">
+                                    <div
+                                        class="bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl p-2 space-y-1">
+                                        <a href="./atalhos.html"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-indigo-500/20 hover:text-indigo-300 transition-colors">
+                                            <i class="fas fa-keyboard text-indigo-400 w-4"></i>
+                                            <span>Guia de Atalhos</span>
+                                        </a>
+                                        <a href="https://andersonfariaas.github.io/manual-Git-e-GitHub/" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-gray-500/20 hover:text-gray-300 transition-colors">
+                                            <i class="fab fa-github text-gray-300 w-4"></i>
+                                            <span>Git & GitHub</span>
+                                        </a>
+                                        <a href="documentos/trilha_vs_code_completa_iniciantes_v4.html" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-sky-500/20 hover:text-sky-300 transition-colors">
+                                            <i class="devicon-vscode-plain text-sky-400 w-4"></i>
+                                            <span>Manual do VS Code</span>
+                                        </a>
+                                        <a href="https://italoanthero03.github.io/extensoesVS/" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-sky-500/20 hover:text-sky-300 transition-colors">
+                                            <i class="fas fa-puzzle-piece text-sky-400 w-4"></i>
+                                            <span>Extensões do VS Code</span>
+                                        </a>
+                                        <a href="https://gabryelfaria20.github.io/tutorial-supabase/" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-emerald-500/20 hover:text-emerald-300 transition-colors">
+
+                                            <i class="devicon-supabase-plain colored"></i>
+
+                                            <span>Manual do Supabase</span>
+                                        </a>
+                                        <a href="documentos/manualPython.html" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-amber-500/20 hover:text-amber-300 transition-colors">
+                                            <i class="fab fa-python text-amber-400 w-4"></i>
+                                            <span>Manual de Python</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. CATEGORIA: LINKS RECOMENDADOS (SUBMENU) -->
+                            <div class="relative group/sub">
+                                <button
+                                    class="w-full flex items-center justify-between px-3 py-2 text-gray-200 rounded-lg hover:bg-white/10 hover:text-white transition-colors">
+                                    <div class="flex items-center gap-2.5">
+                                        <i class="fas fa-link text-blue-400 w-4"></i>
+                                        <span>Links Recomendados</span>
+                                    </div>
+                                    <i
+                                        class="fas fa-chevron-right text-xs text-gray-400 group-hover/sub:translate-x-0.5 transition-transform"></i>
+                                </button>
+
+                                <!-- Submenu Links Recomendados -->
+                                <div
+                                    class="absolute right-full top-0 pr-2 w-60 opacity-0 invisible scale-95 group-hover/sub:opacity-100 group-hover/sub:visible group-hover/sub:scale-100 transition-all duration-200">
+                                    <div
+                                        class="bg-slate-900/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl p-2 space-y-1">
+                                        <a href="https://github.com/curtytech/cursodevsenai" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-purple-500/20 hover:text-purple-300 transition-colors">
+                                            <i class="fab fa-github text-purple-400 w-4"></i>
+                                            <span>GitHub da Turma</span>
+                                        </a>
+                                        <a href="https://developer.mozilla.org" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-teal-100/20 hover:text-teal-300 transition-colors">
+                                            <i class="fas fa-book-open text-teal-200 w-4"></i>
+                                            <span>MDN Web Docs</span>
+                                        </a>
+                                        <a href="https://tailwindcss.com" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-cyan-500/20 hover:text-cyan-300 transition-colors">
+                                            <i class="devicon-tailwindcss-original text-2xl colored"></i>
+                                            <span>Tailwind CSS</span>
+                                        </a>
+                                        <a href="https://www.w3schools.com" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-emerald-500/20 hover:text-emerald-300 transition-colors">
+                                            <i class="fa-solid fa-w text-emerald-400 w-4"></i>
+                                            <span>W3Schools</span>
+                                        </a>
+                                        <a href="https://stackoverflow.com" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-amber-500/20 hover:text-amber-300 transition-colors">
+                                            <i class="fab fa-stack-overflow text-amber-400 w-4"></i>
+                                            <span>Stack Overflow</span>
+                                        </a>
+                                        <a href="https://getbootstrap.com/" target="_blank"
+                                            class="flex items-center gap-2.5 px-3 py-2 text-gray-200 rounded-lg hover:bg-purple-500/20 hover:text-purple-300 transition-colors">
+                                            <i class="fab fa-bootstrap text-purple-400 w-4"></i>
+                                            <span>Bootstrap</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </nav>
+        </header>
+        <div class="mb-12 text-center pt-20">
             <div
-                class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl shadow-xl mb-4">
+                class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-b from-fuchsia-600 to-emerald-500 rounded-2xl shadow-xl mb-4">
                 <i class="fas fa-graduation-cap text-4xl text-white"></i>
             </div>
             <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-2">Curso de Desenvolvimento de
@@ -33,7 +255,7 @@
                 <i class="fas fa-layer-group text-xs"></i>
                 <span>Links, Arquivos, Documentos e Projetos da Turma</span>
             </div>
-        </header>
+        </div>
 
         <!-- DESTAQUES PRINCIPAIS (MURAL E SIMULADO LADO A LADO) -->
         <section class="mb-6">
@@ -112,21 +334,26 @@
         </section>
 
         <!-- DESTAQUE EXCLUSIVO: DEVTUBE SENAI (BANNER LARGO) -->
-        <section class="mb-12">
+        <section class="mb-6">
             <a href="./portfolio/cursodevsistemas.html" target="_blank"
                 class="group relative block bg-gradient-to-r from-red-900/40 via-red-800/30 to-purple-900/40 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-red-500/40 hover:border-red-400 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-950/50 overflow-hidden">
-                <div class="absolute -right-12 -top-12 w-48 h-48 bg-red-500/20 rounded-full blur-3xl group-hover:bg-red-500/30 transition-all duration-300"></div>
+                <div
+                    class="absolute -right-12 -top-12 w-48 h-48 bg-red-500/20 rounded-full blur-3xl group-hover:bg-red-500/30 transition-all duration-300">
+                </div>
 
                 <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                     <div class="flex items-center gap-5 text-center md:text-left flex-col md:flex-row">
-                        <div class="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center shrink-0 border border-red-400/30 text-white shadow-xl group-hover:scale-105 transition-transform">
+                        <div
+                            class="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center shrink-0 border border-red-400/30 text-white shadow-xl group-hover:scale-105 transition-transform">
                             <i class="fab fa-youtube text-3xl"></i>
                         </div>
                         <div>
-                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-red-300 mb-1 bg-red-500/20 px-2.5 py-0.5 rounded-full border border-red-500/30">
+                            <span
+                                class="inline-flex items-center gap-1.5 text-xs font-semibold text-red-300 mb-1 bg-red-500/20 px-2.5 py-0.5 rounded-full border border-red-500/30">
                                 <i class="fas fa-video text-[10px]"></i> Plataforma de Streaming da Turma
                             </span>
-                            <h3 class="text-2xl md:text-3xl font-extrabold text-white group-hover:text-red-300 transition-colors">
+                            <h3
+                                class="text-2xl md:text-3xl font-extrabold text-white group-hover:text-red-300 transition-colors">
                                 DevTube SENAI
                             </h3>
                             <p class="text-sm md:text-base text-blue-100/90 mt-1 max-w-xl">
@@ -136,9 +363,49 @@
                     </div>
 
                     <div class="shrink-0 w-full md:w-auto">
-                        <div class="bg-red-600 group-hover:bg-red-500 text-white font-bold text-sm px-6 py-3 rounded-xl flex items-center justify-center gap-2.5 transition-all shadow-lg group-hover:shadow-red-600/30">
+                        <div
+                            class="bg-red-600 group-hover:bg-red-500 text-white font-bold text-sm px-6 py-3 rounded-xl flex items-center justify-center gap-2.5 transition-all shadow-lg group-hover:shadow-red-600/30">
                             <span>Assistir Aulas</span>
                             <i class="fas fa-play text-xs group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </section>
+
+        <section class="mb-6">
+            <a href="./portfolio/view-coins.html" target="_blank"
+                class="group relative block bg-gradient-to-r from-blue-700/40 via-blue-800/30 to-slate-950/40 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-yellow-600 hover:border-yellow-300 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-yellow-950/50 overflow-hidden">
+                <div
+                    class="absolute -right-12 -top-12 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl group-hover:bg-blue-500/30 transition-all duration-300">
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                    <div class="flex items-center gap-5 text-center md:text-left flex-col md:flex-row">
+                        <div
+                            class="w-16 h-16 bg-yellow-300 rounded-2xl flex items-center justify-center shrink-0 border border-yellow-600 text-white shadow-xl group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-circle-dollar-to-slot text-3xl text-yellow-600"></i>
+                        </div>
+                        <div>
+                            <span
+                                class="inline-flex items-center gap-1.5 text-xs font-semibold text-yellow-200 mb-1 bg-yellow-400/20 px-2.5 py-0.5 rounded-full border border-yellow-500/30">
+                                <i class="fa-solid fa-wallet"></i>Ranking de Senai coins da turma
+                            </span>
+                            <h3
+                                class="text-2xl md:text-3xl font-extrabold text-white group-hover:text-yellow-300 transition-colors">
+                                Senai <span class="text-yellow-600 text-shadow-lg/60">Coins</span>
+                            </h3>
+                            <p class="text-sm md:text-base text-blue-100/90 mt-1 max-w-xl">
+                                Confira os alunos que mais acumularam Senaicoins através de atividades .
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="shrink-0 w-full md:w-auto">
+                        <div
+                            class="bg-yellow-600 group-hover:bg-yellow-500 text-white font-bold text-sm px-6 py-3 rounded-xl flex items-center justify-center gap-2.5 transition-all shadow-lg group-hover:shadow-yellow-600/30">
+                            <span>Veja o Ranking</span>
+                            <i class="fa-solid fa-ranking-star"></i>
                         </div>
                     </div>
                 </div>
@@ -151,7 +418,10 @@
                 <div class="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center text-white shadow-md">
                     <i class="fas fa-folder-open text-base"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-white">Conteúdo das Aulas</h2>
+                <h2 class="text-2xl font-bold text-white">
+                    Conteúdo das Aulas
+                </h2>
+
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -159,11 +429,12 @@
                     class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
                     <div class="flex items-start gap-4">
                         <div
-                            class="w-12 h-12 bg-lime-600 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                            class="w-12 h-12 bg-emerald-700 rounded-lg flex items-center justify-center shrink-0 shadow-md">
                             <i class="fas fa-terminal text-xl text-white"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-white group-hover:text-lime-300 transition-colors">Lógica de
+                            <h3 class="font-semibold text-white group-hover:text-emerald-300 transition-colors">Lógica
+                                de
                                 Programação</h3>
                             <p class="text-sm text-blue-200/80 mt-1">Repositório com materiais em PDF e DOCX</p>
                         </div>
@@ -187,11 +458,11 @@
                     class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
                     <div class="flex items-start gap-4">
                         <div
-                            class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                            class="w-12 h-12 bg-indigo-900 rounded-lg flex items-center justify-center shrink-0 shadow-md">
                             <i class="fas fa-keyboard text-xl text-white"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-white group-hover:text-sky-300 transition-colors">Guia de
+                            <h3 class="font-semibold text-white group-hover:text-indigo-200 transition-colors">Guia de
                                 Atalhos</h3>
                             <p class="text-sm text-blue-200/80 mt-1">Teclado ABNT2, Windows e VS Code</p>
                         </div>
@@ -206,7 +477,7 @@
                             <i class="fab fa-github text-xl text-white"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">Manual do
+                            <h3 class="font-semibold text-white group-hover:text-gray-200 transition-colors">Manual do
                                 Git & GitHub</h3>
                             <p class="text-sm text-blue-200/80 mt-1">Passo a passo para criar sua conta e versionar</p>
                         </div>
@@ -216,12 +487,12 @@
                 <a href="documentos/trilha_vs_code_completa_iniciantes_v4.html" target="_blank"
                     class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
                     <div class="flex items-start gap-4">
-                        <div
-                            class="w-12 h-12 bg-sky-700 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shrink-0 shadow-md">
                             <i class="devicon-vscode-plain colored text-3xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-white group-hover:text-sky-300 transition-colors">Manual do VS
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">Manual do
+                                VS
                                 Code</h3>
                             <p class="text-sm text-blue-200/80 mt-1">Aprenda a utilizar a IDE do zero</p>
                         </div>
@@ -232,11 +503,11 @@
                     class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
                     <div class="flex items-start gap-4">
                         <div
-                            class="w-12 h-12 bg-emerald-700 rounded-lg flex items-center justify-center shrink-0 shadow-md">
-                            <i class="fas fa-database text-xl text-white"></i>
+                            class="w-12 h-12 bg-green-700 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                            <i class="devicon-supabase-plain"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-white group-hover:text-sky-300 transition-colors">Manual
+                            <h3 class="font-semibold text-white group-hover:text-green-300 transition-colors">Manual
                                 do Supabase</h3>
                             <p class="text-sm text-blue-200/80 mt-1">Guia para banco de dados relacional e BaaS</p>
                         </div>
@@ -246,13 +517,13 @@
                 <a href="documentos/manualPython.html" target="_blank"
                     class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
                     <div class="flex items-start gap-4">
-                        <div
-                            class="w-12 h-12 bg-gray-900  rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                        <div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center shrink-0 shadow-md">
                             <img src="https://www.python.org/static/favicon.ico" alt="Python" class="w-7 h-7">
-                            
+
                         </div>
                         <div>
-                            <h3 class="font-semibold text-white group-hover:text-sky-300 transition-colors">Manual de Python</h3>
+                            <h3 class="font-semibold text-white group-hover:text-gray-300 transition-colors">Manual de
+                                Python</h3>
                             <p class="text-sm text-blue-200/80 mt-1">Guia para programação em Python</p>
                         </div>
                     </div>
@@ -263,11 +534,11 @@
                     class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
                     <div class="flex items-start gap-4">
                         <div
-                            class="w-12 h-12 bg-sky-800 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                            class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center shrink-0 shadow-md">
                             <i class="devicon-vscode-plain text-3xl text-white"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-white group-hover:text-sky-300 transition-colors">Extensões
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">Extensões
                                 Recomendadas</h3>
                             <p class="text-sm text-blue-200/80 mt-1">As melhores extensões para produtividade</p>
                         </div>
@@ -348,11 +619,11 @@
                     class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
                     <div class="flex items-start gap-4">
                         <div
-                            class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center shrink-0 shadow-md">
-                            <i class="fas fa-book-open text-xl text-white"></i>
+                            class="w-12 h-12 bg-teal-200 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                            <i class="fas fa-book-open text-xl text-gray-800"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-white group-hover:text-purple-300 transition-colors">MDN Web
+                            <h3 class="font-semibold text-white group-hover:text-teal-300 transition-colors">MDN Web
                                 Docs</h3>
                             <p class="text-sm text-blue-200/80 mt-1">Documentação de referência Web</p>
                         </div>
@@ -362,9 +633,10 @@
                 <a href="https://tailwindcss.com" target="_blank"
                     class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
                     <div class="flex items-start gap-4">
-                        <div
-                            class="w-12 h-12 bg-cyan-600 rounded-lg flex items-center justify-center shrink-0 shadow-md">
-                            <i class="fas fa-wind text-xl text-white"></i>
+                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shrink-0 shadow-md">
+
+                            <i class="devicon-tailwindcss-original text-2xl colored"></i>
+
                         </div>
                         <div>
                             <h3 class="font-semibold text-white group-hover:text-cyan-300 transition-colors">Tailwind
@@ -379,7 +651,7 @@
                     <div class="flex items-start gap-4">
                         <div
                             class="w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center shrink-0 shadow-md">
-                            <i class="fas fa-code text-xl text-white"></i>
+                            <i class="fa-solid fa-w"></i>
                         </div>
                         <div>
                             <h3 class="font-semibold text-white group-hover:text-emerald-300 transition-colors">
@@ -400,6 +672,20 @@
                             <h3 class="font-semibold text-white group-hover:text-amber-300 transition-colors">Stack
                                 Overflow</h3>
                             <p class="text-sm text-blue-200/80 mt-1">Comunidade e solução de dúvidas</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="https://getbootstrap.com/" target="_blank"
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                            <i class="fab fa-bootstrap text-xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-purple-300 transition-colors">Bootstrap</h3>
+                            <p class="text-sm text-blue-200/80 mt-1">Framework de desenvolvimento web</p>
                         </div>
                     </div>
                 </a>
