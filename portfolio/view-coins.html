@@ -13,6 +13,9 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;circle cx='50' cy='50' r='50' fill='%23004B87'/&gt;&lt;circle cx='50' cy='50' r='43' fill='none' stroke='white' stroke-width='3' opacity='0.35'/&gt;&lt;text x='50' y='68' font-size='54' font-family='Segoe UI,Arial,sans-serif' font-weight='900' text-anchor='middle' fill='white'&gt;S&lt;/text&gt;&lt;/svg&gt;">
+
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,13 +54,11 @@
 
                 <div class="flex items-center gap-3">
 
-                    <div class="w-13 h-12 rounded-lg bg-blue-500 flex items-center border-3 justify-center">
-                        <i class="fa-solid fa-circle-dollar-to-slot text-3xl"></i>
-                    </div>
+                    <div class="rounded-full border-[3px] border-white/50 flex items-center justify-center flex-shrink-0 ring-4 ring-white/10" style="width: 52px; height: 52px; background: rgb(0, 75, 135);"><span class="text-white font-black text-2xl leading-none">S</span></div>
 
                     <div>
                         <h1 class="font-bold text-4xl">
-                            Senai <span class="text-blue-500 text-shadow-lg/60">Coins</span>
+                            Senai <span class="text-yellow-400 text-shadow-lg/60">Coins</span>
                         </h1>
 
 
@@ -86,7 +87,7 @@
                 <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
                     <i class="fa-solid fa-ranking-star"></i>
                     Ranking de
-                    Senai <span class="text-blue-500 text-shadow-lg/60">Coins</span>
+                    Senai <span class="text-yellow-400 text-shadow-lg/60">Coins</span>
 
                 </h2>
 
@@ -443,7 +444,7 @@
 
     <script>
 
-        const { createApp, onMounted, ref } = Vue;
+        const {createApp, onMounted, ref} = Vue;
 
         // ============================================================
         // CONFIGURAÇÃO DO SUPABASE
@@ -502,7 +503,7 @@
                         // 2. BUSCA NOME + FOTO NO SUPABASE
                         // ==========================================
 
-                        const { data: membros, error } = await supabaseClient
+                        const {data: membros, error} = await supabaseClient
                             .from('aluno')
                             .select('nome, foto_url');
 
