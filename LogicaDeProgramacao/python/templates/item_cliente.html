@@ -1,9 +1,16 @@
-<tr>
+<tr id="cliente-{{cliente.id}}">
     <td>{{ cliente.id }}</td>
     <td>{{ cliente.nome }}</td>
     <td>{{ cliente.email }}</td>
     <td>
-        <a class="btn btn-sm btn-outline-primary" c-get="{{ url_for('cliente.form_edit_cliente', cliente_id=cliente.id) }}"
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+         data-bs-target="#exampleModal"
+         c-get="{{ url_for('cliente.detalhe_cliente', cliente_id=cliente.id) }}"
+         c-target="#exibir-cliente">
+            Ver
+        </button>
+        <a class="btn btn-sm btn-outline-primary"
+            c-get="{{ url_for('cliente.form_edit_cliente', cliente_id=cliente.id) }}"
             c-target="#form-cliente">Editar</a>
         <a class=" btn btn-sm btn-outline-danger"
             c-delete="{{ url_for('cliente.delete_cliente', cliente_id=cliente.id) }}" c-remove-closest="tr">Excluir</a>
