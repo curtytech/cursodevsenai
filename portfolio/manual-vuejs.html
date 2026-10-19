@@ -1,0 +1,1483 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manual completo de Vue.js, do básico ao avançado, com exemplos práticos.">
+    <meta name="author" content="Manual de Vue.js">
+    <title>Vue.js Academy | Manual Completo</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg: #070b14;
+            --bg-secondary: #0b1220;
+            --card: rgba(17, 27, 45, .88);
+            --card-hover: #14243a;
+            --text: #edf7ff;
+            --muted: #91a6bd;
+            --green: #42ffb0;
+            --cyan: #45d9ff;
+            --border: rgba(69, 217, 255, .16);
+            --shadow: 0 15px 45px rgba(0, 0, 0, .28);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 80% 0%, rgba(0,180,255,.10), transparent 30%),
+                radial-gradient(circle at 0% 40%, rgba(0,255,160,.06), transparent 25%),
+                var(--bg);
+            line-height: 1.8;
+        }
+
+        ::selection {
+            background: var(--green);
+            color: #06120e;
+        }
+
+        a {
+            color: var(--cyan);
+            text-decoration: none;
+            transition: .25s;
+        }
+
+        a:hover {
+            color: var(--green);
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        ::-webkit-scrollbar {
+            width: 9px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #070b14;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--green), var(--cyan));
+            border-radius: 20px;
+        }
+
+        header {
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            padding: 75px 22px 65px;
+            background: linear-gradient(135deg, rgba(66,255,176,.07), rgba(69,217,255,.03));
+            border-bottom: 1px solid var(--border);
+        }
+
+        header::before {
+            content: "V";
+            position: absolute;
+            top: -145px;
+            left: 50%;
+            transform: translateX(-50%);
+            font: 800 350px 'Space Grotesk', sans-serif;
+            color: rgba(66,255,176,.025);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(66,255,176,.35);
+            border-radius: 5px;
+            background: rgba(66,255,176,.06);
+            color: var(--green);
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        header h1 {
+            font: 800 clamp(2.7rem, 7vw, 5rem)/1.15 'Space Grotesk', sans-serif;
+            letter-spacing: -3px;
+            margin-bottom: 22px;
+            background: linear-gradient(90deg, #fff, var(--green), var(--cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        header p {
+            max-width: 720px;
+            margin: auto;
+            color: var(--muted);
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 19px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(69,217,255,.06);
+            color: var(--cyan);
+            font-weight: 700;
+            transition: .25s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .btn-primary {
+            background: var(--green);
+            border-color: var(--green);
+            color: #06120e;
+        }
+
+        .btn-primary:hover {
+            color: #06120e;
+            background: #82ffca;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 12px;
+            background: rgba(7,11,20,.92);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+        }
+
+        nav a {
+            padding: 8px 12px;
+            border-radius: 7px;
+            color: var(--muted);
+            font-size: .82rem;
+            font-weight: 600;
+        }
+
+        nav a:hover {
+            color: var(--green);
+            background: rgba(66,255,176,.08);
+        }
+
+        main {
+            max-width: 1150px;
+            width: calc(100% - 36px);
+            margin: 45px auto;
+        }
+
+        section {
+            scroll-margin-top: 90px;
+            margin-bottom: 30px;
+            padding: clamp(22px, 4vw, 36px);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: border-color .3s;
+        }
+
+        section:hover {
+            border-color: rgba(66,255,176,.35);
+        }
+
+        h2, h3, h4 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        h2 {
+            font-size: clamp(1.6rem, 4vw, 2.25rem);
+            line-height: 1.3;
+            margin-bottom: 24px;
+        }
+
+        h2::after {
+            content: "";
+            display: block;
+            width: 65px;
+            height: 4px;
+            margin-top: 13px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--green), var(--cyan));
+        }
+
+        h3 {
+            margin: 25px 0 12px;
+            color: var(--green);
+            font-size: 1.22rem;
+        }
+
+        h4 {
+            margin-bottom: 9px;
+            color: var(--cyan);
+        }
+
+        p {
+            color: #c0cede;
+            margin-bottom: 15px;
+        }
+
+        strong {
+            color: #fff;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+            margin: 14px 0 22px;
+        }
+
+        li {
+            color: #c0cede;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        li::marker {
+            color: var(--green);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin: 23px 0;
+        }
+
+        .card {
+            position: relative;
+            overflow: hidden;
+            padding: 23px;
+            background: linear-gradient(145deg, rgba(20,36,58,.9), rgba(11,18,32,.95));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: .3s;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--green), var(--cyan));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: .3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(66,255,176,.4);
+            background: var(--card-hover);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .icon {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        pre {
+            overflow-x: auto;
+            margin: 18px 0;
+            padding: 22px;
+            background: #030711;
+            border: 1px solid rgba(69,217,255,.2);
+            border-left: 4px solid var(--green);
+            border-radius: 10px;
+            color: #c8f7e5;
+            font: .88rem/1.8 'Courier New', monospace;
+            white-space: pre;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            color: var(--green);
+            background: rgba(66,255,176,.08);
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
+        pre code {
+            padding: 0;
+            color: inherit;
+            background: transparent;
+        }
+
+        .info, .dica, .aviso {
+            margin: 20px 0;
+            padding: 18px 22px;
+            border: 1px solid rgba(69,217,255,.22);
+            border-left: 4px solid var(--cyan);
+            border-radius: 8px;
+            background: rgba(69,217,255,.05);
+        }
+
+        .dica {
+            border-color: rgba(66,255,176,.2);
+            border-left-color: var(--green);
+            background: rgba(66,255,176,.05);
+        }
+
+        .aviso {
+            border-color: rgba(255,180,70,.2);
+            border-left-color: #ffb446;
+            background: rgba(255,180,70,.05);
+        }
+
+        .info p, .dica p, .aviso p {
+            margin-bottom: 0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 500px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 13px 15px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            color: #c0cede;
+        }
+
+        th {
+            background: rgba(66,255,176,.07);
+            color: var(--green);
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .demo {
+            padding: 25px;
+            margin: 22px 0;
+            background: #091323;
+            border: 1px solid rgba(66,255,176,.3);
+            border-radius: 12px;
+        }
+
+        .demo input {
+            width: 100%;
+            padding: 12px 14px;
+            margin: 8px 0 14px;
+            background: #030711;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: white;
+            outline: none;
+        }
+
+        .demo input:focus {
+            border-color: var(--green);
+        }
+
+        .demo button {
+            margin: 4px;
+        }
+
+        .counter {
+            color: var(--green);
+            font: 700 2.4rem 'Space Grotesk', sans-serif;
+            margin: 12px 0;
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .task-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            margin: 7px 0;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+        }
+
+        .small-btn {
+            padding: 5px 10px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: transparent;
+            color: var(--cyan);
+        }
+
+        .small-btn:hover {
+            color: var(--green);
+            border-color: var(--green);
+        }
+
+        .checklist li {
+            list-style: "✓  ";
+        }
+
+        footer {
+            text-align: center;
+            padding: 35px 20px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            background: rgba(3,7,17,.6);
+        }
+
+        footer strong {
+            color: var(--green);
+        }
+
+        @media (max-width: 650px) {
+            header {
+                padding: 55px 18px;
+            }
+
+            header h1 {
+                letter-spacing: -1.5px;
+            }
+
+            nav {
+                position: static;
+                justify-content: flex-start;
+            }
+
+            nav a {
+                font-size: .78rem;
+            }
+
+            main {
+                width: calc(100% - 22px);
+                margin: 25px auto;
+            }
+
+            section {
+                padding: 21px 17px;
+                border-radius: 12px;
+            }
+
+            pre {
+                padding: 15px;
+                font-size: .8rem;
+            }
+
+            .demo {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="hero-content">
+        <span class="badge">GUIA DE DESENVOLVIMENTO WEB</span>
+        <h1>Vue.js Academy</h1>
+        <p>Aprenda Vue.js do zero ao avançado: componentes, reatividade, diretivas, APIs, roteamento, Pinia e muito mais.</p>
+        <div class="hero-buttons">
+            <a href="#introducao" class="btn btn-primary">Começar a estudar →</a>
+            <a href="#demonstracao" class="btn">Experimentar Vue.js</a>
+        </div>
+    </div>
+</header>
+
+<nav aria-label="Navegação do manual">
+    <a href="#introducao">Introdução</a>
+    <a href="#instalacao">Instalação</a>
+    <a href="#fundamentos">Fundamentos</a>
+    <a href="#diretivas">Diretivas</a>
+    <a href="#componentes">Componentes</a>
+    <a href="#api">API</a>
+    <a href="#roteamento">Router</a>
+    <a href="#pinia">Pinia</a>
+    <a href="#boas-praticas">Boas práticas</a>
+    <a href="#demonstracao">Demonstração</a>
+</nav>
+
+<main>
+
+    <section id="introducao">
+        <span class="badge">01 / Introdução</span>
+        <h2>O que é Vue.js?</h2>
+        <p><strong>Vue.js</strong> é um framework JavaScript utilizado para construir interfaces de usuário e aplicações web interativas. Ele permite atualizar partes da página automaticamente quando os dados mudam.</p>
+        <p>É conhecido por sua abordagem progressiva: você pode usá-lo em um pequeno elemento HTML ou construir uma aplicação completa com componentes, rotas e gerenciamento de estado.</p>
+
+        <div class="grid">
+            <article class="card">
+                <span class="icon">⚡</span>
+                <h3>Reatividade</h3>
+                <p>A interface acompanha as alterações nos dados reativos.</p>
+            </article>
+            <article class="card">
+                <span class="icon">🧩</span>
+                <h3>Componentes</h3>
+                <p>Divida a aplicação em partes reutilizáveis e organizadas.</p>
+            </article>
+            <article class="card">
+                <span class="icon">🚀</span>
+                <h3>Flexibilidade</h3>
+                <p>Comece com uma página simples e evolua para um projeto maior.</p>
+            </article>
+            <article class="card">
+                <span class="icon">🛠️</span>
+                <h3>Ecossistema</h3>
+                <p>Use ferramentas como Vue Router, Pinia e Vite.</p>
+            </article>
+        </div>
+
+        <h3>Vue.js, HTML, CSS e JavaScript</h3>
+        <ul>
+            <li><strong>HTML:</strong> define a estrutura da página.</li>
+            <li><strong>CSS:</strong> controla cores, espaçamentos e aparência.</li>
+            <li><strong>JavaScript:</strong> implementa a lógica da aplicação.</li>
+            <li><strong>Vue.js:</strong> conecta os dados à interface e organiza a construção da aplicação.</li>
+        </ul>
+
+        <div class="info">
+            <p><strong>Importante:</strong> Vue.js não substitui HTML, CSS ou JavaScript. Ele trabalha junto dessas tecnologias.</p>
+        </div>
+    </section>
+
+    <section id="instalacao">
+        <span class="badge">02 / Configuração</span>
+        <h2>Como instalar e começar</h2>
+
+        <h3>Opção 1 — Usar Vue.js por CDN</h3>
+        <p>Ideal para aprender e testar Vue em um arquivo HTML. É necessário ter conexão com a internet para carregar a biblioteca.</p>
+
+        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Meu primeiro Vue&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id="app"&gt;
+        &lt;h1&gt;{{ mensagem }}&lt;/h1&gt;
+    &lt;/div&gt;
+
+    &lt;script src="https://unpkg.com/vue@3/dist/vue.global.js"&gt;&lt;/script&gt;
+    &lt;script&gt;
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                const mensagem = ref("Olá, Vue.js!");
+                return { mensagem };
+            }
+        }).mount("#app");
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+        <h3>Opção 2 — Criar um projeto com Vite</h3>
+        <p>Para projetos maiores, o recomendado é utilizar uma ferramenta de desenvolvimento como Vite.</p>
+
+        <pre><code># Instale uma versão compatível do Node.js
+# Abra o terminal e execute:
+
+npm create vue@latest
+
+# Entre na pasta criada
+cd nome-do-projeto
+
+# Instale as dependências
+npm install
+
+# Inicie o servidor de desenvolvimento
+npm run dev</code></pre>
+
+        <div class="dica">
+            <p><strong>Dica:</strong> durante a criação do projeto, você poderá escolher recursos adicionais, como TypeScript, Vue Router e Pinia. Para iniciantes, comece com as opções que já entende.</p>
+        </div>
+
+        <h3>Estrutura comum de um projeto</h3>
+        <pre><code>meu-projeto/
+├── public/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── views/
+│   ├── App.vue
+│   └── main.js
+├── index.html
+├── package.json
+└── vite.config.js</code></pre>
+
+        <ul>
+            <li><code>src/</code>: código principal da aplicação.</li>
+            <li><code>components/</code>: componentes reutilizáveis.</li>
+            <li><code>views/</code>: páginas da aplicação, quando adotada essa organização.</li>
+            <li><code>App.vue</code>: componente raiz.</li>
+            <li><code>main.js</code>: ponto de entrada da aplicação.</li>
+            <li><code>package.json</code>: dependências e scripts do projeto.</li>
+        </ul>
+    </section>
+
+    <section id="fundamentos">
+        <span class="badge">03 / Fundamentos</span>
+        <h2>Reatividade e dados</h2>
+        <p>Reatividade é um dos conceitos centrais do Vue. Quando um dado reativo muda, o Vue atualiza as partes da interface que dependem dele.</p>
+
+        <h3>Usando ref()</h3>
+        <p><code>ref()</code> cria uma referência reativa. No JavaScript, seu valor é acessado com <code>.value</code>; nos templates do Vue, normalmente o valor é desembrulhado automaticamente.</p>
+        <pre><code>&lt;script setup&gt;
+import { ref } from 'vue';
+
+const contador = ref(0);
+
+function incrementar() {
+    contador.value++;
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;p&gt;Contador: {{ contador }}&lt;/p&gt;
+    &lt;button @click="incrementar"&gt;Somar&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+
+        <h3>Usando reactive()</h3>
+        <p><code>reactive()</code> torna um objeto reativo. É útil quando você quer agrupar propriedades relacionadas.</p>
+        <pre><code>&lt;script setup&gt;
+import { reactive } from 'vue';
+
+const aluno = reactive({
+    nome: 'Lucas',
+    curso: 'Desenvolvimento de Sistemas',
+    ativo: true
+});
+
+function alterarNome() {
+    aluno.nome = 'Marina';
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;p&gt;Aluno: {{ aluno.nome }}&lt;/p&gt;
+    &lt;p&gt;Curso: {{ aluno.curso }}&lt;/p&gt;
+    &lt;button @click="alterarNome"&gt;Alterar nome&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+
+        <h3>ref() ou reactive()?</h3>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Recurso</th><th>Uso comum</th><th>Observação</th></tr></thead>
+                <tbody>
+                    <tr><td><code>ref()</code></td><td>Valores e objetos</td><td>O acesso no JavaScript usa <code>.value</code>.</td></tr>
+                    <tr><td><code>reactive()</code></td><td>Objetos reativos</td><td>As propriedades são acessadas diretamente.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Interpolação</h3>
+        <p>Use a sintaxe <code>{{ "{{ valor }}" }}</code> para exibir dados em um template.</p>
+        <pre><code>&lt;script setup&gt;
+import { ref } from 'vue';
+const nome = ref('Davi');
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;h1&gt;Bem-vindo, {{ "{{ nome }}" }}!&lt;/h1&gt;
+&lt;/template&gt;</code></pre>
+
+        <h3>computed()</h3>
+        <p>Cria um valor derivado de outros dados reativos. O Vue atualiza o resultado quando suas dependências mudam.</p>
+        <pre><code>&lt;script setup&gt;
+import { ref, computed } from 'vue';
+
+const preco = ref(100);
+const quantidade = ref(3);
+
+const total = computed(() => preco.value * quantidade.value);
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;p&gt;Total: R$ {{ "{{ total }}" }}&lt;/p&gt;
+&lt;/template&gt;</code></pre>
+
+        <h3>watch()</h3>
+        <p>Permite executar uma ação quando uma fonte reativa observada muda. É útil para efeitos colaterais, como salvar preferências ou consultar uma API.</p>
+        <pre><code>&lt;script setup&gt;
+import { ref, watch } from 'vue';
+
+const pesquisa = ref('');
+
+watch(pesquisa, (novoValor, valorAnterior) => {
+    console.log('Antes:', valorAnterior);
+    console.log('Agora:', novoValor);
+});
+&lt;/script&gt;</code></pre>
+
+        <div class="dica">
+            <p><strong>Regra prática:</strong> prefira <code>computed()</code> para calcular valores derivados e <code>watch()</code> para executar efeitos colaterais em resposta a mudanças.</p>
+        </div>
+    </section>
+
+    <section id="diretivas">
+        <span class="badge">04 / Diretivas</span>
+        <h2>Diretivas essenciais do Vue</h2>
+        <p>Diretivas são atributos especiais que começam com <code>v-</code> e adicionam comportamento aos elementos HTML.</p>
+
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Diretiva</th><th>Função</th><th>Exemplo</th></tr></thead>
+                <tbody>
+                    <tr><td><code>v-if</code></td><td>Renderiza condicionalmente.</td><td><code>v-if="logado"</code></td></tr>
+                    <tr><td><code>v-else</code></td><td>Alternativa para uma condição.</td><td><code>v-else</code></td></tr>
+                    <tr><td><code>v-show</code></td><td>Alterna a exibição via CSS.</td><td><code>v-show="visivel"</code></td></tr>
+                    <tr><td><code>v-for</code></td><td>Percorre listas.</td><td><code>v-for="item in itens"</code></td></tr>
+                    <tr><td><code>v-bind</code></td><td>Vincula atributos.</td><td><code>:href="url"</code></td></tr>
+                    <tr><td><code>v-on</code></td><td>Escuta eventos.</td><td><code>@click="salvar"</code></td></tr>
+                    <tr><td><code>v-model</code></td><td>Vincula formulários.</td><td><code>v-model="nome"</code></td></tr>
+                    <tr><td><code>v-html</code></td><td>Insere HTML.</td><td><code>v-html="conteudo"</code></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Condições com v-if</h3>
+        <pre><code>&lt;script setup&gt;
+import { ref } from 'vue';
+const logado = ref(false);
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;p v-if="logado"&gt;Você está conectado.&lt;/p&gt;
+    &lt;p v-else&gt;Faça login para continuar.&lt;/p&gt;
+&lt;/template&gt;</code></pre>
+
+        <h3>Listas com v-for</h3>
+        <pre><code>&lt;script setup&gt;
+const linguagens = ['HTML', 'CSS', 'JavaScript', 'Vue.js'];
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;ul&gt;
+        &lt;li v-for="linguagem in linguagens" :key="linguagem"&gt;
+            {{ "{{ linguagem }}" }}
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/template&gt;</code></pre>
+
+        <p>Use uma chave estável em <code>:key</code> para que o Vue identifique corretamente os elementos da lista quando ela mudar.</p>
+
+        <h3>Eventos com @click</h3>
+        <pre><code>&lt;script setup&gt;
+import { ref } from 'vue';
+const mensagem = ref('Aguardando clique');
+
+function mostrarMensagem() {
+    mensagem.value = 'Botão clicado!';
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;button @click="mostrarMensagem"&gt;Clique aqui&lt;/button&gt;
+    &lt;p&gt;{{ "{{ mensagem }}" }}&lt;/p&gt;
+&lt;/template&gt;</code></pre>
+
+        <h3>Formulários com v-model</h3>
+        <pre><code>&lt;script setup&gt;
+import { ref } from 'vue';
+const email = ref('');
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;label for="email"&gt;E-mail&lt;/label&gt;
+    &lt;input id="email" v-model="email" type="email"&gt;
+    &lt;p&gt;Você digitou: {{ "{{ email }}" }}&lt;/p&gt;
+&lt;/template&gt;</code></pre>
+
+        <h3>Modificadores úteis</h3>
+        <ul>
+            <li><code>@submit.prevent</code>: impede o comportamento padrão do formulário.</li>
+            <li><code>@keyup.enter</code>: reage quando a tecla Enter é pressionada.</li>
+            <li><code>v-model.trim</code>: remove espaços das extremidades de uma string.</li>
+            <li><code>v-model.number</code>: tenta converter o valor para número.</li>
+            <li><code>v-model.lazy</code>: atualiza a vinculação no evento de alteração, em vez de a cada entrada.</li>
+        </ul>
+
+        <div class="aviso">
+            <p><strong>Segurança:</strong> evite usar <code>v-html</code> com conteúdo fornecido por usuários. HTML não confiável pode introduzir vulnerabilidades de XSS.</p>
+        </div>
+    </section>
+
+    <section id="componentes">
+        <span class="badge">05 / Componentes</span>
+        <h2>Componentes e reutilização</h2>
+        <p>Componentes são blocos independentes de interface. Um botão, menu, cartão de produto ou formulário pode ser criado como componente e reutilizado em diferentes partes da aplicação.</p>
+
+        <h3>Um componente .vue</h3>
+        <p>Os arquivos Single-File Component usam a extensão <code>.vue</code> e podem reunir lógica, template e estilo.</p>
+        <pre><code>&lt;!-- Saudacao.vue --&gt;
+&lt;script setup&gt;
+defineProps({
+    nome: {
+        type: String,
+        required: true
+    }
+});
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;h2&gt;Olá, {{ "{{ nome }}" }}!&lt;/h2&gt;
+&lt;/template&gt;
+
+&lt;style scoped&gt;
+h2 {
+    color: #42b883;
+}
+&lt;/style&gt;</code></pre>
+
+        <h3>Usando o componente</h3>
+        <pre><code>&lt;script setup&gt;
+import Saudacao from './components/Saudacao.vue';
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;Saudacao nome="Davi" /&gt;
+&lt;/template&gt;</code></pre>
+
+        <h3>Props e emits</h3>
+        <ul>
+            <li><strong>Props:</strong> permitem que o componente pai envie dados para o filho.</li>
+            <li><strong>Emits:</strong> permitem que o filho emita eventos que o pai pode ouvir.</li>
+        </ul>
+
+        <pre><code>&lt;!-- BotaoAcao.vue --&gt;
+&lt;script setup&gt;
+defineProps({
+    texto: {
+        type: String,
+        default: 'Clique'
+    }
+});
+
+const emit = defineEmits(['acionar']);
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;button @click="emit('acionar')"&gt;
+        {{ "{{ texto }}" }}
+    &lt;/button&gt;
+&lt;/template&gt;</code></pre>
+
+        <pre><code>&lt;!-- No componente pai --&gt;
+&lt;BotaoAcao texto="Salvar" @acionar="salvarDados" /&gt;</code></pre>
+
+        <h3>Slots</h3>
+        <p>Slots permitem que o componente pai forneça conteúdo para ser exibido dentro do componente filho.</p>
+        <pre><code>&lt;!-- Cartao.vue --&gt;
+&lt;template&gt;
+    &lt;article class="cartao"&gt;
+        &lt;slot&gt;Conteúdo padrão&lt;/slot&gt;
+    &lt;/article&gt;
+&lt;/template&gt;
+
+&lt;!-- Utilização --&gt;
+&lt;Cartao&gt;
+    &lt;h3&gt;Meu produto&lt;/h3&gt;
+    &lt;p&gt;Descrição do produto.&lt;/p&gt;
+&lt;/Cartao&gt;</code></pre>
+
+        <h3>Composition API e Options API</h3>
+        <div class="grid">
+            <article class="card">
+                <h3>Composition API</h3>
+                <p>Organiza a lógica usando recursos como <code>ref</code>, <code>computed</code> e funções reutilizáveis.</p>
+                <pre><code>const contador = ref(0);</code></pre>
+            </article>
+            <article class="card">
+                <h3>Options API</h3>
+                <p>Organiza as opções do componente em propriedades como <code>data</code>, <code>methods</code> e <code>computed</code>.</p>
+                <pre><code>export default {
+  data() {
+    return { contador: 0 };
+  },
+  methods: {
+    somar() {
+      this.contador++;
+    }
+  }
+};</code></pre>
+            </article>
+        </div>
+        <p>As duas abordagens são válidas. A Composition API com <code>&lt;script setup&gt;</code> é bastante comum em projetos Vue 3 modernos.</p>
+    </section>
+
+    <section id="ciclo-vida">
+        <span class="badge">06 / Ciclo de vida</span>
+        <h2>Lifecycle Hooks</h2>
+        <p>O ciclo de vida representa as etapas pelas quais um componente passa, desde sua criação até sua remoção.</p>
+
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Hook</th><th>Quando usar</th></tr></thead>
+                <tbody>
+                    <tr><td><code>onMounted()</code></td><td>Depois que o componente foi montado no DOM.</td></tr>
+                    <tr><td><code>onUpdated()</code></td><td>Depois que o componente atualizou o DOM.</td></tr>
+                    <tr><td><code>onUnmounted()</code></td><td>Depois que o componente foi desmontado.</td></tr>
+                    <tr><td><code>onBeforeMount()</code></td><td>Antes da montagem do componente.</td></tr>
+                    <tr><td><code>onBeforeUnmount()</code></td><td>Antes da remoção do componente.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <pre><code>&lt;script setup&gt;
+import { onMounted, onUnmounted } from 'vue';
+
+onMounted(() => {
+    console.log('Componente montado');
+});
+
+onUnmounted(() => {
+    console.log('Componente removido');
+});
+&lt;/script&gt;</code></pre>
+
+        <div class="dica">
+            <p>Use <code>onUnmounted()</code> para limpar recursos criados pelo componente, como temporizadores ou listeners que não sejam gerenciados automaticamente.</p>
+        </div>
+    </section>
+
+    <section id="api">
+        <span class="badge">07 / Integrações</span>
+        <h2>Consumindo APIs com Vue.js</h2>
+        <p>Uma API permite que a aplicação consulte ou envie informações para outro sistema. JavaScript oferece <code>fetch()</code> para fazer requisições HTTP.</p>
+
+        <h3>Consultando dados</h3>
+        <pre><code>&lt;script setup&gt;
+import { ref, onMounted } from 'vue';
+
+const usuarios = ref([]);
+const carregando = ref(true);
+const erro = ref('');
+
+onMounted(async () => {
+    try {
+        const resposta = await fetch(
+            'https://jsonplaceholder.typicode.com/users'
+        );
+
+        if (!resposta.ok) {
+            throw new Error('Falha ao consultar a API');
+        }
+
+        usuarios.value = await resposta.json();
+    } catch (e) {
+        erro.value = e.message || 'Ocorreu um erro';
+    } finally {
+        carregando.value = false;
+    }
+});
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;p v-if="carregando"&gt;Carregando usuários...&lt;/p&gt;
+    &lt;p v-else-if="erro"&gt;{{ "{{ erro }}" }}&lt;/p&gt;
+
+    &lt;ul v-else&gt;
+        &lt;li v-for="usuario in usuarios" :key="usuario.id"&gt;
+            {{ "{{ usuario.name }}" }} — {{ "{{ usuario.email }}" }}
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/template&gt;</code></pre>
+
+        <h3>Enviando dados com POST</h3>
+        <pre><code>async function criarUsuario(dados) {
+    const resposta = await fetch('/api/usuarios', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dados)
+    });
+
+    if (!resposta.ok) {
+        throw new Error('Não foi possível criar o usuário');
+    }
+
+    return await resposta.json();
+}</code></pre>
+
+        <div class="aviso">
+            <p><strong>Atenção:</strong> o endereço <code>/api/usuarios</code> é um exemplo. Para funcionar, seu projeto precisa de um backend que disponibilize essa rota. Não coloque senhas ou chaves secretas privadas no código enviado ao navegador.</p>
+        </div>
+    </section>
+
+    <section id="roteamento">
+        <span class="badge">08 / Navegação</span>
+        <h2>Vue Router</h2>
+        <p>O Vue Router é a solução oficial de roteamento para aplicações Vue. Ele permite criar páginas e navegar entre elas sem recarregar a página inteira.</p>
+
+        <h3>Instalação</h3>
+        <pre><code>npm install vue-router</code></pre>
+
+        <h3>Configurando as rotas</h3>
+        <pre><code>// src/router.js
+import { createRouter, createWebHistory } from 'vue-router';
+
+import Inicio from './views/Inicio.vue';
+import Sobre from './views/Sobre.vue';
+
+const routes = [
+    { path: '/', component: Inicio },
+    { path: '/sobre', component: Sobre }
+];
+
+const router = createRouter({
+    history: createWebHistory(),
+    routes
+});
+
+export default router;</code></pre>
+
+        <h3>Conectando ao aplicativo</h3>
+        <pre><code>// src/main.js
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+
+createApp(App)
+    .use(router)
+    .mount('#app');</code></pre>
+
+        <h3>Links e páginas</h3>
+        <pre><code>&lt;template&gt;
+    &lt;nav&gt;
+        &lt;RouterLink to="/"&gt;Início&lt;/RouterLink&gt;
+        &lt;RouterLink to="/sobre"&gt;Sobre&lt;/RouterLink&gt;
+    &lt;/nav&gt;
+
+    &lt;RouterView /&gt;
+&lt;/template&gt;</code></pre>
+
+        <p><code>RouterLink</code> cria links de navegação e <code>RouterView</code> exibe o componente correspondente à rota atual.</p>
+    </section>
+
+    <section id="pinia">
+        <span class="badge">09 / Estado global</span>
+        <h2>Pinia</h2>
+        <p>Pinia é a solução recomendada para gerenciamento de estado em aplicações Vue modernas. Ela permite compartilhar dados entre componentes sem precisar passar props por muitos níveis.</p>
+
+        <h3>Instalação</h3>
+        <pre><code>npm install pinia</code></pre>
+
+        <h3>Registrando o Pinia</h3>
+        <pre><code>// src/main.js
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+
+const app = createApp(App);
+
+app.use(createPinia());
+app.mount('#app');</code></pre>
+
+        <h3>Criando uma store</h3>
+        <pre><code>// src/stores/contador.js
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+
+export const useContadorStore = defineStore('contador', () => {
+    const valor = ref(0);
+
+    const dobro = computed(() => valor.value * 2);
+
+    function incrementar() {
+        valor.value++;
+    }
+
+    return { valor, dobro, incrementar };
+});</code></pre>
+
+        <h3>Usando a store em um componente</h3>
+        <pre><code>&lt;script setup&gt;
+import { useContadorStore } from './stores/contador';
+
+const contador = useContadorStore();
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;p&gt;Valor: {{ "{{ contador.valor }}" }}&lt;/p&gt;
+    &lt;p&gt;Dobro: {{ "{{ contador.dobro }}" }}&lt;/p&gt;
+    &lt;button @click="contador.incrementar"&gt;Incrementar&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+
+        <p>Use uma store quando o estado realmente precisar ser compartilhado. Para dados usados em apenas um componente, <code>ref()</code> pode ser suficiente.</p>
+    </section>
+
+    <section id="estilos">
+        <span class="badge">10 / Estilização</span>
+        <h2>CSS em componentes Vue</h2>
+        <p>Em arquivos <code>.vue</code>, o CSS pode ficar na seção <code>&lt;style&gt;</code>. A opção <code>scoped</code> limita a aplicação dos estilos aos elementos daquele componente.</p>
+
+        <pre><code>&lt;template&gt;
+    &lt;button class="botao"&gt;Meu botão&lt;/button&gt;
+&lt;/template&gt;
+
+&lt;style scoped&gt;
+.botao {
+    background: #42b883;
+    color: #08130e;
+    border: 0;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.botao:hover {
+    background: #35d49a;
+}
+&lt;/style&gt;</code></pre>
+
+        <h3>Classes dinâmicas</h3>
+        <pre><code>&lt;script setup&gt;
+import { ref } from 'vue';
+
+const ativo = ref(false);
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;button
+        :class="{ ativo: ativo }"
+        @click="ativo = !ativo"
+    &gt;
+        Alternar estado
+    &lt;/button&gt;
+&lt;/template&gt;
+
+&lt;style scoped&gt;
+.ativo {
+    background: #42b883;
+    color: #07130e;
+}
+&lt;/style&gt;</code></pre>
+    </section>
+
+    <section id="demonstracao">
+        <span class="badge">11 / Laboratório prático</span>
+        <h2>Experimente Vue.js</h2>
+        <p>Esta demonstração utiliza Vue 3 para criar um contador reativo, uma saudação personalizada e uma lista de tarefas interativa.</p>
+
+        <div id="demo-app" class="demo">
+            <h3>⚡ Contador reativo</h3>
+            <p>O valor muda automaticamente quando você clica nos botões.</p>
+            <div class="counter">{{ contador }}</div>
+            <button class="btn btn-primary" @click="contador++">+ Somar</button>
+            <button class="btn" @click="contador--">− Subtrair</button>
+            <button class="btn" @click="contador = 0">Zerar</button>
+
+            <h3>👋 Saudação dinâmica</h3>
+            <label for="nome-demo">Digite seu nome:</label>
+            <input id="nome-demo" v-model="nome" placeholder="Seu nome">
+            <p>{{ nome.trim() ? 'Olá, ' + nome + '! Bem-vindo ao Vue.js.' : 'Digite seu nome para ver a saudação.' }}</p>
+
+            <h3>📝 Lista de tarefas</h3>
+            <p>Tarefas cadastradas: <strong>{{ tarefas.length }}</strong></p>
+            <form @submit.prevent="adicionarTarefa">
+                <label for="tarefa-demo">Nova tarefa:</label>
+                <input id="tarefa-demo" v-model="novaTarefa" placeholder="Ex.: estudar componentes">
+                <button type="submit" class="btn btn-primary">Adicionar tarefa</button>
+            </form>
+
+            <p v-if="tarefas.length === 0">Nenhuma tarefa cadastrada.</p>
+            <ul v-else class="task-list">
+                <li v-for="(tarefa, index) in tarefas" :key="tarefa.id">
+                    <span>{{ tarefa.texto }}</span>
+                    <button type="button" class="small-btn" @click="removerTarefa(tarefa.id)">Remover</button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <p><strong>Como funciona?</strong> O Vue acompanha os valores de <code>contador</code>, <code>nome</code> e <code>tarefas</code>. Quando eles mudam, a interface é atualizada automaticamente.</p>
+        </div>
+    </section>
+
+    <section id="testes">
+        <span class="badge">12 / Qualidade</span>
+        <h2>Testes e depuração</h2>
+        <p>Testes ajudam a verificar se a aplicação funciona como esperado. Em projetos Vue, as ferramentas escolhidas dependem do tamanho e das necessidades do projeto.</p>
+
+        <div class="grid">
+            <article class="card">
+                <h3>Vitest</h3>
+                <p>Executa testes unitários e de componentes em projetos modernos baseados em Vite.</p>
+            </article>
+            <article class="card">
+                <h3>Vue Devtools</h3>
+                <p>Ajuda a inspecionar componentes, estado e eventos durante o desenvolvimento.</p>
+            </article>
+            <article class="card">
+                <h3>Playwright</h3>
+                <p>Permite testar fluxos completos de uma aplicação em um navegador real.</p>
+            </article>
+        </div>
+
+        <h3>Exemplo de teste com Vitest</h3>
+        <pre><code>import { describe, it, expect } from 'vitest';
+
+function somar(a, b) {
+    return a + b;
+}
+
+describe('função somar', () => {
+    it('soma dois números', () => {
+        expect(somar(2, 3)).toBe(5);
+    });
+});</code></pre>
+    </section>
+
+    <section id="typescript">
+        <span class="badge">13 / Tipagem</span>
+        <h2>Vue.js com TypeScript</h2>
+        <p>TypeScript adiciona tipos ao JavaScript. Ele pode ajudar a identificar erros antes da execução e melhorar a experiência de desenvolvimento em projetos maiores.</p>
+
+        <pre><code>&lt;script setup lang="ts"&gt;
+import { ref, computed } from 'vue';
+
+interface Produto {
+    id: number;
+    nome: string;
+    preco: number;
+}
+
+const produtos = ref&lt;Produto[]&gt;([
+    { id: 1, nome: 'Teclado', preco: 120 },
+    { id: 2, nome: 'Mouse', preco: 80 }
+]);
+
+const total = computed(() =>
+    produtos.value.reduce((soma, produto) => soma + produto.preco, 0)
+);
+&lt;/script&gt;
+
+&lt;template&gt;
+    &lt;p&gt;Total: R$ {{ "{{ total.toFixed(2) }}" }}&lt;/p&gt;
+&lt;/template&gt;</code></pre>
+    </section>
+
+    <section id="producao">
+        <span class="badge">14 / Publicação</span>
+        <h2>Preparando para produção</h2>
+        <p>Quando o projeto estiver pronto, crie uma versão otimizada para publicar em um serviço de hospedagem estática ou em uma infraestrutura compatível com a aplicação.</p>
+
+        <pre><code># Gerar a versão de produção
+npm run build
+
+# Testar localmente a versão gerada
+npm run preview</code></pre>
+
+        <p>Em um projeto Vite padrão, os arquivos gerados ficam na pasta <code>dist/</code>.</p>
+
+        <h3>Onde hospedar?</h3>
+        <ul>
+            <li>Serviços de hospedagem estática que aceitam projetos Vite.</li>
+            <li>Plataformas de deploy conectadas ao GitHub.</li>
+            <li>Servidores próprios configurados para servir os arquivos da aplicação.</li>
+        </ul>
+
+        <div class="aviso">
+            <p>Se você usar Vue Router com histórico HTML5, configure o servidor para encaminhar rotas desconhecidas ao arquivo <code>index.html</code>. Sem isso, acessar diretamente uma rota interna pode resultar em erro 404.</p>
+        </div>
+    </section>
+
+    <section id="boas-praticas">
+        <span class="badge">15 / Profissionalização</span>
+        <h2>Boas práticas de desenvolvimento</h2>
+        <ul class="checklist">
+            <li>Crie componentes pequenos e com responsabilidades claras.</li>
+            <li>Use nomes de variáveis e funções que expliquem sua finalidade.</li>
+            <li>Prefira <code>computed()</code> para valores derivados.</li>
+            <li>Use <code>:key</code> estável ao renderizar listas.</li>
+            <li>Valide os dados recebidos de formulários.</li>
+            <li>Trate erros e estados de carregamento nas requisições.</li>
+            <li>Evite duplicar lógica em vários componentes.</li>
+            <li>Não coloque credenciais privadas no código do navegador.</li>
+            <li>Escreva testes para as partes importantes da aplicação.</li>
+            <li>Leia a documentação oficial quando encontrar comportamentos desconhecidos.</li>
+        </ul>
+
+        <h3>Erros comuns</h3>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Problema</th><th>Como resolver</th></tr></thead>
+                <tbody>
+                    <tr><td>Esquecer <code>.value</code> no JavaScript</td><td>Ao usar um <code>ref</code> no script, acesse ou altere seu valor por <code>.value</code>.</td></tr>
+                    <tr><td>Lista sem <code>:key</code></td><td>Use um identificador estável para cada elemento.</td></tr>
+                    <tr><td>Usar variável comum esperando reatividade</td><td>Use <code>ref()</code> ou <code>reactive()</code> quando necessário.</td></tr>
+                    <tr><td>Componente não encontrado</td><td>Confira o caminho e a importação do componente.</td></tr>
+                    <tr><td>API não responde</td><td>Verifique URL, conexão, CORS e resposta HTTP.</td></tr>
+                    <tr><td>Rota dá 404 após atualizar</td><td>Confira a configuração de fallback do servidor.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="resumo">
+        <span class="badge">16 / Consulta rápida</span>
+        <h2>Resumo dos principais recursos</h2>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Recurso</th><th>Para que serve</th></tr></thead>
+                <tbody>
+                    <tr><td><code>ref()</code></td><td>Cria uma referência reativa.</td></tr>
+                    <tr><td><code>reactive()</code></td><td>Cria um objeto reativo.</td></tr>
+                    <tr><td><code>computed()</code></td><td>Calcula um valor derivado.</td></tr>
+                    <tr><td><code>watch()</code></td><td>Observa mudanças e executa efeitos.</td></tr>
+                    <tr><td><code>v-if</code></td><td>Renderiza conteúdo conforme uma condição.</td></tr>
+                    <tr><td><code>v-for</code></td><td>Renderiza uma lista.</td></tr>
+                    <tr><td><code>v-model</code></td><td>Vincula dados de formulários.</td></tr>
+                    <tr><td><code>v-bind</code> / <code>:</code></td><td>Vincula atributos e propriedades.</td></tr>
+                    <tr><td><code>v-on</code> / <code>@</code></td><td>Escuta eventos.</td></tr>
+                    <tr><td><code>defineProps()</code></td><td>Declara propriedades recebidas por um componente.</td></tr>
+                    <tr><td><code>defineEmits()</code></td><td>Declara eventos emitidos por um componente.</td></tr>
+                    <tr><td><code>onMounted()</code></td><td>Executa lógica após a montagem.</td></tr>
+                    <tr><td>Vue Router</td><td>Gerencia navegação entre páginas.</td></tr>
+                    <tr><td>Pinia</td><td>Compartilha estado entre componentes.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="proximos-passos">
+        <span class="badge">17 / Sua jornada</span>
+        <h2>Plano de estudos recomendado</h2>
+        <div class="grid">
+            <article class="card">
+                <h3>Etapa 1 — Fundamentos</h3>
+                <p>Aprenda JavaScript, templates, diretivas, eventos e reatividade.</p>
+            </article>
+            <article class="card">
+                <h3>Etapa 2 — Componentes</h3>
+                <p>Pratique props, emits, slots e organização dos arquivos.</p>
+            </article>
+            <article class="card">
+                <h3>Etapa 3 — Aplicações</h3>
+                <p>Construa projetos com APIs, formulários e Vue Router.</p>
+            </article>
+            <article class="card">
+                <h3>Etapa 4 — Avançado</h3>
+                <p>Estude Pinia, TypeScript, testes, desempenho e publicação.</p>
+            </article>
+        </div>
+
+        <h3>Projeto para praticar</h3>
+        <p>Crie um gerenciador de tarefas com cadastro, edição, remoção, filtros, salvamento local e uma interface responsiva. Depois, evolua o projeto para consumir uma API e ter múltiplas páginas.</p>
+
+        <div class="dica">
+            <p><strong>Documentação oficial:</strong> <a href="https://vuejs.org/" target="_blank" rel="noopener noreferrer">vuejs.org</a>. Use-a para consultar a sintaxe atualizada, exemplos e explicações aprofundadas.</p>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p><strong>Vue.js Academy</strong> — Manual de desenvolvimento web</p>
+    <p>Aprenda, pratique, desenvolva e evolua.</p>
+    <p>© 2026 · Material educacional</p>
+</footer>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+    const { createApp, ref } = Vue;
+
+    createApp({
+        setup() {
+            const contador = ref(0);
+            const nome = ref('');
+            const novaTarefa = ref('');
+            const tarefas = ref([]);
+            let proximoId = 1;
+
+            function adicionarTarefa() {
+                const texto = novaTarefa.value.trim();
+
+                if (!texto) {
+                    return;
+                }
+
+                tarefas.value.push({
+                    id: proximoId++,
+                    texto
+                });
+
+                novaTarefa.value = '';
+            }
+
+            function removerTarefa(id) {
+                tarefas.value = tarefas.value.filter(
+                    tarefa => tarefa.id !== id
+                );
+            }
+
+            return {
+                contador,
+                nome,
+                novaTarefa,
+                tarefas,
+                adicionarTarefa,
+                removerTarefa
+            };
+        }
+    }).mount('#demo-app');
+</script>
+
+</body>
+</html>
