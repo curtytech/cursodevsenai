@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Acesse seu painel para atualizar seu perfil e currículo.">
+    <title>Painel do Usuário | CursoDevSENAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+</head>
+
+<body class="min-h-screen overflow-x-hidden bg-[#0b1329] font-sans text-gray-100 antialiased [&_*:focus-visible]:outline-2 [&_*:focus-visible]:outline-sky-300 [&_*:focus-visible]:outline-offset-[3px]">
+    <div aria-hidden="true" class="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-[#071323] via-[#0b1d33] to-[#101a35]">
+        <div class="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(125,211,252,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,0.08)_1px,transparent_1px)] [background-size:56px_56px]"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#071323]/60"></div>
+        <svg aria-hidden="true" class="absolute inset-0 h-full w-full motion-reduce:hidden" viewBox="0 0 1440 900" preserveAspectRatio="none">
+            <defs>
+                <filter id="particle-glow" x="-200%" y="-200%" width="500%" height="500%">
+                    <feGaussianBlur stdDeviation="3" result="glow"></feGaussianBlur>
+                    <feMerge>
+                        <feMergeNode in="glow"></feMergeNode>
+                        <feMergeNode in="SourceGraphic"></feMergeNode>
+                    </feMerge>
+                </filter>
+            </defs>
+            <circle r="2.5" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="18s" repeatCount="indefinite" path="M -20 160 C 240 30 430 330 720 180 S 1170 80 1460 250"></animateMotion>
+                <animate attributeName="opacity" values="0;1;0.75;0" keyTimes="0;0.15;0.8;1" dur="18s" repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#bae6fd" filter="url(#particle-glow)">
+                <animateMotion dur="23s" repeatCount="indefinite" path="M 140 -20 C 320 220 40 520 340 930"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.65;0" keyTimes="0;0.2;0.8;1" dur="23s" repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2.5" fill="#22d3ee" filter="url(#particle-glow)">
+                <animateMotion dur="21s" repeatCount="indefinite" path="M 1480 100 C 1190 300 1020 560 720 930"></animateMotion>
+                <animate attributeName="opacity" values="0;1;0.7;0" keyTimes="0;0.15;0.8;1" dur="21s" repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#fde68a" filter="url(#particle-glow)">
+                <animateMotion dur="26s" repeatCount="indefinite" path="M -30 600 C 250 430 500 720 780 570 S 1190 450 1470 700"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.6;0" keyTimes="0;0.2;0.8;1" dur="26s" repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2.5" fill="#e0f2fe" filter="url(#particle-glow)">
+                <animateMotion dur="20s" repeatCount="indefinite" path="M 1470 820 C 1130 650 920 850 640 640 S 250 780 -30 520"></animateMotion>
+                <animate attributeName="opacity" values="0;1;0.7;0" keyTimes="0;0.15;0.8;1" dur="20s" repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="25s" repeatCount="indefinite" path="M 470 -30 C 700 200 400 460 700 650 S 1030 760 960 930"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.65;0" keyTimes="0;0.2;0.8;1" dur="25s" repeatCount="indefinite"></animate>
+            </circle>
+        </svg>
+    </div>
+    <div class="relative z-10 mx-auto min-h-screen w-full max-w-[1056px] px-4 pb-10 pt-24">
+        <header class="fixed left-0 right-0 top-0 z-50 border-b border-[rgba(148,190,219,0.14)] bg-[rgba(5,15,29,0.82)] shadow-[0_12px_36px_rgba(2,8,23,0.18)] backdrop-blur-xl">
+            <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+                <a href="./index.html" class="flex items-center gap-3 no-underline">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-300/30 bg-[#005CA9] text-white shadow-lg shadow-sky-950/40">
+                        <img src="https://eempgprspimlhzlofvjx.supabase.co/storage/v1/object/public/icones/logo_turma.webp" alt="Logo SENAI" class="h-full w-full rounded-xl object-contain">
+                    </span>
+                    <span>
+                        <span class="block bg-gradient-to-b from-white via-slate-300 to-slate-500 bg-clip-text text-xl font-black leading-tight text-transparent drop-shadow-[0_2px_8px_rgba(203,213,225,0.35)]">ALCATECH</span>
+                        <span class="block text-[10px] font-semibold uppercase tracking-[.16em] text-sky-200/80">SENAI DEV TEAM</span>
+                    </span>
+                </a>
+                <a href="./index.html" class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/20">
+                    <i class="fas fa-arrow-left text-blue-300"></i>
+                    <span>Início</span>
+                </a>
+            </nav>
+        </header>
+
+        <main class="mx-auto w-full max-w-xl">
+            <div class="mb-6">
+                <p class="text-sm font-bold uppercase tracking-[.18em] text-sky-300">Área do aluno</p>
+                <h1 class="mt-2 text-3xl font-black text-white sm:text-4xl">Painel do usuário</h1>
+                <p class="mt-2 text-blue-100/80">Entre para atualizar sua foto, seu currículo e sua senha.</p>
+            </div>
+
+            <p id="page-message" class="mb-4 hidden rounded-xl border border-rose-300/30 bg-rose-500/10 px-4 py-3 text-sm" role="status" aria-live="polite"></p>
+
+            <section id="login-view" class="rounded-2xl border border-white/15 bg-white/10 p-5 shadow-2xl shadow-slate-950/30 backdrop-blur-sm sm:p-7">
+                <h2 class="text-xl font-bold text-white">Entrar na sua conta</h2>
+                <p class="mt-1 text-sm text-slate-300">Use seu nome cadastrado e sua senha.</p>
+                <form id="login-form" class="mt-6 space-y-4">
+                    <div>
+                        <label for="login-name" class="mb-1.5 block text-sm font-semibold text-slate-200">Nome</label>
+                        <select id="login-name" name="name" autocomplete="username" required disabled
+                            class="w-full cursor-pointer rounded-xl border border-white/15 bg-slate-950/60 px-4 py-3 text-white focus:border-sky-300 focus:outline-none disabled:cursor-wait disabled:opacity-60">
+                            <option value="" selected disabled>Carregando alunos...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="login-password" class="mb-1.5 block text-sm font-semibold text-slate-200">Senha</label>
+                        <input id="login-password" name="password" type="password" autocomplete="current-password" required
+                            class="w-full rounded-xl border border-white/15 bg-slate-950/60 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-300 focus:outline-none"
+                            placeholder="Sua senha">
+                    </div>
+                    <p id="login-message" class="hidden text-sm text-rose-300" role="alert"></p>
+                    <button id="login-button" type="submit"
+                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-3 font-bold text-white transition hover:bg-sky-500 disabled:cursor-wait disabled:opacity-60">
+                        <i class="fas fa-right-to-bracket"></i>Entrar
+                    </button>
+                </form>
+            </section>
+
+            <section id="profile-view" class="hidden space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/10 p-5 shadow-xl shadow-slate-950/20 backdrop-blur-sm">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-sky-300/30 bg-slate-800">
+                            <span id="avatar-placeholder" class="text-xl font-black text-sky-200">?</span>
+                            <img id="avatar-preview" class="hidden h-full w-full object-cover" alt="Prévia da foto do perfil">
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-400">Conectado como</p>
+                            <h2 id="profile-name" class="text-xl font-bold text-white"></h2>
+                        </div>
+                    </div>
+                    <button id="logout-button" type="button" class="rounded-lg border border-white/15 px-3 py-2 text-sm text-slate-200 transition hover:bg-white/10">
+                        <i class="fas fa-arrow-right-from-bracket mr-2"></i>Sair
+                    </button>
+                </div>
+
+                <section class="rounded-2xl border border-white/15 bg-white/10 p-5 shadow-xl shadow-slate-950/20 backdrop-blur-sm sm:p-7">
+                    <h3 class="text-lg font-bold text-white"><i class="fas fa-id-card mr-2 text-sky-300"></i>Seu perfil</h3>
+                    <p class="mt-1 text-sm text-slate-300">Atualize os endereços públicos da sua foto e do currículo.</p>
+                    <form id="profile-form" class="mt-5 space-y-4">
+                        <div>
+                            <label for="photo-url" class="mb-1.5 block text-sm font-semibold text-slate-200">Link da foto</label>
+                            <input id="photo-url" name="photoUrl" type="url" inputmode="url"
+                                class="w-full rounded-xl border border-white/15 bg-slate-950/60 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-300 focus:outline-none"
+                                placeholder="https://...">
+                        </div>
+                        <div>
+                            <label for="resume-url" class="mb-1.5 block text-sm font-semibold text-slate-200">Link do currículo</label>
+                            <input id="resume-url" name="resumeUrl" type="url" inputmode="url"
+                                class="w-full rounded-xl border border-white/15 bg-slate-950/60 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-300 focus:outline-none"
+                                placeholder="https://...">
+                            <a id="resume-link" class="mt-2 hidden text-sm font-semibold text-sky-300 underline hover:text-sky-200" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-arrow-up-right-from-square mr-1"></i>Abrir currículo atual
+                            </a>
+                        </div>
+                        <p id="profile-message" class="hidden text-sm" role="status" aria-live="polite"></p>
+                        <button id="profile-button" type="submit"
+                            class="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-bold text-white transition hover:bg-emerald-500 disabled:cursor-wait disabled:opacity-60">
+                            <i class="fas fa-floppy-disk"></i>Salvar perfil
+                        </button>
+                    </form>
+                </section>
+
+                <section class="rounded-2xl border border-white/15 bg-white/10 p-5 shadow-xl shadow-slate-950/20 backdrop-blur-sm sm:p-7">
+                    <h3 class="text-lg font-bold text-white"><i class="fas fa-lock mr-2 text-amber-300"></i>Alterar senha</h3>
+                    <p class="mt-1 text-sm text-slate-300">A nova senha será armazenada como hash bcrypt.</p>
+                    <form id="password-form" class="mt-5 space-y-4">
+                        <div>
+                            <label for="current-password" class="mb-1.5 block text-sm font-semibold text-slate-200">Senha atual</label>
+                            <input id="current-password" name="currentPassword" type="password" autocomplete="current-password" required
+                                class="w-full rounded-xl border border-white/15 bg-slate-950/60 px-4 py-3 text-white focus:border-sky-300 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="new-password" class="mb-1.5 block text-sm font-semibold text-slate-200">Nova senha</label>
+                            <input id="new-password" name="newPassword" type="password" autocomplete="new-password" minlength="8" required
+                                class="w-full rounded-xl border border-white/15 bg-slate-950/60 px-4 py-3 text-white focus:border-sky-300 focus:outline-none">
+                            <p class="mt-1 text-xs text-slate-400">Use pelo menos 8 caracteres.</p>
+                        </div>
+                        <div>
+                            <label for="confirm-password" class="mb-1.5 block text-sm font-semibold text-slate-200">Confirme a nova senha</label>
+                            <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required
+                                class="w-full rounded-xl border border-white/15 bg-slate-950/60 px-4 py-3 text-white focus:border-sky-300 focus:outline-none">
+                        </div>
+                        <p id="password-message" class="hidden text-sm" role="status" aria-live="polite"></p>
+                        <button id="password-button" type="submit"
+                            class="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-3 font-bold text-white transition hover:bg-amber-500 disabled:cursor-wait disabled:opacity-60">
+                            <i class="fas fa-key"></i>Atualizar senha
+                        </button>
+                    </form>
+                </section>
+            </section>
+        </section>
+
+        <footer class="mt-12 border-t border-white/10 py-8 text-center">
+            <div class="mb-2 flex items-center justify-center gap-2">
+                <i class="fas fa-cog text-blue-300"></i>
+                <p class="font-medium text-blue-200">Curso de Desenvolvimento de Sistemas — SENAI</p>
+            </div>
+            <p class="text-xs text-blue-300/60">© 2026 — Repositório mantido pela turma</p>
+        </footer>
+    </main>
+    </div>
+
+    <script>
+        const USERS_ENDPOINT = "https://onlinestorage.you.tec.br/api/getkey/senai/coinsnew";
+        const SAVE_ENDPOINT = "https://onlinestorage.you.tec.br/api/";
+        const SUPABASE_URL = "https://eempgprspimlhzlofvjx.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_H8eepB7xyJndr_TdsvuiVw_pJbsPC5k";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: false }
+        });
+        const bcrypt = window.dcodeIO && window.dcodeIO.bcrypt;
+
+        let users = [];
+        let storageValue = null;
+        let currentUser = null;
+        let currentProfile = null;
+
+        const elements = {
+            loginView: document.getElementById("login-view"),
+            profileView: document.getElementById("profile-view"),
+            loginForm: document.getElementById("login-form"),
+            loginName: document.getElementById("login-name"),
+            loginPassword: document.getElementById("login-password"),
+            loginButton: document.getElementById("login-button"),
+            loginMessage: document.getElementById("login-message"),
+            pageMessage: document.getElementById("page-message"),
+            profileName: document.getElementById("profile-name"),
+            photoUrl: document.getElementById("photo-url"),
+            resumeUrl: document.getElementById("resume-url"),
+            resumeLink: document.getElementById("resume-link"),
+            avatarPreview: document.getElementById("avatar-preview"),
+            avatarPlaceholder: document.getElementById("avatar-placeholder"),
+            profileForm: document.getElementById("profile-form"),
+            profileButton: document.getElementById("profile-button"),
+            profileMessage: document.getElementById("profile-message"),
+            passwordForm: document.getElementById("password-form"),
+            passwordButton: document.getElementById("password-button"),
+            passwordMessage: document.getElementById("password-message")
+        };
+
+        function normalizedName(value) {
+            return String(value || "").trim().toLocaleLowerCase("pt-BR");
+        }
+
+        function showMessage(element, message, isError) {
+            element.textContent = message;
+            element.classList.remove("hidden", "text-rose-300", "text-emerald-300");
+            element.classList.add(isError ? "text-rose-300" : "text-emerald-300");
+        }
+
+        function clearMessage(element) {
+            element.textContent = "";
+            element.classList.add("hidden");
+        }
+
+        function isBcryptHash(value) {
+            return /^\$2[aby]\$\d{2}\$/.test(String(value));
+        }
+
+        function comparePassword(password, hash) {
+            return new Promise((resolve, reject) => {
+                bcrypt.compare(password, hash, (error, matches) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(matches);
+                });
+            });
+        }
+
+        function hashPassword(password) {
+            return new Promise((resolve, reject) => {
+                bcrypt.hash(password, 10, (error, hash) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(hash);
+                });
+            });
+        }
+
+        async function readUsers() {
+            const response = await fetch(USERS_ENDPOINT, { cache: "no-store" });
+            if (!response.ok) {
+                throw new Error(`Não foi possível carregar os usuários (HTTP ${response.status}).`);
+            }
+
+            const data = await response.json();
+            if (!data.value || !Array.isArray(data.value.usuarios)) {
+                throw new Error("A resposta da API não contém a lista esperada de usuários.");
+            }
+
+            storageValue = data.value;
+            users = data.value.usuarios;
+            if (users.some(user =>
+                !user ||
+                user.id === null ||
+                user.id === undefined ||
+                !user.nome ||
+                user.senha === null ||
+                user.senha === undefined
+            )) {
+                throw new Error("A lista de usuários contém um cadastro incompleto.");
+            }
+
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Selecione seu nome";
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            elements.loginName.replaceChildren(placeholder);
+            users.forEach(user => {
+                const option = document.createElement("option");
+                option.value = String(user.id);
+                option.textContent = String(user.nome).trim();
+                elements.loginName.append(option);
+            });
+            elements.loginName.disabled = false;
+        }
+
+        async function saveUsers() {
+            const response = await fetch(SAVE_ENDPOINT, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    bucket: "senai",
+                    key: "coinsnew",
+                    value: storageValue
+                })
+            });
+            if (!response.ok) {
+                throw new Error(`A API recusou a gravação da senha (HTTP ${response.status}).`);
+            }
+        }
+
+        async function getProfileForUser(user) {
+            const { data, error } = await supabaseClient
+                .from("aluno")
+                .select("id, nome, foto_url, curriculo_url");
+            if (error) {
+                throw new Error(`Não foi possível carregar seu perfil no Supabase: ${error.message}`);
+            }
+
+            const matches = (data || []).filter(profile =>
+                normalizedName(profile.nome) === normalizedName(user.nome)
+            );
+            if (matches.length !== 1) {
+                throw new Error(matches.length
+                    ? "Há mais de um perfil do Supabase com este nome. Peça à equipe para verificar o cadastro."
+                    : "Não foi encontrado um perfil correspondente no Supabase.");
+            }
+            return matches[0];
+        }
+
+        function validOptionalUrl(value, label) {
+            const trimmed = value.trim();
+            if (!trimmed) {
+                return null;
+            }
+
+            let parsed;
+            try {
+                parsed = new URL(trimmed);
+            } catch {
+                throw new Error(`Informe um endereço válido para ${label}.`);
+            }
+            if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+                throw new Error(`O endereço de ${label} deve começar com http:// ou https://.`);
+            }
+            return parsed.href;
+        }
+
+        function safeLink(value) {
+            try {
+                const parsed = new URL(value);
+                return parsed.protocol === "https:" || parsed.protocol === "http:"
+                    ? parsed.href
+                    : "";
+            } catch {
+                return "";
+            }
+        }
+
+        function displayProfile() {
+            elements.profileName.textContent = String(currentUser.nome).trim();
+            elements.photoUrl.value = currentProfile.foto_url || "";
+            elements.resumeUrl.value = currentProfile.curriculo_url || "";
+            const safeResumeUrl = safeLink(currentProfile.curriculo_url || "");
+            elements.resumeLink.href = safeResumeUrl || "#";
+            elements.resumeLink.classList.toggle("hidden", !safeResumeUrl);
+            elements.avatarPlaceholder.textContent = String(currentUser.nome).trim().charAt(0).toLocaleUpperCase("pt-BR") || "?";
+
+            const safePhotoUrl = safeLink(currentProfile.foto_url || "");
+            if (safePhotoUrl) {
+                elements.avatarPreview.src = safePhotoUrl;
+                elements.avatarPreview.classList.remove("hidden");
+                elements.avatarPlaceholder.classList.add("hidden");
+            } else {
+                elements.avatarPreview.removeAttribute("src");
+                elements.avatarPreview.classList.add("hidden");
+                elements.avatarPlaceholder.classList.remove("hidden");
+            }
+
+            elements.loginView.classList.add("hidden");
+            elements.profileView.classList.remove("hidden");
+        }
+
+        async function openUserSession(user) {
+            currentProfile = await getProfileForUser(user);
+            currentUser = user;
+            sessionStorage.setItem("cursoDevUserId", String(user.id));
+            displayProfile();
+        }
+
+        elements.loginForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            clearMessage(elements.loginMessage);
+            elements.loginButton.disabled = true;
+
+            try {
+                if (!bcrypt) {
+                    throw new Error("A biblioteca bcrypt não carregou. Recarregue a página e tente novamente.");
+                }
+                if (!users.length) {
+                    await readUsers();
+                }
+
+                const user = users.find(entry => String(entry.id) === elements.loginName.value);
+                if (!user) {
+                    throw new Error("Selecione seu nome na lista.");
+                }
+                const password = elements.loginPassword.value;
+                const passwordMatches = isBcryptHash(user.senha)
+                    ? await comparePassword(password, user.senha)
+                    : password === String(user.senha);
+                if (!passwordMatches) {
+                    throw new Error("Nome ou senha incorretos.");
+                }
+
+                if (!isBcryptHash(user.senha)) {
+                    const previousPassword = user.senha;
+                    user.senha = await hashPassword(password);
+                    try {
+                        await saveUsers();
+                    } catch (error) {
+                        user.senha = previousPassword;
+                        throw error;
+                    }
+                }
+
+                await openUserSession(user);
+                elements.loginPassword.value = "";
+            } catch (error) {
+                showMessage(elements.loginMessage, error.message || "Não foi possível entrar.", true);
+                sessionStorage.removeItem("cursoDevUserId");
+            } finally {
+                elements.loginButton.disabled = false;
+            }
+        });
+
+        elements.profileForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            clearMessage(elements.profileMessage);
+            elements.profileButton.disabled = true;
+
+            try {
+                const fotoUrl = validOptionalUrl(elements.photoUrl.value, "a foto");
+                const curriculoUrl = validOptionalUrl(elements.resumeUrl.value, "o currículo");
+                const { data, error } = await supabaseClient
+                    .from("aluno")
+                    .update({ foto_url: fotoUrl, curriculo_url: curriculoUrl })
+                    .eq("id", currentProfile.id)
+                    .select("id, nome, foto_url, curriculo_url")
+                    .single();
+                if (error) {
+                    throw new Error(`Não foi possível salvar o perfil no Supabase: ${error.message}`);
+                }
+                currentProfile = data;
+                displayProfile();
+                showMessage(elements.profileMessage, "Perfil atualizado com sucesso.", false);
+            } catch (error) {
+                showMessage(elements.profileMessage, error.message || "Não foi possível salvar o perfil.", true);
+            } finally {
+                elements.profileButton.disabled = false;
+            }
+        });
+
+        elements.passwordForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            clearMessage(elements.passwordMessage);
+            elements.passwordButton.disabled = true;
+
+            try {
+                if (!bcrypt) {
+                    throw new Error("A biblioteca bcrypt não carregou. Recarregue a página e tente novamente.");
+                }
+                const currentPassword = document.getElementById("current-password").value;
+                const newPassword = document.getElementById("new-password").value;
+                const confirmation = document.getElementById("confirm-password").value;
+                const currentMatches = isBcryptHash(currentUser.senha)
+                    ? await comparePassword(currentPassword, currentUser.senha)
+                    : currentPassword === String(currentUser.senha);
+
+                if (!currentMatches) {
+                    throw new Error("A senha atual está incorreta.");
+                }
+                if (newPassword.length < 8) {
+                    throw new Error("A nova senha precisa ter pelo menos 8 caracteres.");
+                }
+                if (newPassword !== confirmation) {
+                    throw new Error("A confirmação não corresponde à nova senha.");
+                }
+
+                const previousPassword = currentUser.senha;
+                currentUser.senha = await hashPassword(newPassword);
+                try {
+                    await saveUsers();
+                } catch (error) {
+                    currentUser.senha = previousPassword;
+                    throw error;
+                }
+
+                elements.passwordForm.reset();
+                showMessage(elements.passwordMessage, "Senha atualizada com sucesso.", false);
+            } catch (error) {
+                showMessage(elements.passwordMessage, error.message || "Não foi possível atualizar a senha.", true);
+            } finally {
+                elements.passwordButton.disabled = false;
+            }
+        });
+
+        elements.photoUrl.addEventListener("input", () => {
+            const value = safeLink(elements.photoUrl.value.trim());
+            if (value) {
+                elements.avatarPreview.src = value;
+                elements.avatarPreview.classList.remove("hidden");
+                elements.avatarPlaceholder.classList.add("hidden");
+            } else {
+                elements.avatarPreview.classList.add("hidden");
+                elements.avatarPlaceholder.classList.remove("hidden");
+            }
+        });
+
+        elements.avatarPreview.addEventListener("error", () => {
+            elements.avatarPreview.classList.add("hidden");
+            elements.avatarPlaceholder.classList.remove("hidden");
+        });
+
+        elements.resumeUrl.addEventListener("input", () => {
+            const url = safeLink(elements.resumeUrl.value.trim());
+            elements.resumeLink.classList.toggle("hidden", !url);
+            if (url) {
+                elements.resumeLink.href = url;
+            }
+        });
+
+        document.getElementById("logout-button").addEventListener("click", () => {
+            currentUser = null;
+            currentProfile = null;
+            sessionStorage.removeItem("cursoDevUserId");
+            elements.profileView.classList.add("hidden");
+            elements.loginView.classList.remove("hidden");
+            elements.passwordForm.reset();
+            clearMessage(elements.passwordMessage);
+            clearMessage(elements.profileMessage);
+        });
+
+        async function initializePanel() {
+            try {
+                await readUsers();
+                const savedUserId = sessionStorage.getItem("cursoDevUserId");
+                if (savedUserId) {
+                    const savedUser = users.find(user => String(user.id) === savedUserId);
+                    if (savedUser) {
+                        await openUserSession(savedUser);
+                    } else {
+                        sessionStorage.removeItem("cursoDevUserId");
+                    }
+                }
+            } catch (error) {
+                showMessage(elements.pageMessage, error.message || "Não foi possível carregar o painel.", true);
+            }
+        }
+
+        initializePanel();
+    </script>
+</body>
+
+</html>
