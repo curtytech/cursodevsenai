@@ -57,12 +57,26 @@
         main section[id] > div:first-child > span { color: rgb(var(--icon-rgb)); background: #0b1526; border-color: rgba(var(--icon-rgb),.4); font-weight: 600; }
         main section[id] .grid { align-items: stretch; gap: 1.25rem; }
         main section[id] .grid > .group {
-            background: #17263d; border: 1px solid #3b506b;
+            background: rgba(23, 38, 61, .78); border: 1px solid #3b506b;
             border-top: 4px solid rgb(var(--icon-rgb));
             box-shadow: 0 8px 24px rgba(0,0,0,.2); backdrop-filter: none;
             display: flex; flex-direction: column; padding: 1.4rem;
         }
-        main section[id] .grid > .group:hover { background: #20334f; border-color: rgb(var(--icon-rgb)); transform: translateY(-3px); }
+        main section[id] .grid > .group {
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        main section[id] .grid > .group:is(:hover, :focus-within) {
+            background: rgba(23, 38, 61, .78);
+            border-color: rgb(var(--icon-rgb));
+            box-shadow: 0 0 0 1px rgba(var(--icon-rgb), .35), 0 0 22px rgba(var(--icon-rgb), .12), 0 8px 24px rgba(0, 0, 0, .2);
+            transform: none;
+        }
+        main section[id] .grid > .group:is(:hover, :focus-within) .topic-icon {
+            background: rgb(var(--icon-rgb));
+            color: #0b1526;
+            border-color: rgba(15, 23, 42, .12);
+            box-shadow: 0 0 14px rgba(var(--icon-rgb), .22);
+        }
         main section[id] .group h3 { color: #f8fafc; font-size: 1rem; font-weight: 700; line-height: 1.5; }
         main section[id] .group p { color: #cbd5e1; line-height: 1.65; }
         main section[id] .group > .flex:last-child:not(:first-child) { margin-top: auto; padding-top: .5rem; }
@@ -80,7 +94,7 @@
         main nav[aria-label="Categorias dos materiais"] a:nth-child(5) { border-color: #fb923c; }
         main nav[aria-label="Categorias dos materiais"] a:nth-child(6) { border-color: #4ade80; }
         main nav[aria-label="Categorias dos materiais"] a:hover { background: #223851; }
-        @media (prefers-reduced-motion: reduce) { main section[id] .grid > .group:hover { transform: none; } }
+        @media (prefers-reduced-motion: reduce) { main section[id] .grid > .group, main section[id] .topic-icon { transition: none; } }
     </style>
 </head>
 <body class="min-h-screen overflow-x-hidden bg-[#0b1329] font-sans text-gray-100 antialiased [&_*:focus-visible]:outline-2 [&_*:focus-visible]:outline-sky-300 [&_*:focus-visible]:outline-offset-[3px]">
