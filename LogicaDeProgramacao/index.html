@@ -41,6 +41,46 @@
         @media (prefers-reduced-motion: reduce) {
             .topic-icon { transition: none; }
         }
+        main #fundamentos { --icon-rgb: 96,165,250; }
+        main #logica { --icon-rgb: 45,212,191; }
+        main #redes { --icon-rgb: 251,191,36; }
+        main #ferramentas { --icon-rgb: 167,139,250; }
+        main #exercicios { --icon-rgb: 251,146,60; }
+        main #vue { --icon-rgb: 74,222,128; }
+        main section[id] { margin-bottom: 3.5rem; }
+        main section[id] > div:first-child {
+            padding: 1rem; border: 1px solid rgba(var(--icon-rgb),.35);
+            border-left: 5px solid rgb(var(--icon-rgb)); border-radius: 1rem;
+            background: linear-gradient(100deg,rgba(var(--icon-rgb),.18),#101e34 80%);
+        }
+        main section[id] > div:first-child h2 { color: #fff; line-height: 1.4; }
+        main section[id] > div:first-child > span { color: rgb(var(--icon-rgb)); background: #0b1526; border-color: rgba(var(--icon-rgb),.4); font-weight: 600; }
+        main section[id] .grid { align-items: stretch; gap: 1.25rem; }
+        main section[id] .grid > .group {
+            background: #f1f5f9; border: 1px solid #cbd5e1;
+            border-top: 4px solid rgb(var(--icon-rgb));
+            box-shadow: 0 8px 24px rgba(0,0,0,.2); backdrop-filter: none;
+            display: flex; flex-direction: column; padding: 1.4rem;
+        }
+        main section[id] .grid > .group:hover { background: #fff; border-color: rgb(var(--icon-rgb)); transform: translateY(-3px); }
+        main section[id] .group h3 { color: #0f172a; font-size: 1rem; font-weight: 700; line-height: 1.5; }
+        main section[id] .group p { color: #334155; line-height: 1.65; }
+        main section[id] .group > .flex:last-child:not(:first-child) { margin-top: auto; padding-top: .5rem; }
+        main section[id] .group a { color: #1e293b; background: #fff; border: 1px solid #cbd5e1; font-weight: 600; padding: .5rem .75rem; }
+        main section[id] .group a:hover { background: #e2e8f0; border-color: #64748b; }
+        main section[id] .topic-icon, main section[id] .category-icon { background: rgb(var(--icon-rgb)); color: #0b1526; border: 1px solid rgba(15,23,42,.12); box-shadow: 0 3px 8px rgba(15,23,42,.12); }
+        main section[id] .topic-icon { width: 3.25rem; height: 3.25rem; }
+        main section[id] .topic-icon i { font-size: 1.4rem; }
+        main section[id] .category-icon { width: 2.75rem; height: 2.75rem; font-size: 1.15rem; }
+        main nav[aria-label="Categorias dos materiais"] a { background: #14243a; color: #f1f5f9; border-bottom-width: 3px; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(1) { border-color: #60a5fa; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(2) { border-color: #2dd4bf; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(3) { border-color: #fbbf24; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(4) { border-color: #a78bfa; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(5) { border-color: #fb923c; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(6) { border-color: #4ade80; }
+        main nav[aria-label="Categorias dos materiais"] a:hover { background: #223851; }
+        @media (prefers-reduced-motion: reduce) { main section[id] .grid > .group:hover { transform: none; } }
     </style>
 </head>
 <body class="min-h-screen overflow-x-hidden bg-[#0b1329] font-sans text-gray-100 antialiased [&_*:focus-visible]:outline-2 [&_*:focus-visible]:outline-sky-300 [&_*:focus-visible]:outline-offset-[3px]">
