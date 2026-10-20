@@ -1,188 +1,789 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aula de Lógica</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="style.css">
-
+    <meta name="description" content="Materiais, exemplos e exercícios de Lógica de Programação da turma de Desenvolvimento de Sistemas do SENAI.">
+    <title>Lógica de Programação — ALCATECH | SENAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        section { --icon-rgb: 125, 211, 252; }
+        #fundamentos { --icon-rgb: 147, 197, 253; }
+        #logica { --icon-rgb: 103, 232, 249; }
+        #redes { --icon-rgb: 125, 211, 252; }
+        #ferramentas { --icon-rgb: 165, 180, 252; }
+        #exercicios { --icon-rgb: 196, 181, 253; }
+        #vue { --icon-rgb: 110, 231, 183; }
+        .topic-icon, .category-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: rgb(var(--icon-rgb));
+            border: 1px solid rgba(var(--icon-rgb), .24);
+            background: linear-gradient(145deg, rgba(var(--icon-rgb), .14), rgba(7, 19, 35, .7));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 4px 14px rgba(2, 8, 23, .18);
+        }
+        .topic-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: .875rem;
+            transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+        .topic-icon i { font-size: 1.25rem; line-height: 1; }
+        .category-icon { width: 2.25rem; height: 2.25rem; border-radius: .7rem; }
+        .group:hover .topic-icon {
+            border-color: rgba(var(--icon-rgb), .5);
+            background: linear-gradient(145deg, rgba(var(--icon-rgb), .23), rgba(7, 19, 35, .7));
+            box-shadow: 0 0 18px rgba(var(--icon-rgb), .1);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .topic-icon { transition: none; }
+        }
+    </style>
 </head>
-
-<body>
-
-    <nav class="bg-white border-gray-200 py-2.5 dark:bg-gray-900">
-        <div class="flex flex-wrap items-center justify-between max-w-screen-xl px-4 mx-auto">
-            <a href="https://google.com" target="_blank" class="flex items-center">
-                <img src="assets/img/logo.webp" class="h-6 mr-3 sm:h-9" alt="Landwind Logo">
-                <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Loja do SENAI</span>
-            </a>
-            <div class="flex items-center lg:order-2">
-                <div class="hidden mt-2 mr-4 sm:inline-block">
-                    <span></span>
-                </div>
-
-                <a href="https://themesberg.com/product/tailwind-css/landing-page" id="btnLogin"
-                    class="text-white bg-blue-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800"></a>
-                <button data-collapse-toggle="mobile-menu-2" type="button"
-                    class="inline-flex items-center p-2 ml-1 text-sm divMargin text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                    aria-controls="mobile-menu-2" aria-expanded="true">
-                    <span class="sr-only">Open main menu</span>
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd"
-                            d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                            clip-rule="evenodd"></path>
-                    </svg>
-                    <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd"></path>
-                    </svg>
-                </button>
-            </div>
-            <div class="items-center justify-between w-full lg:flex lg:w-auto lg:order-1" id="divId">
-                <ul id="menu" class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                </ul>
-            </div>
+<body class="min-h-screen overflow-x-hidden bg-[#0b1329] font-sans text-gray-100 antialiased [&_*:focus-visible]:outline-2 [&_*:focus-visible]:outline-sky-300 [&_*:focus-visible]:outline-offset-[3px]">
+    <div aria-hidden="true"
+        class="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-[#071323] via-[#0b1d33] to-[#101a35]">
+        <div
+            class="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(125,211,252,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,0.08)_1px,transparent_1px)] [background-size:56px_56px]">
         </div>
-    </nav>
-
-
-    <div class="flex flex-row justify-center w-full mt-5">
-        <button onclick="clickFunction()" id="cliqueaqui"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Clique aqui
-        </button>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#071323]/60"></div>
+        <svg aria-hidden="true" class="absolute inset-0 h-full w-full motion-reduce:hidden" viewBox="0 0 1440 900"
+            preserveAspectRatio="none">
+            <defs>
+                <filter id="particle-glow" x="-200%" y="-200%" width="500%" height="500%">
+                    <feGaussianBlur stdDeviation="3" result="glow"></feGaussianBlur>
+                    <feMerge>
+                        <feMergeNode in="glow"></feMergeNode>
+                        <feMergeNode in="SourceGraphic"></feMergeNode>
+                    </feMerge>
+                </filter>
+            </defs>
+            <circle r="2.5" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="18s" repeatCount="indefinite"
+                    path="M -20 160 C 240 30 430 330 720 180 S 1170 80 1460 250"></animateMotion>
+                <animate attributeName="opacity" values="0;1;0.75;0" keyTimes="0;0.15;0.8;1" dur="18s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#bae6fd" filter="url(#particle-glow)">
+                <animateMotion dur="23s" repeatCount="indefinite" path="M 140 -20 C 320 220 40 520 340 930">
+                </animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.65;0" keyTimes="0;0.2;0.8;1" dur="23s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2.5" fill="#22d3ee" filter="url(#particle-glow)">
+                <animateMotion dur="21s" repeatCount="indefinite" path="M 1480 100 C 1190 300 1020 560 720 930">
+                </animateMotion>
+                <animate attributeName="opacity" values="0;1;0.7;0" keyTimes="0;0.15;0.8;1" dur="21s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#fde68a" filter="url(#particle-glow)">
+                <animateMotion dur="26s" repeatCount="indefinite"
+                    path="M -30 600 C 250 430 500 720 780 570 S 1190 450 1470 700"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.6;0" keyTimes="0;0.2;0.8;1" dur="26s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2.5" fill="#e0f2fe" filter="url(#particle-glow)">
+                <animateMotion dur="20s" repeatCount="indefinite"
+                    path="M 1470 820 C 1130 650 920 850 640 640 S 250 780 -30 520"></animateMotion>
+                <animate attributeName="opacity" values="0;1;0.7;0" keyTimes="0;0.15;0.8;1" dur="20s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="25s" repeatCount="indefinite"
+                    path="M 470 -30 C 700 200 400 460 700 650 S 1030 760 960 930"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.65;0" keyTimes="0;0.2;0.8;1" dur="25s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#a5f3fc" filter="url(#particle-glow)">
+                <animateMotion dur="16s" repeatCount="indefinite"
+                    path="M -20 320 C 300 200 520 430 800 300 S 1180 250 1460 380"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.55;0" keyTimes="0;0.2;0.8;1" dur="16s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="22s" repeatCount="indefinite"
+                    path="M 1460 460 C 1160 280 980 530 700 430 S 250 360 -20 500"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.6;0" keyTimes="0;0.2;0.8;1" dur="22s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#cbd5e1" filter="url(#particle-glow)">
+                <animateMotion dur="19s" repeatCount="indefinite"
+                    path="M 300 930 C 430 680 200 480 430 260 S 660 100 610 -20"></animateMotion>
+                <animate attributeName="opacity" values="0;0.8;0.55;0" keyTimes="0;0.2;0.8;1" dur="19s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#fde68a" filter="url(#particle-glow)">
+                <animateMotion dur="24s" repeatCount="indefinite"
+                    path="M 900 -20 C 720 220 1060 340 900 560 S 720 760 840 930"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.6;0" keyTimes="0;0.2;0.8;1" dur="24s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#bae6fd" filter="url(#particle-glow)">
+                <animateMotion dur="17s" repeatCount="indefinite"
+                    path="M -20 760 C 260 840 470 620 720 760 S 1180 900 1460 740"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.55;0" keyTimes="0;0.2;0.8;1" dur="17s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#22d3ee" filter="url(#particle-glow)">
+                <animateMotion dur="27s" repeatCount="indefinite"
+                    path="M 1100 930 C 950 720 1260 580 1090 360 S 880 120 1040 -20"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.65;0" keyTimes="0;0.2;0.8;1" dur="27s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#e0f2fe" filter="url(#particle-glow)">
+                <animateMotion dur="20s" repeatCount="indefinite"
+                    path="M 1460 40 C 1240 180 1320 400 1080 520 S 790 600 620 480"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.55;0" keyTimes="0;0.2;0.8;1" dur="20s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="23s" repeatCount="indefinite"
+                    path="M 40 930 C 160 710 80 540 300 390 S 520 260 430 -20"></animateMotion>
+                <animate attributeName="opacity" values="0;0.8;0.55;0" keyTimes="0;0.2;0.8;1" dur="23s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#fde68a" filter="url(#particle-glow)">
+                <animateMotion dur="29s" repeatCount="indefinite"
+                    path="M 1460 900 C 1220 720 980 900 760 700 S 520 500 280 650"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.5;0" keyTimes="0;0.2;0.8;1" dur="29s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#a5f3fc" filter="url(#particle-glow)">
+                <animateMotion dur="18s" repeatCount="indefinite"
+                    path="M 760 -20 C 950 160 720 340 930 500 S 1170 710 1320 930"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.55;0" keyTimes="0;0.2;0.8;1" dur="18s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#bae6fd" filter="url(#particle-glow)">
+                <animateMotion dur="26s" repeatCount="indefinite"
+                    path="M -20 80 C 230 300 410 80 620 250 S 970 430 1180 260"></animateMotion>
+                <animate attributeName="opacity" values="0;0.8;0.55;0" keyTimes="0;0.2;0.8;1" dur="26s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+        </svg>
     </div>
-    
+
+    <header class="fixed inset-x-0 top-0 z-50 border-b border-[rgba(148,190,219,0.14)] bg-[rgba(5,15,29,0.82)] shadow-[0_12px_36px_rgba(2,8,23,0.18)] backdrop-blur-xl">
+        <nav aria-label="Navegação principal" class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+            <a href="../index.html" class="flex items-center gap-3" aria-label="ALCATECH — Página principal">
+                <img src="https://eempgprspimlhzlofvjx.supabase.co/storage/v1/object/public/icones/logo_turma.webp" alt="" class="h-10 w-10 rounded-xl border border-sky-300/30 bg-[#005CA9] object-contain shadow-lg shadow-sky-950/40">
+                <div>
+                    <p class="bg-gradient-to-b from-white via-slate-300 to-slate-500 bg-clip-text text-xl font-black leading-tight text-transparent drop-shadow-[0_2px_8px_rgba(203,213,225,0.35)]">ALCATECH</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-[.16em] text-sky-200/80">SENAI DEV TEAM</p>
+                </div>
+            </a>
+            <a href="../index.html" class="inline-flex items-center gap-2 rounded-xl border border-sky-300/25 bg-sky-500/15 px-3 py-2 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-500/25">
+                <i aria-hidden="true" class="fas fa-arrow-left text-sky-300"></i><span>Voltar<span class="hidden sm:inline"> ao início</span></span>
+            </a>
+        </nav>
+    </header>
+    <main class="relative z-10 mx-auto w-full max-w-[1056px] px-4 pb-4 pt-32">
+        <section aria-labelledby="page-title" class="mb-12 text-center">
+            <div class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-sky-300/25 bg-sky-500/15 shadow-lg shadow-sky-950/40"><i aria-hidden="true" class="fas fa-terminal text-3xl text-sky-300"></i></div>
+            <p class="mb-3 text-xs font-semibold uppercase tracking-[.2em] text-sky-300">Desenvolvimento de Sistemas · SENAI</p>
+            <h1 id="page-title" class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Lógica de Programação</h1>
+            <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-blue-200/80">Seu espaço para aprender, praticar e consultar os materiais das aulas.</p>
+        </section>
+<nav aria-label="Categorias dos materiais" class="mb-10 flex flex-wrap gap-2"><a href="#fundamentos" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Fundamentos de informática e trabalho em equipe</a>
+<a href="#logica" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Lógica e algoritmos</a>
+<a href="#redes" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Redes, internet e APIs</a>
+<a href="#ferramentas" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Ferramentas e desenvolvimento</a>
+<a href="#exercicios" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Exercícios, desafios e avaliação</a>
+<a href="#vue" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Vue.js e interfaces</a></nav>
+        <section id="fundamentos" aria-labelledby="fundamentos-title" class="mb-12 scroll-mt-28">
+            <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
+                <div class="category-icon"><i aria-hidden="true" class="fas fa-computer"></i></div>
+                <h2 id="fundamentos-title" class="text-xl font-bold text-white sm:text-2xl">Fundamentos de informática e trabalho em equipe</h2>
+                <span class="rounded-full border border-sky-300/20 bg-sky-500/10 px-2.5 py-1 text-xs text-sky-200">5 cartões</span>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                       <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-users text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">1 - Trabalho em equipe</h3>
+                            <p class="text-sm text-blue-200 mt-1">Trabalho em equipe é a colaboração organizada entre pessoas.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/1 - Trabalho em equipe.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/1 - Trabalho em equipe.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                    </div>
+                </div>
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-desktop text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">3 - Fundamentos de sistemas operacionais</h3>
+                            <p class="text-sm text-blue-200 mt-1">Sistema operacional gerencia os recursos e permite a interação com o computador.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/3 - Fundamentos de Sistemas Operacionais.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/3 - Fundamentos de Sistemas Operacionais.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                    </div>
+                </div>
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-file-code text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">4 - Fundamentos de software</h3>
+                            <p class="text-sm text-blue-200 mt-1">Software é a parte lógica do computador que permite executar tarefas.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/4 - Fundamentos de software.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/4 - Fundamentos de software.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                    </div>
+                </div>
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-shield-halved text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">5 - Segurança do trabalho</h3>
+                            <p class="text-sm text-blue-200 mt-1">A segurança do trabalho em informática busca proteger os profissionais de riscos.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/5 - Segurança do trabalho – informática.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/5 - Segurança do trabalho – informática.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                    </div>
+                </div>
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-scale-balanced text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">6 - Legislação autoral</h3>
+                            <p class="text-sm text-blue-200 mt-1">legislação autoral estabelece regras para proteger direitos de seus autores.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/6 - Legislação Autoral - Software Livre.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/6 - Legislação Autoral - Software Livre.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="logica" aria-labelledby="logica-title" class="mb-12 scroll-mt-28">
+            <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
+                <div class="category-icon"><i aria-hidden="true" class="fas fa-code"></i></div>
+                <h2 id="logica-title" class="text-xl font-bold text-white sm:text-2xl">Lógica e algoritmos</h2>
+                <span class="rounded-full border border-sky-300/20 bg-sky-500/10 px-2.5 py-1 text-xs text-sky-200">7 cartões</span>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-code text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">7 - Códigos</h3>
+                            <p class="text-sm text-blue-200 mt-1">Código-fonte são instruções que orientam o computador a realizar tarefas.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/7 - Códigos.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/7 - Códigos.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                        <a href="Conteudo/7 - Códigos.pptx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar pptx</a>
+                    </div>
+                </div>
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-diagram-project text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">8 a 10 - Algoritmos de busca</h3>
+                            <p class="text-sm text-blue-200 mt-1">PDF e Word</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/8_a_10_-_Algoritmos.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/8 a 10 - Algoritmos.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                    </div>
+                </div>
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-arrows-rotate text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">11 a 13 - Recursividade</h3>
+                            <p class="text-sm text-blue-200 mt-1">Recursividade é uma técnica de programação onde uma função chama a si mesma.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/11 a 13 - Recursividade.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/11 a 13 Recursividade.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                    </div>
+                </div>
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-magnifying-glass text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">14 - Legibilidade de código fonte</h3>
+                            <p class="text-sm text-blue-200 mt-1">Legibilidade é a facilidade de ler, entender e modificar um código.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/14 - Legibilidade de código fonte.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/14 - Legibilidade de código fonte.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-code text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">15 a 18 - Pseudocódigo</h3>
+                            <p class="text-sm text-blue-200 mt-1">Pseudocódigo representa a lógica de um algoritmo de forma simples, antes da programação.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/15 a 18 - Pseudocódigo.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/15 a 18 - Pseudocódigo.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                        <a href="Conteudo/15 - 18 - Fundamentos de Programacao Do Conceito a Pratica.pptx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar pptx</a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-layer-group text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Código de alto e baixo nível</h3>
+                            <p class="text-sm text-blue-200 mt-1">Conheça os níveis de abstração das linguagens de programação.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Código de Alto e Baixo Nível.pptx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar pptx</a>
+                    </div>
+                </div>
+                <a href="exemplosLogicaDeProgramacao.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-code text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Exemplos de lógica</h3><p class="mt-1 text-sm text-blue-200/80">Explore os conceitos de lógica de programação.</p></div>
+                    </div>
+                </a>
+            </div>
+        </section>
+        <section id="redes" aria-labelledby="redes-title" class="mb-12 scroll-mt-28">
+            <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
+                <div class="category-icon"><i aria-hidden="true" class="fas fa-network-wired"></i></div>
+                <h2 id="redes-title" class="text-xl font-bold text-white sm:text-2xl">Redes, internet e APIs</h2>
+                <span class="rounded-full border border-sky-300/20 bg-sky-500/10 px-2.5 py-1 text-xs text-sky-200">4 cartões</span>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+<div
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-network-wired text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">2 - Fundamentos de redes de computadores</h3>
+                            <p class="text-sm text-blue-200 mt-1">Uma rede de computadores conecta dispositivos para permitir ações.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/2 - Fundamentos de Redes de Computadores.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/2 - Fundamentos de Redes de Computadores.docx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar docx
+                        </a>
+                        <a href="Conteudo/2 - Fundamentos-de-Redes-de-Computadores.pptx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar pptx</a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-globe text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Como a internet funciona</h3>
+                            <p class="text-sm text-blue-200 mt-1">A internet conecta dispositivos para compartilhar dados e informações.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Como-a-Internet-Funciona.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/Como-a-Internet-Funciona.pptx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar pptx
+                        </a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-paper-plane text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Manual Postman e HTTP</h3>
+                            <p class="text-sm text-blue-200 mt-1">Material sobre requisições HTTP e o uso do Postman.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Manual Postman e HTTP.pptx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar pptx</a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-network-wired text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Redes de computadores: protocolos e portas</h3>
+                            <p class="text-sm text-blue-200 mt-1">Conheça os protocolos e as portas usados na comunicação em rede.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Redes_de_Computadores_Protocolos_e_Portas.pptx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar pptx</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="ferramentas" aria-labelledby="ferramentas-title" class="mb-12 scroll-mt-28">
+            <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
+                <div class="category-icon"><i aria-hidden="true" class="fas fa-toolbox"></i></div>
+                <h2 id="ferramentas-title" class="text-xl font-bold text-white sm:text-2xl">Ferramentas e desenvolvimento</h2>
+                <span class="rounded-full border border-sky-300/20 bg-sky-500/10 px-2.5 py-1 text-xs text-sky-200">7 cartões</span>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                         <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-code-branch text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Linguagens, bibliotecas e frameworks</h3>
+                            <p class="text-sm text-blue-200 mt-1">Ferramentas mais usadas para desenvolvedores</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Linguagens, Bibliotecas e Frameworks.pdf" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir PDF
+                        </a>
+                        <a href="Conteudo/Linguagens, Bibliotecas e Frameworks.pptx" target="_blank"
+                            class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors">
+                            <i aria-hidden="true" class="fas fa-download"></i>Baixar pptx
+                        </a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-file-lines text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Extensões de arquivos</h3>
+                            <p class="text-sm text-blue-200 mt-1">Guia de extensões de arquivos para desenvolvedores iniciantes.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Extensoes_de_Arquivos_Guia_Dev_Iniciante.pptx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar pptx</a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-terminal text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Terminal Windows e Linux</h3>
+                            <p class="text-sm text-blue-200 mt-1">Conheça os terminais e os comandos do Windows e do Linux.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Terminal Windows e Linux.pptx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar pptx</a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-cubes text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Microserviços</h3>
+                            <p class="text-sm text-blue-200 mt-1">Apresentação sobre a organização de sistemas em microserviços.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Apresentação Microserviços.pptx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar pptx</a>
+                    </div>
+                </div>
+                <a href="html-basic.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-file-code text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Fundamentos de HTML</h3><p class="mt-1 text-sm text-blue-200/80">Estrutura de uma página e suas principais tags.</p></div>
+                    </div>
+                </a>
+                <a href="ExtensoesVS/index.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-puzzle-piece text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Extensões do VS Code</h3><p class="mt-1 text-sm text-blue-200/80">Conheça ferramentas para seu editor de código.</p></div>
+                    </div>
+                </a>
+                <a href="curriculo/index.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-user-graduate text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Modelo de currículo</h3><p class="mt-1 text-sm text-blue-200/80">Exemplo de currículo em uma página web.</p></div>
+                    </div>
+                </a>
+            </div>
+        </section>
+        <section id="exercicios" aria-labelledby="exercicios-title" class="mb-12 scroll-mt-28">
+            <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
+                <div class="category-icon"><i aria-hidden="true" class="fas fa-list-check"></i></div>
+                <h2 id="exercicios-title" class="text-xl font-bold text-white sm:text-2xl">Exercícios, desafios e avaliação</h2>
+                <span class="rounded-full border border-sky-300/20 bg-sky-500/10 px-2.5 py-1 text-xs text-sky-200">6 cartões</span>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-list-check text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Exercícios de lógica</h3>
+                            <p class="text-sm text-blue-200 mt-1">Pratique lógica de programação com exercícios de diferentes níveis.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Exercicios/ExeciciosdeLogica.md" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar exercícios</a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-code text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Soluções dos exercícios de lógica</h3>
+                            <p class="text-sm text-blue-200 mt-1">Consulte as soluções dos exercícios de lógica de programação.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Exercicios/SolucaoExerciciosDeLogica.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir página</a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-terminal text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Exercícios de terminal Windows</h3>
+                            <p class="text-sm text-blue-200 mt-1">Pratique comandos do terminal Windows.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Exercicios/ExerciciosDeTerminalWindows.md" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar exercícios</a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-diagram-project text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Fluxograma</h3>
+                            <p class="text-sm text-blue-200 mt-1">Material de exercícios sobre fluxogramas.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Exercicios/Fluxograma.docx" download class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-download"></i> Baixar docx</a>
+                    </div>
+                </div>
+<div class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-xl">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fas fa-clipboard-question text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Prova</h3>
+                            <p class="text-sm text-blue-200 mt-1">Acesse a página da avaliação de lógica de programação.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="Conteudo/Exercicios/prova.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm hover:bg-white/20 transition-colors"><i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i> Abrir página</a>
+                    </div>
+                </div>
+                <a href="desafio.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-bolt text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Desafio prático</h3><p class="mt-1 text-sm text-blue-200/80">Coloque em prática os conteúdos das aulas.</p></div>
+                    </div>
+                </a>
+            </div>
+        </section>
+        <section id="vue" aria-labelledby="vue-title" class="mb-12 scroll-mt-28">
+            <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
+                <div class="category-icon"><i aria-hidden="true" class="fas fa-layer-group"></i></div>
+                <h2 id="vue-title" class="text-xl font-bold text-white sm:text-2xl">Vue.js e interfaces</h2>
+                <span class="rounded-full border border-sky-300/20 bg-sky-500/10 px-2.5 py-1 text-xs text-sky-200">7 cartões</span>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <a href="vueJs/vue-api-coin-base.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-coins text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Vue.js e API Coinbase</h3><p class="mt-1 text-sm text-blue-200/80">Abra o exemplo da aula de Vue.js.</p></div>
+                    </div>
+                </a>
+                <a href="vueJs/vue-api-python.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-server text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Vue.js e API Python</h3><p class="mt-1 text-sm text-blue-200/80">Abra o exemplo da aula de Vue.js.</p></div>
+                    </div>
+                </a>
+                <a href="vueJs/vue-cep.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-location-dot text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Consulta de CEP</h3><p class="mt-1 text-sm text-blue-200/80">Abra o exemplo da aula de Vue.js.</p></div>
+                    </div>
+                </a>
+                <a href="vueJs/vue-click.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-arrow-pointer text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Eventos de clique</h3><p class="mt-1 text-sm text-blue-200/80">Abra o exemplo da aula de Vue.js.</p></div>
+                    </div>
+                </a>
+                <a href="vueJs/vue-for.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-list text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Listas com v-for</h3><p class="mt-1 text-sm text-blue-200/80">Abra o exemplo da aula de Vue.js.</p></div>
+                    </div>
+                </a>
+                <a href="vueJs/vue-one.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-layer-group text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Primeiros passos com Vue.js</h3><p class="mt-1 text-sm text-blue-200/80">Abra o exemplo da aula de Vue.js.</p></div>
+                    </div>
+                </a>
+                <a href="vueJs/vue-one-without-tailwind.html" class="group rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-lg motion-reduce:transform-none">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon"><i aria-hidden="true" class="fas fa-code text-xl"></i></div>
+                        <div><h3 class="font-semibold text-white group-hover:text-sky-300">Vue.js sem Tailwind</h3><p class="mt-1 text-sm text-blue-200/80">Abra o exemplo da aula de Vue.js.</p></div>
+                    </div>
+                </a>
+            </div>
+        </section>
+        <section aria-labelledby="practice-title" class="mb-12">
+            <div class="mb-6 flex items-center gap-3 border-b border-white/10 pb-3">
+                <div class="category-icon"><i aria-hidden="true" class="fas fa-hand-pointer"></i></div>
+                <h2 id="practice-title" class="text-2xl font-bold text-white">Experimente na prática</h2>
+            </div>
+            <div class="flex flex-col items-start justify-between gap-5 rounded-xl border border-white/15 bg-white/10 p-6 backdrop-blur-sm sm:flex-row sm:items-center">
+                <div>
+                    <h3 class="font-semibold text-white">Seu primeiro evento em JavaScript</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-blue-200/80">Clique no botão e veja como uma ação pode alterar o conteúdo da página.</p>
+                    <p id="click-status" role="status" class="mt-3 text-sm text-sky-300">Aguardando seu clique.</p>
+                </div>
+                <button id="cliqueaqui" type="button" class="inline-flex shrink-0 items-center gap-2 rounded-xl border border-sky-300/25 bg-sky-500/20 px-5 py-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-500/30"><i aria-hidden="true" class="fas fa-hand-pointer"></i><span>Clique aqui</span></button>
+            </div>
+        </section>
+        <footer class="mt-12 border-t border-white/10 py-8 text-center">
+            <p class="font-medium text-blue-200"><i aria-hidden="true" class="fas fa-cog mr-2 text-blue-300"></i>Curso de Desenvolvimento de Sistemas — SENAI</p>
+            <p class="mt-2 text-xs text-blue-300/60">© 2026 — Repositório mantido pela turma</p>
+        </footer>
+    </main>
     <script>
-
-        // javascript
-        var nome = "phelipe"    
-        var nome2 = "phelipe"    
-        console.log(nome + nome2)
-
-
-        $nome = "phelipe";
-        $nome2 = "phelipe";
-
-        var_dump($nome . $nome2);
-
-
-
-    </script>
-
-    <p>
-
-    </p>
-
-    <div class="text-center bg-blue-500 mt-5">
-        <p class="text-center bg-gray-700">Blue</p>
-        <p class="text-center">red</p>
-    </div>
-
-    <div class="text-center bg-red-500 mt-5">
-        <p class="text-center">red</p>
-    </div>
-
-    <!-- 
-    <script>
-        let computador = "Não da video";
-
-        if (computador == "Não liga") {
-            console.log("Checar se tomada esta ligada");
-            console.log("Testar Fonte");
-        } else if (computador == "Não da video") {
-            console.log("Limpar Memoria");
-            console.log("Ligar Monitor");
-            console.log("Testar Fonte");
-        } else {
-            console.log("Ligar para tecnico");
-        }
-
-        let i = 0;
-
-        while (i < 5) {
-            console.log(i);
-            i++;
-        }
-
-        // rocketseat
-
-        // Array
-        let componentes = [
-            "Processador",
-            "Memória RAM",
-            "HD/SSD",
-            "Placa de Vídeo",
-            "Fonte"
-        ];
-
-        console.log("=== Componentes do computador ===");
-
-        // forEach
-        componentes.forEach(function (componente) {
-            console.log(componente);
+        const clickButton = document.getElementById('cliqueaqui');
+        clickButton.addEventListener('click', () => {
+            clickButton.querySelector('span').textContent = 'Já cliquei!';
+            document.getElementById('click-status').textContent = 'Evento executado! O JavaScript atualizou o texto do botão.';
         });
-
-        console.log("=== For ===");
-
-        for (let i = 0; i < 5; i++) {
-            console.log(i);
-        }
-
-    </script> -->
-
-    <script>
-        let navbaritems = [
-            "Home",
-            "Produtos",
-            "Categorias",
-        ];
     </script>
-
-    <script>
-        const user = "Phelipe";
-
-        const menu = document.getElementById("menu");
-
-        navbaritems.forEach(function (navbaritem) {
-            menu.innerHTML += `
-                <li>
-                    <a href="#"
-                        class="text-blue-500">
-                        ${navbaritem}
-                    </a>
-                </li>
-            `;
-        });
-
-        console.log(user.length)
-
-        if (user.length > 1) {
-            btnLogin.innerHTML += `${user}`
-        } else {
-            btnLogin.innerHTML += `Entrar`
-        }
-
-        const clique = document.getElementById("cliqueaqui");
-        console.log(clique.innerHTML)
-
-        // const nome = "Alexandre"
-        // console.log(nome)
-
-        function clickFunction() {
-            clique.innerHTML = "Ja cliquei"
-            // console.log(clique.innerHTML)
-        }
-
-
-    </script>
-
-    <script src="https://unpkg.com/flowbite@1.4.1/dist/flowbite.js"></script>
-
 </body>
-
 </html>
