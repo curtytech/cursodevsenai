@@ -270,7 +270,7 @@
             });
         }
 
-        async function readUsers() {
+        async function fetchUserStorage() {
             const response = await fetch(USERS_ENDPOINT, { cache: "no-store" });
             if (!response.ok) {
                 throw new Error(`Não foi possível carregar os usuários (HTTP ${response.status}).`);
@@ -281,9 +281,7 @@
                 throw new Error("A resposta da API não contém a lista esperada de usuários.");
             }
 
-            storageValue = data.value;
-            users = data.value.usuarios;
-            if (users.some(user =>
+            if (data.value.usuarios.some(user =>
                 !user ||
                 user.id === null ||
                 user.id === undefined ||
@@ -293,6 +291,13 @@
             )) {
                 throw new Error("A lista de usuários contém um cadastro incompleto.");
             }
+
+            return data.value;
+        }
+
+        async function readUsers() {
+            storageValue = await fetchUserStorage();
+            users = storageValue.usuarios;
 
             const placeholder = document.createElement("option");
             placeholder.value = "";
@@ -309,19 +314,43 @@
             elements.loginName.disabled = false;
         }
 
-        async function saveUsers() {
+        async function updateUserPassword(userId, currentPassword, newPassword) {
+            const latestStorageValue = await fetchUserStorage();
+            const matches = latestStorageValue.usuarios.filter(user =>
+                String(user.id) === String(userId)
+            );
+            if (matches.length !== 1) {
+                throw new Error("Não foi possível identificar seu cadastro. Saia e entre novamente.");
+            }
+
+            const user = matches[0];
+            const currentMatches = isBcryptHash(user.senha)
+                ? await comparePassword(currentPassword, user.senha)
+                : currentPassword === String(user.senha);
+            if (!currentMatches) {
+                throw new Error("A senha atual não confere com a senha cadastrada mais recente.");
+            }
+
+            user.senha = await hashPassword(newPassword);
             const response = await fetch(SAVE_ENDPOINT, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     bucket: "senai",
                     key: "coinsnew",
-                    value: storageValue
+                    value: latestStorageValue
                 })
             });
             if (!response.ok) {
                 throw new Error(`A API recusou a gravação da senha (HTTP ${response.status}).`);
             }
+
+            storageValue = latestStorageValue;
+            users = latestStorageValue.usuarios;
+            if (currentUser && String(currentUser.id) === String(userId)) {
+                currentUser = user;
+            }
+            return user;
         }
 
         async function getProfileForUser(user) {
@@ -416,7 +445,7 @@
                     await readUsers();
                 }
 
-                const user = users.find(entry => String(entry.id) === elements.loginName.value);
+                let user = users.find(entry => String(entry.id) === elements.loginName.value);
                 if (!user) {
                     throw new Error("Selecione seu nome na lista.");
                 }
@@ -429,14 +458,7 @@
                 }
 
                 if (!isBcryptHash(user.senha)) {
-                    const previousPassword = user.senha;
-                    user.senha = await hashPassword(password);
-                    try {
-                        await saveUsers();
-                    } catch (error) {
-                        user.senha = previousPassword;
-                        throw error;
-                    }
+                    user = await updateUserPassword(user.id, password, password);
                 }
 
                 await openUserSession(user);
@@ -488,13 +510,6 @@
                 const currentPassword = document.getElementById("current-password").value;
                 const newPassword = document.getElementById("new-password").value;
                 const confirmation = document.getElementById("confirm-password").value;
-                const currentMatches = isBcryptHash(currentUser.senha)
-                    ? await comparePassword(currentPassword, currentUser.senha)
-                    : currentPassword === String(currentUser.senha);
-
-                if (!currentMatches) {
-                    throw new Error("A senha atual está incorreta.");
-                }
                 if (newPassword.length < 8) {
                     throw new Error("A nova senha precisa ter pelo menos 8 caracteres.");
                 }
@@ -502,14 +517,7 @@
                     throw new Error("A confirmação não corresponde à nova senha.");
                 }
 
-                const previousPassword = currentUser.senha;
-                currentUser.senha = await hashPassword(newPassword);
-                try {
-                    await saveUsers();
-                } catch (error) {
-                    currentUser.senha = previousPassword;
-                    throw error;
-                }
+                currentUser = await updateUserPassword(currentUser.id, currentPassword, newPassword);
 
                 elements.passwordForm.reset();
                 showMessage(elements.passwordMessage, "Senha atualizada com sucesso.", false);
