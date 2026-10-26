@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inteligência Artificial: Mentes Criativas e Prompts de Sucesso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060b14;
+      --card-bg: rgba(13, 27, 42, 0.75);
+      --card-border: rgba(0, 229, 255, 0.25);
+      --card-border-glow: rgba(0, 229, 255, 0.5);
+      --neon-cyan: #00e5ff;
+      --neon-green: #00ff88;
+      --neon-red: #ff3366;
+      --neon-yellow: #ffd000;
+      --text: #e6f1ff;
+      --text-muted: #8ba3c7;
+      --accent-gradient: linear-gradient(135deg, #00e5ff, #00ff88);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(0, 229, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(0, 255, 136, 0.06) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar & Progress */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 50;
+    }
+
+    .progress-bar-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 10%;
+      background: var(--accent-gradient);
+      box-shadow: 0 0 10px var(--neon-cyan);
+      transition: width 0.3s ease;
+    }
+
+    .slide-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      background: rgba(0, 229, 255, 0.1);
+      color: var(--neon-cyan);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      font-weight: 600;
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: rgba(0, 229, 255, 0.15);
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: #060b14;
+      border: none;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      color: #060b14;
+      box-shadow: 0 0 16px rgba(0, 255, 136, 0.4);
+    }
+
+    /* Deck & Slides Container */
+    main#deck {
+      flex: 1;
+      position: relative;
+      overflow-y: auto;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1100px;
+      animation: fadeIn 0.35s ease forwards;
+    }
+
+    .slide.active {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Typography & Core Elements */
+    h1, h2, h3 {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .title-gradient {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-highlight {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
+    }
+
+    .banner-highlight {
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid var(--neon-cyan);
+      padding: 14px 20px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .tag {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Specific Slide Styles */
+    /* Slide 1 */
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    /* Slide 3 Chat simulation */
+    .chat-bubble {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      border-left: 3px solid var(--neon-cyan);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .chat-bubble.ai {
+      border-left-color: var(--neon-green);
+      background: rgba(0, 255, 136, 0.05);
+    }
+
+    .formula-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      text-align: center;
+      padding: 16px;
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px dashed var(--neon-cyan);
+      border-radius: 10px;
+      color: #fff;
+    }
+
+    /* Slide 5 Comparison */
+    .compare-card.basic {
+      border-color: rgba(255, 51, 102, 0.4);
+    }
+    .compare-card.basic .badge {
+      background: rgba(255, 51, 102, 0.15);
+      color: var(--neon-red);
+      border: 1px solid var(--neon-red);
+    }
+    .compare-card.advanced {
+      border-color: rgba(0, 255, 136, 0.4);
+    }
+    .compare-card.advanced .badge {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--neon-green);
+      border: 1px solid var(--neon-green);
+    }
+
+    ul.check-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    ul.check-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+
+    /* Code & Prompts */
+    .code-box {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #d1e7ff;
+      line-height: 1.5;
+    }
+
+    /* Notes Drawer */
+    #notes-modal {
+      display: none;
+      position: fixed;
+      bottom: 75px;
+      right: 30px;
+      width: 420px;
+      max-width: 90vw;
+      background: #091322;
+      border: 1px solid var(--neon-cyan);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      padding: 20px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    #notes-modal.open {
+      display: block;
+    }
+
+    #notes-modal h4 {
+      display: flex;
+      justify-content: space-between;
+      color: var(--neon-cyan);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    #notes-content {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Footer Navigation */
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 28px;
+      background: rgba(6, 11, 20, 0.9);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .key-hints {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 15px;
+    }
+
+    .key {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: monospace;
+      color: #fff;
+    }
+
+    @media (max-width: 850px) {
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+      .key-hints {
+        display: none;
+      }
+      main#deck {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span class="slide-badge" id="slide-indicator">01 / 10</span>
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);" id="header-topic">Introdução</span>
+    </div>
+    <div class="nav-controls">
+      <button class="btn" onclick="toggleNotes()" title="Ver notas do orador (Tecla N)">🎙️ Notas (N)</button>
+      <button class="btn" onclick="toggleFullscreen()" title="Tela cheia (Tecla F)">⛶ Tela Cheia</button>
+    </div>
+  </header>
+
+  <!-- Slide Deck -->
+  <main id="deck">
+
+    <!-- SLIDE 1: Capa -->
+    <section class="slide active" 
+      data-topic="Abertura"
+      data-notes="Sejam bem-vindos! Hoje vamos explorar como a Inteligência Artificial pode transformar ideias em projetos reais usando o poder dos prompts. Não estamos aqui para falar de substituição, mas sim de amplificação criativa. Vamos juntos?">
+      <div class="card card-highlight" style="padding: 40px; text-align: left;">
+        <span class="slide-badge">SLIDE 01</span>
+        <h1 style="font-size: 2.8rem; margin: 15px 0 8px 0; line-height: 1.1;">
+          INTELIGÊNCIA ARTIFICIAL: <br>
+          <span class="title-gradient">Mentes Criativas e Prompts de Sucesso</span>
+        </h1>
+        <p class="subtitle" style="font-size: 1.3rem;">Transformando ideias em projetos reais.</p>
+        
+        <div class="hero-tags">
+          <span class="tag">🎮 Jogos</span>
+          <span class="tag">🌐 Sites</span>
+          <span class="tag">🖼️ Imagens</span>
+          <span class="tag">👤 Personagens</span>
+          <span class="tag">💡 Soluções Criativas</span>
+        </div>
+
+        <div class="banner-highlight" style="margin-top: 25px; text-align: left; display: flex; align-items: center; gap: 15px;">
+          <div style="font-size: 2rem;">⚡</div>
+          <div>
+            <div style="color: var(--neon-cyan); font-weight: 700; font-size: 1.1rem;">A IA não substitui a sua mente.</div>
+            <div style="color: var(--text-muted); font-size: 0.95rem;">Ela multiplica e potencializa o que a sua imaginação já é capaz de conceber.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: O que é IA? -->
+    <section class="slide" 
+      data-topic="Conceito de IA"
+      data-notes="A IA não pensa como um ser humano: ela não sente e não tem consciência. O que ela faz é processar volumes gigantescos de dados em milissegundos para prever soluções e reconhecer padrões úteis.">
+      <div>
+        <span class="slide-badge">SLIDE 02</span>
+        <h2 style="font-size: 2.2rem; margin-top: 8px;">O QUE É <span class="title-gradient">INTELIGÊNCIA ARTIFICIAL?</span></h2>
+        <p class="subtitle">A capacidade das máquinas realizarem tarefas que exigem inteligência humana.</p>
+      </div>
+
+      <div class="grid-4" style="margin-top: 10px;">
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
+          <strong style="color: var(--neon-cyan);">Aprender</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Treinamento contínuo a partir de dados.</p>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">🔍</div>
+          <strong style="color: var(--neon-cyan);">Reconhecer</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Identifica padrões visuais, textuais e lógicos.</p>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">🎯</div>
+          <strong style="color: var(--neon-cyan);">Decidir</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Calcula as melhores rotas e probabilidades.</p>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">✨</div>
+          <strong style="color: var(--neon-cyan);">Criar</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Gera textos, códigos, imagens e sons.</p>
+        </div>
+      </div>
+
+      <div class="card" style="border-left: 4px solid var(--neon-green);">
+        <strong style="color: var(--neon-green); font-size: 1.05rem;">💡 Em resumo:</strong>
+        <p style="margin-top: 6px; color: var(--text); line-height: 1.6;">
+          A IA imita habilidades cognitivas humanas através de algoritmos matemáticos complexos. Ela precisa de um direcionamento claro para transformar esses cálculos em valor palpável.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: O que é um Prompt? -->
+    <section class="slide" 
+      data-topic="Engenharia de Prompt"
+      data-notes="O prompt é como uma partitura ou um mapa de navegação. Se a instrução for confusa, a IA vaga no escuro. Se a instrução for precisa, a mágica acontece.">
+      <div>
+        <span class="slide-badge">SLIDE 03</span>
+        <h2 style="font-size: 2.2rem; margin-top: 8px;">O QUE É UM <span class="title-gradient">PROMPT?</span></h2>
+        <p class="subtitle">Prompt é simplesmente a instrução ou comando que você fornece para a IA.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 600;">SIMULAÇÃO DE CONVERSA</div>
+          <div class="chat-bubble">
+            <span style="font-size: 1.4rem;">👤</span>
+            <div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Você</div>
+              <div style="color: #fff; font-weight: 600;">"Crie uma imagem de um dragão."</div>
+            </div>
+          </div>
+          <div class="chat-bubble ai">
+            <span style="font-size: 1.4rem;">🤖</span>
+            <div>
+              <div style="font-size: 0.75rem; color: var(--neon-green);">IA</div>
+              <div style="color: #fff;">"Entendido! Aqui está sua imagem."</div>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px;">
+            ⚠️ <em>Resultado aceitável, mas genérico. Falta personalidade!</em>
+          </p>
+        </div>
+
+        <div class="card" style="display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+          <h3 style="color: var(--neon-cyan);">A Regra Fundamental:</h3>
+          <p style="font-size: 1.05rem; line-height: 1.6;">
+            Quanto mais <strong>claro, contextualizado e específico</strong> for o comando, mais refinado e assertivo será o resultado gerado.
+          </p>
+          <div class="formula-tag">
+            PROMPT = IDEIA + DIREÇÃO + RESULTADO
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Fórmula do Prompt Eficiente -->
+    <section class="slide" 
+      data-topic="Framework de Criação"
+      data-notes="Sempre que for falar com uma IA, lembre-se desses 4 blocos: Objetivo, Contexto, Detalhes e Formato. Eles garantem que você nunca receba uma resposta rasa.">
+      <div>
+        <span class="slide-badge">SLIDE 04</span>
+        <h2 style="font-size: 2.2rem; margin-top: 8px;">A FÓRMULA DO <span class="title-gradient">PROMPT EFICIENTE</span></h2>
+        <p class="subtitle">Use esta arquitetura para estruturar instruções à prova de falhas:</p>
+      </div>
+
+      <div class="grid-4" style="margin-top: 5px;">
+        <div class="card">
+          <div style="color: var(--neon-cyan); font-weight: 800; font-size: 1.1rem;">1. OBJETIVO</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">O que exatamente você quer que a IA realize?</p>
+        </div>
+        <div class="card">
+          <div style="color: var(--neon-green); font-weight: 800; font-size: 1.1rem;">2. CONTEXTO</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Qual é o cenário? Quem é o público? Qual o tom?</p>
+        </div>
+        <div class="card">
+          <div style="color: var(--neon-yellow); font-weight: 800; font-size: 1.1rem;">3. DETALHES</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Elementos essenciais, restrições e referências.</p>
+        </div>
+        <div class="card">
+          <div style="color: #ff77e9; font-weight: 800; font-size: 1.1rem;">4. FORMATO</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Texto, código, tabela, proporção de imagem (16:9).</p>
+        </div>
+      </div>
+
+      <div class="card card-highlight">
+        <div style="font-weight: 700; color: var(--neon-cyan); margin-bottom: 8px;">⭐ EXEMPLO DA FÓRMULA NA PRÁTICA:</div>
+        <p class="code-box">
+          "<span style="color: var(--neon-cyan);">Crie uma imagem de um robô futurista</span>, <span style="color: var(--neon-green);">em estilo cyberpunk para um jogo de ficção científica</span>, <span style="color: var(--neon-yellow);">com iluminação neon contrastante, cenário urbano noturno chuvoso</span>, <span style="color: #ff77e9;">no formato 16:9 ultra-wide</span>."
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Básico vs Avançado -->
+    <section class="slide" 
+      data-topic="Comparativo"
+      data-notes="Reparem como o mesmo objetivo inicial — criar um jogo de luta — produz resultados do dia para a noite dependendo apenas da qualidade da comunicação com a ferramenta.">
+      <div>
+        <span class="slide-badge">SLIDE 05</span>
+        <h2 style="font-size: 2.2rem; margin-top: 8px;">PROMPT BÁSICO <span class="title-gradient">VS. AVANÇADO</span></h2>
+        <p class="subtitle">Veja como o nível de especificidade muda dramaticamente o jogo:</p>
+      </div>
+
+      <div class="grid-2">
+        <!-- Básico -->
+        <div class="card compare-card basic">
+          <div class="tag badge">❌ PROMPT BÁSICO</div>
+          <p class="code-box" style="margin-top: 15px;">"Crie um jogo de luta."</p>
+          <ul class="check-list">
+            <li><span style="color: var(--neon-red);">✕</span> Resposta vaga ou incompleta</li>
+            <li><span style="color: var(--neon-red);">✕</span> Estilo genérico e sem identidade</li>
+            <li><span style="color: var(--neon-red);">✕</span> Exige retrabalho e múltiplas correções</li>
+          </ul>
+        </div>
+
+        <!-- Avançado -->
+        <div class="card compare-card advanced">
+          <div class="tag badge">✔ PROMPT AVANÇADO</div>
+          <p class="code-box" style="margin-top: 15px;">"Crie um jogo de luta 2D com gráficos de 16 bits, estilo Street Fighter, usando HTML, CSS e JavaScript. Inclua 2 personagens, barra de vida funcional e efeitos sonoros sintéticos."</p>
+          <ul class="check-list">
+            <li><span style="color: var(--neon-green);">✔</span> Código modular e funcional</li>
+            <li><span style="color: var(--neon-green);">✔</span> Mecânicas e estilo visual definidos</li>
+            <li><span style="color: var(--neon-green);">✔</span> Pronto para testar e iterar</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="banner-highlight">
+        🚀 <strong>Regra prática:</strong> Mais detalhes estruturados = Menos iterações perdidas!
+      </div>
+    </section>
+
+    <!-- SLIDE 6: Exemplos de Prompts -->
+    <section class="slide" 
+      data-topic="Biblioteca de Prompts"
+      data-notes="A IA é multidisciplinar. Com bons comandos, ela atua como designer gráfico, programadora frontend, diretora de arte e estrategista de marketing simultaneamente.">
+      <div>
+        <span class="slide-badge">SLIDE 06</span>
+        <h2 style="font-size: 2.2rem; margin-top: 8px;">EXEMPLOS DE <span class="title-gradient">PROMPTS PARA CRIAR</span></h2>
+        <p class="subtitle">Aplicações práticas em diferentes vertentes:</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 1.4rem;">🎮</span>
+            <strong style="color: var(--neon-cyan);">Desenvolvimento de Jogos</strong>
+          </div>
+          <div class="code-box">
+            "Crie um jogo 2D de plataforma com temática espacial em pixel art. O astronauta coleta cristais de oxigênio e pula sobre meteoros. Entregue em arquivo único com HTML Canvas e JavaScript."
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 1.4rem;">👤</span>
+            <strong style="color: var(--neon-green);">Criação de Personagens</strong>
+          </div>
+          <div class="code-box">
+            "Ilustração de personagem guerreira cyberpunk, armadura modular luminosa com detalhes em turquesa neon, visor holográfico, fundo escuro de metrópole chuvosa, traço estilizado no estilo anime moderno."
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 1.4rem;">🌐</span>
+            <strong style="color: var(--neon-yellow);">Websites e Aplicações</strong>
+          </div>
+          <div class="code-box">
+            "Desenvolva uma landing page moderna para uma plataforma de cursos de tecnologia. Use layout responsivo com Tailwind CSS, tema escuro, seção de depoimentos e botão de chamada com efeito de brilho."
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 1.4rem;">📢</span>
+            <strong style="color: #ff77e9);">Campanhas Publicitárias</strong>
+          </div>
+          <div class="code-box">
+            "Crie o conceito de anúncio para um headphone sem fio de cancelamento de ruído voltado para programadores. Inclua slogan marcante, proposta de valor em 3 tópicos e chamada para ação urgente."
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: Atividade Interativa -->
+    <section class="slide" 
+      data-topic="Dinâmica Prática"
+      data-notes="Momento de engajar a plateia! Peça uma ideia aleatória para alguém do público e construa o prompt junto com eles usando esse gerador ao vivo na tela.">
+      <div>
+        <span class="slide-badge">SLIDE 07</span>
+        <h2 style="font-size: 2.2rem; margin-top: 8px;">ATIVIDADE INTERATIVA: <span class="title-gradient">VAMOS CRIAR JUNTOS?</span></h2>
+        <p class="subtitle">Monte um prompt agora mesmo combinando os parâmetros:</p>
+      </div>
+
+      <div class="card card-highlight">
+        <div class="grid-3" style="margin-bottom: 15px;">
+          <div>
+            <label style="font-size: 0.8rem; color: var(--neon-cyan); font-weight: 700;">1. PROJETO</label>
+            <input type="text" id="in-obj" value="Crie um jogo de corrida retrô" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; margin-top: 5px;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--neon-green); font-weight: 700;">2. CONTEXTO & ESTILO</label>
+            <input type="text" id="in-ctx" value="estilo synthwave dos anos 80" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; margin-top: 5px;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--neon-yellow); font-weight: 700;">3. FORMATO / REQUISITOS</label>
+            <input type="text" id="in-fmt" value="em HTML/JS com pontuação na tela" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; margin-top: 5px;">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="generateInteractivePrompt()" style="width: 100%; justify-content: center;">
+          ⚡ Gerar Super Prompt ao Vivo
+        </button>
+
+        <div style="margin-top: 15px;">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">RESULTADO GERADO:</div>
+          <div class="code-box" id="prompt-output" style="color: var(--neon-green); font-size: 0.95rem;">
+            "Crie um jogo de corrida retrô, estilo synthwave dos anos 80, com estética neon, pista infinita e entregue em HTML/JS com pontuação na tela."
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Aplicações Práticas -->
+    <section class="slide" 
+      data-topic="Casos de Uso"
+      data-notes="A IA já é realidade no mercado e na vida acadêmica. Quem domina essas ferramentas ganha velocidade sem perder o controle criativo.">
+      <div>
+        <span class="slide-badge">SLIDE 08</span>
+        <h2 style="font-size: 2.2rem; margin-top: 8px;">APLICAÇÕES <span class="title-gradient">PRÁTICAS NO DIA A DIA</span></h2>
+        <p class="subtitle">Onde você já pode aplicar essas técnicas a partir de hoje:</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🎓</div>
+          <strong style="color: var(--neon-cyan);">Educação & Estudos</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Explicador de matérias complexas, resumos de artigos, simulador de testes e provas.</p>
+        </div>
+        <div class="card">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">💼</div>
+          <strong style="color: var(--neon-green);">Trabalho & Produtividade</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Automação de planilhas, redação de e-mails corporativos, atas de reuniões e relatórios.</p>
+        </div>
+        <div class="card">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🎨</div>
+          <strong style="color: var(--neon-yellow);">Criação & Mídia</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Roteiros para vídeos, storyboards, concept art, protótipos de interfaces visuais.</p>
+        </div>
+        <div class="card">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🕹️</div>
+          <strong style="color: #ff77e9);">Entretenimento</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Criação de mundos para RPG, mecânicas de jogos independentes e fanfics interativas.</p>
+        </div>
+        <div class="card">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">📈</div>
+          <strong style="color: var(--neon-cyan);">Negócios & Estratégia</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Benchmarking de mercado, mapeamento de personas e roteiros de pitch para investidores.</p>
+        </div>
+        <div class="card">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🌱</div>
+          <strong style="color: var(--neon-green);">Vida Pessoal</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Planejamento de rotinas fitness, organização financeira pessoal e roteiros de viagens.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Limitações e Ética -->
+    <section class="slide" 
+      data-topic="Responsabilidade e Ética"
+      data-notes="A IA comete erros e inventa dados convincentes. O olhar crítico humano é inegociável. Use a ferramenta como assistente júnior super rápido, nunca como juiz final da verdade.">
+      <div>
+        <span class="slide-badge">SLIDE 09</span>
+        <h2 style="font-size: 2.2rem; margin-top: 8px;">LIMITAÇÕES, <span class="title-gradient">PRIVACIDADE E ÉTICA</span></h2>
+        <p class="subtitle">O poder vem acompanhado da necessidade de pensamento crítico:</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card" style="border-top: 3px solid var(--neon-red);">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">⚠️</div>
+          <strong style="color: var(--neon-red);">Limitações Técnicas</strong>
+          <ul class="check-list" style="font-size: 0.85rem; color: var(--text-muted);">
+            <li>• Alucinações (inventa fatos com segurança)</li>
+            <li>• Falta de bom senso contextural</li>
+            <li>• Desatualização de eventos em tempo real</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--neon-yellow);">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🔒</div>
+          <strong style="color: var(--neon-yellow);">Privacidade de Dados</strong>
+          <ul class="check-list" style="font-size: 0.85rem; color: var(--text-muted);">
+            <li>• Não envie senhas ou dados bancários</li>
+            <li>• Cuidado com dados confidenciais de empresas</li>
+            <li>• Prefira ferramentas com termos de privacidade claros</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--neon-green);">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">⚖️</div>
+          <strong style="color: var(--neon-green);">Uso Consciente</strong>
+          <ul class="check-list" style="font-size: 0.85rem; color: var(--text-muted);">
+            <li>• Sempre valide fontes e números</li>
+            <li>• Respeite direitos autorais</li>
+            <li>• Seja transparente sobre o uso de IA</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="banner-highlight" style="border-color: var(--neon-yellow); background: rgba(255, 208, 0, 0.08);">
+        🔑 <strong>Dica de ouro:</strong> Trate a IA como um estagiário ultra-rápido: brilhante para rascunhos, mas que sempre precisa da sua revisão final.
+      </div>
+    </section>
+
+    <!-- SLIDE 10: Conclusão -->
+    <section class="slide" 
+      data-topic="Encerramento"
+      data-notes="Feche com entusiasmo e convite à ação! Lembre-os de que a vantagem competitiva não está na tecnologia em si, mas em quem tem curiosidade de experimentar e construir coisas novas.">
+      <div class="card card-highlight" style="text-align: center; padding: 45px 30px;">
+        <span class="slide-badge">CONCLUSÃO</span>
+        
+        <h2 style="font-size: 2.8rem; margin: 15px 0 10px 0;">
+          O FUTURO É DE <span class="title-gradient">QUEM CRIA!</span>
+        </h2>
+        
+        <div class="formula-tag" style="max-width: 600px; margin: 15px auto 25px auto; font-size: 1.2rem;">
+          IDEIAS + PROMPTS + IA = PROJETOS REAIS
+        </div>
+
+        <p style="max-width: 700px; margin: 0 auto; color: var(--text-muted); font-size: 1.15rem; line-height: 1.6;">
+          A tecnologia é apenas o motor. O combustível é a sua curiosidade e a direção é a sua inteligência.
+        </p>
+
+        <div style="margin-top: 30px; padding: 18px; background: rgba(0, 229, 255, 0.05); border-radius: 12px; display: inline-block;">
+          <em style="font-size: 1.25rem; color: #fff; font-weight: 600;">
+            "Grandes ideias não têm limites. Elas só precisam de um bom prompt e muita vontade de criar."
+          </em>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Speaker Notes Modal (Toggleable) -->
+  <aside id="notes-modal">
+    <h4>
+      <span>🎙️ Notas do Apresentador</span>
+      <span style="cursor: pointer;" onclick="toggleNotes()">✕</span>
+    </h4>
+    <div id="notes-content">...</div>
+  </aside>
+
+  <!-- Footer Navigation -->
+  <footer>
+    <div class="key-hints">
+      <span>Navegar: <span class="key">←</span> <span class="key">→</span> ou <span class="key">Espaço</span></span>
+      <span>Notas: <span class="key">N</span></span>
+      <span>Tela Cheia: <span class="key">F</span></span>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button class="btn" id="btn-prev" onclick="prevSlide()">❮ Anterior</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextSlide()">Próximo ❯</button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progress-bar');
+    const indicator = document.getElementById('slide-indicator');
+    const headerTopic = document.getElementById('header-topic');
+    const notesModal = document.getElementById('notes-modal');
+    const notesContent = document.getElementById('notes-content');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+
+    function updatePresentation() {
+      slides.forEach((slide, idx) => {
+        slide.classList.toggle('active', idx === currentIndex);
+      });
+
+      const currentSlide = slides[currentIndex];
+      const progressPercent = ((currentIndex + 1) / totalSlides) * 100;
+
+      progressBar.style.width = `${progressPercent}%`;
+      indicator.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+      headerTopic.textContent = currentSlide.dataset.topic || '';
+
+      // Atualiza notas do apresentador
+      notesContent.textContent = currentSlide.dataset.notes || 'Sem notas para este slide.';
+
+      btnPrev.disabled = currentIndex === 0;
+      btnNext.textContent = currentIndex === totalSlides - 1 ? 'Reiniciar ⟲' : 'Próximo ❯';
+    }
+
+    function nextSlide() {
+      if (currentIndex < totalSlides - 1) {
+        currentIndex++;
+      } else {
+        currentIndex = 0;
+      }
+      updatePresentation();
+    }
+
+    function prevSlide() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updatePresentation();
+      }
+    }
+
+    function toggleNotes() {
+      notesModal.classList.toggle('open');
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // Gerador dinâmico do slide interativo
+    function generateInteractivePrompt() {
+      const obj = document.getElementById('in-obj').value.trim();
+      const ctx = document.getElementById('in-ctx').value.trim();
+      const fmt = document.getElementById('in-fmt').value.trim();
+      const out = document.getElementById('prompt-output');
+
+      out.textContent = `"${obj}, com ${ctx}, detalhes visuais bem definidos, entregue ${fmt}."`;
+    }
+
+    // Atalhos de teclado
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key.toLowerCase() === 'n') {
+        toggleNotes();
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullscreen();
+      }
+    });
+
+    // Inicia apresentação
+    updatePresentation();
+  </script>
+</body>
+</html>
