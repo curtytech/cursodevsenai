@@ -43,6 +43,7 @@
         }
         main #fundamentos { --icon-rgb: 96,165,250; }
         main #logica { --icon-rgb: 45,212,191; }
+        main #banco-de-dados { --icon-rgb: 52,211,153; }
         main #redes { --icon-rgb: 251,191,36; }
         main #ferramentas { --icon-rgb: 167,139,250; }
         main #exercicios { --icon-rgb: 251,146,60; }
@@ -93,6 +94,7 @@
         main nav[aria-label="Categorias dos materiais"] a:nth-child(4) { border-color: #a78bfa; }
         main nav[aria-label="Categorias dos materiais"] a:nth-child(5) { border-color: #fb923c; }
         main nav[aria-label="Categorias dos materiais"] a:nth-child(6) { border-color: #4ade80; }
+        main nav[aria-label="Categorias dos materiais"] a[href="#banco-de-dados"] { border-color: #34d399; }
         main nav[aria-label="Categorias dos materiais"] a:hover { background: #223851; }
         @media (prefers-reduced-motion: reduce) { main section[id] .grid > .group, main section[id] .topic-icon { transition: none; } }
     </style>
@@ -246,7 +248,8 @@
 <a href="#redes" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Redes, internet e APIs</a>
 <a href="#ferramentas" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Ferramentas e desenvolvimento</a>
 <a href="#exercicios" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Exercícios, desafios e avaliação</a>
-<a href="#vue" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Vue.js e interfaces</a></nav>
+<a href="#vue" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Vue.js e interfaces</a>
+<a href="#banco-de-dados" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Banco de Dados</a></nav>
         <section id="fundamentos" aria-labelledby="fundamentos-title" class="mb-12 scroll-mt-28">
             <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
                 <div class="category-icon"><i aria-hidden="true" class="fas fa-computer"></i></div>
@@ -502,6 +505,27 @@
                     <div class="flex items-start gap-4">
                         <div class="topic-icon"><i aria-hidden="true" class="fas fa-code text-xl"></i></div>
                         <div><h3 class="font-semibold text-white group-hover:text-sky-300">Exemplos de lógica</h3><p class="mt-1 text-sm text-blue-200/80">Explore os conceitos de lógica de programação.</p></div>
+                    </div>
+                </a>
+            </div>
+        </section>
+        <section id="banco-de-dados" aria-labelledby="banco-de-dados-title" class="mb-12 scroll-mt-28">
+            <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
+                <div class="category-icon"><i aria-hidden="true" class="fa-solid fa-database"></i></div>
+                <h2 id="banco-de-dados-title" class="text-xl font-bold text-white sm:text-2xl">Banco de Dados</h2>
+                <span class="rounded-full border border-sky-300/20 bg-sky-500/10 px-2.5 py-1 text-xs text-sky-200">1 cartão</span>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="../../BancoDeDados/Aula%201%20Banco%20de%20dados.html" target="_blank" rel="noopener noreferrer"
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-lg">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fa-solid fa-database text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">Introdução ao Banco de Dados</h3>
+                            <p class="text-sm text-blue-200/80 mt-1">Introdução aos conceitos fundamentais de bancos de dados</p>
+                        </div>
                     </div>
                 </a>
             </div>
