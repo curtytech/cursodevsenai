@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 3: SGBD & Ferramentas de Banco de Dados</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              dark: '#14532D',      /* Verde-escuro institucional */
+              primary: '#16A34A',   /* Verde principal vibrante */
+              light: '#DCFCE7',     /* Verde-claro suave */
+              subtle: '#F0FDF4',    /* Fundo verde sutil */
+              border: '#BBF7D0',    /* Borda verde suave */
+              text: '#1F2937',      /* Texto principal */
+              muted: '#64748B',     /* Cinza secundário */
+              bg: '#F8FAFC',        /* Fundo quase branco */
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #1F2937;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .slide-container {
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 5rem);
+    }
+
+    @media (max-width: 1024px) {
+      .slide-container {
+        aspect-ratio: auto;
+        min-height: calc(100vh - 6rem);
+      }
+    }
+
+    .slide {
+      display: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+    
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mono-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background-color: #F1F5F9;
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.375rem;
+      border: 1px solid #E2E8F0;
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .slide {
+        display: flex !important;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: always;
+        height: 100vh !important;
+        aspect-ratio: 16 / 9;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .slide-container {
+        max-height: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+  <!-- ================= TOP BAR (Navegação & Status) ================= -->
+  <header class="no-print bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-lg bg-emerald-800 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+        M3
+      </div>
+      <div>
+        <h1 class="text-xs font-semibold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+          <span>SGBD & Ferramentas de Banco de Dados</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-emerald-700 font-medium lowercase">aula 3</span>
+        </h1>
+        <p class="text-[11px] text-slate-500 font-normal" id="headerSubtitle">Módulo 3.1 — SGBD (Sistemas Gerenciadores)</p>
+      </div>
+    </div>
+
+    <!-- Indicador Central de Slide & Progresso -->
+    <div class="flex items-center space-x-3">
+      <div class="hidden sm:flex items-center space-x-1.5 bg-slate-100 rounded-full px-3 py-1 text-xs font-medium text-slate-700 border border-slate-200">
+        <span class="text-emerald-700 font-bold" id="currentSlideNum">1</span>
+        <span class="text-slate-400">/</span>
+        <span id="totalSlideNum">25</span>
+      </div>
+
+      <div class="w-32 md:w-48 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+        <div id="progressBar" class="bg-emerald-600 h-1.5 transition-all duration-300 rounded-full" style="width: 4%;"></div>
+      </div>
+    </div>
+
+    <!-- Controles de Modo e Painéis -->
+    <div class="flex items-center space-x-1 sm:space-x-2">
+      <!-- Botão Menu / Índice -->
+      <button onclick="toggleTocModal()" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition flex items-center gap-1.5 border border-slate-200" title="Índice dos Slides (Atalho: M)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+        <span class="hidden md:inline">Índice</span>
+      </button>
+
+      <!-- Botão Notas do Professor -->
+      <button onclick="toggleTeacherNotes()" id="btnTeacherNotes" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition flex items-center gap-1.5 border border-slate-200" title="Dicas Pedagógicas & Tempo (Atalho: P)">
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span class="hidden md:inline">Notas do Professor</span>
+      </button>
+
+      <!-- Botão Tela Cheia -->
+      <button onclick="toggleFullScreen()" class="p-1.5 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-md transition" title="Alternar Tela Cheia (F)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5-5m-7 11l-5 5m0 0h4m-4 0v-4m16 4v-4m0 4l-5-5"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= PALCO PRINCIPAL (SLIDES) ================= -->
+  <main class="flex-1 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-100/60">
+    <div class="w-full max-w-6xl bg-white rounded-2xl shadow-md border border-slate-200/80 slide-container overflow-hidden relative flex flex-col justify-between">
+
+      <!-- ================= SLIDE 1: CAPA ================= -->
+      <section class="slide active flex-col justify-between h-full p-8 md:p-14 bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white relative overflow-hidden" data-title="Abertura da Aula" data-module="Apresentação">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#22c55e_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+        <div class="absolute -right-24 -bottom-24 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-800/80 border border-emerald-600/40 text-emerald-300 text-xs font-medium tracking-wide">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Aula 3 • Infraestrutura & Administração de Dados
+          </div>
+          <div class="text-xs text-emerald-200/70 font-mono">Duração estimada: 50 a 60 min</div>
+        </div>
+
+        <div class="relative z-10 my-auto py-6 max-w-3xl">
+          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            SGBD & Ferramentas de Banco de Dados
+          </h1>
+          <p class="mt-4 text-base md:text-lg text-emerald-100/90 font-light leading-relaxed">
+            Do servidor ao terminal: conheça o funcionamento interno, instalação, configuração e as ferramentas profissionais para <strong>MySQL, PostgreSQL, SQLite e Oracle</strong>.
+          </p>
+          
+          <div class="mt-8 flex flex-wrap gap-2 text-xs font-medium text-emerald-200">
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">MySQL</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">PostgreSQL</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">SQLite</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Oracle DB</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">CLI vs GUI</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">DBeaver</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Boas Práticas & Scripts</span>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex items-center justify-between pt-6 border-t border-emerald-800/60 text-xs text-emerald-300/80">
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-white">Objetivo Central:</span>
+            <span>Dominar a escolha, configuração de portas, conexão via CLI/GUI e documentação técnica</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span>Pressione <kbd class="px-1.5 py-0.5 rounded bg-emerald-800 text-white font-mono border border-emerald-700">Espaço</kbd> ou <kbd class="px-1.5 py-0.5 rounded bg-emerald-800 text-white font-mono border border-emerald-700">→</kbd> para avançar</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 2: OBJETIVOS DE APRENDIZAGEM ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Objetivos de Aprendizagem" data-module="Planejamento">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Plano de Voo da Aula</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O que você dominará ao final desta aula</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Trilha de Habilidades</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Card 1 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">1</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">O Quarteto de Ouro</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Identificar as características, casos de uso e diferenças arquiteturais entre <strong class="text-slate-800">MySQL, PostgreSQL, SQLite e Oracle Database</strong>.
+              </p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">2</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Instalação & Configuração</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Entender requisitos de hardware, portas padrão de rede (<code class="mono-pill">3306</code>, <code class="mono-pill">5432</code>, <code class="mono-pill">1521</code>), codificação <strong class="text-slate-800">UTF-8</strong> e arquivos de configuração.
+              </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">3</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Ferramentas & Boas Práticas</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Operar interfaces gráficas (<strong class="text-slate-800">DBeaver, Workbench, pgAdmin</strong>) e terminais CLI, estruturando scripts profissionais com comentários.
+              </p>
+            </div>
+          </div>
+
+          <!-- Banner de Contexto -->
+          <div class="mt-6 p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex items-start gap-3">
+            <svg class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <p class="text-xs text-emerald-900 leading-relaxed">
+              <strong>Do modelo ao servidor real:</strong> Nas Aulas 1 e 2, aprendemos a conceituar, relacionar e normalizar tabelas. Hoje você aprenderá onde e como hospedar esse banco, como o motor gerencia a memória e quais softwares o mercado utiliza diariamente.
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Início do Módulo 3.1: O Funcionamento do SGBD</span>
+          <span class="font-medium text-emerald-700">Módulo 3.1 — O SGBD por Dentro →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 3: MÓDULO 3.1 - O SGBD POR DENTRO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="O SGBD por Dentro" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Arquitetura do Software</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O que é o SGBD por Dentro?</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Database Engine</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                O <strong class="text-emerald-800">SGBD (DBMS)</strong> não é apenas um arquivo no computador; é um software de alta complexidade que atua como maestro entre a aplicação do usuário e o hardware físico (memória RAM e SSD).
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">1. Analisador e Otimizador de Consultas (Query Engine)</strong>
+                  Interpreta o comando SQL, analisa os índices disponíveis e calcula o plano de execução mais rápido.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">2. Gerenciador de Armazenamento e Buffer (Storage & Cache)</strong>
+                  Carrega páginas de dados do disco para a memória RAM (buffer pool) para consultas instantâneas.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">3. Gerenciador de Transações & Logs (WAL / Redo Log)</strong>
+                  Grava em arquivo de log todas as alterações antes de confirmar a gravação física (garantia de durabilidade ACID).
+                </div>
+              </div>
+            </div>
+
+            <!-- Esquema Visual da Arquitetura Interna -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-center text-xs space-y-3 shadow-2xs">
+              <span class="font-bold text-slate-500 uppercase tracking-wider block text-[11px]">Fluxo de Execução de uma Query SQL</span>
+
+              <div class="space-y-2 text-slate-800 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-slate-200 flex justify-between items-center">
+                  <span class="font-bold text-blue-700">Aplicação / Terminal</span>
+                  <span class="text-slate-400">SELECT * FROM clientes... ➔</span>
+                </div>
+                <div class="p-2 bg-emerald-50 rounded border border-emerald-300 flex justify-between items-center font-bold text-emerald-900">
+                  <span>Parser & Otimizador</span>
+                  <span class="text-xs">Planeja o melhor caminho</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200 flex justify-between items-center">
+                  <span class="font-bold text-purple-700">Memória RAM (Buffer Cache)</span>
+                  <span class="text-slate-500">Já está na memória? Retorna já!</span>
+                </div>
+                <div class="p-2 bg-slate-800 text-emerald-400 rounded flex justify-between items-center">
+                  <span>Disco Rígido / SSD</span>
+                  <span class="text-slate-300">Lê arquivos físicos (.ibd, .db, .dat)</span>
+                </div>
+              </div>
+
+              <div class="p-2 bg-emerald-100/60 rounded text-[10px] text-emerald-950 font-sans">
+                ⚡ Um SGBD bem configurado responde 90% das leituras direto da memória RAM, sem encostar no disco!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como esses sistemas são categorizados?</span>
+          <span class="font-medium text-emerald-700">Módulo 3.1 — Tipos e Características de SGBD →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 4: MÓDULO 3.1 - TIPOS DE SGBD ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Tipos de SGBD" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Taxonomia dos Motores</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Tipos de SGBD: Embarcado vs Cliente-Servidor vs Nuvem</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Arquitetura de Implantação</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Tipo 1: Embarcado -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 uppercase font-mono">TIPO 1</span>
+                <h3 class="text-base font-bold text-slate-800 mt-2 mb-1">SGBD Embarcado (Serverless)</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  O motor de banco roda dentro do próprio código da aplicação como uma biblioteca. Não há processo servidor escutando portas de rede.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-[11px] text-slate-700 space-y-1">
+                  <div><strong>Arquivo Único:</strong> Todo o banco reside em 1 arquivo local.</div>
+                  <div class="font-bold text-emerald-700">Exemplo clássico: SQLite</div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 text-[11px] text-slate-500">
+                Uso: Apps móveis (Android/iOS), IoT, navegadores.
+              </div>
+            </div>
+
+            <!-- Tipo 2: Cliente-Servidor -->
+            <div class="p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800 uppercase font-mono">TIPO 2 (PADRÃO)</span>
+                <h3 class="text-base font-bold text-emerald-950 mt-2 mb-1">SGBD Cliente-Servidor</h3>
+                <p class="text-xs text-slate-700 mb-3 leading-relaxed">
+                  O SGBD roda como um serviço contínuo (*daemon*) em um servidor dedicado, escutando uma porta TCP/IP e atendendo múltiplos usuários simultâneos.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-emerald-200 text-[11px] text-emerald-950 space-y-1">
+                  <div><strong>Concorrência Massiva:</strong> Centenas de conexões simultâneas.</div>
+                  <div class="font-bold text-emerald-700">MySQL, PostgreSQL, Oracle</div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 text-[11px] text-emerald-800 font-semibold">
+                Uso: Sistemas web, e-commerce, ERPs e finanças.
+              </div>
+            </div>
+
+            <!-- Tipo 3: Nuvem / Distribuído -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 uppercase font-mono">TIPO 3</span>
+                <h3 class="text-base font-bold text-slate-800 mt-2 mb-1">SGBD Gerenciado na Nuvem</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Bancos como serviço (DBaaS). A nuvem cuida dos patches de segurança, replicação automática, backups e escalabilidade.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-[11px] text-slate-700 space-y-1">
+                  <div><strong>Alta Disponibilidade:</strong> Falha em 1 servidor é transparente.</div>
+                  <div class="text-slate-800 font-medium">AWS RDS, Google Cloud SQL, Azure SQL</div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 text-[11px] text-slate-500">
+                Uso: Grandes plataformas com equipe enxuta.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Quem são os 4 gigantes que dominam a tecnologia mundial?</span>
+          <span class="font-medium text-emerald-700">Apresentando o Quarteto de Ouro →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 5: MÓDULO 3.1 - O QUARTETO DE OURO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="O Quarteto de Ouro" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Os Titãs do Mercado</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O Quarteto de Ouro: Apresentação Geral</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Foco da Aula</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+            Mais de 80% dos dados estruturados do planeta são gerenciados por estes quatro motores. Cada um possui um propósito específico e uma vocação de engenharia:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- SQLite -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:border-emerald-500 transition flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-800 flex items-center justify-center font-bold font-mono text-xs mb-3">SQLite</div>
+                <h4 class="font-bold text-sm text-slate-800">SQLite</h4>
+                <p class="text-[11px] text-slate-500 mt-1 mb-3">O banco mais implantado do mundo. Leve, autônomo, sem servidor, armazenado em um único arquivo local.</p>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] bg-teal-50 text-teal-800 font-semibold border border-teal-200 text-center">Mobile & Embarcados</span>
+            </div>
+
+            <!-- MySQL -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:border-emerald-500 transition flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold font-mono text-xs mb-3">MySQL</div>
+                <h4 class="font-bold text-sm text-slate-800">MySQL</h4>
+                <p class="text-[11px] text-slate-500 mt-1 mb-3">O alicerce da web. Criado na Suécia e mantido pela Oracle, é rápido para leitura e padrão na internet.</p>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] bg-blue-50 text-blue-800 font-semibold border border-blue-200 text-center">Web & E-commerce</span>
+            </div>
+
+            <!-- PostgreSQL -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:border-emerald-500 transition flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-800 flex items-center justify-center font-bold font-mono text-xs mb-3">PG</div>
+                <h4 class="font-bold text-sm text-slate-800">PostgreSQL</h4>
+                <p class="text-[11px] text-slate-500 mt-1 mb-3">O SGBD relacional open-source mais avançado. Robusto, com suporte nativo a JSONB e consultas geoespaciais.</p>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] bg-indigo-50 text-indigo-800 font-semibold border border-indigo-200 text-center">Fintechs & Startups</span>
+            </div>
+
+            <!-- Oracle -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:border-emerald-500 transition flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-lg bg-red-100 text-red-800 flex items-center justify-center font-bold font-mono text-xs mb-3">ORA</div>
+                <h4 class="font-bold text-sm text-slate-800">Oracle Database</h4>
+                <p class="text-[11px] text-slate-500 mt-1 mb-3">A fortaleza corporativa. Líder em grandes bancos, telecomunicações e missões críticas de altíssimo volume.</p>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] bg-red-50 text-red-800 font-semibold border border-red-200 text-center">Grandes Corporações</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Vamos mergulhar nos detalhes de cada um!</span>
+          <span class="font-medium text-emerald-700">SQLite: O Campeão dos Embarcados →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 6: MÓDULO 3.1 - SQLITE ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="SQLite em Detalhes" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Foco Técnico 1</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">SQLite: O Campeão dos Dispositivos Móveis</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-teal-50 text-teal-800 border border-teal-200">Serverless & Leve</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                O <strong>SQLite</strong> é uma biblioteca em linguagem C que implementa um motor de banco de dados SQL completo, autocontido e sem servidor (serverless).
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Zero Configuração (Zero-Config)</strong>
+                  Não precisa de instalação como serviço, não cria portas de rede e não exige usuário/senha de administrador.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Banco em Arquivo Único</strong>
+                  Tabelas, índices, triggers e dados residem em um único arquivo de extensão <code class="mono-pill">.db</code> ou <code class="mono-pill">.sqlite</code>.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Requisitos Mínimos Irrisórios</strong>
+                  Consome menos de 1 MB de memória RAM e roda até em relógios inteligentes e televisores.
+                </div>
+              </div>
+            </div>
+
+            <!-- Ficha Técnica SQLite -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-xs space-y-3 shadow-2xs">
+              <span class="font-bold text-slate-500 uppercase tracking-wider block text-[11px]">Ficha Técnica & Casos de Uso</span>
+
+              <div class="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Porta TCP/IP</span>
+                  <span class="font-bold text-emerald-800">Nenhuma (Local)</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Licença</span>
+                  <span class="font-bold text-emerald-800">Domínio Público</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">RAM Recomendada</span>
+                  <span class="font-bold text-emerald-800">&lt; 10 MB</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Armazenamento</span>
+                  <span class="font-bold text-emerald-800">1 Arquivo (.db)</span>
+                </div>
+              </div>
+
+              <div class="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
+                <span class="font-bold text-slate-800 block text-[11px]">Onde ele está rodando agora?</span>
+                <p class="text-[11px] text-slate-600">Dentro do seu celular (contatos e histórico do WhatsApp), no histórico do seu navegador Google Chrome e no sistema de entretenimento de aviões e carros modernos.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Agora vamos para o motor da web mundial</span>
+          <span class="font-medium text-emerald-700">MySQL: O Alicerce da Web →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 7: MÓDULO 3.1 - MYSQL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="MySQL em Detalhes" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Foco Técnico 2</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">MySQL: O Alicerce da Web Moderna</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-blue-50 text-blue-800 border border-blue-200">Porta 3306</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                O <strong>MySQL</strong> é o SGBD relacional de código aberto mais popular do mundo, consagrado pela sigla <strong>LAMP</strong> (Linux, Apache, MySQL, PHP).
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Motor de Armazenamento InnoDB (Padrão)</strong>
+                  Suporte total às transações <strong>ACID</strong>, chaves estrangeiras com integridade referencial e bloqueio em nível de linha (*row-level locking*).
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Velocidade em Operações de Leitura</strong>
+                  Excepcional para portais de notícias, blogs e lojas virtuais com alto volume de visualizações.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Ampla Compatibilidade de Hospedagens</strong>
+                  Presente em praticamente todos os provedores de nuvem e hospedagens compartilhadas da internet.
+                </div>
+              </div>
+            </div>
+
+            <!-- Ficha Técnica MySQL -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-xs space-y-3 shadow-2xs">
+              <span class="font-bold text-slate-500 uppercase tracking-wider block text-[11px]">Ficha Técnica & Requisitos</span>
+
+              <div class="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Porta Padrão</span>
+                  <span class="font-bold text-blue-700">3306</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Licença</span>
+                  <span class="font-bold text-slate-800">GPLv2 / Comercial</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">RAM Mínima</span>
+                  <span class="font-bold text-slate-800">512 MB - 1 GB</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Usuário Padrão</span>
+                  <span class="font-bold text-red-700">root</span>
+                </div>
+              </div>
+
+              <div class="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
+                <span class="font-bold text-slate-800 block text-[11px]">Quem utiliza no dia a dia?</span>
+                <p class="text-[11px] text-slate-600">WordPress (mais de 40% da web), Facebook (versão customizada), Uber, Twitter e a maioria das plataformas de comércio eletrônico.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O queridinho dos desenvolvedores modernos</span>
+          <span class="font-medium text-emerald-700">PostgreSQL: O Elefante Robusto →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 8: MÓDULO 3.1 - POSTGRESQL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="PostgreSQL em Detalhes" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Foco Técnico 3</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">PostgreSQL: O Elefante Robusto e Avançado</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-indigo-50 text-indigo-800 border border-indigo-200">Porta 5432</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                O <strong>PostgreSQL</strong> é considerado o banco de dados relacional de código aberto mais avançado do mundo, mantido por uma comunidade global independente e sem donos corporativos.
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Suporte Híbrido Relacional + NoSQL (JSONB)</strong>
+                  Guarda e indexa documentos JSON binários com a mesma velocidade de um banco NoSQL tradicional.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Concorrência Superior (MVCC)</strong>
+                  Controle de concorrência multiversão: leituras nunca bloqueiam escritas, e escritas nunca bloqueiam leituras.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Extensibilidade Ilimitada (PostGIS)</strong>
+                  Permite instalar plugins como o PostGIS para geolocalização e mapas com alta precisão matemática.
+                </div>
+              </div>
+            </div>
+
+            <!-- Ficha Técnica Postgres -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-xs space-y-3 shadow-2xs">
+              <span class="font-bold text-slate-500 uppercase tracking-wider block text-[11px]">Ficha Técnica & Requisitos</span>
+
+              <div class="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Porta Padrão</span>
+                  <span class="font-bold text-indigo-700">5432</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Licença</span>
+                  <span class="font-bold text-slate-800">PostgreSQL (Livre)</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">RAM Mínima</span>
+                  <span class="font-bold text-slate-800">1 GB - 2 GB</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Usuário Padrão</span>
+                  <span class="font-bold text-indigo-900">postgres</span>
+                </div>
+              </div>
+
+              <div class="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
+                <span class="font-bold text-slate-800 block text-[11px]">Quem escolhe o PostgreSQL?</span>
+                <p class="text-[11px] text-slate-600">Nubank, Spotify, Instagram, Apple, NASA e a quase totalidade das startups modernas que buscam confiabilidade absoluta sem custos de licenciamento.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>A potência máxima das corporações financeiras</span>
+          <span class="font-medium text-emerald-700">Oracle Database: A Fortaleza Corporativa →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 9: MÓDULO 3.1 - ORACLE DATABASE ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Oracle Database em Detalhes" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Foco Técnico 4</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Oracle Database: A Fortaleza Corporativa</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-red-50 text-red-800 border border-red-200">Porta 1521</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                O <strong>Oracle Database</strong> é o padrão histórico indiscutível para aplicações de missão crítica que movimentam bilhões de dólares diariamente em bancos e governos.
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Alta Disponibilidade com RAC (Real Application Clusters)</strong>
+                  Múltiplos servidores acessam o mesmo armazenamento compartilhado simultaneamente sem interrupção de serviço.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Poderosa Linguagem PL/SQL</strong>
+                  Linguagem procedural integrada que executa lógica pesada de negócios diretamente dentro da memória do banco.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Segurança Nível Militar & Particionamento</strong>
+                  Criptografia transparente de dados (TDE), controle de auditoria detalhado e particionamento de tabelas com bilhões de registros.
+                </div>
+              </div>
+            </div>
+
+            <!-- Ficha Técnica Oracle -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-xs space-y-3 shadow-2xs">
+              <span class="font-bold text-slate-500 uppercase tracking-wider block text-[11px]">Ficha Técnica & Requisitos</span>
+
+              <div class="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Porta Padrão</span>
+                  <span class="font-bold text-red-700">1521</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Licença</span>
+                  <span class="font-bold text-slate-800">Comercial / XE Grátis</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">RAM Mínima</span>
+                  <span class="font-bold text-slate-800">2 GB - 4 GB (XE)</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200">
+                  <span class="text-slate-400 block text-[10px]">Superusuário</span>
+                  <span class="font-bold text-red-800">SYS / SYSTEM</span>
+                </div>
+              </div>
+
+              <div class="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
+                <span class="font-bold text-slate-800 block text-[11px]">Onde ele domina?</span>
+                <p class="text-[11px] text-slate-600">Bancos como Itaú, Bradesco e Santander; empresas de telecomunicações (Vivo, Claro); grandes companhias aéreas e grandes sistemas ERP (SAP).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Comparativo direto lado a lado</span>
+          <span class="font-medium text-emerald-700">Matriz Comparativa do Quarteto →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 10: MÓDULO 3.1 - MATRIZ COMPARATIVA ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Matriz Comparativa" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Síntese Técnica</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Matriz Comparativa: O Quarteto Frente a Frente</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Guia de Seleção</span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Característica</th>
+                  <th class="py-2.5 px-3 text-teal-800">SQLite</th>
+                  <th class="py-2.5 px-3 text-blue-800">MySQL</th>
+                  <th class="py-2.5 px-3 text-indigo-800 bg-emerald-50/50">PostgreSQL</th>
+                  <th class="py-2.5 px-3 text-red-800">Oracle DB</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 text-slate-700">
+                <tr>
+                  <td class="py-2 px-3 font-semibold">Arquitetura</td>
+                  <td class="py-2 px-3">Embarcado (Serverless)</td>
+                  <td class="py-2 px-3">Cliente-Servidor</td>
+                  <td class="py-2 px-3 bg-emerald-50/30 font-medium">Cliente-Servidor</td>
+                  <td class="py-2 px-3">Cliente-Servidor / Grid</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-semibold">Porta TCP/IP</td>
+                  <td class="py-2 px-3 font-mono text-slate-400">N/A (Local)</td>
+                  <td class="py-2 px-3 font-mono font-bold text-blue-700">3306</td>
+                  <td class="py-2 px-3 font-mono font-bold text-indigo-700 bg-emerald-50/30">5432</td>
+                  <td class="py-2 px-3 font-mono font-bold text-red-700">1521</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-semibold">Licença</td>
+                  <td class="py-2 px-3 text-emerald-800">Domínio Público</td>
+                  <td class="py-2 px-3">GPL / Comercial</td>
+                  <td class="py-2 px-3 text-emerald-800 bg-emerald-50/30 font-bold">Open-Source Livre</td>
+                  <td class="py-2 px-3 text-red-700">Proprietária / Paga</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-semibold">Consumo RAM</td>
+                  <td class="py-2 px-3 font-mono text-emerald-700">&lt; 10 MB</td>
+                  <td class="py-2 px-3 font-mono">512 MB - 2 GB</td>
+                  <td class="py-2 px-3 font-mono bg-emerald-50/30">1 GB - 4 GB</td>
+                  <td class="py-2 px-3 font-mono text-amber-700">2 GB - 16 GB+</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-semibold">Melhor Aplicação</td>
+                  <td class="py-2 px-3">Apps de Celular, IoT</td>
+                  <td class="py-2 px-3">Websites, CMS, Blogs</td>
+                  <td class="py-2 px-3 bg-emerald-50/30 font-medium">Fintechs, BI, Startups</td>
+                  <td class="py-2 px-3">Bancos, Telecom, ERPs</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+            💡 <strong>Dica para Entrevistas de TI:</strong> Decore as 3 portas padrão: <strong>MySQL = 3306</strong>, <strong>PostgreSQL = 5432</strong> e <strong>Oracle = 1521</strong>. Isso cai com frequência em testes de seleção!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como colocar um SGBD para funcionar na prática?</span>
+          <span class="font-medium text-emerald-700">Instalação e Requisitos Mínimos →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 11: MÓDULO 3.1 - INSTALAÇÃO E REQUISITOS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Instalação e Requisitos" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Engenharia de Instalação</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Instalação, Requisitos e Métodos Modernos</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Prática de TI</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Checklist de Requisitos -->
+            <div class="space-y-3 text-xs text-slate-700">
+              <span class="font-bold text-slate-800 uppercase tracking-wider block">Checklist de Requisitos Mínimos</span>
+
+              <div class="p-2.5 rounded border border-slate-200 bg-slate-50 flex items-center gap-2">
+                <span class="text-emerald-600 font-bold">✓</span>
+                <span><strong>Sistema Operacional:</strong> Windows 10/11, distribuições Linux (Ubuntu/Debian/RHEL) ou macOS.</span>
+              </div>
+              <div class="p-2.5 rounded border border-slate-200 bg-slate-50 flex items-center gap-2">
+                <span class="text-emerald-600 font-bold">✓</span>
+                <span><strong>Arquitetura de CPU:</strong> 64-bit (x86_64 ou ARM64 como Apple Silicon M1/M2/M3).</span>
+              </div>
+              <div class="p-2.5 rounded border border-slate-200 bg-slate-50 flex items-center gap-2">
+                <span class="text-emerald-600 font-bold">✓</span>
+                <span><strong>Armazenamento SSD:</strong> Espaço livre para os arquivos de dados e logs temporários.</span>
+              </div>
+              <div class="p-2.5 rounded border border-slate-200 bg-slate-50 flex items-center gap-2">
+                <span class="text-emerald-600 font-bold">✓</span>
+                <span><strong>Privilégios de Administrador:</strong> Necessário para registrar o serviço no sistema operacional.</span>
+              </div>
+            </div>
+
+            <!-- As 3 Vias de Instalação -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2.5">
+              <span class="font-bold text-emerald-800 uppercase tracking-wider block">As 3 Formas de Instalar um SGBD</span>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200">
+                <span class="font-bold text-slate-800 block">1. Instalador Nativo Oficial</span>
+                Instaladores <code class="mono-pill">.msi</code> (Windows) ou <code class="mono-pill">apt install postgresql</code> (Linux).
+              </div>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200">
+                <span class="font-bold text-slate-800 block">2. Pacotes Educacionais All-in-One (XAMPP / Wamp)</span>
+                Instalam Apache, PHP e MySQL com 1 clique (ótimo para estudantes iniciantes).
+              </div>
+
+              <div class="p-2.5 bg-emerald-50 rounded border border-emerald-300">
+                <span class="font-bold text-emerald-900 block">3. Contêineres Docker (Padrão Profissional Moderno)</span>
+                Sobe qualquer banco em 10 segundos sem poluir o computador do desenvolvedor:<br>
+                <code class="mono-pill text-emerald-800 mt-1 block">docker run --name meu-postgres -e POSTGRES_PASSWORD=123 -p 5432:5432 -d postgres</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O que configurar logo após a instalação?</span>
+          <span class="font-medium text-emerald-700">Configurações Críticas Pós-Instalação →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 12: MÓDULO 3.1 - CONFIGURAÇÕES CRÍTICAS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Configurações Críticas" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Segurança e Ajustes</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Configurações Críticas Pós-Instalação</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-amber-50 text-amber-800 border border-amber-200">Setup Essencial</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 4 Configurações Obrigatórias -->
+            <div class="space-y-2.5 text-xs text-slate-700">
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-0.5">1. Senha Forte para o Superusuário</strong>
+                Nunca deixe o usuário <code class="mono-pill">root</code> ou <code class="mono-pill">postgres</code> sem senha ou com senhas óbvias como "admin".
+              </div>
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-0.5">2. Encoding e Collation (UTF-8 / utf8mb4)</strong>
+                Garante suporte correto a acentuação da língua portuguesa (ã, é, ç) e caracteres especiais/emojis sem corromper texto.
+              </div>
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-0.5">3. Limite de Conexões (max_connections)</strong>
+                Configura quantas aplicações podem se conectar simultaneamente para evitar que o servidor esgote a memória RAM.
+              </div>
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-0.5">4. Firewall e IP de Escuta (listen_addresses)</strong>
+                Em desenvolvimento, amarre em <code class="mono-pill">localhost / 127.0.0.1</code> para não expor a porta para a internet!
+              </div>
+            </div>
+
+            <!-- O Perigo do Encoding Errado -->
+            <div class="bg-red-50/40 border border-red-200 rounded-xl p-5 text-xs space-y-3">
+              <span class="font-bold text-red-900 uppercase tracking-wider block text-[11px]">⚠️ O Pesadelo do Encoding Incorreto</span>
+
+              <div class="p-3 bg-white rounded border border-red-200 font-mono text-[11px] space-y-1">
+                <div>Texto digitado: <strong class="text-slate-900">"São Paulo - João da Silva"</strong></div>
+                <div class="text-red-700">Com Latin1/ANSI errado: <strong>"So Paulo - Joo da Silva"</strong></div>
+              </div>
+
+              <p class="text-[11px] text-red-950 leading-relaxed">
+                Se você não configurar o banco como <strong>UTF-8</strong> (ou <code class="mono-pill">utf8mb4</code> no MySQL), nomes de clientes e relatórios fiscais ficarão corrompidos para sempre!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Onde essas configurações ficam salvas no disco?</span>
+          <span class="font-medium text-emerald-700">Arquivos de Configuração e Permissões →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 13: MÓDULO 3.1 - ARQUIVOS E PERMISSÕES ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Arquivos e Permissões" data-module="Módulo 3.1 — SGBD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.1 • Administração de Sistemas</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Arquivos de Configuração e Princípio do Menor Privilégio</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Segurança de Servidor</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Arquivos de Configuração -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 text-xs">
+              <span class="font-bold text-slate-800 uppercase tracking-wider block">Arquivos Centrais de Ajuste</span>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200">
+                <span class="font-bold text-blue-700 font-mono">my.cnf / my.ini (MySQL)</span>
+                <p class="text-slate-600 mt-1">Define tamanho do pool do InnoDB, porta padrão e diretório de dados.</p>
+              </div>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200">
+                <span class="font-bold text-indigo-700 font-mono">postgresql.conf (Postgres)</span>
+                <p class="text-slate-600 mt-1">Controla alocação de memória RAM (<code class="mono-pill">shared_buffers</code>) e conexões simultâneas.</p>
+              </div>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200">
+                <span class="font-bold text-indigo-700 font-mono">pg_hba.conf (Postgres)</span>
+                <p class="text-slate-600 mt-1">O firewall de autenticação interna: define quais IPs podem tentar login e com qual método de criptografia.</p>
+              </div>
+            </div>
+
+            <!-- Princípio do Menor Privilégio -->
+            <div class="p-4 rounded-xl border border-emerald-300 bg-emerald-50/50 space-y-3 text-xs">
+              <span class="font-bold text-emerald-950 uppercase tracking-wider block">Regra de Ouro: Princípio do Menor Privilégio</span>
+
+              <div class="p-3 bg-white rounded border border-emerald-200 space-y-2">
+                <div class="flex items-center gap-2 text-red-700 font-bold">
+                  <span>❌ Prática Proibida:</span>
+                  <span>Usar a senha do 'root' ou 'postgres' no código da sua aplicação web!</span>
+                </div>
+                <div class="flex items-center gap-2 text-emerald-800 font-bold">
+                  <span>✅ Prática Profissional:</span>
+                  <span>Criar um usuário específico para o app com permissões restritas.</span>
+                </div>
+              </div>
+
+              <div class="p-2.5 bg-slate-900 rounded text-emerald-400 font-mono text-[10px]">
+                <span class="text-slate-400">-- Exemplo de criação de usuário restrito no SQL</span><br>
+                CREATE USER app_loja WITH PASSWORD 'SenhaForte#2026';<br>
+                GRANT SELECT, INSERT, UPDATE ON ALL TABLES TO app_loja;
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Início do Módulo 3.2: Ferramentas de Manipulação</span>
+          <span class="font-medium text-emerald-700">Módulo 3.2 — GUI vs CLI: O Duelo →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 14: MÓDULO 3.2 - GUI vs CLI ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="GUI vs CLI" data-module="Módulo 3.2 — Ferramentas">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.2 • Interfaces de Trabalho</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Interface Gráfica (GUI) vs Linha de Comando (CLI)</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Dois Lados da Mesma Moeda</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- GUI -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 uppercase font-mono">GUI</span>
+                  <span class="text-slate-400 text-xs">Visual / Janelas</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mb-1">Interfaces Gráficas (GUIs)</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Softwares com botões, árvores de navegação de tabelas, autocompletar inteligente e visualizadores de dados em grade tipo planilha.
+                </p>
+                <div class="space-y-1.5 text-xs">
+                  <div class="p-2 bg-white rounded border border-slate-200">🟢 <strong>Vantagens:</strong> Visualização rápida, geração de gráficos, criação visual de tabelas.</div>
+                  <div class="p-2 bg-white rounded border border-slate-200">🔴 <strong>Limitações:</strong> Não roda em servidores remotos sem tela (Linux headless).</div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 border-t border-slate-200 text-[11px] text-slate-500 font-mono">
+                Exemplos: DBeaver, pgAdmin, MySQL Workbench.
+              </div>
+            </div>
+
+            <!-- CLI -->
+            <div class="p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50/30 flex flex-col justify-between shadow-2xs">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800 uppercase font-mono">CLI</span>
+                  <span class="text-slate-400 text-xs">Terminal / Texto</span>
+                </div>
+                <h3 class="text-base font-bold text-emerald-950 mb-1">Linha de Comando (CLI)</h3>
+                <p class="text-xs text-slate-700 mb-3 leading-relaxed">
+                  Interação pura via terminal de texto. Você digita comandos SQL e recebe tabelas em texto formatado com velocidade instantânea.
+                </p>
+                <div class="space-y-1.5 text-xs">
+                  <div class="p-2 bg-white rounded border border-emerald-200">🟢 <strong>Vantagens:</strong> Funciona via SSH em qualquer servidor, essencial para scripts e automações CI/CD.</div>
+                  <div class="p-2 bg-white rounded border border-emerald-200">🔴 <strong>Limitações:</strong> Curva de aprendizado inicial mais íngreme para iniciantes.</div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 border-t border-emerald-200 text-[11px] text-emerald-800 font-mono font-bold">
+                Exemplos: psql, mysql, sqlite3, sqlplus.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como acessar cada banco pelo terminal?</span>
+          <span class="font-medium text-emerald-700">O Poder da Linha de Comando (CLI) →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 15: MÓDULO 3.2 - O PODER DO CLI ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="O Poder da Linha de Comando" data-module="Módulo 3.2 — Ferramentas">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.2 • Terminal Profissional</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O Poder da Linha de Comando (CLI)</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Comandos de Conexão</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+            Todo profissional de TI precisa saber se conectar aos bancos através do terminal. Veja como chamar o cliente nativo de cada um dos quatro motores:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <!-- PostgreSQL: psql -->
+            <div class="bg-slate-900 rounded-xl p-3.5 text-white font-mono text-[11px] space-y-1.5 border border-slate-800">
+              <div class="flex justify-between text-indigo-400 font-bold border-b border-slate-700 pb-1 text-[10px]">
+                <span>PostgreSQL: psql</span>
+                <span>Porta 5432</span>
+              </div>
+              <div class="text-emerald-400">$ psql -h localhost -U postgres -d minhabase</div>
+              <div class="text-slate-400 text-[10px]">Comandos internos úteis: <code class="text-white">\l</code> (listar bancos), <code class="text-white">\dt</code> (listar tabelas), <code class="text-white">\q</code> (sair).</div>
+            </div>
+
+            <!-- MySQL: mysql -->
+            <div class="bg-slate-900 rounded-xl p-3.5 text-white font-mono text-[11px] space-y-1.5 border border-slate-800">
+              <div class="flex justify-between text-blue-400 font-bold border-b border-slate-700 pb-1 text-[10px]">
+                <span>MySQL: mysql</span>
+                <span>Porta 3306</span>
+              </div>
+              <div class="text-emerald-400">$ mysql -h localhost -u root -p</div>
+              <div class="text-slate-400 text-[10px]">Comandos internos úteis: <code class="text-white">SHOW DATABASES;</code>, <code class="text-white">USE minhabase;</code>, <code class="text-white">SHOW TABLES;</code>.</div>
+            </div>
+
+            <!-- SQLite: sqlite3 -->
+            <div class="bg-slate-900 rounded-xl p-3.5 text-white font-mono text-[11px] space-y-1.5 border border-slate-800">
+              <div class="flex justify-between text-teal-400 font-bold border-b border-slate-700 pb-1 text-[10px]">
+                <span>SQLite: sqlite3</span>
+                <span>Arquivo Local</span>
+              </div>
+              <div class="text-emerald-400">$ sqlite3 sistema.db</div>
+              <div class="text-slate-400 text-[10px]">Comandos internos úteis: <code class="text-white">.tables</code> (ver tabelas), <code class="text-white">.schema</code> (ver DDL), <code class="text-white">.exit</code> (sair).</div>
+            </div>
+
+            <!-- Oracle: sqlplus -->
+            <div class="bg-slate-900 rounded-xl p-3.5 text-white font-mono text-[11px] space-y-1.5 border border-slate-800">
+              <div class="flex justify-between text-red-400 font-bold border-b border-slate-700 pb-1 text-[10px]">
+                <span>Oracle: SQL*Plus</span>
+                <span>Porta 1521</span>
+              </div>
+              <div class="text-emerald-400">$ sqlplus system/senha@localhost:1521/XEPDB1</div>
+              <div class="text-slate-400 text-[10px]">Comandos internos úteis: <code class="text-white">DESCRIBE tabela;</code>, <code class="text-white">EXIT;</code>.</div>
+            </div>
+          </div>
+
+          <div class="mt-3 p-2.5 bg-emerald-50 rounded border border-emerald-200 text-xs text-emerald-950">
+            ⚡ <strong>Por que amar o CLI?</strong> Se o servidor de produção travar às 3h da manhã em outro continente, você entrará via terminal SSH e resolverá o problema em segundos!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>E para quem prefere interfaces visuais?</span>
+          <span class="font-medium text-emerald-700">Ferramentas Gráficas Oficiais →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 16: MÓDULO 3.2 - GUIs OFICIAIS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Ferramentas Visuais Oficiais" data-module="Módulo 3.2 — Ferramentas">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.2 • Interfaces Dedicadas</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Ferramentas Visuais Oficiais por SGBD</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">GUIs Nativas</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- MySQL Workbench -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 font-mono">OFICIAL MYSQL</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">MySQL Workbench</h4>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Excelente para modelagem visual de diagramas E-R e engenharia reversa (transforma tabelas existentes em desenho de MER).
+                </p>
+                <div class="p-2 bg-white rounded border border-slate-200 text-[11px] text-slate-600">
+                  Destaque: Editor de queries com visualizador de planos de execução gráficos.
+                </div>
+              </div>
+            </div>
+
+            <!-- pgAdmin 4 -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800 font-mono">OFICIAL POSTGRES</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">pgAdmin 4</h4>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Interface web moderna e responsiva em Python/React. Traz painéis com gráficos em tempo real de transações por segundo e conexões ativas.
+                </p>
+                <div class="p-2 bg-white rounded border border-slate-200 text-[11px] text-slate-600">
+                  Destaque: Gerenciamento refinado de extensões (PostGIS) e visualizador de JSONB.
+                </div>
+              </div>
+            </div>
+
+            <!-- Oracle SQL Developer -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800 font-mono">OFICIAL ORACLE</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Oracle SQL Developer</h4>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Ferramenta Java oficial gratuita da Oracle. Projetada especialmente para desenvolvimento e depuração (*debug*) de código PL/SQL complexo.
+                </p>
+                <div class="p-2 bg-white rounded border border-slate-200 text-[11px] text-slate-600">
+                  Destaque: Assistente de migração de bancos concorrentes para Oracle.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Existe uma única ferramenta que conecte em todos eles ao mesmo tempo?</span>
+          <span class="font-medium text-emerald-700">DBeaver: O Canivete Suíço Universal →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 17: MÓDULO 3.2 - DBEAVER ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="DBeaver: Canivete Suíço" data-module="Módulo 3.2 — Ferramentas">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.2 • A Ferramenta Mais Amada</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">DBeaver: O Canivete Suíço Universal</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">Padrão da Indústria</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                O <strong>DBeaver</strong> é uma ferramenta gráfica universal, open-source e multiplataforma. Em vez de instalar 4 programas diferentes, você conecta em <strong>todos os seus bancos em uma única tela</strong>.
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">1. Conexão Universal via Drivers JDBC</strong>
+                  Baixa o driver do Postgres, MySQL, Oracle ou SQLite com um clique e conecta na hora.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">2. Diagramas Entidade-Relacionamento Automáticos</strong>
+                  Gera o diagrama visual de tabelas e relacionamentos da base com 1 clique (ótimo para documentação!).
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">3. Exportação e Importação de Dados Flexível</strong>
+                  Exporta dados para CSV, Excel, JSON ou scripts SQL de <code class="mono-pill">INSERT</code> instantaneamente.
+                </div>
+              </div>
+            </div>
+
+            <!-- Card DBeaver -->
+            <div class="bg-slate-900 rounded-xl p-5 text-white text-xs space-y-3 shadow-sm font-mono">
+              <div class="flex justify-between items-center text-emerald-400 border-b border-slate-800 pb-2">
+                <span class="font-bold">Painel de Conexões DBeaver</span>
+                <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Multi-Database</span>
+              </div>
+
+              <div class="space-y-1.5 text-[11px]">
+                <div class="p-2 bg-slate-800/80 rounded flex items-center justify-between text-blue-300">
+                  <span>🐬 MySQL Produção</span>
+                  <span class="text-[10px] text-slate-400">porta 3306 [Conectado]</span>
+                </div>
+                <div class="p-2 bg-slate-800/80 rounded flex items-center justify-between text-indigo-300">
+                  <span>🐘 PostgreSQL Homologação</span>
+                  <span class="text-[10px] text-slate-400">porta 5432 [Conectado]</span>
+                </div>
+                <div class="p-2 bg-slate-800/80 rounded flex items-center justify-between text-teal-300">
+                  <span>📁 SQLite App Mobile</span>
+                  <span class="text-[10px] text-slate-400">app.db [Arquivo Local]</span>
+                </div>
+                <div class="p-2 bg-slate-800/80 rounded flex items-center justify-between text-red-300">
+                  <span>🏛️ Oracle Corporativo</span>
+                  <span class="text-[10px] text-slate-400">porta 1521 [Conectado]</span>
+                </div>
+              </div>
+
+              <div class="pt-2 text-[10px] text-slate-400 font-sans">
+                ⭐ <strong>Recomendação do Professor:</strong> Instale o DBeaver Community no seu computador para acompanhar os laboratórios de banco de dados do curso!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como escrever scripts SQL legíveis e profissionais?</span>
+          <span class="font-medium text-emerald-700">Documentação e Boas Práticas SQL →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 18: MÓDULO 3.2 - BOAS PRÁTICAS SQL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Boas Práticas em SQL" data-module="Módulo 3.2 — Ferramentas">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.2 • Qualidade de Código</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Boas Práticas e Padrões de Código em SQL</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Clean SQL</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2.5 text-xs text-slate-700">
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-0.5">1. Palavras-chave SQL sempre em MAIÚSCULAS</strong>
+                Destaque comandos como <code class="mono-pill">SELECT</code>, <code class="mono-pill">FROM</code>, <code class="mono-pill">WHERE</code>, <code class="mono-pill">INSERT</code>, <code class="mono-pill">JOIN</code> para separar a sintaxe dos nomes das tabelas.
+              </div>
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-0.5">2. Nomenclatura Consistente (Snake_Case)</strong>
+                Adote um padrão único na equipe: <code class="mono-pill">nome_cliente</code>, <code class="mono-pill">data_nascimento</code>. Evite misturar português com inglês ou camelCase.
+              </div>
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-0.5">3. Evite o perigoso SELECT * em Produção</strong>
+                Sempre liste as colunas que você realmente precisa (<code class="mono-pill">SELECT id, nome FROM...</code>). O asterisco sobrecarrega a rede e a memória do servidor.
+              </div>
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-0.5">4. Indentação e Quebras de Linha Legíveis</strong>
+                Nunca escreva consultas complexas em uma única linha horizontal quilométrica.
+              </div>
+            </div>
+
+            <!-- Comparativo Visual Mau vs Bom SQL -->
+            <div class="space-y-3 text-xs font-mono">
+              <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-900">
+                <span class="font-bold block text-[11px] mb-1">❌ Código Amador (Difícil de Manter):</span>
+                <span class="text-[11px]">select id,nome,preco from prod where preco>100 and status='a' order by preco desc;</span>
+              </div>
+
+              <div class="p-3 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-950">
+                <span class="font-bold block text-[11px] mb-1">✅ Código Profissional (Legível e Elegante):</span>
+                <div class="text-[11px] leading-relaxed">
+                  <span class="text-emerald-800 font-bold">SELECT</span> id_produto, nome_produto, preco_unitario<br>
+                  <span class="text-emerald-800 font-bold">FROM</span> produtos<br>
+                  <span class="text-emerald-800 font-bold">WHERE</span> preco_unitario &gt; 100.00<br>
+                  &nbsp;&nbsp;<span class="text-emerald-800 font-bold">AND</span> status_ativo = TRUE<br>
+                  <span class="text-emerald-800 font-bold">ORDER BY</span> preco_unitario <span class="text-emerald-800 font-bold">DESC</span>;
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como documentar o raciocínio dentro do script?</span>
+          <span class="font-medium text-emerald-700">A Arte dos Comentários em SQL →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 19: MÓDULO 3.2 - COMENTÁRIOS EM SQL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="A Arte dos Comentários" data-module="Módulo 3.2 — Ferramentas">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.2 • Documentação Técnica</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">A Arte dos Comentários em Scripts SQL</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Sintaxe Universal</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- As duas formas de comentar -->
+            <div class="space-y-3 text-xs text-slate-700">
+              <p class="leading-relaxed">
+                Scripts de banco de dados executados em produção precisam ser compreendidos por outros colegas da equipe de TI meses ou anos depois.
+              </p>
+
+              <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <strong class="text-emerald-800 block mb-1">1. Comentário de Linha Única (<code class="mono-pill">--</code>)</strong>
+                Padrão ANSI SQL. Tudo após os dois traços na mesma linha é ignorado pelo SGBD.
+              </div>
+
+              <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <strong class="text-emerald-800 block mb-1">2. Comentário em Bloco / Múltiplas Linhas (<code class="mono-pill">/* ... */</code>)</strong>
+                Ideal para cabeçalhos de scripts, explicações de regras de negócios complexas ou desativar blocos de código temporariamente.
+              </div>
+
+              <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 text-emerald-950">
+                💡 <strong>Dica de Ouro:</strong> Não comente o óbvio (ex: <code class="mono-pill">-- busca clientes</code>). Comente o <strong>porquê</strong> de uma regra de negócio existir (ex: <code class="mono-pill">-- Filtra apenas clientes ativos devido à auditoria contábil de 2026</code>).
+              </div>
+            </div>
+
+            <!-- Exemplo Prático de Script Comentado -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2">
+                -- Exemplo de Cabeçalho e Linhas Comentadas
+              </div>
+              <span class="text-slate-400">/* =========================================<br>
+              &nbsp;&nbsp;&nbsp;Autor: Maria Engenheira de Dados<br>
+              &nbsp;&nbsp;&nbsp;Data: 2026-10-27<br>
+              &nbsp;&nbsp;&nbsp;Objetivo: Atualização de limite de crédito<br>
+              &nbsp;&nbsp;&nbsp;Ticket Jira: #TI-8942<br>
+              ========================================= */</span><br><br>
+              <span class="text-slate-400">-- Aplica bônus de 20% para clientes VIP</span><br>
+              <span class="text-yellow-300 font-bold">UPDATE</span> clientes<br>
+              <span class="text-yellow-300 font-bold">SET</span> limite_credito = limite_credito * 1.20<br>
+              <span class="text-yellow-300 font-bold">WHERE</span> pontuacao_fidelidade &gt;= 1000;<br><br>
+              <span class="text-emerald-400 font-bold">COMMIT</span>; <span class="text-slate-400">-- Confirma a transação com segurança</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como estruturar um script profissional completo?</span>
+          <span class="font-medium text-emerald-700">Anatomia de um Script Profissional →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 20: MÓDULO 3.2 - ANATOMIA DE UM SCRIPT ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Anatomia do Script" data-module="Módulo 3.2 — Ferramentas">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 3.2 • Estrutura Profissional</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Anatomia de um Script SQL Profissional</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Pronto para Produção</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <!-- Bloco 1: Metadados -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-6 h-6 rounded bg-emerald-700 text-white font-bold flex items-center justify-center text-xs mb-2">1</span>
+                <h4 class="font-bold text-slate-800 mb-1">Cabeçalho de Auditoria</h4>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  Quem fez o script, em qual data, qual sistema afetado e qual o procedimento de reversão (*Rollback*) caso algo dê errado.
+                </p>
+              </div>
+              <div class="mt-3 p-2 bg-white rounded border border-slate-200 font-mono text-[10px] text-slate-500">
+                /* SCRIPT_V1_MIGRACAO.SQL */
+              </div>
+            </div>
+
+            <!-- Bloco 2: Segurança Transacional -->
+            <div class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="w-6 h-6 rounded bg-emerald-700 text-white font-bold flex items-center justify-center text-xs mb-2">2</span>
+                <h4 class="font-bold text-emerald-950 mb-1">Bloco Transacional Seguro</h4>
+                <p class="text-[11px] text-slate-700 leading-snug">
+                  Em comandos perigosos (<code class="mono-pill">UPDATE</code> ou <code class="mono-pill">DELETE</code>), abra uma transação com <code class="mono-pill">BEGIN TRANSACTION</code> para poder abortar se a quantidade de linhas afetadas estiver errada.
+                </p>
+              </div>
+              <div class="mt-3 p-2 bg-white rounded border border-emerald-300 font-mono text-[10px] text-emerald-900 font-bold">
+                BEGIN; ... COMMIT ou ROLLBACK;
+              </div>
+            </div>
+
+            <!-- Bloco 3: Verificação Final -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-6 h-6 rounded bg-emerald-700 text-white font-bold flex items-center justify-center text-xs mb-2">3</span>
+                <h4 class="font-bold text-slate-800 mb-1">Queries de Checagem</h4>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  Finalize o script com um <code class="mono-pill">SELECT</code> de validação que comprove ao DBA que o resultado esperado foi alcançado com sucesso.
+                </p>
+              </div>
+              <div class="mt-3 p-2 bg-white rounded border border-slate-200 font-mono text-[10px] text-slate-500">
+                SELECT COUNT(*) FROM...
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-900 text-white text-xs flex items-center justify-between">
+            <span>🛡️ <strong>Regra de Ouro do DBA:</strong> Nunca execute um <code class="mono-pill text-emerald-300 bg-slate-800 border-none">UPDATE</code> ou <code class="mono-pill text-emerald-300 bg-slate-800 border-none">DELETE</code> em produção sem antes rodar um <code class="mono-pill text-emerald-300 bg-slate-800 border-none">SELECT</code> com o mesmo <code class="mono-pill text-emerald-300 bg-slate-800 border-none">WHERE</code> para conferir as linhas!</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Hora de praticar em sala de aula!</span>
+          <span class="font-medium text-emerald-700">Módulo 10 — Atividade Prática em Grupo →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 21: ATIVIDADE PRÁTICA EM GRUPO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Atividade Prática em Grupo" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Dinâmica de Sala • Estudo de Caso</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Atividade Prática: O Diagnóstico da Startup HealthCare</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-amber-100 text-amber-800 border border-amber-300">Tempo: 15 min</span>
+          </div>
+
+          <!-- Situação-Problema -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl mb-4 text-xs">
+            <span class="font-bold text-slate-800 uppercase tracking-wide block mb-1">Cenário Desafiador:</span>
+            <p class="text-slate-600 leading-relaxed">
+              A startup <strong>HealthCare Connect</strong> possui três frentes de tecnologia: <strong>1)</strong> Um app móvel que os médicos usam em hospitais mesmo quando estão sem sinal de internet; <strong>2)</strong> O sistema web principal da clínica com prontuários e agendamentos simultâneos; e <strong>3)</strong> O sistema corporativo financeiro integrado com os planos de saúde e bancos.
+            </p>
+          </div>
+
+          <!-- As 6 Tarefas do Grupo -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">1. Escolha para o App</span>
+              Qual SGBD deve ser embutido no celular do médico e por que ele não precisa de servidor?
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">2. Escolha para a Web</span>
+              Comparar MySQL e Postgres para o prontuário eletrônico com suporte a JSON e escolher 1.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">3. Conexão e Portas</span>
+              Indicar a porta de rede padrão e o usuário superusuário do SGBD escolhido na etapa 2.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">4. Seleção de GUI</span>
+              Sugerir qual ferramenta gráfica os desenvolvedores devem instalar para acessar todos os bancos.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">5. Segurança de Acesso</span>
+              Indicar por que a aplicação web da clínica não deve se conectar usando a senha do <code class="mono-pill">root</code>.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">6. Padrão de Script</span>
+              Escrever um modelo de cabeçalho comentado em SQL para as migrações da startup.
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Após o debate em grupo, teste seus conhecimentos individuais!</span>
+          <span class="font-medium text-emerald-700">Quiz Interativo de Fixação →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 22: QUIZ INTERATIVO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Quiz de Fixação Interativo" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Fixação de Conteúdo</span>
+              <h2 class="text-xl md:text-2xl font-bold text-slate-800">Quiz Interativo: 5 Perguntas Rápidas</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="quizScore" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Acertos: 0/5</span>
+            </div>
+          </div>
+
+          <!-- Container dinâmico do Quiz -->
+          <div id="quizContainer" class="space-y-3">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-emerald-800 font-mono" id="qNumber">QUESTÃO 1 DE 5</span>
+                <span class="text-[11px] text-slate-400">Clique na alternativa correta</span>
+              </div>
+              <h3 class="text-sm font-semibold text-slate-800 mb-3" id="qQuestion">
+                Qual SGBD é autocontido, não necessita de servidor rodando em segundo plano e armazena toda a base em um único arquivo local?
+              </h3>
+              <div class="space-y-2 text-xs" id="qOptions">
+                <!-- Opções via JS -->
+              </div>
+              <div id="qFeedback" class="mt-3 p-2.5 rounded text-xs hidden"></div>
+            </div>
+
+            <!-- Navegação do Quiz -->
+            <div class="flex items-center justify-between pt-2">
+              <button onclick="prevQuizQuestion()" id="btnPrevQuiz" class="px-3 py-1 text-xs rounded border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40">Anterior</button>
+              <span class="text-xs text-slate-400 font-mono" id="quizNavInfo">Questão 1 de 5</span>
+              <button onclick="nextQuizQuestion()" id="btnNextQuiz" class="px-3 py-1 text-xs rounded bg-emerald-700 text-white hover:bg-emerald-800">Próxima Questão</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O gabarito oficial com orientações do professor vem a seguir.</span>
+          <span class="font-medium text-emerald-700">Ver Gabarito & Guia do Professor →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 23: GABARITO & GUIA DO PROFESSOR ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Gabarito e Guia do Professor" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Exclusivo para o Docente</span>
+              <h2 class="text-2xl font-bold text-slate-800">Gabarito Oficial e Guia Pedagógico</h2>
+            </div>
+            <button onclick="toggleTeacherAnswers()" id="btnToggleAnswers" class="px-2.5 py-1 text-xs font-medium rounded-md bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 transition">
+              🔓 Revelar / Ocultar Gabarito
+            </button>
+          </div>
+
+          <div id="answersContent" class="space-y-2.5 text-xs max-h-[380px] overflow-y-auto pr-2">
+            <!-- Q1 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 1: SGBD Serverless em Arquivo Único</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> O <strong>SQLite</strong>. Ele não roda como serviço cliente-servidor e opera como biblioteca embutida gravando em arquivo único (<code class="mono-pill">.db</code>).</p>
+            </div>
+            <!-- Q2 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 2: Portas Padrão de Rede</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> <strong>MySQL usa a porta 3306</strong> e <strong>PostgreSQL usa a porta 5432</strong> (Oracle usa 1521).</p>
+            </div>
+            <!-- Q3 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 3: Importância da Linha de Comando (CLI)</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> Permite administração remota via SSH em servidores sem interface gráfica (headless) e automação de scripts de deploy e backup contínuo.</p>
+            </div>
+            <!-- Q4 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 4: Ferramenta Gráfica Universal (DBeaver)</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> Conectar-se a múltiplos SGBDs distintos (Postgres, MySQL, Oracle, SQLite) a partir de uma interface unificada usando drivers JDBC.</p>
+            </div>
+            <!-- Q5 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 5: Sintaxe de Comentários em SQL</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> <code class="mono-pill">-- comentário</code> para linha única e <code class="mono-pill">/* comentário */</code> para múltiplas linhas ou blocos de código.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Síntese geral do administrador de banco de dados</span>
+          <span class="font-medium text-emerald-700">As 7 Leis de Ouro do DBA →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 24: SÍNTESE E BOAS PRÁTICAS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="As Leis do DBA" data-module="Encerramento">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Guia de Carreira & Operação</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">As 7 Leis de Ouro do Administrador de Banco de Dados</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Checklist do DBA</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">1.</span>
+              <div><strong>Conheça as portas:</strong> Saiba de cabeça 3306 (MySQL), 5432 (Postgres) e 1521 (Oracle).</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">2.</span>
+              <div><strong>UTF-8 sempre:</strong> Nunca crie um banco sem definir charset UTF-8 / utf8mb4.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">3.</span>
+              <div><strong>Nunca use root na aplicação:</strong> Crie usuários dedicados com permissões restritas.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">4.</span>
+              <div><strong>Domine o terminal (CLI):</strong> GUIs são ótimas, mas a CLI salva servidores na emergência.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">5.</span>
+              <div><strong>Adote o DBeaver:</strong> Centralize o trabalho com uma ferramenta multi-banco profissional.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">6.</span>
+              <div><strong>Documente o porquê:</strong> Use comentários em cabeçalhos de scripts e regras de negócio.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-emerald-300 bg-emerald-50/60 md:col-span-2 flex items-start gap-2.5">
+              <span class="text-emerald-800 font-bold font-mono text-sm">7.</span>
+              <div><strong class="text-emerald-950">A Lei Suprema do Backup:</strong> Banco de dados sem backup testado não existe. Faça backups rotineiros e teste a restauração com frequência!</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Conclusão da aula e próximos passos</span>
+          <span class="font-medium text-emerald-700">Slide Final de Encerramento →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 25: CONCLUSÃO & SÍNTESE ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-14 bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white relative overflow-hidden" data-title="Conclusão e Próximos Passos" data-module="Encerramento">
+        <div class="relative z-10 flex items-center justify-between">
+          <span class="px-3 py-1 rounded-full bg-emerald-800 text-emerald-300 text-xs font-mono font-medium">Aula 3 Concluída</span>
+          <span class="text-xs text-emerald-300/70">Módulo de SGBDs Finalizado</span>
+        </div>
+
+        <div class="relative z-10 my-auto py-4 max-w-3xl">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            Você agora domina os motores e as ferramentas que movem os dados do mundo.
+          </h2>
+          <p class="mt-3 text-sm md:text-base text-emerald-100/90 font-light leading-relaxed">
+            Hoje aprendemos a arquitetura interna do SGBD, desvendamos o quarteto de ouro (SQLite, MySQL, Postgres e Oracle), configuramos portas e segurança, e exploramos DBeaver, terminais CLI e a arte de documentar scripts profissionais.
+          </p>
+
+          <div class="grid grid-cols-3 gap-3 mt-6 text-xs text-emerald-100">
+            <div class="p-3 rounded-lg bg-white/10 border border-white/10">
+              <strong class="text-white block mb-0.5">Motores Dominados</strong>
+              SQLite, MySQL, Postgres e Oracle.
+            </div>
+            <div class="p-3 rounded-lg bg-white/10 border border-white/10">
+              <strong class="text-white block mb-0.5">Ferramentas & Acesso</strong>
+              CLI (psql, mysql) e GUIs (DBeaver).
+            </div>
+            <div class="p-3 rounded-lg bg-white/10 border border-white/10">
+              <strong class="text-white block mb-0.5">Segurança & Padrões</strong>
+              UTF-8, portas e comentários SQL.
+            </div>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex items-center justify-between pt-4 border-t border-emerald-800 text-xs text-emerald-300/80">
+          <span>Parabéns pela dedicação! Perguntas e debates abertos.</span>
+          <span class="font-mono text-emerald-400">Próxima Aula: Comandos DML na Prática (INSERT, SELECT, UPDATE, DELETE)</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= BOTTOM BAR (CONTROLES DE SLIDE) ================= -->
+  <footer class="no-print bg-white border-t border-slate-200 px-4 py-2.5 flex items-center justify-between z-20">
+    <div class="flex items-center space-x-2 text-xs text-slate-500">
+      <span class="hidden sm:inline">Navegação:</span>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">←</kbd>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">→</kbd>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">Espaço</kbd>
+    </div>
+
+    <!-- Botões Anterior / Próximo -->
+    <div class="flex items-center space-x-2">
+      <button onclick="prevSlide()" id="btnPrev" class="px-4 py-1.5 rounded-lg border border-slate-200 text-slate-700 font-medium text-xs hover:bg-slate-50 active:scale-95 transition flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        <span>Anterior</span>
+      </button>
+
+      <button onclick="nextSlide()" id="btnNext" class="px-5 py-1.5 rounded-lg bg-emerald-700 text-white font-medium text-xs hover:bg-emerald-800 active:scale-95 transition flex items-center gap-1 shadow-xs">
+        <span>Próximo</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <div class="text-right text-xs text-slate-400 font-mono">
+      <span>Prof. Tecnologia da Informação</span>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL: ÍNDICE DE SLIDES (DRAWER) ================= -->
+  <div id="tocModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="font-bold text-slate-800 text-base">Índice da Apresentação — Aula 3</h3>
+          <p class="text-xs text-slate-500">Clique para saltar diretamente para qualquer slide</p>
+        </div>
+        <button onclick="toggleTocModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-2 flex-1" id="tocList">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAINEL: NOTAS DO PROFESSOR (DRAWER LATERAL) ================= -->
+  <aside id="teacherNotesDrawer" class="no-print fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-white shadow-2xl border-l border-slate-200 z-40 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+    <div>
+      <div class="p-4 border-b border-slate-200 bg-emerald-950 text-white flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block">Guia do Professor</span>
+          <h4 class="font-bold text-sm">Dicas Didáticas & Ritmo (Aula 3)</h4>
+        </div>
+        <button onclick="toggleTeacherNotes()" class="text-emerald-300 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+          <div class="flex items-center justify-between text-xs text-emerald-900 font-semibold mb-1">
+            <span>Tempo Sugerido da Aula:</span>
+            <span class="font-mono text-emerald-700">50 a 60 min</span>
+          </div>
+          <div class="text-[11px] text-emerald-800">
+            Mantenha o ritmo para reservar 15 minutos para a atividade prática de diagnóstico da startup.
+          </div>
+        </div>
+
+        <div id="slideSpecificNote" class="space-y-3">
+          <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider" id="noteSlideTitle">Slide Atual</h5>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 leading-relaxed" id="noteContent">
+            Carregando notas...
+          </div>
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900" id="noteQuestionPrompt">
+            Carregando pergunta...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500 flex justify-between items-center">
+      <span>Atalho: Tecla <kbd class="px-1 py-0.5 bg-white border border-slate-300 rounded font-mono">P</kbd></span>
+      <span class="text-emerald-700 font-semibold">Modo Docente Ativo</span>
+    </div>
+  </aside>
+
+  <!-- ================= JAVASCRIPT: NAVEGAÇÃO E QUIZ ================= -->
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const currentSlideNum = document.getElementById('currentSlideNum');
+    const totalSlideNum = document.getElementById('totalSlideNum');
+    const progressBar = document.getElementById('progressBar');
+    const headerSubtitle = document.getElementById('headerSubtitle');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const tocList = document.getElementById('tocList');
+
+    totalSlideNum.textContent = totalSlides;
+
+    // Dicas do Professor para cada um dos 25 slides da Aula 3
+    const teacherNotesData = [
+      {
+        slide: 1,
+        title: "Capa da Aula 3",
+        note: "Dê boas-vindas aos alunos e contextualize: agora que sabemos modelar tabelas, vamos aprender a escolher, instalar, gerenciar e documentar os SGBDs reais do mercado.",
+        prompt: "\"Quantos aqui já precisaram instalar um banco de dados no computador? Qual foi a maior dificuldade?\""
+      },
+      {
+        slide: 2,
+        title: "Objetivos de Aprendizagem",
+        note: "Enfatize que esta aula prepara o aluno para a rotina diária das empresas: portas de rede, comandos de terminal, conexão com DBeaver e scripts comentados.",
+        prompt: "\"Por que um desenvolvedor de software precisa saber operar o terminal de um banco de dados além de usar janelas gráficas?\""
+      },
+      {
+        slide: 3,
+        title: "O SGBD por Dentro",
+        note: "Explique a diferença entre ler da memória RAM (nanossegundos) e ler do disco (milissegundos). O SGBD é um mestre em cache e buffer pool.",
+        prompt: "\"O que vocês acham que acontece com a velocidade do sistema se o SGBD precisar ler o disco SSD a cada clique do usuário?\""
+      },
+      {
+        slide: 4,
+        title: "Tipos de SGBD",
+        note: "Diferencie bem um banco embarcado (como SQLite) de um banco com serviço contínuo escutando portas TCP/IP (como Postgres e MySQL).",
+        prompt: "\"Por que um relógio smartwatch não roda um servidor MySQL completo?\""
+      },
+      {
+        slide: 5,
+        title: "O Quarteto de Ouro",
+        note: "Apresente os 4 gigantes. Explique que dominar esses quatro motores coloca o estudante à frente em qualquer processo seletivo de TI.",
+        prompt: "\"Qual desses quatro vocês já viram em vagas de estágio ou de emprego?\""
+      },
+      {
+        slide: 6,
+        title: "SQLite em Detalhes",
+        note: "Destaque que o SQLite é o software de banco mais distribuído do planeta porque todo smartphone Android e iPhone tem dezenas de bancos SQLite rodando.",
+        prompt: "\"Sabiam que suas conversas do WhatsApp no celular ficam salvas em um arquivo SQLite local?\""
+      },
+      {
+        slide: 7,
+        title: "MySQL em Detalhes",
+        note: "Mencione a revolução do LAMP stack. Explique a porta 3306 e o motor InnoDB, que trouxe suporte completo a transações ACID ao MySQL.",
+        prompt: "\"Por que o WordPress escolheu o MySQL para mover mais de 40% dos sites da internet?\""
+      },
+      {
+        slide: 8,
+        title: "PostgreSQL em Detalhes",
+        note: "Destaque o suporte a JSONB e a independência comunitária do Postgres. Mostre que ele é o queridinho das startups modernas e fintechs por ser robusto e gratuito.",
+        prompt: "\"Por que fintechs como o Nubank preferem o PostgreSQL para processar suas contas digitais?\""
+      },
+      {
+        slide: 9,
+        title: "Oracle Database em Detalhes",
+        note: "Apresente o gigante dos bancos tradicionais. Explique que o Oracle brilha em ambientes de altíssimo volume financeiro e que domina o mercado com PL/SQL e RAC.",
+        prompt: "\"Por que os grandes bancos pagam licenças milionárias para a Oracle em vez de usar apenas opções gratuitas?\""
+      },
+      {
+        slide: 10,
+        title: "Matriz Comparativa",
+        note: "Faça uma revisão interativa da tabela. Peça para a turma fixar as portas: 3306 (MySQL), 5432 (Postgres) e 1521 (Oracle).",
+        prompt: "\"Vamos memorizar: qual é a porta padrão do PostgreSQL? E a do MySQL?\""
+      },
+      {
+        slide: 11,
+        title: "Instalação e Requisitos",
+        note: "Mencione o Docker. Diga que contêineres revolucionaram a vida do desenvolvedor porque você pode subir um Postgres com 1 comando sem instalar nada no Windows.",
+        prompt: "\"Quem já teve problemas de conflito instalando dois bancos diferentes na mesma máquina? O Docker resolve isso!\""
+      },
+      {
+        slide: 12,
+        title: "Configurações Críticas",
+        note: "Alerta máximo para o UTF-8 (ou utf8mb4 no MySQL). Mostre como acentos e emojis quebram se o encoding não for configurado no setup.",
+        prompt: "\"Alguém já viu um site exibir 'So Paulo' com aquele losango preto e interrogação? O que causou isso?\""
+      },
+      {
+        slide: 13,
+        title: "Arquivos e Permissões",
+        note: "Ensine o Princípio do Menor Privilégio. Nunca permita que o frontend ou backend se conecte com usuário 'root' ou 'postgres'.",
+        prompt: "\"Se um hacker invadir seu site e a aplicação estiver conectada como 'root', o que ele poderá fazer no banco inteiro?\""
+      },
+      {
+        slide: 14,
+        title: "GUI vs CLI",
+        note: "Quebre o preconceito: nem só cliques, nem só terminal. O profissional completo usa a GUI no dia a dia e o terminal nas emergências e deploys.",
+        prompt: "\"Em qual situação a interface gráfica simplesmente não pode ser utilizada? (Servidor Linux sem monitor!)\""
+      },
+      {
+        slide: 15,
+        title: "O Poder da Linha de Comando",
+        note: "Apresente os comandos de conexão: psql, mysql, sqlite3 e sqlplus. Mostre que é texto puro, seguro e imediato.",
+        prompt: "\"Vejam como conectar no terminal leva menos de 2 segundos!\""
+      },
+      {
+        slide: 16,
+        title: "Ferramentas Visuais Oficiais",
+        note: "Mostre o papel do Workbench (modelagem), do pgAdmin (monitoramento web de conexões) e do SQL Developer (depuração PL/SQL).",
+        prompt: "\"Qual dessas ferramentas vocês já viram em tutoriais de YouTube ou cursos online?\""
+      },
+      {
+        slide: 17,
+        title: "DBeaver: O Canivete Suíço",
+        note: "Demonstre entusiasmo com o DBeaver. É a ferramenta mais produtiva para quem trabalha com múltiplos bancos no dia a dia.",
+        prompt: "\"Por que ter um único programa aberto é muito melhor do que abrir 4 janelas diferentes para cada banco?\""
+      },
+      {
+        slide: 18,
+        title: "Boas Práticas em SQL",
+        note: "Reforce a regra das maiúsculas (SELECT, FROM, WHERE). Explique por que o 'SELECT *' é um pecado capital em bancos de produção.",
+        prompt: "\"Se uma tabela tem 5 milhões de linhas e 40 colunas, o que acontece se você rodar 'SELECT *' nela?\""
+      },
+      {
+        slide: 19,
+        title: "A Arte dos Comentários",
+        note: "Ensine a sintaxe dos dois traços (--) e do bloco (/* */). Enfatize que comentários devem explicar o 'porquê' da regra de negócio.",
+        prompt: "\"Vocês já pegaram um código feito por outra pessoa sem nenhum comentário? Qual foi a sensação?\""
+      },
+      {
+        slide: 20,
+        title: "Anatomia de um Script",
+        note: "Mostre a importância do BEGIN TRANSACTION e do ROLLBACK. Explicar que atualizar ou deletar dados sem transação pode custar o emprego!",
+        prompt: "\"Qual é a regra de ouro antes de rodar um comando UPDATE ou DELETE em produção?\""
+      },
+      {
+        slide: 21,
+        title: "Atividade Prática em Grupo",
+        note: "Divida a turma em duplas. Dê 10 a 15 minutos para debaterem o caso da startup HealthCare Connect. Circule tirando dúvidas.",
+        prompt: "\"Quais SGBDs vocês escolheram para o app do médico e para o prontuário web do hospital?\""
+      },
+      {
+        slide: 22,
+        title: "Quiz Interativo",
+        note: "Conduza a votação em sala de aula de forma descontraída. Deixe a turma argumentar antes de clicar na alternativa correta.",
+        prompt: "\"Vamos votar: quem acha que é a alternativa B? E a C? Vamos conferir a justificativa técnica!\""
+      },
+      {
+        slide: 23,
+        title: "Gabarito e Guia do Professor",
+        note: "Use este slide para consolidar as respostas com a turma e tirar eventuais dúvidas finais sobre portas, CLI e ferramentas.",
+        prompt: "\"Ficou claro para todos por que o SQLite é a melhor escolha para o aplicativo mobile?\""
+      },
+      {
+        slide: 24,
+        title: "As 7 Leis do DBA",
+        note: "Faça a leitura conjunta do checklist profissional. Destaque a lei suprema do backup.",
+        prompt: "\"Lembrem-se: quem tem um backup não tem nenhum; quem tem dois backups tem um!\""
+      },
+      {
+        slide: 25,
+        title: "Conclusão e Encerramento",
+        note: "Parabenize a turma pelo avanço. Dê o gancho para a próxima aula: Comandos DML na prática (INSERT, SELECT, UPDATE, DELETE).",
+        prompt: "\"Excelente trabalho a todos! Na próxima aula, escreveremos nossas primeiras consultas avançadas com filtros e joins!\""
+      }
+    ];
+
+    function updateSlide() {
+      slides.forEach((slide, idx) => {
+        if (idx === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      currentSlideNum.textContent = currentSlide + 1;
+      const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+
+      const activeSlide = slides[currentSlide];
+      const title = activeSlide.getAttribute('data-title') || '';
+      const moduleName = activeSlide.getAttribute('data-module') || '';
+      headerSubtitle.textContent = `${moduleName} — ${title}`;
+
+      btnPrev.disabled = currentSlide === 0;
+      btnPrev.style.opacity = currentSlide === 0 ? '0.4' : '1';
+
+      if (currentSlide === totalSlides - 1) {
+        btnNext.innerHTML = `<span>Início</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`;
+      } else {
+        btnNext.innerHTML = `<span>Próximo</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>`;
+      }
+
+      updateTeacherNotesContent();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+      } else {
+        currentSlide = 0;
+      }
+      updateSlide();
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(index) {
+      if (index >= 0 && index < totalSlides) {
+        currentSlide = index;
+        updateSlide();
+        closeTocModal();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      switch(e.key) {
+        case 'ArrowRight':
+        case ' ':
+        case 'PageDown':
+          e.preventDefault();
+          nextSlide();
+          break;
+        case 'ArrowLeft':
+        case 'PageUp':
+          e.preventDefault();
+          prevSlide();
+          break;
+        case 'Home':
+          e.preventDefault();
+          goToSlide(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          goToSlide(totalSlides - 1);
+          break;
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          toggleFullScreen();
+          break;
+        case 'm':
+        case 'M':
+        case 'i':
+        case 'I':
+          e.preventDefault();
+          toggleTocModal();
+          break;
+        case 'p':
+        case 'P':
+        case 'n':
+        case 'N':
+          e.preventDefault();
+          toggleTeacherNotes();
+          break;
+        case 'Escape':
+          closeTocModal();
+          closeTeacherNotes();
+          break;
+      }
+    });
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    function buildToc() {
+      tocList.innerHTML = '';
+      slides.forEach((slide, index) => {
+        const title = slide.getAttribute('data-title') || `Slide ${index + 1}`;
+        const moduleName = slide.getAttribute('data-module') || '';
+        
+        const item = document.createElement('button');
+        item.className = 'w-full text-left p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition flex items-center justify-between text-xs group';
+        item.onclick = () => goToSlide(index);
+        
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-full font-mono font-bold text-[11px] flex items-center justify-center ${index === currentSlide ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}">
+              ${index + 1}
+            </span>
+            <div>
+              <span class="font-bold text-slate-800 group-hover:text-emerald-900 block">${title}</span>
+              <span class="text-[10px] text-slate-400">${moduleName}</span>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400 group-hover:text-emerald-700">Ir →</span>
+        `;
+        tocList.appendChild(item);
+      });
+    }
+
+    function toggleTocModal() {
+      const modal = document.getElementById('tocModal');
+      if (modal.classList.contains('hidden')) {
+        buildToc();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function closeTocModal() {
+      document.getElementById('tocModal').classList.add('hidden');
+    }
+
+    function toggleTeacherNotes() {
+      const drawer = document.getElementById('teacherNotesDrawer');
+      drawer.classList.toggle('translate-x-full');
+    }
+
+    function closeTeacherNotes() {
+      const drawer = document.getElementById('teacherNotesDrawer');
+      drawer.classList.add('translate-x-full');
+    }
+
+    function updateTeacherNotesContent() {
+      const noteSlideTitle = document.getElementById('noteSlideTitle');
+      const noteContent = document.getElementById('noteContent');
+      const noteQuestionPrompt = document.getElementById('noteQuestionPrompt');
+      
+      const currentNote = teacherNotesData[currentSlide] || {
+        title: `Slide ${currentSlide + 1}`,
+        note: "Apresente o conceito de forma simples e contextualizada aos alunos.",
+        prompt: "Alguma dúvida sobre este ponto?"
+      };
+
+      noteSlideTitle.textContent = `Slide ${currentSlide + 1}: ${currentNote.title}`;
+      noteContent.textContent = currentNote.note;
+      noteQuestionPrompt.innerHTML = `<strong>Pergunta provocativa para a turma:</strong> ${currentNote.prompt}`;
+    }
+
+    // ================= DADOS E LÓGICA DO QUIZ (AULA 3) =================
+    const quizQuestions = [
+      {
+        question: "1. Qual SGBD é serverless (sem processo de servidor), tem zero configuração e guarda todo o banco em um único arquivo local?",
+        options: [
+          { text: "A) Oracle Database", correct: false },
+          { text: "B) SQLite", correct: true },
+          { text: "C) MySQL", correct: false },
+          { text: "D) PostgreSQL", correct: false }
+        ],
+        explanation: "Correto! O SQLite é uma biblioteca em linguagem C autônoma e serverless, perfeita para dispositivos móveis e navegadores."
+      },
+      {
+        question: "2. Quais são as portas de rede padrão utilizadas pelo MySQL e pelo PostgreSQL, respectivamente?",
+        options: [
+          { text: "A) MySQL = 8080 e PostgreSQL = 80", correct: false },
+          { text: "B) MySQL = 1521 e PostgreSQL = 3306", correct: false },
+          { text: "C) MySQL = 3306 e PostgreSQL = 5432", correct: true },
+          { text: "D) MySQL = 5432 e PostgreSQL = 1521", correct: false }
+        ],
+        explanation: "Exato! MySQL escuta na porta 3306, PostgreSQL na porta 5432 e Oracle Database na porta 1521."
+      },
+      {
+        question: "3. Por que administradores de banco de dados (DBAs) e engenheiros valorizam tanto a Linha de Comando (CLI)?",
+        options: [
+          { text: "A) Porque computadores modernos não conseguem exibir cores na tela.", correct: false },
+          { text: "B) Porque a CLI é a única forma de rodar comandos via SSH em servidores remotos sem monitor e em scripts de automação.", correct: true },
+          { text: "C) Porque a interface gráfica (GUI) foi proibida por lei de segurança.", correct: false },
+          { text: "D) Porque a linha de comando consome mais memória que a interface gráfica.", correct: false }
+        ],
+        explanation: "Perfeito! A CLI (psql, mysql, etc.) consome pouquíssimos recursos e é fundamental para gerenciar servidores em nuvem via SSH e deploys automatizados."
+      },
+      {
+        question: "4. Qual é o principal benefício de utilizar uma ferramenta visual como o DBeaver em vez de interfaces oficiais exclusivas?",
+        options: [
+          { text: "A) O DBeaver só aceita arquivos do Excel.", correct: false },
+          { text: "B) Conectar-se a dezenas de SGBDs diferentes (Postgres, MySQL, Oracle, SQLite) em uma única janela unificada via drivers JDBC.", correct: true },
+          { text: "C) O DBeaver apaga automaticamente senhas esquecidas.", correct: false },
+          { text: "D) O DBeaver não precisa de computador para rodar.", correct: false }
+        ],
+        explanation: "Correto! O DBeaver é o canivete suíço dos desenvolvedores, permitindo gerenciar bancos heterogêneos em uma mesma ferramenta universal."
+      },
+      {
+        question: "5. Qual é a sintaxe padrão universal para criar comentários de linha única em scripts SQL segundo a norma ANSI?",
+        options: [
+          { text: "A) // Comentário", correct: false },
+          { text: "B) # Comentário", correct: false },
+          { text: "C) -- Comentário", correct: true },
+          { text: "D) <!-- Comentário -->", correct: false }
+        ],
+        explanation: "Muito bem! Dois traços seguidos ('-- ') iniciam um comentário de linha única no padrão ANSI SQL universal."
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let quizScoreCount = 0;
+    let answeredQuestions = {};
+
+    function renderQuizQuestion() {
+      const q = quizQuestions[currentQuizIndex];
+      document.getElementById('qNumber').textContent = `QUESTÃO ${currentQuizIndex + 1} DE ${quizQuestions.length}`;
+      document.getElementById('qQuestion').textContent = q.question;
+      document.getElementById('quizNavInfo').textContent = `Questão ${currentQuizIndex + 1} de ${quizQuestions.length}`;
+
+      const optionsContainer = document.getElementById('qOptions');
+      optionsContainer.innerHTML = '';
+
+      const feedbackBox = document.getElementById('qFeedback');
+      feedbackBox.classList.add('hidden');
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition text-xs flex items-center justify-between text-slate-700';
+        
+        if (answeredQuestions[currentQuizIndex] !== undefined) {
+          btn.disabled = true;
+          if (opt.correct) {
+            btn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900', 'font-semibold');
+          } else if (answeredQuestions[currentQuizIndex] === idx) {
+            btn.classList.add('bg-red-100', 'border-red-400', 'text-red-900');
+          }
+        } else {
+          btn.onclick = () => handleAnswer(idx, opt.correct);
+        }
+
+        btn.innerHTML = `<span>${opt.text}</span>`;
+        optionsContainer.appendChild(btn);
+      });
+
+      if (answeredQuestions[currentQuizIndex] !== undefined) {
+        feedbackBox.classList.remove('hidden');
+        const isCorrect = q.options[answeredQuestions[currentQuizIndex]].correct;
+        feedbackBox.className = `mt-3 p-2.5 rounded text-xs ${isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-amber-100 text-amber-900 border border-amber-300'}`;
+        feedbackBox.innerHTML = `<strong>${isCorrect ? '✅ Resposta Correta!' : '💡 Atenção:'}</strong> ${q.explanation}`;
+      }
+
+      document.getElementById('btnPrevQuiz').disabled = currentQuizIndex === 0;
+      document.getElementById('btnNextQuiz').textContent = currentQuizIndex === quizQuestions.length - 1 ? 'Concluir Quiz' : 'Próxima Questão';
+    }
+
+    function handleAnswer(optionIdx, isCorrect) {
+      answeredQuestions[currentQuizIndex] = optionIdx;
+      if (isCorrect) {
+        quizScoreCount++;
+      }
+      document.getElementById('quizScore').textContent = `Acertos: ${quizScoreCount}/${quizQuestions.length}`;
+      renderQuizQuestion();
+    }
+
+    function nextQuizQuestion() {
+      if (currentQuizIndex < quizQuestions.length - 1) {
+        currentQuizIndex++;
+        renderQuizQuestion();
+      } else {
+        alert(`Quiz finalizado! Sua pontuação: ${quizScoreCount} de ${quizQuestions.length} acertos.`);
+      }
+    }
+
+    function prevQuizQuestion() {
+      if (currentQuizIndex > 0) {
+        currentQuizIndex--;
+        renderQuizQuestion();
+      }
+    }
+
+    let answersVisible = true;
+    function toggleTeacherAnswers() {
+      const container = document.getElementById('answersContent');
+      const btn = document.getElementById('btnToggleAnswers');
+      answersVisible = !answersVisible;
+      
+      if (answersVisible) {
+        container.classList.remove('hidden');
+        btn.textContent = '🔒 Ocultar Gabarito';
+      } else {
+        container.classList.add('hidden');
+        btn.textContent = '🔓 Revelar Gabarito';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSlide();
+      renderQuizQuestion();
+    });
+  </script>
+</body>
+</html>

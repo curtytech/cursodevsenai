@@ -1,0 +1,2072 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 4: Linguagens & Recursos Avançados de Banco de Dados</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              dark: '#14532D',      /* Verde-escuro institucional */
+              primary: '#16A34A',   /* Verde principal vibrante */
+              light: '#DCFCE7',     /* Verde-claro suave */
+              subtle: '#F0FDF4',    /* Fundo verde sutil */
+              border: '#BBF7D0',    /* Borda verde suave */
+              text: '#1F2937',      /* Texto principal */
+              muted: '#64748B',     /* Cinza secundário */
+              bg: '#F8FAFC',        /* Fundo quase branco */
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #1F2937;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .slide-container {
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 5rem);
+    }
+
+    @media (max-width: 1024px) {
+      .slide-container {
+        aspect-ratio: auto;
+        min-height: calc(100vh - 6rem);
+      }
+    }
+
+    .slide {
+      display: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+    
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mono-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background-color: #F1F5F9;
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.375rem;
+      border: 1px solid #E2E8F0;
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .slide {
+        display: flex !important;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: always;
+        height: 100vh !important;
+        aspect-ratio: 16 / 9;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .slide-container {
+        max-height: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+  <!-- ================= TOP BAR (Navegação & Status) ================= -->
+  <header class="no-print bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-lg bg-emerald-800 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+        M4
+      </div>
+      <div>
+        <h1 class="text-xs font-semibold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+          <span>Linguagens & Recursos Avançados</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-emerald-700 font-medium lowercase">aula 4</span>
+        </h1>
+        <p class="text-[11px] text-slate-500 font-normal" id="headerSubtitle">Módulo 4.1 — Linguagem SQL (DDL, DML, DCL)</p>
+      </div>
+    </div>
+
+    <!-- Indicador Central de Slide & Progresso -->
+    <div class="flex items-center space-x-3">
+      <div class="hidden sm:flex items-center space-x-1.5 bg-slate-100 rounded-full px-3 py-1 text-xs font-medium text-slate-700 border border-slate-200">
+        <span class="text-emerald-700 font-bold" id="currentSlideNum">1</span>
+        <span class="text-slate-400">/</span>
+        <span id="totalSlideNum">25</span>
+      </div>
+
+      <div class="w-32 md:w-48 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+        <div id="progressBar" class="bg-emerald-600 h-1.5 transition-all duration-300 rounded-full" style="width: 4%;"></div>
+      </div>
+    </div>
+
+    <!-- Controles de Modo e Painéis -->
+    <div class="flex items-center space-x-1 sm:space-x-2">
+      <!-- Botão Menu / Índice -->
+      <button onclick="toggleTocModal()" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition flex items-center gap-1.5 border border-slate-200" title="Índice dos Slides (Atalho: M)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+        <span class="hidden md:inline">Índice</span>
+      </button>
+
+      <!-- Botão Notas do Professor -->
+      <button onclick="toggleTeacherNotes()" id="btnTeacherNotes" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition flex items-center gap-1.5 border border-slate-200" title="Dicas Pedagógicas & Tempo (Atalho: P)">
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span class="hidden md:inline">Notas do Professor</span>
+      </button>
+
+      <!-- Botão Tela Cheia -->
+      <button onclick="toggleFullScreen()" class="p-1.5 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-md transition" title="Alternar Tela Cheia (F)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5-5m-7 11l-5 5m0 0h4m-4 0v-4m16 4v-4m0 4l-5-5"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= PALCO PRINCIPAL (SLIDES) ================= -->
+  <main class="flex-1 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-100/60">
+    <div class="w-full max-w-6xl bg-white rounded-2xl shadow-md border border-slate-200/80 slide-container overflow-hidden relative flex flex-col justify-between">
+
+      <!-- ================= SLIDE 1: CAPA ================= -->
+      <section class="slide active flex-col justify-between h-full p-8 md:p-14 bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white relative overflow-hidden" data-title="Abertura da Aula" data-module="Apresentação">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#22c55e_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+        <div class="absolute -right-24 -bottom-24 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-800/80 border border-emerald-600/40 text-emerald-300 text-xs font-medium tracking-wide">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Aula 4 • Programação & Engenharia de Dados
+          </div>
+          <div class="text-xs text-emerald-200/70 font-mono">Duração estimada: 50 a 60 min</div>
+        </div>
+
+        <div class="relative z-10 my-auto py-6 max-w-3xl">
+          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            Linguagens & Recursos Avançados
+          </h1>
+          <p class="mt-4 text-base md:text-lg text-emerald-100/90 font-light leading-relaxed">
+            Do SQL fundamental (DDL, DML, DCL) aos poderes do servidor: <strong>Views, Triggers, Stored Procedures, PL/SQL e Consultas NoSQL</strong>.
+          </p>
+          
+          <div class="mt-8 flex flex-wrap gap-2 text-xs font-medium text-emerald-200">
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">DDL, DML & DCL</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Views Virtuais</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Triggers Automáticos</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Stored Procedures</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">PL/SQL & Procedural</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">NoSQL: MongoDB & Redis</span>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex items-center justify-between pt-6 border-t border-emerald-800/60 text-xs text-emerald-300/80">
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-white">Foco Prático:</span>
+            <span>Automação no servidor, segurança com visões e consultas modernas</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span>Pressione <kbd class="px-1.5 py-0.5 rounded bg-emerald-800 text-white font-mono border border-emerald-700">Espaço</kbd> ou <kbd class="px-1.5 py-0.5 rounded bg-emerald-800 text-white font-mono border border-emerald-700">→</kbd> para avançar</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 2: OBJETIVOS DE APRENDIZAGEM ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Objetivos de Aprendizagem" data-module="Planejamento">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Plano de Competências</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O que você dominará nesta aula</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Trilha Avançada</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Card 1 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">1</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">O Espectro SQL Completo</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Dominar as três famílias fundamentais: <strong class="text-slate-800">DDL</strong> (criar e alterar tabelas), <strong class="text-slate-800">DML</strong> (manipular registros) e <strong class="text-slate-800">DCL/TCL</strong> (permissões e transações).
+              </p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">2</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Inteligência no Servidor</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Construir <strong class="text-slate-800">Views</strong> para segurança, <strong class="text-slate-800">Triggers</strong> para auditoria automática com variáveis <code class="mono-pill">NEW/OLD</code> e <strong class="text-slate-800">Stored Procedures</strong>.
+              </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">3</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Programação & NoSQL</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Programar lógica procedural em <strong class="text-slate-800">PL/SQL</strong> e executar consultas NoSQL no <strong class="text-slate-800">MongoDB (MQL)</strong> e <strong class="text-slate-800">Redis</strong>.
+              </p>
+            </div>
+          </div>
+
+          <!-- Banner de Contexto -->
+          <div class="mt-6 p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex items-start gap-3">
+            <svg class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <p class="text-xs text-emerald-900 leading-relaxed">
+              <strong>O salto profissional:</strong> Desenvolvedores iniciantes apenas enviam consultas simples de fora do banco. Engenheiros de dados seniores programam regras e automações <strong>dentro do próprio SGBD</strong>, economizando milhões de requisições de rede e garantindo segurança inviolável!
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Início do Módulo 4.1: As Famílias da Linguagem SQL</span>
+          <span class="font-medium text-emerald-700">Módulo 4.1 — As Famílias SQL →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 3: MÓDULO 4.1 - AS FAMÍLIAS SQL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="As Famílias da Linguagem SQL" data-module="Módulo 4.1 — Linguagem SQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.1 • O Ecossistema de Comandos</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">As Famílias da Linguagem SQL</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Classificação Oficial</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+            A linguagem SQL é dividida em subconjuntos especializados de acordo com o objetivo da instrução:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- DDL -->
+            <div class="p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800 font-mono">DDL</span>
+                <h3 class="text-base font-bold text-emerald-950 mt-2 mb-1">Data Definition Language</h3>
+                <p class="text-xs text-slate-700 mb-3 leading-relaxed">
+                  Comandos que criam, alteram e destroem a <strong>estrutura</strong> do banco de dados (tabelas, índices, esquemas).
+                </p>
+                <div class="p-2.5 bg-white rounded border border-emerald-200 text-xs font-mono font-bold text-emerald-800 space-y-1">
+                  <div>CREATE • ALTER • DROP</div>
+                  <div>TRUNCATE • RENAME</div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 text-[11px] text-emerald-900 font-medium">
+                Mexe no esqueleto (metadados).
+              </div>
+            </div>
+
+            <!-- DML -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 font-mono">DML (e DQL)</span>
+                <h3 class="text-base font-bold text-slate-800 mt-2 mb-1">Data Manipulation Language</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Comandos que inserem, consultam, atualizam e excluem os <strong>dados gravados</strong> dentro das tabelas.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-xs font-mono font-bold text-blue-800 space-y-1">
+                  <div>SELECT • INSERT</div>
+                  <div>UPDATE • DELETE</div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 text-[11px] text-slate-500 font-medium">
+                Mexe no conteúdo (tuplas/linhas).
+              </div>
+            </div>
+
+            <!-- DCL / TCL -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 font-mono">DCL & TCL</span>
+                <h3 class="text-base font-bold text-slate-800 mt-2 mb-1">Data Control & Transaction</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Comandos de <strong>segurança</strong> de acesso (permissões de usuários) e <strong>controle transacional</strong>.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-xs font-mono font-bold text-purple-800 space-y-1">
+                  <div>GRANT • REVOKE (DCL)</div>
+                  <div>COMMIT • ROLLBACK (TCL)</div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 text-[11px] text-slate-500 font-medium">
+                Mexe na segurança e integridade.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Construindo a estrutura das tabelas</span>
+          <span class="font-medium text-emerald-700">Módulo 4.1 — DDL em Ação →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 4: MÓDULO 4.1 - DDL EM AÇÃO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="DDL em Ação" data-module="Módulo 4.1 — Linguagem SQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.1 • Definição de Estruturas</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">DDL em Ação: CREATE, ALTER, DROP e TRUNCATE</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Metadados</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+            <!-- Teoria dos comandos DDL -->
+            <div class="space-y-2.5 text-xs text-slate-700">
+              <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="font-bold text-emerald-800 font-mono">CREATE TABLE:</span> Cria a tabela com tipos de dados, Chave Primária (PK) e restrições.
+              </div>
+              <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="font-bold text-blue-700 font-mono">ALTER TABLE:</span> Altera a estrutura sem apagar os dados existentes (adiciona colunas, muda tipos ou adiciona FKs).
+              </div>
+              <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="font-bold text-red-700 font-mono">DROP TABLE:</span> Exclui a tabela e todos os seus dados definitivamente do disco. A estrutura deixa de existir!
+              </div>
+              <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="font-bold text-amber-700 font-mono">TRUNCATE TABLE:</span> Esvazia rapidamente todas as linhas, mas mantém a estrutura e as colunas intactas.
+              </div>
+            </div>
+
+            <!-- Snippets DDL -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2 text-[10px]">
+                -- Exemplos Práticos de DDL
+              </div>
+              <span class="text-blue-400 font-bold">CREATE TABLE</span> produtos (<br>
+              &nbsp;&nbsp;id_prod <span class="text-emerald-400">INT PRIMARY KEY</span>,<br>
+              &nbsp;&nbsp;nome <span class="text-yellow-300">VARCHAR(100) NOT NULL</span>,<br>
+              &nbsp;&nbsp;preco <span class="text-yellow-300">NUMERIC(10,2) CHECK (preco &gt; 0)</span><br>
+              );<br><br>
+              <span class="text-blue-400 font-bold">ALTER TABLE</span> produtos<br>
+              &nbsp;&nbsp;<span class="text-blue-400 font-bold">ADD COLUMN</span> estoque <span class="text-yellow-300">INT DEFAULT 0</span>;<br><br>
+              <span class="text-amber-400 font-bold">TRUNCATE TABLE</span> logs_acesso; <span class="text-slate-400">-- Limpa linhas em milissegundos</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Manipulando os dados gravados nas tabelas</span>
+          <span class="font-medium text-emerald-700">Módulo 4.1 — DML: INSERT e SELECT →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 5: MÓDULO 4.1 - DML (INSERT & SELECT) ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="DML: INSERT e SELECT" data-module="Módulo 4.1 — Linguagem SQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.1 • Manipulação de Dados (Parte 1)</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">DML em Ação: A Arte do INSERT e do SELECT</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Gravação & Consulta</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <!-- Explicação didática -->
+            <div class="space-y-3 text-xs text-slate-700">
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-blue-800 font-mono block mb-1">INSERT INTO: O Comando de Escrita</strong>
+                Grava novas linhas na tabela. Recomenda-se explicitar sempre as colunas de destino para evitar erros caso a ordem mude no futuro. Suporta inserção múltipla (*bulk*).
+              </div>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 font-mono block mb-1">SELECT: O Comando Mais Poderoso do SQL</strong>
+                Recupera dados filtrados, ordenados e agregados.
+                <div class="mt-2 text-[11px] font-mono bg-white p-2 rounded border border-slate-200 text-slate-800">
+                  <span class="text-emerald-700 font-bold">SELECT</span> colunas<br>
+                  <span class="text-emerald-700 font-bold">FROM</span> tabela<br>
+                  <span class="text-emerald-700 font-bold">WHERE</span> condicao_filtro<br>
+                  <span class="text-emerald-700 font-bold">ORDER BY</span> coluna <span class="text-emerald-700 font-bold">DESC</span><br>
+                  <span class="text-emerald-700 font-bold">LIMIT</span> 10;
+                </div>
+              </div>
+            </div>
+
+            <!-- Código SQL Prático -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2 text-[10px]">
+                -- Exemplos Práticos de INSERT e SELECT
+              </div>
+              <span class="text-blue-400 font-bold">INSERT INTO</span> clientes (id, nome, cidade)<br>
+              <span class="text-blue-400 font-bold">VALUES</span><br>
+              &nbsp;&nbsp;(1, <span class="text-yellow-300">'Ana Lima'</span>, <span class="text-yellow-300">'São Paulo'</span>),<br>
+              &nbsp;&nbsp;(2, <span class="text-yellow-300">'Bruno Dias'</span>, <span class="text-yellow-300">'Curitiba'</span>);<br><br>
+              <span class="text-slate-400">-- Consulta com filtro e projeção limpa</span><br>
+              <span class="text-emerald-400 font-bold">SELECT</span> nome, cidade<br>
+              <span class="text-emerald-400 font-bold">FROM</span> clientes<br>
+              <span class="text-emerald-400 font-bold">WHERE</span> cidade = <span class="text-yellow-300">'São Paulo'</span>;
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Cuidado com os comandos que alteram e deletam dados!</span>
+          <span class="font-medium text-emerald-700">Módulo 4.1 — DML: UPDATE e DELETE →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 6: MÓDULO 4.1 - DML (UPDATE & DELETE) ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="DML: UPDATE e DELETE" data-module="Módulo 4.1 — Linguagem SQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.1 • Manipulação de Dados (Parte 2)</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">UPDATE e DELETE: O Perigo Mortal sem WHERE!</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-red-100 text-red-800 border border-red-300">Cuidado Crítico</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <!-- Teoria dos Comandos -->
+            <div class="space-y-3 text-xs text-slate-700">
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-amber-800 font-mono block mb-1">UPDATE: Modifica Linhas Existentes</strong>
+                Altera o valor de uma ou mais colunas nas linhas que satisfazem o critério do <code class="mono-pill">WHERE</code>.
+              </div>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-red-800 font-mono block mb-1">DELETE: Remove Linhas Selecionadas</strong>
+                Remove apenas os registros que cumprem a condição especificada.
+              </div>
+
+              <div class="p-3 bg-red-50 rounded-lg border border-red-200 text-red-950 font-medium">
+                ⚠️ <strong>A Maior Tragédia de um Programador:</strong> Se você executar um <code class="mono-pill text-red-800">UPDATE</code> ou <code class="mono-pill text-red-800">DELETE</code> sem a cláusula <code class="mono-pill text-red-800 font-bold">WHERE</code>, o comando afetará <strong>TODAS AS LINHAS DA TABELA</strong> de uma só vez!
+              </div>
+            </div>
+
+            <!-- Código Comparativo -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2 text-[10px]">
+                -- O Certo vs O Erro Fatal
+              </div>
+              <span class="text-slate-400">-- ❌ ERRO FATAL: Zera o salário de TODOS na empresa!</span><br>
+              <span class="text-red-400 font-bold">UPDATE</span> funcionarios <span class="text-red-400 font-bold">SET</span> salario = 0;<br><br>
+              <span class="text-slate-400">-- ✅ FORMA SEGURA: Com WHERE filtrando o alvo exato</span><br>
+              <span class="text-emerald-400 font-bold">UPDATE</span> funcionarios<br>
+              <span class="text-emerald-400 font-bold">SET</span> salario = 4500.00<br>
+              <span class="text-emerald-400 font-bold">WHERE</span> id_funcionario = 101;<br><br>
+              <span class="text-emerald-400 font-bold">DELETE FROM</span> clientes<br>
+              <span class="text-emerald-400 font-bold">WHERE</span> status_cadastro = <span class="text-yellow-300">'cancelado'</span>;
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Quem pode acessar o quê?</span>
+          <span class="font-medium text-emerald-700">Módulo 4.1 — DCL e Controle Transacional →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 7: MÓDULO 4.1 - DCL & TCL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="DCL e Transações (TCL)" data-module="Módulo 4.1 — Linguagem SQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.1 • Segurança e Integridade</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">DCL e TCL: Controle de Acesso e Transações</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Permissões & Controle</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- DCL: GRANT e REVOKE -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 text-xs">
+              <span class="font-bold text-purple-900 uppercase tracking-wider block">DCL (Data Control Language)</span>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200">
+                <span class="font-mono font-bold text-emerald-700">GRANT: Conceder Permissões</span>
+                <p class="text-slate-600 mt-1">Dá direitos a um usuário específico para ler, gravar ou modificar tabelas.</p>
+                <code class="mono-pill text-slate-800 mt-1 block">GRANT SELECT, INSERT ON pedidos TO operador_caixa;</code>
+              </div>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200">
+                <span class="font-mono font-bold text-red-700">REVOKE: Revogar Permissões</span>
+                <p class="text-slate-600 mt-1">Remove permissões concedidas anteriormente.</p>
+                <code class="mono-pill text-slate-800 mt-1 block">REVOKE DELETE ON pedidos FROM operador_caixa;</code>
+              </div>
+            </div>
+
+            <!-- TCL: Transações -->
+            <div class="p-4 rounded-xl border border-emerald-300 bg-emerald-50/40 space-y-3 text-xs">
+              <span class="font-bold text-emerald-950 uppercase tracking-wider block">TCL (Transaction Control Language)</span>
+
+              <div class="p-2.5 bg-white rounded border border-emerald-200">
+                <span class="font-mono font-bold text-emerald-800">COMMIT: Confirmação Definitiva</span>
+                <p class="text-slate-600 mt-1">Grava todas as operações da transação permanentemente no banco.</p>
+              </div>
+
+              <div class="p-2.5 bg-white rounded border border-emerald-200">
+                <span class="font-mono font-bold text-amber-800">ROLLBACK: Cancelamento & Reversão</span>
+                <p class="text-slate-600 mt-1">Desfaz tudo o que foi feito desde o último <code class="mono-pill">BEGIN TRANSACTION</code>, restaurando o estado original intacto.</p>
+              </div>
+
+              <div class="p-2 bg-emerald-100/60 rounded text-[11px] text-emerald-900 font-sans">
+                🛡️ <strong>Segurança em Produção:</strong> Sempre abra transações antes de manutenções manuais em tabelas corporativas!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Início do Módulo 4.2: Recursos Avançados no Servidor</span>
+          <span class="font-medium text-emerald-700">Módulo 4.2 — O Poder dos Recursos Avançados →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 8: MÓDULO 4.2 - INTRO RECURSOS AVANÇADOS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Recursos Avançados no Servidor" data-module="Módulo 4.2 — Recursos Avançados">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.2 • Além das Tabelas Básicas</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Por que Usar Recursos Avançados no Servidor?</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Server-Side Logic</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Views -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">👁️</span>
+                <h3 class="font-bold text-slate-800 text-sm mb-1.5">Views (Visões Virtuais)</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Consultas pré-programadas salvas no banco. Funcionam como "filtros de segurança" para esconder dados sigilosos e simplificar <code class="mono-pill">JOINs</code> monstruosos.
+                </p>
+              </div>
+              <div class="mt-4 pt-2 border-t border-slate-200 text-[11px] text-emerald-800 font-semibold">
+                Segurança LGPD & Simplicidade
+              </div>
+            </div>
+
+            <!-- Triggers -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">⚡</span>
+                <h3 class="font-bold text-slate-800 text-sm mb-1.5">Triggers (Gatilhos)</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Programas automáticos disparados pelo SGBD quando algo acontece (<code class="mono-pill">INSERT</code>, <code class="mono-pill">UPDATE</code> ou <code class="mono-pill">DELETE</code>). Ideais para auditoria.
+                </p>
+              </div>
+              <div class="mt-4 pt-2 border-t border-slate-200 text-[11px] text-emerald-800 font-semibold">
+                Automação & Histórico Inviolável
+              </div>
+            </div>
+
+            <!-- Stored Procedures -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">📦</span>
+                <h3 class="font-bold text-slate-800 text-sm mb-1.5">Stored Procedures</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Blocos de código compilados no servidor. Recebem parâmetros, executam transações complexas e reduzem drasticamente o tráfego de rede.
+                </p>
+              </div>
+              <div class="mt-4 pt-2 border-t border-slate-200 text-[11px] text-emerald-800 font-semibold">
+                Performance & Reutilização
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O primeiro recurso avançado</span>
+          <span class="font-medium text-emerald-700">Views: Visões Virtuais de Dados →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 9: MÓDULO 4.2 - VIEWS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Views: Visões Virtuais" data-module="Módulo 4.2 — Recursos Avançados">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.2 • Visões Virtuais</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Views: Visões Virtuais para Simplificação e Segurança</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">CREATE VIEW</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                Uma <strong>View</strong> é uma tabela virtual cujo conteúdo é definido por uma consulta SQL pré-compilada. Ela <strong>não duplica os dados no disco</strong>: toda vez que você consulta a View, o banco executa o SELECT subjacente em tempo real.
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded border border-slate-200 bg-slate-50">
+                  <strong class="text-emerald-800 block">1. Segurança de Colunas (LGPD)</strong>
+                  Você pode dar acesso a uma View que exibe apenas nome e e-mail, ocultando colunas sensíveis como CPF, senha ou salário.
+                </div>
+                <div class="p-2.5 rounded border border-slate-200 bg-slate-50">
+                  <strong class="text-emerald-800 block">2. Simplificação de Consultas Complexas</strong>
+                  Em vez de escrever um JOIN de 5 tabelas toda semana, você encapsula tudo em uma View e consulta como se fosse uma tabela simples: <code class="mono-pill">SELECT * FROM vw_vendas_consolidadas;</code>.
+                </div>
+              </div>
+            </div>
+
+            <!-- Exemplo de Código View -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2 text-[10px]">
+                -- Criando uma View Segura
+              </div>
+              <span class="text-blue-400 font-bold">CREATE VIEW</span> vw_equipe_publica <span class="text-blue-400 font-bold">AS</span><br>
+              <span class="text-emerald-400 font-bold">SELECT</span><br>
+              &nbsp;&nbsp;id_funcionario,<br>
+              &nbsp;&nbsp;nome_completo,<br>
+              &nbsp;&nbsp;cargo,<br>
+              &nbsp;&nbsp;departamento<br>
+              &nbsp;&nbsp;<span class="text-slate-500">-- coluna 'salario' foi omitida por sigilo!</span><br>
+              <span class="text-emerald-400 font-bold">FROM</span> funcionarios<br>
+              <span class="text-emerald-400 font-bold">WHERE</span> status_ativo = TRUE;<br><br>
+              <span class="text-slate-400">-- O analista consulta a View normalmente:</span><br>
+              <span class="text-emerald-400 font-bold">SELECT * FROM</span> vw_equipe_publica;
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como automatizar ações no banco?</span>
+          <span class="font-medium text-emerald-700">Módulo 4.2 — Triggers: Gatilhos Automáticos →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 10: MÓDULO 4.2 - TRIGGERS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Triggers: Gatilhos Automáticos" data-module="Módulo 4.2 — Recursos Avançados">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.2 • Automação no Banco</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Triggers: Gatilhos Automáticos no Servidor</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Event-Driven</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                Um <strong>Trigger (Gatilho)</strong> é um procedimento armazenado que é executado de forma automática e transparente quando um evento de modificação (<code class="mono-pill">INSERT</code>, <code class="mono-pill">UPDATE</code> ou <code class="mono-pill">DELETE</code>) ocorre na tabela.
+              </p>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1.5">
+                <span class="font-bold text-slate-800 block text-[11px] uppercase tracking-wide">Quando o Gatilho Dispara?</span>
+                <div>• <strong class="text-emerald-800 font-mono">BEFORE:</strong> Executado <em>antes</em> do dado ser gravado. Excelente para validações e preenchimento de campos automáticos.</div>
+                <div>• <strong class="text-emerald-800 font-mono">AFTER:</strong> Executado <em>depois</em> do dado ser gravado com sucesso. Perfeito para logs de auditoria e sincronização.</div>
+              </div>
+
+              <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 text-emerald-950">
+                ⭐ <strong>As Variáveis Mágicas:</strong> O SGBD disponibiliza <code class="mono-pill font-bold text-emerald-800">NEW</code> (o novo valor que está entrando) e <code class="mono-pill font-bold text-amber-800">OLD</code> (o valor antigo que estava gravado na linha antes do update).
+              </div>
+            </div>
+
+            <!-- Anatomia de um Trigger -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2 text-[10px]">
+                -- Estrutura Conceitual de um Trigger
+              </div>
+              <span class="text-blue-400 font-bold">CREATE TRIGGER</span> tg_auditar_salario<br>
+              <span class="text-emerald-400 font-bold">AFTER UPDATE ON</span> funcionarios<br>
+              <span class="text-emerald-400 font-bold">FOR EACH ROW</span><br>
+              <span class="text-blue-400 font-bold">BEGIN</span><br>
+              &nbsp;&nbsp;<span class="text-blue-400 font-bold">INSERT INTO</span> log_auditoria (<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;id_func, salario_antigo, salario_novo, data_alt<br>
+              &nbsp;&nbsp;) <span class="text-blue-400 font-bold">VALUES</span> (<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-300 font-bold">OLD</span>.id, <span class="text-amber-300 font-bold">OLD</span>.salario, <span class="text-emerald-300 font-bold">NEW</span>.salario, NOW()<br>
+              &nbsp;&nbsp;);<br>
+              <span class="text-blue-400 font-bold">END;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como criar programas completos dentro do SGBD?</span>
+          <span class="font-medium text-emerald-700">Módulo 4.2 — Stored Procedures →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 11: MÓDULO 4.2 - STORED PROCEDURES ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Stored Procedures" data-module="Módulo 4.2 — Recursos Avançados">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.2 • Rotinas Compiladas</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Stored Procedures: Procedimentos Armazenados</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">CALL procedure()</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                Uma <strong>Stored Procedure</strong> é um bloco de código contendo uma sequência de comandos lógicos e transações, compilado e armazenado diretamente no servidor de banco de dados.
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded border border-slate-200 bg-slate-50">
+                  <strong class="text-emerald-800 block">Redução Drástica de Tráfego de Rede</strong>
+                  Em vez de enviar 10 comandos SQL via internet entre o app e o banco, a aplicação envia apenas uma chamada: <code class="mono-pill">CALL sp_fechar_caixa(12);</code>.
+                </div>
+                <div class="p-2.5 rounded border border-slate-200 bg-slate-50">
+                  <strong class="text-emerald-800 block">Parâmetros Flexíveis</strong>
+                  Aceita parâmetros <code class="mono-pill">IN</code> (dados que entram), <code class="mono-pill">OUT</code> (valores retornados) e <code class="mono-pill">INOUT</code>.
+                </div>
+                <div class="p-2.5 rounded border border-slate-200 bg-slate-50">
+                  <strong class="text-emerald-800 block">Segurança Centralizada</strong>
+                  O programador do aplicativo não precisa de permissão direta nas tabelas; ele só precisa de permissão para executar a procedure!
+                </div>
+              </div>
+            </div>
+
+            <!-- Exemplo de Stored Procedure -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2 text-[10px]">
+                -- Exemplo no MySQL / PostgreSQL
+              </div>
+              <span class="text-blue-400 font-bold">CREATE PROCEDURE</span> sp_dar_desconto(<br>
+              &nbsp;&nbsp;<span class="text-yellow-300">IN</span> p_id_prod <span class="text-emerald-400">INT</span>,<br>
+              &nbsp;&nbsp;<span class="text-yellow-300">IN</span> p_porcentagem <span class="text-emerald-400">DECIMAL(5,2)</span><br>
+              )<br>
+              <span class="text-blue-400 font-bold">BEGIN</span><br>
+              &nbsp;&nbsp;<span class="text-blue-400 font-bold">UPDATE</span> produtos<br>
+              &nbsp;&nbsp;<span class="text-blue-400 font-bold">SET</span> preco = preco * (1 - (p_porcentagem / 100))<br>
+              &nbsp;&nbsp;<span class="text-blue-400 font-bold">WHERE</span> id = p_id_prod;<br>
+              <span class="text-blue-400 font-bold">END;</span><br><br>
+              <span class="text-slate-400">-- Executando a procedure:</span><br>
+              <span class="text-emerald-400 font-bold">CALL</span> sp_dar_desconto(101, 15.0);
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Qual a diferença entre Procedures e Functions?</span>
+          <span class="font-medium text-emerald-700">Procedures vs Functions →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 12: MÓDULO 4.2 - PROCEDURES vs FUNCTIONS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Procedures vs Functions" data-module="Módulo 4.2 — Recursos Avançados">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.2 • Duelo Técnico</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Stored Procedures vs Functions (UDFs)</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Não Confunda!</span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Característica</th>
+                  <th class="py-3 px-4 text-emerald-900 bg-emerald-50/50">Stored Procedure</th>
+                  <th class="py-3 px-4 text-blue-900 bg-blue-50/50">User-Defined Function (UDF)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 text-slate-700">
+                <tr>
+                  <td class="py-2.5 px-4 font-semibold">Propósito Principal</td>
+                  <td class="py-2.5 px-4 bg-emerald-50/20">Executar ações de negócios, fluxos e rotinas pesadas</td>
+                  <td class="py-2.5 px-4 bg-blue-50/20">Calcular e transformar valores (fórmulas e lógicas)</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-semibold">Retorno Obrigatório</td>
+                  <td class="py-2.5 px-4 bg-emerald-50/20"><strong>Opcional</strong> (pode não retornar nada ou usar parâmetros <code class="mono-pill">OUT</code>)</td>
+                  <td class="py-2.5 px-4 bg-blue-50/20"><strong>Obrigatório</strong> (sempre retorna exatamente um valor ou tabela)</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-semibold">Uso Dentro do SELECT</td>
+                  <td class="py-2.5 px-4 bg-emerald-50/20 text-red-700 font-semibold">❌ Não pode ser chamada dentro de SELECT</td>
+                  <td class="py-2.5 px-4 bg-blue-50/20 text-emerald-800 font-semibold">✅ Pode ser usada diretamente no <code class="mono-pill">SELECT fn_calcular(x)</code></td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-semibold">Como é Chamada</td>
+                  <td class="py-2.5 px-4 bg-emerald-50/20 font-mono">CALL sp_processar(); ou EXEC</td>
+                  <td class="py-2.5 px-4 bg-blue-50/20 font-mono">SELECT fn_imposto(salario) FROM...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+            💡 <strong>Resumo Didático:</strong> Se você quer <em>calcular</em> o imposto de renda de uma linha, use uma <strong>Function</strong>; se você quer <em>processar</em> o pagamento de 1.000 funcionários e emitir notas, use uma <strong>Stored Procedure</strong>!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Início do Módulo 4.3: Programação Procedural & NoSQL</span>
+          <span class="font-medium text-emerald-700">Módulo 4.3 — Fundamentos do PL/SQL →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 13: MÓDULO 4.3 - PL/SQL FUNDAMENTOS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Fundamentos do PL/SQL" data-module="Módulo 4.3 — Programação & NoSQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.3 • SQL Procedural</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">PL/SQL & PL/pgSQL: Fundamentos Procedimentais</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Lógica no Banco</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                O SQL padrão é uma linguagem <strong>declarativa</strong>: você diz <em>o que</em> quer, mas não tem variáveis, laços de repetição (<code class="mono-pill">LOOP</code>) nem tratamento de erros.
+              </p>
+              <p>
+                O <strong>PL/SQL</strong> (Oracle) e o <strong>PL/pgSQL</strong> (Postgres) estendem o SQL adicionando o poder de uma linguagem de programação procedural completa.
+              </p>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+                <span class="font-bold text-slate-800 block text-[11px] uppercase">O Esqueleto Universal de um Bloco PL/SQL:</span>
+                <div>• <code class="mono-pill text-emerald-700 font-bold">DECLARE:</code> Declaração de variáveis, constantes e cursores.</div>
+                <div>• <code class="mono-pill text-blue-700 font-bold">BEGIN:</code> Início do código executável (comandos, IF, loops).</div>
+                <div>• <code class="mono-pill text-amber-700 font-bold">EXCEPTION:</code> Captura e tratamento de erros (ex: divisão por zero).</div>
+                <div>• <code class="mono-pill text-slate-800 font-bold">END;</code> Fim do bloco.</div>
+              </div>
+            </div>
+
+            <!-- Bloco PL/SQL Didático -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2 text-[10px]">
+                -- Bloco Anônimo PL/SQL
+              </div>
+              <span class="text-purple-400 font-bold">DECLARE</span><br>
+              &nbsp;&nbsp;v_limite <span class="text-emerald-400">NUMBER(10,2)</span> := 5000.00;<br>
+              &nbsp;&nbsp;v_saldo <span class="text-emerald-400">NUMBER(10,2)</span>;<br>
+              <span class="text-blue-400 font-bold">BEGIN</span><br>
+              &nbsp;&nbsp;<span class="text-emerald-400 font-bold">SELECT</span> saldo <span class="text-emerald-400 font-bold">INTO</span> v_saldo <span class="text-emerald-400 font-bold">FROM</span> contas <span class="text-emerald-400 font-bold">WHERE</span> id = 1;<br><br>
+              &nbsp;&nbsp;<span class="text-yellow-300 font-bold">IF</span> v_saldo &gt; v_limite <span class="text-yellow-300 font-bold">THEN</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;DBMS_OUTPUT.PUT_LINE(<span class="text-green-300">'Cliente categoria Platinum'</span>);<br>
+              &nbsp;&nbsp;<span class="text-yellow-300 font-bold">ELSE</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;DBMS_OUTPUT.PUT_LINE(<span class="text-green-300">'Cliente categoria Standard'</span>);<br>
+              &nbsp;&nbsp;<span class="text-yellow-300 font-bold">END IF</span>;<br>
+              <span class="text-blue-400 font-bold">END;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como percorrer resultados linha por linha?</span>
+          <span class="font-medium text-emerald-700">Condicionais, Loops e Cursores →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 14: MÓDULO 4.3 - LOOPS E CURSORES ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Loops e Cursores" data-module="Módulo 4.3 — Programação & NoSQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.3 • Processamento Iterativo</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Estruturas de Controle e Cursores em PL/SQL</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Loops & Ponteiros</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-1">O que é um Cursor?</strong>
+                O SQL trabalha tradicionalmente com conjuntos inteiros de dados. Um <strong>Cursor</strong> é um ponteiro de memória que permite ao desenvolvedor <strong>percorrer o resultado de um SELECT linha por linha</strong> individualmente.
+              </div>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded border border-slate-200 bg-white">
+                  <strong>Ciclo de Vida do Cursor:</strong><br>
+                  <code class="mono-pill">DECLARE</code> cursor ➔ <code class="mono-pill">OPEN</code> (aloca memória) ➔ <code class="mono-pill">FETCH</code> (carrega próxima linha) ➔ <code class="mono-pill">CLOSE</code> (libera memória).
+                </div>
+                <div class="p-2.5 rounded border border-slate-200 bg-white">
+                  <strong>Laços de Repetição:</strong> Suporta <code class="mono-pill">WHILE</code>, <code class="mono-pill">FOR loop</code> e <code class="mono-pill">LOOP simples</code> com cláusula <code class="mono-pill">EXIT WHEN</code>.
+                </div>
+              </div>
+            </div>
+
+            <!-- Código com Loop / Cursor -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2 text-[10px]">
+                -- Iterando com Cursor FOR Loop
+              </div>
+              <span class="text-purple-400 font-bold">DECLARE</span><br>
+              &nbsp;&nbsp;<span class="text-blue-400 font-bold">CURSOR</span> c_pedidos <span class="text-blue-400 font-bold">IS</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-emerald-400 font-bold">SELECT</span> id_pedido, valor <span class="text-emerald-400 font-bold">FROM</span> pedidos <span class="text-emerald-400 font-bold">WHERE</span> status = <span class="text-yellow-300">'pendente'</span>;<br>
+              <span class="text-blue-400 font-bold">BEGIN</span><br>
+              &nbsp;&nbsp;<span class="text-slate-400">-- O FOR abre, faz fetch e fecha o cursor automaticamente</span><br>
+              &nbsp;&nbsp;<span class="text-yellow-300 font-bold">FOR</span> r_ped <span class="text-yellow-300 font-bold">IN</span> c_pedidos <span class="text-yellow-300 font-bold">LOOP</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;sp_notificar_financeiro(r_ped.id_pedido, r_ped.valor);<br>
+              &nbsp;&nbsp;<span class="text-yellow-300 font-bold">END LOOP</span>;<br>
+              <span class="text-blue-400 font-bold">END;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>E como consultamos dados fora do mundo relacional?</span>
+          <span class="font-medium text-emerald-700">Módulo 4.3 — Consultas no Mundo NoSQL →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 15: MÓDULO 4.3 - CONSULTAS NOSQL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Consultas NoSQL" data-module="Módulo 4.3 — Programação & NoSQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.3 • A Quebra do Padrão SQL</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Linguagens de Consulta no Mundo NoSQL</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Além do Relacional</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+            Como vimos na Aula 2, o ecossistema NoSQL não possui tabelas rígidas. Por isso, <strong>cada família possui sua própria forma nativa de consulta</strong>:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <!-- Documentos: MongoDB -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 font-mono">DOCUMENTOS</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">MongoDB (MQL)</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-snug">
+                  Consultas baseadas em objetos e filtros JSON/BSON utilizando métodos encadeados como <code class="mono-pill">find()</code> e <code class="mono-pill">aggregate()</code>.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 font-mono text-[10px] text-emerald-800">
+                db.users.find({ idade: { $gt: 18 } })
+              </div>
+            </div>
+
+            <!-- Chave-Valor: Redis -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800 font-mono">CHAVE-VALOR</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Redis (Comandos)</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-snug">
+                  Comandos diretos e atômicos em memória RAM para leitura e escrita em microssegundos baseados em chaves de busca.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 font-mono text-[10px] text-red-800">
+                SET session:101 "token" EX 3600
+              </div>
+            </div>
+
+            <!-- Grafos: Cypher -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 font-mono">GRAFOS</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Neo4j (Cypher)</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-snug">
+                  Linguagem declarativa baseada em arte ASCII que desenha padrões visuais de conexões entre nós e arestas.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 font-mono text-[10px] text-blue-800">
+                MATCH (u)-[:SEGUE]->(f) RETURN f
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como o MongoDB substitui os comandos tradicionais do SQL?</span>
+          <span class="font-medium text-emerald-700">MQL: MongoDB vs SQL →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 16: MÓDULO 4.3 - MONGODB MQL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="MongoDB: MQL vs SQL" data-module="Módulo 4.3 — Programação & NoSQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.3 • De-Para Tecnológico</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">MongoDB Query Language (MQL) vs SQL</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Comparativo Direto</span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200 text-xs">
+            <table class="w-full text-left">
+              <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Operação</th>
+                  <th class="py-2.5 px-3 text-blue-900 bg-blue-50/50">SQL Relacional Tradicional</th>
+                  <th class="py-2.5 px-3 text-emerald-900 bg-emerald-50/50">MongoDB (MQL em JSON)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 font-mono text-[11px] text-slate-700">
+                <tr>
+                  <td class="py-2.5 px-3 font-sans font-semibold">Inserir Registro</td>
+                  <td class="py-2.5 px-3 bg-blue-50/20">INSERT INTO clientes (nome, cidade) VALUES ('Carlos', 'SP');</td>
+                  <td class="py-2.5 px-3 bg-emerald-50/20 text-emerald-900 font-bold">db.clientes.insertOne({ nome: "Carlos", cidade: "SP" });</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-sans font-semibold">Consultar Todos</td>
+                  <td class="py-2.5 px-3 bg-blue-50/20">SELECT * FROM clientes;</td>
+                  <td class="py-2.5 px-3 bg-emerald-50/20 text-emerald-900 font-bold">db.clientes.find({});</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-sans font-semibold">Filtrar (WHERE)</td>
+                  <td class="py-2.5 px-3 bg-blue-50/20">SELECT * FROM clientes WHERE cidade = 'SP';</td>
+                  <td class="py-2.5 px-3 bg-emerald-50/20 text-emerald-900 font-bold">db.clientes.find({ cidade: "SP" });</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-sans font-semibold">Atualizar Campo</td>
+                  <td class="py-2.5 px-3 bg-blue-50/20">UPDATE clientes SET status = 'ativo' WHERE id = 10;</td>
+                  <td class="py-2.5 px-3 bg-emerald-50/20 text-emerald-900 font-bold">db.clientes.updateOne({ _id: 10 }, { $set: { status: "ativo" } });</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-sans font-semibold">Excluir Linha</td>
+                  <td class="py-2.5 px-3 bg-blue-50/20">DELETE FROM clientes WHERE id = 10;</td>
+                  <td class="py-2.5 px-3 bg-emerald-50/20 text-emerald-900 font-bold">db.clientes.deleteOne({ _id: 10 });</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+            ⭐ <strong>Perceba a analogia:</strong> A <em>Tabela</em> no SQL vira uma <strong>Coleção (Collection)</strong> no MongoDB; a <em>Linha/Tupla</em> vira um <strong>Documento JSON</strong>!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Consultas de alta performance no Redis e Grafos</span>
+          <span class="font-medium text-emerald-700">Redis e Grafos (Cypher) em Ação →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 17: MÓDULO 4.3 - REDIS E GRAFOS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Redis e Grafos em Ação" data-module="Módulo 4.3 — Programação & NoSQL">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 4.3 • Velocidade e Conexões</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Redis & Grafos (Cypher) na Prática</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Alta Performance</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Redis -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+              <span class="font-bold text-red-800 uppercase tracking-wider block text-xs">Comandos Rápidos no Redis</span>
+              <p class="text-xs text-slate-600 leading-snug">Ideal para guardar sessões que expiram sozinhas e contadores:</p>
+
+              <div class="bg-slate-900 rounded-lg p-3 text-white font-mono text-[11px] space-y-2">
+                <div>
+                  <span class="text-slate-400"># Grava sessão com expiração de 30 minutos</span><br>
+                  <span class="text-red-400 font-bold">SET</span> sessao:usr_99 <span class="text-yellow-300">"token_xyz"</span> <span class="text-emerald-400 font-bold">EX 1800</span>
+                </div>
+                <div>
+                  <span class="text-slate-400"># Busca o valor na memória RAM</span><br>
+                  <span class="text-red-400 font-bold">GET</span> sessao:usr_99
+                </div>
+                <div>
+                  <span class="text-slate-400"># Incrementa contador atômico (evita colisão)</span><br>
+                  <span class="text-red-400 font-bold">INCR</span> visualizacoes:produto_42
+                </div>
+              </div>
+            </div>
+
+            <!-- Cypher / Neo4j -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+              <span class="font-bold text-blue-800 uppercase tracking-wider block text-xs">Consulta em Grafos (Cypher / Neo4j)</span>
+              <p class="text-xs text-slate-600 leading-snug">Navegando entre amigos de amigos sem precisar de 5 JOINs:</p>
+
+              <div class="bg-slate-900 rounded-lg p-3 text-white font-mono text-[11px] space-y-2">
+                <div>
+                  <span class="text-slate-400">// Busca amigos em comum de Carlos</span><br>
+                  <span class="text-blue-400 font-bold">MATCH</span> (c:Pessoa {nome: <span class="text-yellow-300">'Carlos'</span>})-[:AMIGO_DE]-&gt;(a:Pessoa)<br>
+                  <span class="text-blue-400 font-bold">RETURN</span> a.nome;<br><br>
+                  <span class="text-slate-400">// Recomenda produtos comprados por amigos</span><br>
+                  <span class="text-blue-400 font-bold">MATCH</span> (c)-[:AMIGO_DE]-&gt;(a)-[:COMPROU]-&gt;(p:Produto)<br>
+                  <span class="text-blue-400 font-bold">RETURN</span> p.titulo, <span class="text-emerald-400 font-bold">COUNT</span>(p) <span class="text-blue-400 font-bold">ORDER BY</span> COUNT(p) <span class="text-blue-400 font-bold">DESC</span>;
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como esses sistemas conversam no mundo corporativo real?</span>
+          <span class="font-medium text-emerald-700">O Ecossistema Integrado Moderno →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 18: ARQUITETURA INTEGRADA MODERNA ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="O Ecossistema Integrado" data-module="Arquitetura Integrada">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Visão Panorâmica • Persistência Poliglota</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O Ecossistema Integrado: SQL + NoSQL + Cache</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Arquitetura Real</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+            Nenhuma grande empresa usa apenas um banco isolado. Veja como os recursos aprendidos hoje se unem na prática:
+          </p>
+
+          <!-- Diagrama Integrado -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
+              <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-800 mx-auto flex items-center justify-center font-bold mb-2">1</div>
+              <h4 class="font-bold text-slate-800 mb-1">Aplicação Web / Mobile</h4>
+              <p class="text-[11px] text-slate-500">O usuário faz login e navega pelo catálogo de produtos.</p>
+            </div>
+
+            <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-center">
+              <div class="w-8 h-8 rounded-full bg-red-100 text-red-800 mx-auto flex items-center justify-center font-bold mb-2">2</div>
+              <h4 class="font-bold text-red-900 mb-1">Cache Redis (RAM)</h4>
+              <p class="text-[11px] text-red-800">Checa se a sessão do usuário e os itens do carrinho estão na memória rápida.</p>
+            </div>
+
+            <div class="p-3 bg-emerald-50 border-2 border-emerald-500 rounded-xl text-center shadow-2xs">
+              <div class="w-8 h-8 rounded-full bg-emerald-200 text-emerald-800 mx-auto flex items-center justify-center font-bold mb-2">3</div>
+              <h4 class="font-bold text-emerald-950 mb-1">Postgres / Oracle (SQL)</h4>
+              <p class="text-[11px] text-emerald-900">Processa o pagamento via <strong>Stored Procedure</strong> com ACID e gera auditoria via <strong>Trigger</strong>.</p>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
+              <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-800 mx-auto flex items-center justify-center font-bold mb-2">4</div>
+              <h4 class="font-bold text-slate-800 mb-1">MongoDB (Logs)</h4>
+              <p class="text-[11px] text-slate-500">Armazena os cliques, telemetria e histórico de navegação em JSON flexível.</p>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-900 text-white text-xs flex items-center justify-between">
+            <span>✨ <strong>Domínio Completo:</strong> Ao conhecer SQL DDL/DML, Triggers, Views, Procedures e NoSQL, você se torna um profissional pronto para atuar em qualquer arquitetura do mercado!</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Hora de exercitar em sala de aula!</span>
+          <span class="font-medium text-emerald-700">Módulo 10 — Atividade Prática em Grupo →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 19: ATIVIDADE PRÁTICA EM GRUPO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Atividade Prática em Grupo" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Dinâmica de Sala • Estudo de Caso</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Atividade Prática: O Supermercado Inteligente</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-amber-100 text-amber-800 border border-amber-300">Tempo: 15 min</span>
+          </div>
+
+          <!-- Situação-Problema -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl mb-4 text-xs">
+            <span class="font-bold text-slate-800 uppercase tracking-wide block mb-1">Cenário Desafiador:</span>
+            <p class="text-slate-600 leading-relaxed">
+              Uma rede de supermercados precisa modernizar seu banco de dados para evitar fraudes nos caixas, manter um histórico auditável de alterações de preço e fornecer relatórios de vendas sem expor o custo de compra dos produtos aos operadores.
+            </p>
+          </div>
+
+          <!-- As 6 Tarefas do Grupo -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">1. DDL de Produtos</span>
+              Escrever o comando <code class="mono-pill">CREATE TABLE</code> com PK e restrição <code class="mono-pill">CHECK (preco &gt; 0)</code>.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">2. View de Proteção</span>
+              Criar uma <code class="mono-pill">VIEW</code> para o caixa que exiba apenas código, nome e preço de venda, ocultando o preço de custo.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">3. Trigger de Auditoria</span>
+              Especificar se o gatilho de alteração de preço deve ser <code class="mono-pill">BEFORE</code> ou <code class="mono-pill">AFTER UPDATE</code> e quais variáveis usar.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">4. Stored Procedure</span>
+              Projetar a chamada de uma procedure <code class="mono-pill">sp_fechar_venda</code> que baixa estoque e grava pedido em bloco seguro.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">5. DCL de Segurança</span>
+              Escrever o comando <code class="mono-pill">GRANT</code> para conceder acesso apenas à View para o usuário <code class="mono-pill">caixa_operador</code>.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">6. Integração NoSQL</span>
+              Indicar como o Redis poderia ser usado para acelerar a leitura dos 50 produtos mais vendidos na frente de caixa.
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Após o debate em grupo, teste seus conhecimentos individuais!</span>
+          <span class="font-medium text-emerald-700">Quiz Interativo de Fixação →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 20: QUIZ INTERATIVO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Quiz de Fixação Interativo" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Fixação de Conteúdo</span>
+              <h2 class="text-xl md:text-2xl font-bold text-slate-800">Quiz Interativo: 5 Perguntas Rápidas</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="quizScore" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Acertos: 0/5</span>
+            </div>
+          </div>
+
+          <!-- Container dinâmico do Quiz -->
+          <div id="quizContainer" class="space-y-3">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-emerald-800 font-mono" id="qNumber">QUESTÃO 1 DE 5</span>
+                <span class="text-[11px] text-slate-400">Clique na alternativa correta</span>
+              </div>
+              <h3 class="text-sm font-semibold text-slate-800 mb-3" id="qQuestion">
+                Qual comando SQL pertence à família DDL (Data Definition Language)?
+              </h3>
+              <div class="space-y-2 text-xs" id="qOptions">
+                <!-- Opções via JS -->
+              </div>
+              <div id="qFeedback" class="mt-3 p-2.5 rounded text-xs hidden"></div>
+            </div>
+
+            <!-- Navegação do Quiz -->
+            <div class="flex items-center justify-between pt-2">
+              <button onclick="prevQuizQuestion()" id="btnPrevQuiz" class="px-3 py-1 text-xs rounded border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40">Anterior</button>
+              <span class="text-xs text-slate-400 font-mono" id="quizNavInfo">Questão 1 de 5</span>
+              <button onclick="nextQuizQuestion()" id="btnNextQuiz" class="px-3 py-1 text-xs rounded bg-emerald-700 text-white hover:bg-emerald-800">Próxima Questão</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O gabarito oficial com orientações do professor vem a seguir.</span>
+          <span class="font-medium text-emerald-700">Ver Gabarito & Guia do Professor →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 21: GABARITO & GUIA DO PROFESSOR ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Gabarito e Guia do Professor" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Exclusivo para o Docente</span>
+              <h2 class="text-2xl font-bold text-slate-800">Gabarito Oficial e Guia Pedagógico</h2>
+            </div>
+            <button onclick="toggleTeacherAnswers()" id="btnToggleAnswers" class="px-2.5 py-1 text-xs font-medium rounded-md bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 transition">
+              🔓 Revelar / Ocultar Gabarito
+            </button>
+          </div>
+
+          <div id="answersContent" class="space-y-2.5 text-xs max-h-[380px] overflow-y-auto pr-2">
+            <!-- Q1 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 1: Família DDL</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> O comando <code class="mono-pill">ALTER TABLE</code> (assim como CREATE, DROP e TRUNCATE) define ou modifica a estrutura dos metadados da tabela, pertencendo à DDL.</p>
+            </div>
+            <!-- Q2 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 2: Variáveis NEW e OLD em Triggers</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> Em um comando <code class="mono-pill">UPDATE</code>, a variável <code class="mono-pill">OLD</code> contém os valores anteriores da linha e a variável <code class="mono-pill">NEW</code> contém os novos valores que foram enviados.</p>
+            </div>
+            <!-- Q3 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 3: Natureza das Views</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> São tabelas virtuais baseadas em consultas SELECT que não duplicam fisicamente os dados no disco, mas filtram colunas e simplificam consultas.</p>
+            </div>
+            <!-- Q4 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 4: Stored Procedures vs Functions</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> Stored Procedures são chamadas com <code class="mono-pill">CALL</code> e não podem ser invocadas dentro de uma expressão <code class="mono-pill">SELECT</code> comum, enquanto Functions (UDFs) retornam um valor e podem ser usadas dentro de SELECTs.</p>
+            </div>
+            <!-- Q5 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 5: Equivalente NoSQL do SELECT *</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> No MongoDB, <code class="mono-pill">db.colecao.find({})</code> com objeto de filtro vazio retorna todos os documentos, correspondendo ao <code class="mono-pill">SELECT * FROM tabela;</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Síntese geral do desenvolvedor de banco de dados</span>
+          <span class="font-medium text-emerald-700">As 7 Leis do Desenvolvedor →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 22: SÍNTESE E BOAS PRÁTICAS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="As Leis do Desenvolvedor" data-module="Encerramento">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Guia de Excelência Técnica</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">As 7 Leis do Desenvolvedor de Banco de Dados</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Boas Práticas</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">1.</span>
+              <div><strong>WHERE é sagrado:</strong> Nunca rode <code class="mono-pill">UPDATE</code> ou <code class="mono-pill">DELETE</code> sem filtro em ambiente de produção.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">2.</span>
+              <div><strong>Transações sempre:</strong> Abra <code class="mono-pill">BEGIN</code> antes de alterar dados manuais e só faça <code class="mono-pill">COMMIT</code> após checar.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">3.</span>
+              <div><strong>Proteja com Views:</strong> Exponha apenas o necessário para relatórios e APIs, blindando dados confidenciais.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">4.</span>
+              <div><strong>Triggers com parcimônia:</strong> Use gatilhos para auditoria e logs; evite colocar regras de negócio complexas ocultas em triggers.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">5.</span>
+              <div><strong>Aproveite Stored Procedures:</strong> Reduza o tráfego de rede e garanta que regras críticas rodem compiladas no servidor.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">6.</span>
+              <div><strong>Adote o NoSQL onde ele brilha:</strong> Use Redis para cache/sessões e MongoDB para documentos e logs flexíveis.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-emerald-300 bg-emerald-50/60 md:col-span-2 flex items-start gap-2.5">
+              <span class="text-emerald-800 font-bold font-mono text-sm">7.</span>
+              <div><strong class="text-emerald-950">Documente e Comente:</strong> Scripts legíveis salvam equipes. Explique o "porquê" das decisões nos comentários de cabeçalho!</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Conclusão da aula e encerramento</span>
+          <span class="font-medium text-emerald-700">Slide Final de Encerramento →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 23: CONCLUSÃO & SÍNTESE ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-14 bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white relative overflow-hidden" data-title="Conclusão e Próximos Passos" data-module="Encerramento">
+        <div class="relative z-10 flex items-center justify-between">
+          <span class="px-3 py-1 rounded-full bg-emerald-800 text-emerald-300 text-xs font-mono font-medium">Aula 4 Concluída</span>
+          <span class="text-xs text-emerald-300/70">Módulo de Linguagens Finalizado</span>
+        </div>
+
+        <div class="relative z-10 my-auto py-4 max-w-3xl">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            Você agora programa o banco com precisão, segurança e visão moderna.
+          </h2>
+          <p class="mt-3 text-sm md:text-base text-emerald-100/90 font-light leading-relaxed">
+            Completamos a jornada das linguagens de banco de dados: do rigor estrutural do DDL, DML e DCL até a automação de Triggers, Views, Procedures e o universo veloz do NoSQL.
+          </p>
+
+          <div class="grid grid-cols-3 gap-3 mt-6 text-xs text-emerald-100">
+            <div class="p-3 rounded-lg bg-white/10 border border-white/10">
+              <strong class="text-white block mb-0.5">Famílias SQL</strong>
+              DDL, DML e DCL dominados.
+            </div>
+            <div class="p-3 rounded-lg bg-white/10 border border-white/10">
+              <strong class="text-white block mb-0.5">Recursos de Servidor</strong>
+              Views, Triggers e Procedures.
+            </div>
+            <div class="p-3 rounded-lg bg-white/10 border border-white/10">
+              <strong class="text-white block mb-0.5">PL/SQL & NoSQL</strong>
+              Lógica procedural e MQL/Redis.
+            </div>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex items-center justify-between pt-4 border-t border-emerald-800 text-xs text-emerald-300/80">
+          <span>Parabéns pela dedicação exemplar ao longo do curso!</span>
+          <span class="font-mono text-emerald-400">Pronto para os desafios da engenharia de dados real</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 24: REVISÃO INTEGRADA ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Revisão Integrada" data-module="Revisão">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Síntese Geral do Curso</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O Grande Panorama dos 4 Módulos</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Revisão Completa</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="font-bold text-emerald-800 block text-[11px] mb-1">Aula 1: Fundamentos</span>
+              <p class="text-[11px] text-slate-600">Dado vs Informação, ciclo de vida dos dados, cadastro de clientes e ética/LGPD.</p>
+            </div>
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="font-bold text-emerald-800 block text-[11px] mb-1">Aula 2: Arquitetura & Modelagem</span>
+              <p class="text-[11px] text-slate-600">ACID, NoSQL, Modelos Conceitual/Lógico/Físico e Normalização (1FN, 2FN, 3FN).</p>
+            </div>
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="font-bold text-emerald-800 block text-[11px] mb-1">Aula 3: SGBDs & Ferramentas</span>
+              <p class="text-[11px] text-slate-600">Postgres, MySQL, SQLite, Oracle, portas padrão, CLI vs GUI (DBeaver) e UTF-8.</p>
+            </div>
+            <div class="p-3.5 bg-emerald-50 border-2 border-emerald-500 rounded-xl">
+              <span class="font-bold text-emerald-950 block text-[11px] mb-1">Aula 4: Linguagens Avançadas</span>
+              <p class="text-[11px] text-emerald-900">DDL/DML/DCL, Views, Triggers automáticos, Procedures compiladas e NoSQL MQL.</p>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-slate-100 text-slate-700 text-xs">
+            🏆 <strong>Certificação de Conhecimento:</strong> Você completou com sucesso a base técnica fundamental de Banco de Dados da Tecnologia da Informação!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Ver mensagem final da turma</span>
+          <span class="font-medium text-emerald-700">Encerramento Oficial →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 25: ENCERRAMENTO OFICIAL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-14 bg-emerald-950 text-white relative overflow-hidden" data-title="Encerramento Oficial" data-module="Encerramento">
+        <div class="relative z-10 flex items-center justify-between">
+          <span class="px-3 py-1 rounded-full bg-emerald-800 text-emerald-300 text-xs font-mono font-medium">Trilha Concluída com Sucesso</span>
+          <span class="text-xs text-emerald-400 font-mono">100% dos Módulos</span>
+        </div>
+
+        <div class="relative z-10 my-auto py-6 max-w-3xl text-center mx-auto">
+          <div class="w-16 h-16 rounded-2xl bg-emerald-800 border border-emerald-600/60 flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg">
+            🎓
+          </div>
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            Obrigado e Sucesso na sua Carreira em Dados!
+          </h2>
+          <p class="mt-3 text-sm md:text-base text-emerald-100/90 font-light leading-relaxed max-w-2xl mx-auto">
+            "Dados bem estruturados, armazenados com integridade e consultados com sabedoria são o alicerce das maiores inovações tecnológicas da humanidade."
+          </p>
+
+          <div class="mt-6 flex justify-center gap-3 text-xs">
+            <button onclick="goToSlide(0)" class="px-4 py-2 rounded-lg bg-emerald-700 text-white font-medium hover:bg-emerald-600 transition shadow-xs">
+              Reiniciar Apresentação ↺
+            </button>
+            <button onclick="window.print()" class="px-4 py-2 rounded-lg bg-white/10 text-emerald-200 border border-white/20 hover:bg-white/20 transition">
+              Exportar Apostila PDF (Ctrl + P)
+            </button>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex items-center justify-between pt-4 border-t border-emerald-900 text-xs text-emerald-300/80">
+          <span>Curso de Banco de Dados • Ensino Técnico & Superior</span>
+          <span class="font-mono text-emerald-400">Professor de Tecnologia da Informação</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= BOTTOM BAR (CONTROLES DE SLIDE) ================= -->
+  <footer class="no-print bg-white border-t border-slate-200 px-4 py-2.5 flex items-center justify-between z-20">
+    <div class="flex items-center space-x-2 text-xs text-slate-500">
+      <span class="hidden sm:inline">Navegação:</span>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">←</kbd>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">→</kbd>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">Espaço</kbd>
+    </div>
+
+    <!-- Botões Anterior / Próximo -->
+    <div class="flex items-center space-x-2">
+      <button onclick="prevSlide()" id="btnPrev" class="px-4 py-1.5 rounded-lg border border-slate-200 text-slate-700 font-medium text-xs hover:bg-slate-50 active:scale-95 transition flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        <span>Anterior</span>
+      </button>
+
+      <button onclick="nextSlide()" id="btnNext" class="px-5 py-1.5 rounded-lg bg-emerald-700 text-white font-medium text-xs hover:bg-emerald-800 active:scale-95 transition flex items-center gap-1 shadow-xs">
+        <span>Próximo</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <div class="text-right text-xs text-slate-400 font-mono">
+      <span>Prof. Tecnologia da Informação</span>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL: ÍNDICE DE SLIDES (DRAWER) ================= -->
+  <div id="tocModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="font-bold text-slate-800 text-base">Índice da Apresentação — Aula 4</h3>
+          <p class="text-xs text-slate-500">Clique para saltar diretamente para qualquer slide</p>
+        </div>
+        <button onclick="toggleTocModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-2 flex-1" id="tocList">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAINEL: NOTAS DO PROFESSOR (DRAWER LATERAL) ================= -->
+  <aside id="teacherNotesDrawer" class="no-print fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-white shadow-2xl border-l border-slate-200 z-40 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+    <div>
+      <div class="p-4 border-b border-slate-200 bg-emerald-950 text-white flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block">Guia do Professor</span>
+          <h4 class="font-bold text-sm">Dicas Didáticas & Ritmo (Aula 4)</h4>
+        </div>
+        <button onclick="toggleTeacherNotes()" class="text-emerald-300 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+          <div class="flex items-center justify-between text-xs text-emerald-900 font-semibold mb-1">
+            <span>Tempo Sugerido da Aula:</span>
+            <span class="font-mono text-emerald-700">50 a 60 min</span>
+          </div>
+          <div class="text-[11px] text-emerald-800">
+            Reserve 15 minutos para o debate prático do Supermercado Inteligente e resolução do Quiz.
+          </div>
+        </div>
+
+        <div id="slideSpecificNote" class="space-y-3">
+          <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider" id="noteSlideTitle">Slide Atual</h5>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 leading-relaxed" id="noteContent">
+            Carregando notas...
+          </div>
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900" id="noteQuestionPrompt">
+            Carregando pergunta...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500 flex justify-between items-center">
+      <span>Atalho: Tecla <kbd class="px-1 py-0.5 bg-white border border-slate-300 rounded font-mono">P</kbd></span>
+      <span class="text-emerald-700 font-semibold">Modo Docente Ativo</span>
+    </div>
+  </aside>
+
+  <!-- ================= JAVASCRIPT: NAVEGAÇÃO E QUIZ ================= -->
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const currentSlideNum = document.getElementById('currentSlideNum');
+    const totalSlideNum = document.getElementById('totalSlideNum');
+    const progressBar = document.getElementById('progressBar');
+    const headerSubtitle = document.getElementById('headerSubtitle');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const tocList = document.getElementById('tocList');
+
+    totalSlideNum.textContent = totalSlides;
+
+    // Dicas do Professor para cada um dos 25 slides da Aula 4
+    const teacherNotesData = [
+      {
+        slide: 1,
+        title: "Capa da Aula 4",
+        note: "Acolha os alunos e mostre o horizonte: hoje eles aprenderão os recursos que diferenciam quem apenas faz queries básicas de quem realmente programa soluções completas no banco.",
+        prompt: "\"Alguém já ouviu falar em Triggers ou Stored Procedures? Sabem onde eles rodam?\""
+      },
+      {
+        slide: 2,
+        title: "Objetivos de Aprendizagem",
+        note: "Apresente o roteiro: primeiro DDL, DML e DCL, depois recursos de servidor (Views, Triggers, Procedures) e fechando com PL/SQL e NoSQL.",
+        prompt: "\"Por que será que é mais seguro calcular o fechamento de um pedido dentro do banco em vez de calcular no celular do cliente?\""
+      },
+      {
+        slide: 3,
+        title: "As Famílias da Linguagem SQL",
+        note: "Ajude os alunos a memorizarem as siglas: DDL (Definição da casca), DML (Manipulação do miolo/linhas) e DCL (Controle de quem entra).",
+        prompt: "\"Se eu quiser mudar o nome de uma coluna, qual família de comandos eu utilizo? (DDL!)\""
+      },
+      {
+        slide: 4,
+        title: "DDL em Ação",
+        note: "Destaque a diferença entre DROP (destrói a tabela inteira) e TRUNCATE (limpa todas as linhas em velocidade de relâmpago mantendo a estrutura).",
+        prompt: "\"Qual a diferença prática entre fazer DELETE sem WHERE e fazer TRUNCATE TABLE?\""
+      },
+      {
+        slide: 5,
+        title: "DML: INSERT e SELECT",
+        note: "Reforce as boas práticas: listar as colunas de destino no INSERT e evitar o SELECT * em tabelas com milhões de linhas.",
+        prompt: "\"Por que é uma péssima ideia rodar 'SELECT *' quando a aplicação só precisa exibir o nome do cliente na tela?\""
+      },
+      {
+        slide: 6,
+        title: "DML: UPDATE e DELETE",
+        note: "Faça uma pausa dramática. Conte histórias de programadores que rodaram UPDATE sem WHERE na sexta-feira à tarde e zeraram os dados da empresa.",
+        prompt: "\"Qual comando nós NUNCA devemos rodar sem WHERE em um ambiente de produção?\""
+      },
+      {
+        slide: 7,
+        title: "DCL e Transações (TCL)",
+        note: "Explique como o GRANT e o REVOKE protegem os dados de acessos indevidos. Mostre que o COMMIT sela a operação e o ROLLBACK é o botão de pânico.",
+        prompt: "\"Como o comando ROLLBACK nos salva a vida após percebermos que digitamos um valor errado na transação?\""
+      },
+      {
+        slide: 8,
+        title: "Recursos Avançados no Servidor",
+        note: "Explique o conceito de computação 'server-side': processar os dados perto de onde eles estão gravados é infinitamente mais rápido que transferir tudo pela rede.",
+        prompt: "\"O que gasta mais internet: trazer 1 milhão de linhas para o app somar, ou mandar o banco somar e devolver só 1 número?\""
+      },
+      {
+        slide: 9,
+        title: "Views: Visões Virtuais",
+        note: "Deixe claro que a View não cria uma tabela nova no disco; ela é uma consulta salva que roda em tempo real. Destaque o benefício para a LGPD.",
+        prompt: "\"Como podemos usar uma View para permitir que o estagiário veja o catálogo sem que ele descubra a margem de lucro secreta da empresa?\""
+      },
+      {
+        slide: 10,
+        title: "Triggers: Gatilhos Automáticos",
+        note: "Apresente o conceito de evento: quando acontece um INSERT, UPDATE ou DELETE, o banco dispara o gatilho sem o usuário perceber.",
+        prompt: "\"Se um funcionário mal-intencionado alterar o próprio salário no banco, como o Trigger de auditoria pode dedurá-lo?\""
+      },
+      {
+        slide: 11,
+        title: "Stored Procedures",
+        note: "Explique que a Stored Procedure é como uma função com superpoderes no banco: recebe parâmetros, executa várias transações e confirma com COMMIT.",
+        prompt: "\"Por que os bancos fecham caixas e emitem relatórios fiscais através de Stored Procedures compiladas?\""
+      },
+      {
+        slide: 12,
+        title: "Procedures vs Functions",
+        note: "Momento de fixação: Functions sempre retornam um valor e entram no SELECT; Procedures executam comandos e ações mais amplas.",
+        prompt: "\"Posso colocar uma Stored Procedure dentro de um comando 'SELECT col1, col2, sp_teste() FROM tabela'? Não! Apenas Functions!\""
+      },
+      {
+        slide: 13,
+        title: "Fundamentos do PL/SQL",
+        note: "Apresente a sintaxe de blocos DECLARE, BEGIN, EXCEPTION, END. Mostre que agora temos variáveis, IF/THEN/ELSE e tratamento de erros no banco.",
+        prompt: "\"Vejam como o PL/SQL se parece com linguagens como Pascal, Python ou C!\""
+      },
+      {
+        slide: 14,
+        title: "Loops e Cursores",
+        note: "Explique a metáfora do Cursor como uma agulha de toca-discos: ele aponta para a linha atual e avança uma a uma com o comando FETCH.",
+        prompt: "\"Quando é necessário percorrer linha por linha em vez de rodar um comando que afeta todas as linhas de uma vez?\""
+      },
+      {
+        slide: 15,
+        title: "Consultas no Mundo NoSQL",
+        note: "Mostre que no NoSQL não usamos tabelas nem linhas. Apresente como o MongoDB, Redis e Neo4j criaram linguagens adaptadas aos seus formatos.",
+        prompt: "\"Como vocês imaginam que buscamos dados em um banco que não tem colunas fixas?\""
+      },
+      {
+        slide: 16,
+        title: "MongoDB: MQL vs SQL",
+        note: "Compare lado a lado. Mostre que o 'find' é o SELECT e o 'insertOne' é o INSERT do mundo dos documentos JSON.",
+        prompt: "\"Vejam como a sintaxe do MongoDB usa objetos JavaScript idênticos aos que usamos no desenvolvimento web!\""
+      },
+      {
+        slide: 17,
+        title: "Redis e Grafos em Ação",
+        note: "Demonstre a simplicidade extrema do SET/GET no Redis e a elegância visual das setas do Cypher no Neo4j para conexões de amigos.",
+        prompt: "\"Olhem para o comando do Neo4j: ele literalmente desenha uma seta ASCII entre as pessoas!\""
+      },
+      {
+        slide: 18,
+        title: "O Ecossistema Integrado",
+        note: "Mostre o quadro geral corporativo: nenhuma grande empresa briga entre SQL e NoSQL; elas integram ambos para tirar o melhor de cada um.",
+        prompt: "\"Como o Nubank ou o Mercado Livre combinam bancos relacionais seguros com bancos NoSQL ultra rápidos?\""
+      },
+      {
+        slide: 19,
+        title: "Atividade Prática em Grupo",
+        note: "Divida a turma em duplas ou trios. Dê 10 a 15 minutos para resolverem as 6 tarefas do Supermercado Inteligente.",
+        prompt: "\"Quais colunas vocês colocaram na View do caixa para não expor os segredos de custo da empresa?\""
+      },
+      {
+        slide: 20,
+        title: "Quiz Interativo",
+        note: "Promova a votação coletiva na lousa. Peça para os alunos explicarem por que uma alternativa está correta antes de revelar.",
+        prompt: "\"Quem acha que é a A levanta a mão! E a B? Vamos ver a justificativa do sistema!\""
+      },
+      {
+        slide: 21,
+        title: "Gabarito e Guia do Professor",
+        note: "Formalize o gabarito oficial e feche dúvidas conceituais sobre Triggers (NEW/OLD) e famílias do SQL.",
+        prompt: "\"Alguém ainda tem dúvida sobre a diferença entre a variável NEW e a OLD dentro de um Trigger?\""
+      },
+      {
+        slide: 22,
+        title: "As 7 Leis do Desenvolvedor",
+        note: "Leitura conjunta do checklist de ouro. Destaque a lei número 1: WHERE é sagrado!",
+        prompt: "\"Qual dessas 7 regras você vai colar na parede do seu quarto para nunca esquecer?\""
+      },
+      {
+        slide: 23,
+        title: "Conclusão da Aula 4",
+        note: "Parabenize os estudantes pela dedicação. Enfatize que agora eles dominam toda a esteira de dados.",
+        prompt: "\"Vocês agora têm um arsenal técnico completo para atuar em projetos reais de tecnologia!\""
+      },
+      {
+        slide: 24,
+        title: "Revisão dos 4 Módulos",
+        note: "Faça uma síntese panorâmica conectando os 4 módulos do curso: Fundamentos ➔ Modelagem ➔ SGBDs ➔ Linguagens Avançadas.",
+        prompt: "\"Olhem para trás e vejam o quanto vocês evoluíram desde a primeira aula!\""
+      },
+      {
+        slide: 25,
+        title: "Encerramento Oficial",
+        note: "Finalize com agradecimentos calorosos e incentive os alunos a continuarem praticando no DBeaver e nos seus projetos pessoais.",
+        prompt: "\"Parabéns a todos pela jornada! O futuro dos dados pertence a vocês!\""
+      }
+    ];
+
+    function updateSlide() {
+      slides.forEach((slide, idx) => {
+        if (idx === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      currentSlideNum.textContent = currentSlide + 1;
+      const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+
+      const activeSlide = slides[currentSlide];
+      const title = activeSlide.getAttribute('data-title') || '';
+      const moduleName = activeSlide.getAttribute('data-module') || '';
+      headerSubtitle.textContent = `${moduleName} — ${title}`;
+
+      btnPrev.disabled = currentSlide === 0;
+      btnPrev.style.opacity = currentSlide === 0 ? '0.4' : '1';
+
+      if (currentSlide === totalSlides - 1) {
+        btnNext.innerHTML = `<span>Início</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`;
+      } else {
+        btnNext.innerHTML = `<span>Próximo</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>`;
+      }
+
+      updateTeacherNotesContent();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+      } else {
+        currentSlide = 0;
+      }
+      updateSlide();
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(index) {
+      if (index >= 0 && index < totalSlides) {
+        currentSlide = index;
+        updateSlide();
+        closeTocModal();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      switch(e.key) {
+        case 'ArrowRight':
+        case ' ':
+        case 'PageDown':
+          e.preventDefault();
+          nextSlide();
+          break;
+        case 'ArrowLeft':
+        case 'PageUp':
+          e.preventDefault();
+          prevSlide();
+          break;
+        case 'Home':
+          e.preventDefault();
+          goToSlide(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          goToSlide(totalSlides - 1);
+          break;
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          toggleFullScreen();
+          break;
+        case 'm':
+        case 'M':
+        case 'i':
+        case 'I':
+          e.preventDefault();
+          toggleTocModal();
+          break;
+        case 'p':
+        case 'P':
+        case 'n':
+        case 'N':
+          e.preventDefault();
+          toggleTeacherNotes();
+          break;
+        case 'Escape':
+          closeTocModal();
+          closeTeacherNotes();
+          break;
+      }
+    });
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    function buildToc() {
+      tocList.innerHTML = '';
+      slides.forEach((slide, index) => {
+        const title = slide.getAttribute('data-title') || `Slide ${index + 1}`;
+        const moduleName = slide.getAttribute('data-module') || '';
+        
+        const item = document.createElement('button');
+        item.className = 'w-full text-left p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition flex items-center justify-between text-xs group';
+        item.onclick = () => goToSlide(index);
+        
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-full font-mono font-bold text-[11px] flex items-center justify-center ${index === currentSlide ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}">
+              ${index + 1}
+            </span>
+            <div>
+              <span class="font-bold text-slate-800 group-hover:text-emerald-900 block">${title}</span>
+              <span class="text-[10px] text-slate-400">${moduleName}</span>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400 group-hover:text-emerald-700">Ir →</span>
+        `;
+        tocList.appendChild(item);
+      });
+    }
+
+    function toggleTocModal() {
+      const modal = document.getElementById('tocModal');
+      if (modal.classList.contains('hidden')) {
+        buildToc();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function closeTocModal() {
+      document.getElementById('tocModal').classList.add('hidden');
+    }
+
+    function toggleTeacherNotes() {
+      const drawer = document.getElementById('teacherNotesDrawer');
+      drawer.classList.toggle('translate-x-full');
+    }
+
+    function closeTeacherNotes() {
+      const drawer = document.getElementById('teacherNotesDrawer');
+      drawer.classList.add('translate-x-full');
+    }
+
+    function updateTeacherNotesContent() {
+      const noteSlideTitle = document.getElementById('noteSlideTitle');
+      const noteContent = document.getElementById('noteContent');
+      const noteQuestionPrompt = document.getElementById('noteQuestionPrompt');
+      
+      const currentNote = teacherNotesData[currentSlide] || {
+        title: `Slide ${currentSlide + 1}`,
+        note: "Apresente o conceito de forma simples e contextualizada aos alunos.",
+        prompt: "Alguma dúvida sobre este ponto?"
+      };
+
+      noteSlideTitle.textContent = `Slide ${currentSlide + 1}: ${currentNote.title}`;
+      noteContent.textContent = currentNote.note;
+      noteQuestionPrompt.innerHTML = `<strong>Pergunta provocativa para a turma:</strong> ${currentNote.prompt}`;
+    }
+
+    // ================= DADOS E LÓGICA DO QUIZ (AULA 4) =================
+    const quizQuestions = [
+      {
+        question: "1. Qual dos seguintes comandos SQL pertence à família DDL (Data Definition Language)?",
+        options: [
+          { text: "A) INSERT INTO", correct: false },
+          { text: "B) ALTER TABLE", correct: true },
+          { text: "C) SELECT", correct: false },
+          { text: "D) UPDATE", correct: false }
+        ],
+        explanation: "Correto! O comando ALTER TABLE (assim como CREATE, DROP e TRUNCATE) atua na estrutura física e nos metadados da tabela, pertencendo à DDL."
+      },
+      {
+        question: "2. Em um Trigger executado durante um comando UPDATE, o que representam as variáveis de registro OLD e NEW?",
+        options: [
+          { text: "A) OLD é a data de ontem e NEW é a data de amanhã.", correct: false },
+          { text: "B) OLD contém os dados anteriores da linha e NEW contém os novos dados atualizados.", correct: true },
+          { text: "C) Ambas são idênticas e representam o nome do banco.", correct: false },
+          { text: "D) OLD apaga a tabela e NEW cria uma tabela vazia.", correct: false }
+        ],
+        explanation: "Exato! OLD captura o estado anterior do registro e NEW captura os novos valores que estão sendo gravados, essencial para auditorias financeiras."
+      },
+      {
+        question: "3. Qual é a principal característica e benefício de segurança de uma View em banco de dados?",
+        options: [
+          { text: "A) Ela duplica todos os dados no disco aumentando o tamanho do banco.", correct: false },
+          { text: "B) Ela funciona como uma tabela virtual em tempo real, permitindo ocultar colunas sigilosas (como salários e senhas) de usuários restritos.", correct: true },
+          { text: "C) Ela apaga o banco caso o usuário erre a senha.", correct: false },
+          { text: "D) Ela só funciona em computadores desligados.", correct: false }
+        ],
+        explanation: "Perfeito! A View é uma consulta virtual armazenada que não duplica os dados no disco e atua como uma barreira de segurança e simplificação de código."
+      },
+      {
+        question: "4. Qual é a diferença técnica fundamental entre uma Stored Procedure e uma Function (UDF)?",
+        options: [
+          { text: "A) Uma Stored Procedure pode executar ações e transações complexas sem obrigatoriedade de retorno, enquanto a Function sempre retorna um valor e pode ser usada em um SELECT.", correct: true },
+          { text: "B) Não existe nenhuma diferença; são nomes diferentes para o mesmo recurso.", correct: false },
+          { text: "C) Stored Procedures são salvas em arquivos de texto no desktop.", correct: false },
+          { text: "D) Functions só aceitam números negativos.", correct: false }
+        ],
+        explanation: "Correto! Functions (UDFs) são calculadoras que retornam valores e entram no SELECT; Stored Procedures são rotinas completas executadas com CALL."
+      },
+      {
+        question: "5. No banco NoSQL MongoDB, qual instrução equivale funcionalmente ao comando SQL 'SELECT * FROM clientes;'?",
+        options: [
+          { text: "A) db.clientes.drop()", correct: false },
+          { text: "B) db.clientes.find({})", correct: true },
+          { text: "C) db.clientes.createIndex()", correct: false },
+          { text: "D) db.clientes.aggregate([])", correct: false }
+        ],
+        explanation: "Muito bem! O método db.clientes.find({}) com filtro vazio recupera todos os documentos da coleção, equivalente ao SELECT * do SQL."
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let quizScoreCount = 0;
+    let answeredQuestions = {};
+
+    function renderQuizQuestion() {
+      const q = quizQuestions[currentQuizIndex];
+      document.getElementById('qNumber').textContent = `QUESTÃO ${currentQuizIndex + 1} DE ${quizQuestions.length}`;
+      document.getElementById('qQuestion').textContent = q.question;
+      document.getElementById('quizNavInfo').textContent = `Questão ${currentQuizIndex + 1} de ${quizQuestions.length}`;
+
+      const optionsContainer = document.getElementById('qOptions');
+      optionsContainer.innerHTML = '';
+
+      const feedbackBox = document.getElementById('qFeedback');
+      feedbackBox.classList.add('hidden');
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition text-xs flex items-center justify-between text-slate-700';
+        
+        if (answeredQuestions[currentQuizIndex] !== undefined) {
+          btn.disabled = true;
+          if (opt.correct) {
+            btn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900', 'font-semibold');
+          } else if (answeredQuestions[currentQuizIndex] === idx) {
+            btn.classList.add('bg-red-100', 'border-red-400', 'text-red-900');
+          }
+        } else {
+          btn.onclick = () => handleAnswer(idx, opt.correct);
+        }
+
+        btn.innerHTML = `<span>${opt.text}</span>`;
+        optionsContainer.appendChild(btn);
+      });
+
+      if (answeredQuestions[currentQuizIndex] !== undefined) {
+        feedbackBox.classList.remove('hidden');
+        const isCorrect = q.options[answeredQuestions[currentQuizIndex]].correct;
+        feedbackBox.className = `mt-3 p-2.5 rounded text-xs ${isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-amber-100 text-amber-900 border border-amber-300'}`;
+        feedbackBox.innerHTML = `<strong>${isCorrect ? '✅ Resposta Correta!' : '💡 Atenção:'}</strong> ${q.explanation}`;
+      }
+
+      document.getElementById('btnPrevQuiz').disabled = currentQuizIndex === 0;
+      document.getElementById('btnNextQuiz').textContent = currentQuizIndex === quizQuestions.length - 1 ? 'Concluir Quiz' : 'Próxima Questão';
+    }
+
+    function handleAnswer(optionIdx, isCorrect) {
+      answeredQuestions[currentQuizIndex] = optionIdx;
+      if (isCorrect) {
+        quizScoreCount++;
+      }
+      document.getElementById('quizScore').textContent = `Acertos: ${quizScoreCount}/${quizQuestions.length}`;
+      renderQuizQuestion();
+    }
+
+    function nextQuizQuestion() {
+      if (currentQuizIndex < quizQuestions.length - 1) {
+        currentQuizIndex++;
+        renderQuizQuestion();
+      } else {
+        alert(`Quiz finalizado! Sua pontuação: ${quizScoreCount} de ${quizQuestions.length} acertos.`);
+      }
+    }
+
+    function prevQuizQuestion() {
+      if (currentQuizIndex > 0) {
+        currentQuizIndex--;
+        renderQuizQuestion();
+      }
+    }
+
+    let answersVisible = true;
+    function toggleTeacherAnswers() {
+      const container = document.getElementById('answersContent');
+      const btn = document.getElementById('btnToggleAnswers');
+      answersVisible = !answersVisible;
+      
+      if (answersVisible) {
+        container.classList.remove('hidden');
+        btn.textContent = '🔒 Ocultar Gabarito';
+      } else {
+        container.classList.add('hidden');
+        btn.textContent = '🔓 Revelar Gabarito';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSlide();
+      renderQuizQuestion();
+    });
+  </script>
+</body>
+</html>

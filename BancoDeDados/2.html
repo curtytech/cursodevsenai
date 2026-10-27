@@ -1,0 +1,2328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 2: Arquitetura & Modelagem de Banco de Dados</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              dark: '#14532D',      /* Verde-escuro institucional */
+              primary: '#16A34A',   /* Verde principal vibrante */
+              light: '#DCFCE7',     /* Verde-claro suave */
+              subtle: '#F0FDF4',    /* Fundo verde sutil */
+              border: '#BBF7D0',    /* Borda verde suave */
+              text: '#1F2937',      /* Texto principal */
+              muted: '#64748B',     /* Cinza secundário */
+              bg: '#F8FAFC',        /* Fundo quase branco */
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #1F2937;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .slide-container {
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 5rem);
+    }
+
+    @media (max-width: 1024px) {
+      .slide-container {
+        aspect-ratio: auto;
+        min-height: calc(100vh - 6rem);
+      }
+    }
+
+    .slide {
+      display: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+    
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mono-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background-color: #F1F5F9;
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.375rem;
+      border: 1px solid #E2E8F0;
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .slide {
+        display: flex !important;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: always;
+        height: 100vh !important;
+        aspect-ratio: 16 / 9;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .slide-container {
+        max-height: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+  <!-- ================= TOP BAR (Navegação & Status) ================= -->
+  <header class="no-print bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-lg bg-emerald-800 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+        M2
+      </div>
+      <div>
+        <h1 class="text-xs font-semibold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+          <span>Arquitetura & Modelagem de Banco de Dados</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-emerald-700 font-medium lowercase">aula 2</span>
+        </h1>
+        <p class="text-[11px] text-slate-500 font-normal" id="headerSubtitle">Módulo 2.1 — Arquiteturas de BD</p>
+      </div>
+    </div>
+
+    <!-- Indicador Central de Slide & Progresso -->
+    <div class="flex items-center space-x-3">
+      <div class="hidden sm:flex items-center space-x-1.5 bg-slate-100 rounded-full px-3 py-1 text-xs font-medium text-slate-700 border border-slate-200">
+        <span class="text-emerald-700 font-bold" id="currentSlideNum">1</span>
+        <span class="text-slate-400">/</span>
+        <span id="totalSlideNum">25</span>
+      </div>
+
+      <div class="w-32 md:w-48 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+        <div id="progressBar" class="bg-emerald-600 h-1.5 transition-all duration-300 rounded-full" style="width: 4%;"></div>
+      </div>
+    </div>
+
+    <!-- Controles de Modo e Painéis -->
+    <div class="flex items-center space-x-1 sm:space-x-2">
+      <!-- Botão Menu / Índice -->
+      <button onclick="toggleTocModal()" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition flex items-center gap-1.5 border border-slate-200" title="Índice dos Slides (Atalho: M)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+        <span class="hidden md:inline">Índice</span>
+      </button>
+
+      <!-- Botão Notas do Professor -->
+      <button onclick="toggleTeacherNotes()" id="btnTeacherNotes" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition flex items-center gap-1.5 border border-slate-200" title="Dicas Pedagógicas & Tempo (Atalho: P)">
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span class="hidden md:inline">Notas do Professor</span>
+      </button>
+
+      <!-- Botão Tela Cheia -->
+      <button onclick="toggleFullScreen()" class="p-1.5 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-md transition" title="Alternar Tela Cheia (F)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5-5m-7 11l-5 5m0 0h4m-4 0v-4m16 4v-4m0 4l-5-5"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= PALCO PRINCIPAL (SLIDES) ================= -->
+  <main class="flex-1 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-100/60">
+    <div class="w-full max-w-6xl bg-white rounded-2xl shadow-md border border-slate-200/80 slide-container overflow-hidden relative flex flex-col justify-between">
+
+      <!-- ================= SLIDE 1: CAPA ================= -->
+      <section class="slide active flex-col justify-between h-full p-8 md:p-14 bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white relative overflow-hidden" data-title="Abertura da Aula" data-module="Apresentação">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#22c55e_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+        <div class="absolute -right-24 -bottom-24 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-800/80 border border-emerald-600/40 text-emerald-300 text-xs font-medium tracking-wide">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Aula 2 • Arquitetura & Engenharia de Dados
+          </div>
+          <div class="text-xs text-emerald-200/70 font-mono">Duração estimada: 50 a 60 min</div>
+        </div>
+
+        <div class="relative z-10 my-auto py-6 max-w-3xl">
+          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            Arquitetura & Modelagem de Banco de Dados
+          </h1>
+          <p class="mt-4 text-base md:text-lg text-emerald-100/90 font-light leading-relaxed">
+            Do Relacional ao NoSQL, da Modelagem Conceitual (MER) à Normalização (1FN, 2FN, 3FN): construindo as fundações de sistemas corporativos escaláveis e íntegros.
+          </p>
+          
+          <div class="mt-8 flex flex-wrap gap-2 text-xs font-medium text-emerald-200">
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Transações ACID</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Famílias NoSQL</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Conceitual, Lógico & Físico</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">MER & Cardinalidades</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Normalização (1FN, 2FN, 3FN)</span>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex items-center justify-between pt-6 border-t border-emerald-800/60 text-xs text-emerald-300/80">
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-white">Foco Prático:</span>
+            <span>Evitar anomalias, eliminar redundâncias e projetar esquemas profissionais</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span>Pressione <kbd class="px-1.5 py-0.5 rounded bg-emerald-800 text-white font-mono border border-emerald-700">Espaço</kbd> ou <kbd class="px-1.5 py-0.5 rounded bg-emerald-800 text-white font-mono border border-emerald-700">→</kbd> para iniciar</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 2: OBJETIVOS DE APRENDIZAGEM ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Objetivos de Aprendizagem" data-module="Planejamento">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Mapa de Competências</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O que você dominará nesta aula</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Trilha Técnica</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Card 1 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">1</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Arquiteturas de BD</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Compreender o paradigma <strong class="text-slate-800">Relacional</strong> e as garantias <strong class="text-slate-800">ACID</strong>, contrastando com as 4 famílias do ecossistema <strong class="text-slate-800">NoSQL</strong> (Documentos, Chave-Valor, Grafos e Colunar).
+              </p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">2</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Níveis de Modelagem</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Dominar a progressão em 3 camadas: <strong class="text-slate-800">Conceitual</strong> (MER e cardinalidades), <strong class="text-slate-800">Lógico</strong> (tabelas, PK, FK e resolução de N:N) e <strong class="text-slate-800">Físico</strong> (DDL e especificações de tipos).
+              </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">3</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Técnicas de Normalização</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Blindar o banco contra anomalias de inserção, exclusão e alteração aplicando com segurança a <strong class="text-slate-800">1FN, 2FN e 3FN</strong> em dados corporativos.
+              </p>
+            </div>
+          </div>
+
+          <!-- Banner de Fundamento -->
+          <div class="mt-6 p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex items-start gap-3">
+            <svg class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            <p class="text-xs text-emerald-900 leading-relaxed">
+              <strong>A metáfora da construção civil:</strong> Criar um banco de dados sem modelagem e normalização é como erguer um prédio de 20 andares sem planta baixa. O custo de corrigir uma tabela mal desenhada em produção é até <strong>100 vezes maior</strong> do que desenhá-la corretamente no projeto!
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Início do Módulo 2.1: Arquiteturas de BD</span>
+          <span class="font-medium text-emerald-700">Módulo 2.1 — O Paradigma Relacional →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 3: MÓDULO 2.1 - PARADIGMA RELACIONAL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="O Paradigma Relacional" data-module="Módulo 2.1 — Arquiteturas de BD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.1 • A Base Matemática</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O Paradigma Relacional: Tabelas, Linhas e Colunas</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">E. F. Codd (1970)</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4">
+              <p class="text-sm text-slate-700 leading-relaxed">
+                Criado por Edgar F. Codd na IBM, o <strong class="text-emerald-800">Modelo Relacional</strong> fundamenta-se na teoria matemática dos conjuntos. Os dados são organizados em estruturas bidimensionais chamadas <strong>Relações (Tabelas)</strong>.
+              </p>
+
+              <div class="space-y-2.5 text-xs text-slate-600">
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <span><strong>Relação (Tabela):</strong> O conjunto de dados que representa uma entidade.</span>
+                  <span class="font-mono text-emerald-700 font-bold">Table</span>
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <span><strong>Tupla (Linha / Registro):</strong> Uma ocorrência factual única dentro da relação.</span>
+                  <span class="font-mono text-emerald-700 font-bold">Row / Record</span>
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <span><strong>Atributo (Coluna / Campo):</strong> A característica descritiva com domínio rígido.</span>
+                  <span class="font-mono text-emerald-700 font-bold">Column</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Esquema Visual da Relação -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-2xs">
+              <div class="flex items-center justify-between mb-3 text-xs">
+                <span class="font-bold text-slate-700 uppercase font-mono">Estrutura de uma Relação</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-semibold">Esquema Rígido</span>
+              </div>
+
+              <!-- Representação visual de colunas e linhas -->
+              <div class="border border-slate-300 rounded-lg overflow-hidden bg-white text-xs font-mono">
+                <div class="grid grid-cols-3 bg-emerald-900 text-white p-2 font-bold text-[11px]">
+                  <div>id_prod (Atributo)</div>
+                  <div>nome_prod</div>
+                  <div>preco_unit</div>
+                </div>
+                <div class="grid grid-cols-3 p-2 border-b border-slate-200 text-slate-700 bg-slate-50/50">
+                  <div class="font-bold text-emerald-700">101</div>
+                  <div>Teclado Mecânico</div>
+                  <div>R$ 290,00</div>
+                </div>
+                <div class="grid grid-cols-3 p-2 text-slate-700">
+                  <div class="font-bold text-emerald-700">102</div>
+                  <div>Mouse Óptico</div>
+                  <div>R$ 120,00</div>
+                </div>
+              </div>
+
+              <div class="mt-4 p-2.5 bg-emerald-50 rounded border border-emerald-200 text-[11px] text-emerald-950">
+                ⭐ <strong>Ponto-chave:</strong> A ordem das linhas e das colunas não altera o significado dos dados. A integridade reside na definição estrita das regras e tipos.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O que torna um banco relacional tão confiável para o setor financeiro?</span>
+          <span class="font-medium text-emerald-700">As Propriedades ACID →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 4: MÓDULO 2.1 - PROPRIEDADES ACID ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Propriedades ACID" data-module="Módulo 2.1 — Arquiteturas de BD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.1 • Integridade Transacional</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O Escudo das Transações: Propriedades ACID</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Garantia Crítica</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+            Uma <strong>transação</strong> é um conjunto de operações executadas como um bloco único. O modelo relacional garante as 4 letras do acrônimo <strong>ACID</strong>:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+            <!-- A - Atomicidade -->
+            <div class="p-4 rounded-xl border-2 border-emerald-500/50 bg-emerald-50/30 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-700 text-white font-mono font-bold text-sm flex items-center justify-center mb-2">A</span>
+                <h4 class="font-bold text-sm text-slate-800 mb-1">Atomicidade</h4>
+                <p class="text-xs text-slate-600 leading-snug">
+                  <strong>"Tudo ou nada".</strong> Ou todas as operações da transação são confirmadas (<code class="mono-pill">COMMIT</code>), ou nenhuma é gravada (<code class="mono-pill">ROLLBACK</code>).
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-200 text-[10px] text-emerald-800 font-medium">
+                Sem estados parciais no banco.
+              </div>
+            </div>
+
+            <!-- C - Consistência -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-sm flex items-center justify-center mb-2">C</span>
+                <h4 class="font-bold text-sm text-slate-800 mb-1">Consistência</h4>
+                <p class="text-xs text-slate-600 leading-snug">
+                  O banco sai de um estado válido e chega a outro estado válido, respeitando todas as regras de integridade e restrições.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-200 text-[10px] text-slate-500">
+                Nenhuma regra quebrada.
+              </div>
+            </div>
+
+            <!-- I - Isolamento -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-sm flex items-center justify-center mb-2">I</span>
+                <h4 class="font-bold text-sm text-slate-800 mb-1">Isolamento</h4>
+                <p class="text-xs text-slate-600 leading-snug">
+                  Transações concorrentes não interferem umas nas outras. O resultado é idêntico a executá-las em sequência.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-200 text-[10px] text-slate-500">
+                Evita leituras "sujas" ou fantasmas.
+              </div>
+            </div>
+
+            <!-- D - Durabilidade -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-sm flex items-center justify-center mb-2">D</span>
+                <h4 class="font-bold text-sm text-slate-800 mb-1">Durabilidade</h4>
+                <p class="text-xs text-slate-600 leading-snug">
+                  Uma vez finalizada, a gravação é permanente em disco físico ou réplicas, sobrevivendo a quedas de energia e panes.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-200 text-[10px] text-slate-500">
+                Dados seguros mesmo com crash.
+              </div>
+            </div>
+          </div>
+
+          <!-- Exemplo Clássico: Pix / Transferência -->
+          <div class="mt-4 p-3 rounded-xl bg-slate-900 text-white text-xs flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">💳</span>
+              <span><strong>Exemplo Clássico:</strong> Se R$ 500 saem da conta de Alice mas a conexão cai antes de creditar na conta de Bob, a <strong>Atomicidade</strong> desfaz o débito instantaneamente.</span>
+            </div>
+            <span class="font-mono text-emerald-400 text-[11px] font-bold shrink-0 ml-3">Rollback Automático</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Se o modelo relacional é tão perfeito, por que surgiu o NoSQL?</span>
+          <span class="font-medium text-emerald-700">Módulo 2.1 — O Surgimento do NoSQL →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 5: MÓDULO 2.1 - POR QUE NOSQL? ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Por que NoSQL?" data-module="Módulo 2.1 — Arquiteturas de BD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.1 • A Nova Geração</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">A Revolução NoSQL: Not Only SQL</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Escalabilidade & Flexibilidade</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4">
+              <p class="text-sm text-slate-700 leading-relaxed">
+                Com o nascimento de gigantes como Google, Amazon e Facebook nos anos 2000, o volume de dados explodiu e surgiram demandas que os bancos relacionais tradicionais tinham dificuldade de atender com baixo custo.
+              </p>
+
+              <div class="space-y-2 text-xs">
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <span class="font-bold text-emerald-800 block mb-0.5">1. Escalabilidade Horizontal (Scale-Out)</span>
+                  Em vez de comprar um supercomputador milionário (escala vertical), o NoSQL distribui petabytes de dados em dezenas de servidores comuns em cluster.
+                </div>
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <span class="font-bold text-emerald-800 block mb-0.5">2. Esquema Flexível (Schema-less / Dynamic)</span>
+                  Capacidade de guardar registros com formatos diferentes sem precisar recriar ou alterar a estrutura da tabela inteira.
+                </div>
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                  <span class="font-bold text-emerald-800 block mb-0.5">3. Alta Velocidade de Escrita</span>
+                  Projetados para suportar milhões de cliques por segundo de usuários globais conectados.
+                </div>
+              </div>
+            </div>
+
+            <!-- Comparativo Visual Vertical vs Horizontal -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-center text-xs space-y-4">
+              <span class="font-bold text-slate-700 uppercase block tracking-wider">Como o Sistema Cresce?</span>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 bg-white rounded-lg border border-slate-200">
+                  <span class="text-lg block mb-1">🖥️ ➔ 🏢</span>
+                  <span class="font-bold text-slate-800 block text-xs">Escala Vertical (SQL)</span>
+                  <p class="text-[10px] text-slate-500 mt-1">Colocar mais RAM, CPU e SSD no mesmo servidor. Alto custo limite.</p>
+                </div>
+                <div class="p-3 bg-emerald-50/50 rounded-lg border border-emerald-300">
+                  <span class="text-lg block mb-1">💻 ➔ 💻 💻 💻</span>
+                  <span class="font-bold text-emerald-900 block text-xs">Escala Horizontal (NoSQL)</span>
+                  <p class="text-[10px] text-emerald-800 mt-1">Adicionar mais nós comuns trabalhando em equipe. Escalabilidade infinita.</p>
+                </div>
+              </div>
+
+              <div class="p-2.5 bg-white border border-slate-200 rounded text-[11px] text-slate-600">
+                💡 <strong>Atenção:</strong> NoSQL não significa "sem SQL", mas sim <em>"Not Only SQL"</em> (Não Apenas SQL). Ambos coexistem no mercado moderno!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Quais são os 4 tipos de bancos NoSQL existentes?</span>
+          <span class="font-medium text-emerald-700">Famílias NoSQL: Documentos e Chave-Valor →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 6: MÓDULO 2.1 - DOCUMENTOS E CHAVE-VALOR ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="NoSQL: Documentos e Chave-Valor" data-module="Módulo 2.1 — Arquiteturas de BD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.1 • Famílias NoSQL (Parte 1)</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Documentos e Chave-Valor</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">MongoDB & Redis</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Família 1: Documentos -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 font-mono">FAMÍLIA 1</span>
+                  <span class="text-slate-400 text-xs">JSON / BSON</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mb-1">Banco Baseado em Documentos</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Armazena os dados em documentos estruturados (como JSON). Cada documento pode ter campos diferentes, suportando listas e objetos aninhados.
+                </p>
+
+                <!-- Snippet JSON -->
+                <div class="bg-slate-900 rounded-lg p-3 text-emerald-400 font-mono text-[11px] leading-tight">
+                  <span class="text-slate-400">// Exemplo de Documento no MongoDB</span><br>
+                  {<br>
+                  &nbsp;&nbsp;"id": 101,<br>
+                  &nbsp;&nbsp;"nome": "Carlos Silva",<br>
+                  &nbsp;&nbsp;"emails": ["carlos@email.com", "c.silva@corp.com"],<br>
+                  &nbsp;&nbsp;"preferencias": { "tema": "escuro", "notif": true }<br>
+                  }
+                </div>
+              </div>
+              <div class="mt-4 pt-2 border-t border-slate-200 text-[11px] text-slate-500 flex justify-between">
+                <span><strong>Casos de Uso:</strong> Catálogo de e-commerce, blogs, CMS.</span>
+                <span class="font-bold text-emerald-700">MongoDB, CouchDB</span>
+              </div>
+            </div>
+
+            <!-- Família 2: Chave-Valor -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 font-mono">FAMÍLIA 2</span>
+                  <span class="text-slate-400 text-xs">Memória RAM / Cache</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mb-1">Banco Chave-Valor (Key-Value)</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  O modelo mais simples e ultra veloz. Cada registro é formado por uma chave única que aponta para um valor arbitrário.
+                </p>
+
+                <!-- Esquema Chave-Valor -->
+                <div class="space-y-1.5 font-mono text-xs">
+                  <div class="p-2 bg-white rounded border border-slate-200 flex justify-between">
+                    <span class="text-emerald-700 font-bold">"sessao:usr_8921"</span>
+                    <span class="text-slate-500">→</span>
+                    <span class="text-slate-800">"token_auth_xyz123"</span>
+                  </div>
+                  <div class="p-2 bg-white rounded border border-slate-200 flex justify-between">
+                    <span class="text-emerald-700 font-bold">"carrinho:usr_8921"</span>
+                    <span class="text-slate-500">→</span>
+                    <span class="text-slate-800">[item_12, item_44]</span>
+                  </div>
+                  <div class="p-2 bg-white rounded border border-slate-200 flex justify-between">
+                    <span class="text-emerald-700 font-bold">"views:post_304"</span>
+                    <span class="text-slate-500">→</span>
+                    <span class="text-slate-800">14.920</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 border-t border-slate-200 text-[11px] text-slate-500 flex justify-between">
+                <span><strong>Casos de Uso:</strong> Cache em milissegundos, logins, carrinhos.</span>
+                <span class="font-bold text-emerald-700">Redis, DynamoDB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>E para redes sociais e dados de telemetria gigantescos?</span>
+          <span class="font-medium text-emerald-700">Famílias NoSQL: Grafos e Colunar →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 7: MÓDULO 2.1 - GRAFOS E COLUNAR ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="NoSQL: Grafos e Colunar" data-module="Módulo 2.1 — Arquiteturas de BD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.1 • Famílias NoSQL (Parte 2)</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Bancos de Grafos e Família de Colunas</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Neo4j & Cassandra</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Família 3: Grafos -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 font-mono">FAMÍLIA 3</span>
+                  <span class="text-slate-400 text-xs">Nós & Arestas</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mb-1">Banco de Grafos</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Focado nas relações complexas entre elementos. As entidades são <strong>Nós (Nodes)</strong> e as conexões entre elas são <strong>Arestas (Edges)</strong> com propriedades próprias.
+                </p>
+
+                <!-- Representação conceitual de Grafo -->
+                <div class="p-3 bg-white rounded-lg border border-slate-200 text-xs text-center space-y-2">
+                  <div class="flex items-center justify-center gap-2">
+                    <span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[11px]">(Ana)</span>
+                    <span class="text-slate-400 text-[10px]">──[AMIGA_DE]──▶</span>
+                    <span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[11px]">(Bia)</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500">
+                    Bia ──[COMPROU]──▶ Livro de Python ◀──[CURTIU]── Ana
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 border-t border-slate-200 text-[11px] text-slate-500 flex justify-between">
+                <span><strong>Casos de Uso:</strong> Redes sociais, antifraude, rotas, recomendação.</span>
+                <span class="font-bold text-emerald-700">Neo4j, Amazon Neptune</span>
+              </div>
+            </div>
+
+            <!-- Família 4: Colunar -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 font-mono">FAMÍLIA 4</span>
+                  <span class="text-slate-400 text-xs">Wide-Column</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mb-1">Banco Colunar (Wide-Column)</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Em vez de salvar linha por linha, armazena os dados agrupando famílias de colunas juntas em disco. Permite compactação impressionante e consultas analíticas velozes sobre petabytes.
+                </p>
+
+                <!-- Exemplo visual Colunar -->
+                <div class="p-3 bg-white rounded-lg border border-slate-200 text-[11px] font-mono space-y-1">
+                  <div class="text-slate-600"><span class="text-emerald-700 font-bold">sensor_id_01:</span> timestamp_1=24.5C, timestamp_2=24.8C</div>
+                  <div class="text-slate-600"><span class="text-emerald-700 font-bold">sensor_id_02:</span> timestamp_1=80.1%, timestamp_2=79.9%</div>
+                </div>
+              </div>
+              <div class="mt-4 pt-2 border-t border-slate-200 text-[11px] text-slate-500 flex justify-between">
+                <span><strong>Casos de Uso:</strong> Big Data, IoT, séries temporais e telemetria.</span>
+                <span class="font-bold text-emerald-700">Cassandra, ScyllaDB, HBase</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como escolher entre SQL e NoSQL na prática?</span>
+          <span class="font-medium text-emerald-700">Duelo Arquitetural: Relacional vs NoSQL →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 8: MÓDULO 2.1 - DUELO RELACIONAL vs NOSQL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Relacional vs NoSQL" data-module="Módulo 2.1 — Arquiteturas de BD">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.1 • Tomada de Decisão Arquitetural</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Duelo Arquitetural: Relacional (SQL) vs NoSQL</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Critérios de Escolha</span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Critério</th>
+                  <th class="py-3 px-4 text-emerald-900 bg-emerald-50/50">Relacional (SQL Tradicional)</th>
+                  <th class="py-3 px-4 text-slate-700">Não-Relacional (NoSQL)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 text-slate-700">
+                <tr>
+                  <td class="py-2.5 px-4 font-semibold">Estrutura de Dados</td>
+                  <td class="py-2.5 px-4 text-emerald-950 bg-emerald-50/30">Esquema rígido e pré-definido (tabelas, colunas, tipos)</td>
+                  <td class="py-2.5 px-4 text-slate-600">Dinâmica, flexível (JSON, chave-valor, grafos)</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-semibold">Transações & Integridade</td>
+                  <td class="py-2.5 px-4 font-medium text-emerald-950 bg-emerald-50/30">Foco absoluto em <strong>ACID</strong> e integridade matemática</td>
+                  <td class="py-2.5 px-4 text-slate-600">Consistência eventual (modelo BASE), foco em velocidade</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-semibold">Escalabilidade</td>
+                  <td class="py-2.5 px-4 text-emerald-950 bg-emerald-50/30">Vertical por excelência (máquinas mais robustas)</td>
+                  <td class="py-2.5 px-4 text-slate-600">Horizontal nativa (clusters distribuídos em múltiplos nós)</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-semibold">Consultas Complexas</td>
+                  <td class="py-2.5 px-4 font-medium text-emerald-950 bg-emerald-50/30">Poderoso em <code class="mono-pill">JOINs</code> e agregações analíticas</td>
+                  <td class="py-2.5 px-4 text-slate-600">Consultas focadas em chaves ou caminhos diretos</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-4 font-semibold">Cenário Ideal</td>
+                  <td class="py-2.5 px-4 text-emerald-950 bg-emerald-50/30">Finanças, ERP, CRM, sistemas contábeis e fiscais</td>
+                  <td class="py-2.5 px-4 text-slate-600">Redes sociais, logs de IoT, cache de alta frequência, Big Data</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+            ⭐ <strong>Conclusão do Arquiteto:</strong> A maioria das grandes empresas modernas adota a <strong>Persistência Poliglota</strong>: usa PostgreSQL para as transações financeiras e Redis/MongoDB para cache e catálogo!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como projetar um banco do zero antes de escrever código?</span>
+          <span class="font-medium text-emerald-700">Módulo 2.2 — Os 3 Níveis de Modelagem →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 9: MÓDULO 2.2 - OS 3 NÍVEIS DE MODELAGEM ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Os 3 Níveis de Modelagem" data-module="Módulo 2.2 — Níveis de Modelagem">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.2 • Do Problema ao Código</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">A Jornada da Modelagem: Os 3 Níveis Essenciais</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Arquitetura ANSI/SPARC</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+            Nenhum engenheiro de software experiente cria tabelas direto no terminal. O projeto de banco de dados passa obrigatoriamente por <strong>3 níveis de abstração progressivos</strong>:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Nível 1: Conceitual -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 uppercase font-mono">NÍVEL 1</span>
+                <h3 class="text-base font-bold text-slate-800 mt-2 mb-1">Modelo Conceitual</h3>
+                <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                  Focado nas regras de negócio e na visão do usuário. Independente de qualquer software, tecnologia ou SGBD.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-[11px] text-slate-700">
+                  <strong>Ferramenta:</strong> Modelo Entidade-Relacionamento (MER / DER).
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500">
+                Público: Clientes, analistas e gestores.
+              </div>
+            </div>
+
+            <!-- Nível 2: Lógico -->
+            <div class="p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between shadow-xs">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800 uppercase font-mono">NÍVEL 2</span>
+                <h3 class="text-base font-bold text-emerald-950 mt-2 mb-1">Modelo Lógico</h3>
+                <p class="text-xs text-slate-700 mb-4 leading-relaxed">
+                  Adapta o modelo conceitual ao paradigma escolhido (ex: Relacional). Define tabelas, colunas, chaves primárias e estrangeiras.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-emerald-200 text-[11px] text-emerald-900 font-mono">
+                  CLIENTES (id_cli [PK], nome, cidade)
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-emerald-200 text-[11px] text-emerald-800 font-semibold">
+                Público: Desenvolvedores e arquitetos.
+              </div>
+            </div>
+
+            <!-- Nível 3: Físico -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 uppercase font-mono">NÍVEL 3</span>
+                <h3 class="text-base font-bold text-slate-800 mt-2 mb-1">Modelo Físico</h3>
+                <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                  A implementação no SGBD específico (Postgres, Oracle, MySQL). Comandos DDL, tipos exatos, índices e armazenamento em disco.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-[11px] text-slate-700 font-mono">
+                  CREATE TABLE clientes (...);
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500">
+                Público: DBAs e Engenheiros de Dados.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como funciona a linguagem visual do Modelo Conceitual?</span>
+          <span class="font-medium text-emerald-700">Modelo Entidade-Relacionamento (MER) →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 10: MÓDULO 2.2 - MODELO CONCEITUAL (MER) ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Nível Conceitual: O MER" data-module="Módulo 2.2 — Níveis de Modelagem">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.2 • Modelagem Visual</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Nível Conceitual: Modelo Entidade-Relacionamento</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Peter Chen (1976)</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4">
+              <p class="text-sm text-slate-700 leading-relaxed">
+                O <strong>MER (Modelo Entidade-Relacionamento)</strong> é a representação gráfica do mundo real através de símbolos padronizados.
+              </p>
+
+              <div class="space-y-2.5 text-xs">
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3">
+                  <div class="w-8 h-8 rounded border-2 border-slate-700 bg-white flex items-center justify-center font-bold text-[10px]">RET</div>
+                  <div>
+                    <strong class="text-slate-800 block">Entidade (Retângulo)</strong>
+                    <span class="text-slate-600">O "objeto" do mundo real sobre o qual guardamos dados. Ex: <code class="mono-pill">CLIENTE</code>, <code class="mono-pill">PRODUTO</code>.</span>
+                  </div>
+                </div>
+
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full border-2 border-slate-700 bg-white flex items-center justify-center font-bold text-[10px]">OVAL</div>
+                  <div>
+                    <strong class="text-slate-800 block">Atributo (Elipse / Círculo)</strong>
+                    <span class="text-slate-600">As propriedades que caracterizam a entidade. Ex: <code class="mono-pill">nome</code>, <code class="mono-pill">preco</code>, <code class="mono-pill">cpf</code>.</span>
+                  </div>
+                </div>
+
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3">
+                  <div class="w-8 h-8 rotate-45 border-2 border-emerald-600 bg-emerald-50 flex items-center justify-center font-bold text-[10px]"><span class="-rotate-45">LOS</span></div>
+                  <div>
+                    <strong class="text-emerald-900 block">Relacionamento (Losango)</strong>
+                    <span class="text-slate-600">A ação ou associação que une entidades. Ex: <code class="mono-pill">REALIZA</code>, <code class="mono-pill">CONTÉM</code>.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Diagrama DER Didático -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-center shadow-2xs">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-4">Esquema Gráfico Simplificado</span>
+
+              <div class="flex items-center justify-center gap-3 my-4">
+                <!-- Entidade 1 -->
+                <div class="px-3 py-2 rounded border-2 border-slate-800 bg-white text-xs font-bold shadow-2xs">
+                  CLIENTE
+                </div>
+
+                <!-- Linha e Losango -->
+                <div class="flex items-center">
+                  <span class="w-6 h-0.5 bg-slate-400"></span>
+                  <div class="w-16 h-8 border-2 border-emerald-600 bg-emerald-50 flex items-center justify-center text-[10px] font-bold text-emerald-900 rounded">
+                    REALIZA
+                  </div>
+                  <span class="w-6 h-0.5 bg-slate-400"></span>
+                </div>
+
+                <!-- Entidade 2 -->
+                <div class="px-3 py-2 rounded border-2 border-slate-800 bg-white text-xs font-bold shadow-2xs">
+                  PEDIDO
+                </div>
+              </div>
+
+              <div class="p-2.5 bg-white border border-slate-200 rounded text-[11px] text-slate-600">
+                Lê-se: <em>"Um Cliente REALIZA um Pedido."</em> Mas quantos pedidos um cliente pode fazer? Isso nos leva à <strong>Cardinalidade</strong>!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como quantificar essas relações?</span>
+          <span class="font-medium text-emerald-700">Cardinalidades no MER: 1:1, 1:N e N:N →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 11: MÓDULO 2.2 - CARDINALIDADES ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Cardinalidades no MER" data-module="Módulo 2.2 — Níveis de Modelagem">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.2 • Regras de Proporção</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Cardinalidades no MER: 1:1, 1:N e N:N</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Mapeamento Real</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- 1:1 -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-slate-200 text-slate-800">1 : 1</span>
+                <h3 class="text-base font-bold text-slate-800 mt-2 mb-1">Um para Um</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Cada ocorrência de A se relaciona com no máximo uma de B, e vice-versa.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-xs text-slate-700">
+                  <strong>Exemplo:</strong> Um Cidadão possui um único Título de Eleitor; cada título pertence a um único cidadão.
+                </div>
+              </div>
+              <div class="mt-4 pt-2 text-[11px] text-slate-500">
+                Frequente em dados confidenciais separados.
+              </div>
+            </div>
+
+            <!-- 1:N -->
+            <div class="p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-emerald-200 text-emerald-800">1 : N (ou 1:*)</span>
+                <h3 class="text-base font-bold text-emerald-950 mt-2 mb-1">Um para Muitos</h3>
+                <p class="text-xs text-slate-700 mb-3 leading-relaxed">
+                  Uma ocorrência de A se relaciona com várias de B, mas cada ocorrência de B pertence a apenas uma de A.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-emerald-200 text-xs text-slate-800">
+                  <strong>Exemplo:</strong> Um Cliente faz muitos Pedidos; mas cada Pedido pertence a apenas um Cliente.
+                </div>
+              </div>
+              <div class="mt-4 pt-2 text-[11px] text-emerald-800 font-semibold">
+                O relacionamento mais comum nos negócios!
+              </div>
+            </div>
+
+            <!-- N:N -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-slate-200 text-slate-800">N : N (ou * : *)</span>
+                <h3 class="text-base font-bold text-slate-800 mt-2 mb-1">Muitos para Muitos</h3>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Uma ocorrência de A se relaciona com várias de B, e uma ocorrência de B se relaciona com várias de A.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-xs text-slate-700">
+                  <strong>Exemplo:</strong> Um Aluno cursa várias Disciplinas; cada Disciplina possui vários Alunos.
+                </div>
+              </div>
+              <div class="mt-4 pt-2 text-[11px] text-amber-700 font-medium">
+                ⚠️ Requer tratamento especial no Modelo Lógico!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como transformar o MER e resolver o N:N no modelo lógico?</span>
+          <span class="font-medium text-emerald-700">Módulo 2.2 — O Modelo Lógico de Tabelas →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 12: MÓDULO 2.2 - NÍVEL LÓGICO & RESOLUÇÃO DE N:N ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Nível Lógico e Resolução de N:N" data-module="Módulo 2.2 — Níveis de Modelagem">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.2 • Mapeamento Relacional</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Nível Lógico: O Segredo da Tabela Intermediária</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Resolvendo N:N</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+            No Modelo Relacional, <strong>não existe relacionamento N:N direto em tabelas físicas</strong>. Para resolver um N:N entre <code class="mono-pill">PEDIDOS</code> e <code class="mono-pill">PRODUTOS</code>, desmembramos o relacionamento em <strong>duas relações 1:N</strong> usando uma <strong>Tabela Associativa</strong>!
+          </p>
+
+          <!-- Diagrama de 3 tabelas no lógico -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+            <!-- Tabela 1: Pedidos -->
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
+              <div class="bg-emerald-900 text-white px-3 py-2 text-xs font-bold font-mono flex justify-between">
+                <span>PEDIDOS</span>
+                <span class="text-emerald-300">1</span>
+              </div>
+              <div class="p-3 text-xs font-mono space-y-1.5">
+                <div class="text-emerald-700 font-bold">🔑 id_pedido (PK)</div>
+                <div class="text-slate-600">data_pedido</div>
+                <div class="text-blue-700">🔗 id_cliente (FK)</div>
+              </div>
+            </div>
+
+            <!-- Tabela 2: Itens do Pedido (Associativa) -->
+            <div class="rounded-xl border-2 border-emerald-500 bg-emerald-50/40 overflow-hidden shadow-xs">
+              <div class="bg-emerald-800 text-white px-3 py-2 text-xs font-bold font-mono flex justify-between">
+                <span>ITEM_PEDIDO (Associativa)</span>
+                <span class="text-emerald-200">N : N</span>
+              </div>
+              <div class="p-3 text-xs font-mono space-y-1.5 bg-white">
+                <div class="text-blue-700 font-bold bg-blue-50 px-1 rounded">🔗 id_pedido (PK, FK)</div>
+                <div class="text-blue-700 font-bold bg-blue-50 px-1 rounded">🔗 id_produto (PK, FK)</div>
+                <div class="text-slate-800 font-semibold">quantidade</div>
+                <div class="text-slate-800 font-semibold">preco_cobrado</div>
+              </div>
+            </div>
+
+            <!-- Tabela 3: Produtos -->
+            <div class="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
+              <div class="bg-emerald-900 text-white px-3 py-2 text-xs font-bold font-mono flex justify-between">
+                <span>PRODUTOS</span>
+                <span class="text-emerald-300">1</span>
+              </div>
+              <div class="p-3 text-xs font-mono space-y-1.5">
+                <div class="text-emerald-700 font-bold">🔑 id_produto (PK)</div>
+                <div class="text-slate-600">nome_produto</div>
+                <div class="text-slate-600">preco_tabela</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+            💡 <strong>Regra de Ouro:</strong> A tabela associativa herda as Chaves Primárias de ambos os lados como <strong>Chaves Estrangeiras (FK)</strong> e pode possuir atributos próprios (como a <em>quantidade</em> de itens daquele produto no pedido).
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como garantir que os dados não fiquem órfãos ou inválidos?</span>
+          <span class="font-medium text-emerald-700">Chaves e Restrições de Integridade →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 13: MÓDULO 2.2 - RESTRIÇÕES DE INTEGRIDADE ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Chaves e Restrições" data-module="Módulo 2.2 — Níveis de Modelagem">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.2 • Blindagem Lógica</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Chaves e Restrições de Integridade (Constraints)</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Regras Inegociáveis</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Chaves -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+              <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider block">As Chaves Fundamentais</span>
+
+              <div class="p-3 bg-white rounded-lg border border-slate-200 text-xs">
+                <strong class="text-slate-900 block font-mono">🔑 Primary Key (PK) - Chave Primária</strong>
+                <p class="text-slate-600 mt-1">Identificador único obrigatório (<code class="mono-pill">NOT NULL + UNIQUE</code>) da tupla. Garante que nenhuma linha seja idêntica a outra.</p>
+              </div>
+
+              <div class="p-3 bg-white rounded-lg border border-slate-200 text-xs">
+                <strong class="text-blue-900 block font-mono">🔗 Foreign Key (FK) - Chave Estrangeira</strong>
+                <p class="text-slate-600 mt-1">Aponta para a PK de outra tabela. Assegura a <strong>Integridade Referencial</strong>: impede registrar um pedido para um cliente inexistente!</p>
+              </div>
+            </div>
+
+            <!-- Restrições do SGBD -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+              <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Restrições Adicionais (Constraints)</span>
+
+              <div class="space-y-2 text-xs">
+                <div class="p-2.5 bg-white rounded border border-slate-200 flex justify-between items-center">
+                  <span class="font-mono font-bold text-slate-800">NOT NULL</span>
+                  <span class="text-slate-500">Impede que o campo fique vazio (obrigatório).</span>
+                </div>
+
+                <div class="p-2.5 bg-white rounded border border-slate-200 flex justify-between items-center">
+                  <span class="font-mono font-bold text-slate-800">UNIQUE</span>
+                  <span class="text-slate-500">Garante valores únicos (ex: CPF, e-mail).</span>
+                </div>
+
+                <div class="p-2.5 bg-white rounded border border-slate-200 flex justify-between items-center">
+                  <span class="font-mono font-bold text-slate-800">CHECK</span>
+                  <span class="text-slate-500">Valida condições lógicas: <code class="mono-pill">idade &gt;= 18</code> ou <code class="mono-pill">preco &gt; 0</code>.</span>
+                </div>
+
+                <div class="p-2.5 bg-white rounded border border-slate-200 flex justify-between items-center">
+                  <span class="font-mono font-bold text-slate-800">DEFAULT</span>
+                  <span class="text-slate-500">Atribui valor padrão automático se nada for informado.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como esse projeto lógico se transforma em código no servidor?</span>
+          <span class="font-medium text-emerald-700">Módulo 2.2 — Nível Físico e Scripts DDL →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 14: MÓDULO 2.2 - NÍVEL FÍSICO & DDL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Nível Físico e Scripts DDL" data-module="Módulo 2.2 — Níveis de Modelagem">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.2 • Execução Real</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Nível Físico: DDL e Implementação no SGBD</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Data Definition Language</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="space-y-3 text-xs">
+              <p class="text-slate-700 leading-relaxed">
+                O <strong>Modelo Físico</strong> expressa as decisões técnicas finais no dialeto específico do SGBD escolhido (PostgreSQL, MySQL, SQL Server):
+              </p>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-1">1. Especificação Rigorosa de Tipos:</strong>
+                Substituição de conceitos abstratos por tipos de dados exatos da máquina: <code class="mono-pill">INT</code>, <code class="mono-pill">VARCHAR(120)</code>, <code class="mono-pill">NUMERIC(10,2)</code>, <code class="mono-pill">TIMESTAMP</code>.
+              </div>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-1">2. Criação de Índices (INDEX):</strong>
+                Estruturas em árvore B-Tree para permitir que o SGBD encontre um cliente por CPF em frações de milissegundo.
+              </div>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 block mb-1">3. Organização em Disco & Particionamento:</strong>
+                Como os arquivos <code class="mono-pill">.mdf</code> ou blocos de dados serão fisicamente distribuídos nos discos SSD.
+              </div>
+            </div>
+
+            <!-- Exemplo de Script DDL SQL -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 mb-2 pb-1 border-b border-slate-700 flex justify-between items-center">
+                <span>-- Script DDL no PostgreSQL</span>
+                <span class="text-emerald-400 font-bold">SQL Físico</span>
+              </div>
+              <span class="text-blue-400 font-bold">CREATE TABLE</span> clientes (<br>
+              &nbsp;&nbsp;id_cliente <span class="text-emerald-400">SERIAL PRIMARY KEY</span>,<br>
+              &nbsp;&nbsp;nome_completo <span class="text-yellow-300">VARCHAR(100) NOT NULL</span>,<br>
+              &nbsp;&nbsp;cpf <span class="text-yellow-300">CHAR(11) UNIQUE NOT NULL</span>,<br>
+              &nbsp;&nbsp;data_cadastro <span class="text-purple-300">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span><br>
+              );<br><br>
+              <span class="text-blue-400 font-bold">CREATE INDEX</span> idx_clientes_cpf <span class="text-blue-400 font-bold">ON</span> clientes(cpf);
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como saber se o design das nossas tabelas é bom ou desastroso?</span>
+          <span class="font-medium text-emerald-700">Módulo 2.3 — Normalização de Dados →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 15: MÓDULO 2.3 - POR QUE NORMALIZAR? ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Por que Normalizar?" data-module="Módulo 2.3 — Normalização">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.3 • Teoria da Normalização</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Por que Normalizar? O Pesadelo das Anomalias</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-red-100 text-red-800 border border-red-300">Prevenção de Falhas</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+            A <strong>Normalização</strong> é o método formal de análise de esquemas de tabelas para <strong>eliminar redundâncias desnecessárias</strong> e proteger o banco contra as 3 anomalias operacionais mortais:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Anomalia 1: Inserção -->
+            <div class="p-4 rounded-xl border border-red-200 bg-red-50/40 flex flex-col justify-between">
+              <div>
+                <span class="w-6 h-6 rounded bg-red-600 text-white font-bold text-xs flex items-center justify-center mb-2">1</span>
+                <h4 class="font-bold text-xs text-red-950 mb-1">Anomalia de Inserção</h4>
+                <p class="text-[11px] text-red-900 leading-snug">
+                  Impossibilidade de registrar um novo dado sem cadastrar obrigatoriamente outro dado ainda inexistente.
+                </p>
+                <div class="mt-2 p-2 bg-white rounded border border-red-200 text-[10px] text-red-800">
+                  <em>Ex: Não conseguir cadastrar um novo curso na faculdade porque nenhum aluno se matriculou nele ainda.</em>
+                </div>
+              </div>
+            </div>
+
+            <!-- Anomalia 2: Exclusão -->
+            <div class="p-4 rounded-xl border border-red-200 bg-red-50/40 flex flex-col justify-between">
+              <div>
+                <span class="w-6 h-6 rounded bg-red-600 text-white font-bold text-xs flex items-center justify-center mb-2">2</span>
+                <h4 class="font-bold text-xs text-red-950 mb-1">Anomalia de Exclusão</h4>
+                <p class="text-[11px] text-red-900 leading-snug">
+                  Ao apagar um registro desejado, perder acidentalmente e sem querer outros dados cruciais da empresa.
+                </p>
+                <div class="mt-2 p-2 bg-white rounded border border-red-200 text-[10px] text-red-800">
+                  <em>Ex: Demitir o único vendedor de uma filial e, ao deletar a linha dele, apagar os dados da filial inteira.</em>
+                </div>
+              </div>
+            </div>
+
+            <!-- Anomalia 3: Alteração -->
+            <div class="p-4 rounded-xl border border-red-200 bg-red-50/40 flex flex-col justify-between">
+              <div>
+                <span class="w-6 h-6 rounded bg-red-600 text-white font-bold text-xs flex items-center justify-center mb-2">3</span>
+                <h4 class="font-bold text-xs text-red-950 mb-1">Anomalia de Alteração</h4>
+                <p class="text-[11px] text-red-900 leading-snug">
+                  O mesmo dado está repetido em 50 linhas; você atualiza em 10 e esquece em 40, criando contradições graves.
+                </p>
+                <div class="mt-2 p-2 bg-white rounded border border-red-200 text-[10px] text-red-800">
+                  <em>Ex: Mudar o preço do "Mouse" em uma venda passada e o sistema passar a cobrar dois preços diferentes.</em>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+            🛡️ <strong>O Remédio:</strong> As <strong>Formas Normais (1FN, 2FN e 3FN)</strong>, aplicadas de forma sequencial e acumulativa!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O primeiro degrau da qualidade de dados</span>
+          <span class="font-medium text-emerald-700">A 1ª Forma Normal (1FN) →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 16: MÓDULO 2.3 - 1ª FORMA NORMAL (1FN) ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="1ª Forma Normal (1FN)" data-module="Módulo 2.3 — Normalização">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.3 • Formas Normais</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">1ª Forma Normal (1FN): Atomicidade Total</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Valores Indivisíveis</span>
+          </div>
+
+          <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl mb-4 text-xs text-emerald-950">
+            <strong>Regra da 1FN:</strong> Uma tabela está na 1FN se, e somente se, todos os seus atributos contiverem <strong>apenas valores atômicos (indivisíveis)</strong>, sem repetições de campos multivalorados e sem atributos compostos. Além disso, deve possuir uma <strong>Chave Primária</strong> identificada.
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- ANTES (Viola 1FN) -->
+            <div class="border border-red-300 rounded-xl overflow-hidden bg-red-50/20 text-xs">
+              <div class="bg-red-800 text-white px-3 py-2 font-bold flex justify-between items-center text-[11px]">
+                <span>❌ VIOLA A 1FN (Campos Misturados e Repetidos)</span>
+                <span class="bg-red-950 px-1.5 py-0.5 rounded font-mono">Erro</span>
+              </div>
+              <div class="p-3 space-y-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-red-200">
+                  <span class="text-slate-800 font-bold">Carlos Mendes</span><br>
+                  <span class="text-red-700">Telefones: (11) 9876-1111, (11) 9999-2222</span> (Multivalorado!)<br>
+                  <span class="text-red-700">Endereço: Av. Paulista, 1000 - SP</span> (Composto não atômico!)
+                </div>
+              </div>
+            </div>
+
+            <!-- DEPOIS (Em conformidade com 1FN) -->
+            <div class="border-2 border-emerald-500 rounded-xl overflow-hidden bg-emerald-50/20 text-xs shadow-xs">
+              <div class="bg-emerald-900 text-white px-3 py-2 font-bold flex justify-between items-center text-[11px]">
+                <span>✅ NA 1ª FORMA NORMAL (Valores Atômicos)</span>
+                <span class="bg-emerald-700 px-1.5 py-0.5 rounded font-mono">1FN OK</span>
+              </div>
+              <div class="p-3 space-y-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-emerald-200">
+                  <span class="text-emerald-700 font-bold">Tabela Clientes:</span><br>
+                  id_cli (PK) | nome | logradouro | numero | uf<br>
+                  <span class="text-slate-600">101 | Carlos Mendes | Av. Paulista | 1000 | SP</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-emerald-200">
+                  <span class="text-emerald-700 font-bold">Tabela Telefones_Cliente (1:N):</span><br>
+                  id_tel (PK) | id_cli (FK) | telefone<br>
+                  <span class="text-slate-600">1 | 101 | (11) 9876-1111</span><br>
+                  <span class="text-slate-600">2 | 101 | (11) 9999-2222</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Próximo degrau: Dependência da chave inteira</span>
+          <span class="font-medium text-emerald-700">A 2ª Forma Normal (2FN) →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 17: MÓDULO 2.3 - 2ª FORMA NORMAL (2FN) ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="2ª Forma Normal (2FN)" data-module="Módulo 2.3 — Normalização">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.3 • Formas Normais</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">2ª Forma Normal (2FN): Eliminação de Dependência Parcial</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Dependência Total</span>
+          </div>
+
+          <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl mb-4 text-xs text-emerald-950">
+            <strong>Regra da 2FN:</strong> A tabela deve estar na 1FN E <strong>nenhum atributo não-chave pode depender apenas de parte de uma Chave Primária Composta</strong>. Toda coluna descritiva deve depender da chave primária <span class="underline font-bold">por inteiro</span>.
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- ANTES (Viola 2FN) -->
+            <div class="border border-red-300 rounded-xl overflow-hidden bg-red-50/20 text-xs">
+              <div class="bg-red-800 text-white px-3 py-2 font-bold flex justify-between items-center text-[11px]">
+                <span>❌ VIOLA A 2FN (Dependência Parcial da Chave)</span>
+                <span class="bg-red-950 px-1.5 py-0.5 rounded font-mono">Erro</span>
+              </div>
+              <div class="p-3 space-y-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-red-200">
+                  <span class="text-slate-800 font-bold">Tabela Item_Pedido:</span><br>
+                  PK Composta: (<span class="text-red-700 font-bold">id_pedido</span>, <span class="text-red-700 font-bold">id_produto</span>)<br><br>
+                  • <span class="text-slate-700">quantidade</span> (depende do pedido E do produto OK)<br>
+                  • <span class="text-red-700 font-bold">nome_produto</span> (ERRO: depende apenas de id_produto!)
+                </div>
+              </div>
+            </div>
+
+            <!-- DEPOIS (Em conformidade com 2FN) -->
+            <div class="border-2 border-emerald-500 rounded-xl overflow-hidden bg-emerald-50/20 text-xs shadow-xs">
+              <div class="bg-emerald-900 text-white px-3 py-2 font-bold flex justify-between items-center text-[11px]">
+                <span>✅ NA 2ª FORMA NORMAL (Separada em Duas Tabelas)</span>
+                <span class="bg-emerald-700 px-1.5 py-0.5 rounded font-mono">2FN OK</span>
+              </div>
+              <div class="p-3 space-y-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-emerald-200">
+                  <span class="text-emerald-700 font-bold">Tabela Item_Pedido:</span><br>
+                  id_pedido (PK, FK) | id_produto (PK, FK) | <span class="text-emerald-900 font-bold">quantidade</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-emerald-200">
+                  <span class="text-emerald-700 font-bold">Tabela Produtos:</span><br>
+                  id_produto (PK) | <span class="text-emerald-900 font-bold">nome_produto</span> | preco_unitario
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 p-2 bg-slate-100 rounded text-[11px] text-slate-600">
+            💡 <strong>Dica Prática:</strong> Se uma tabela tem uma Chave Primária simples (apenas 1 coluna) e já está na 1FN, ela <strong>automaticamente já está na 2FN</strong>!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O estágio mais desejado nos bancos corporativos</span>
+          <span class="font-medium text-emerald-700">A 3ª Forma Normal (3FN) →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 18: MÓDULO 2.3 - 3ª FORMA NORMAL (3FN) ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="3ª Forma Normal (3FN)" data-module="Módulo 2.3 — Normalização">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.3 • Formas Normais</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">3ª Forma Normal (3FN): Sem Dependências Transitivas</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">O Padrão Ouro</span>
+          </div>
+
+          <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl mb-4 text-xs text-emerald-950">
+            <strong>Regra da 3FN:</strong> A tabela deve estar na 2FN E <strong>nenhum atributo não-chave pode depender de outro atributo não-chave</strong>.
+            <div class="mt-1 font-semibold text-emerald-800">
+              Lema clássico: <em>"O atributo deve depender da chave, de toda a chave e de nada além da chave!"</em>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- ANTES (Viola 3FN) -->
+            <div class="border border-red-300 rounded-xl overflow-hidden bg-red-50/20 text-xs">
+              <div class="bg-red-800 text-white px-3 py-2 font-bold flex justify-between items-center text-[11px]">
+                <span>❌ VIOLA A 3FN (Dependência Transitiva)</span>
+                <span class="bg-red-950 px-1.5 py-0.5 rounded font-mono">Erro</span>
+              </div>
+              <div class="p-3 space-y-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-red-200">
+                  <span class="text-slate-800 font-bold">Tabela Funcionarios:</span><br>
+                  id_func (PK) | nome | <span class="text-blue-700 font-bold">id_departamento</span> | <span class="text-red-700 font-bold">nome_departamento</span><br><br>
+                  O <span class="text-red-700 font-bold">nome_departamento</span> depende de <span class="text-blue-700 font-bold">id_departamento</span> (que NÃO é a chave da tabela!).
+                </div>
+              </div>
+            </div>
+
+            <!-- DEPOIS (Em conformidade com 3FN) -->
+            <div class="border-2 border-emerald-500 rounded-xl overflow-hidden bg-emerald-50/20 text-xs shadow-xs">
+              <div class="bg-emerald-900 text-white px-3 py-2 font-bold flex justify-between items-center text-[11px]">
+                <span>✅ NA 3ª FORMA NORMAL (Transição Isolada)</span>
+                <span class="bg-emerald-700 px-1.5 py-0.5 rounded font-mono">3FN OK</span>
+              </div>
+              <div class="p-3 space-y-2 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-emerald-200">
+                  <span class="text-emerald-700 font-bold">Tabela Funcionarios:</span><br>
+                  id_func (PK) | nome | id_departamento (FK)
+                </div>
+                <div class="p-2 bg-white rounded border border-emerald-200">
+                  <span class="text-emerald-700 font-bold">Tabela Departamentos:</span><br>
+                  id_departamento (PK) | nome_departamento | localizacao
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 p-2.5 bg-emerald-100/60 rounded border border-emerald-300 text-[11px] text-emerald-900">
+            ✨ Se o nome do departamento mudar de "TI" para "Tecnologia", você altera em <strong>uma única linha</strong> em vez de alterar em 500 funcionários.
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Vamos visualizar o mapa completo da transformação</span>
+          <span class="font-medium text-emerald-700">O Mapa da Normalização Completo →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 19: MÓDULO 2.3 - MAPA VISUAL DA NORMALIZAÇÃO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="O Mapa da Normalização" data-module="Módulo 2.3 — Normalização">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.3 • Síntese Comparativa</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O Mapa Completo da Normalização: 1FN ➔ 2FN ➔ 3FN</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Evolução do Design</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+            <!-- Passo 0: Caos -->
+            <div class="p-3.5 rounded-xl border border-red-200 bg-red-50/30 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-red-700 uppercase font-mono">Ponto de Partida</span>
+                <h4 class="font-bold text-slate-800 mt-1 mb-2">Tabela Não-Normalizada</h4>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  Planilha única com campos compostos, listas de telefones e dados misturados.
+                </p>
+              </div>
+              <div class="mt-3 p-1.5 bg-white rounded border border-red-200 text-[10px] text-red-800 font-mono">
+                Risco extremo de anomalias
+              </div>
+            </div>
+
+            <!-- Passo 1: 1FN -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-emerald-800 uppercase font-mono">Degrau 1: 1FN</span>
+                <h4 class="font-bold text-slate-800 mt-1 mb-2">Valores Atômicos</h4>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  Campos indivisíveis, sem arrays ou tabelas aninhadas em uma célula. PK criada.
+                </p>
+              </div>
+              <div class="mt-3 p-1.5 bg-white rounded border border-slate-200 text-[10px] text-slate-600 font-mono">
+                Atomicidade garantida
+              </div>
+            </div>
+
+            <!-- Passo 2: 2FN -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-emerald-800 uppercase font-mono">Degrau 2: 2FN</span>
+                <h4 class="font-bold text-slate-800 mt-1 mb-2">Sem Dependência Parcial</h4>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  Atributos dependem da Chave Primária inteira (especialmente em PKs compostas).
+                </p>
+              </div>
+              <div class="mt-3 p-1.5 bg-white rounded border border-slate-200 text-[10px] text-slate-600 font-mono">
+                Desacoplamento de itens
+              </div>
+            </div>
+
+            <!-- Passo 3: 3FN -->
+            <div class="p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="text-[10px] font-bold text-emerald-800 uppercase font-mono">Degrau 3: 3FN</span>
+                <h4 class="font-bold text-emerald-950 mt-1 mb-2">Sem Dependência Transitiva</h4>
+                <p class="text-[11px] text-slate-700 leading-snug">
+                  Nenhum campo depende de outro campo não-chave. Isolamento de cadastros auxiliares.
+                </p>
+              </div>
+              <div class="mt-3 p-1.5 bg-emerald-100 rounded border border-emerald-300 text-[10px] text-emerald-900 font-mono font-bold">
+                Banco 100% íntegro
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-slate-100 text-slate-700 text-xs flex items-center justify-between">
+            <span>🎯 <strong>Regra Corporativa:</strong> No mercado corporativo, atingir a <strong>3ª Forma Normal (3FN)</strong> é o objetivo padrão para todos os sistemas transacionais operacionais (OLTP).</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Mas e se o sistema precisar de velocidade extrema em relatórios?</span>
+          <span class="font-medium text-emerald-700">Desnormalização Consciente →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 20: MÓDULO 2.3 - DESNORMALIZAÇÃO CONSCIENTE ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Desnormalização Consciente" data-module="Módulo 2.3 — Normalização">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 2.3 • Performance vs Integridade</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Desnormalização Consciente: Quando Quebrar Regras?</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Prática Avançada</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4">
+              <p class="text-sm text-slate-700 leading-relaxed">
+                Tabelas perfeitamente normalizadas na 3FN exigem muitas operações de <code class="mono-pill">JOIN</code> para reunir os dados. Em sistemas com petabytes de dados e dashboards analíticos pesados, isso pode ficar lento.
+              </p>
+
+              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">O que é Desnormalizar de modo Consciente?</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                É a introdução controlada de redundância com o objetivo explícito de acelerar leituras analíticas ou salvar "fotos imutáveis do passado".
+              </p>
+
+              <div class="space-y-2 text-xs">
+                <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
+                  <strong class="text-emerald-800">Exemplo 1: Foto Histórica da Venda</strong>
+                  <span class="text-slate-600 block">Salvar o endereço de entrega e o preço dentro do pedido evita que um reajuste futuro altere o extrato fiscal do passado!</span>
+                </div>
+                <div class="p-2.5 rounded bg-slate-50 border border-slate-200">
+                  <strong class="text-emerald-800">Exemplo 2: Data Warehouse & BI</strong>
+                  <span class="text-slate-600 block">Tabelas Fato e Dimensões agrupadas para gerar relatórios anuais em segundos.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quadro Comparativo OLTP vs OLAP -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3 text-xs">
+              <span class="font-bold text-slate-700 uppercase tracking-wider block">Onde usar cada abordagem?</span>
+
+              <div class="p-3 bg-white rounded-lg border border-slate-200">
+                <span class="font-bold text-emerald-800 block">OLTP (Transacional / Dia a Dia)</span>
+                <span class="text-slate-600 block mt-0.5">Compras, cadastros, transferências.</span>
+                <span class="inline-block mt-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">Normalizado (3FN Obrigatório)</span>
+              </div>
+
+              <div class="p-3 bg-white rounded-lg border border-slate-200">
+                <span class="font-bold text-blue-800 block">OLAP (Analítico / BI / Dashboards)</span>
+                <span class="text-slate-600 block mt-0.5">Mineração de dados, relatórios gerenciais históricos.</span>
+                <span class="inline-block mt-1 px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[10px]">Desnormalizado com Critério</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Hora de praticar em sala de aula!</span>
+          <span class="font-medium text-emerald-700">Módulo 10 — Atividade Prática em Grupo →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 21: ATIVIDADE PRÁTICA EM GRUPO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Atividade Prática em Grupo" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Dinâmica de Sala • Estudo de Caso</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Atividade Prática: O Desafio do E-commerce Caótico</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-amber-100 text-amber-800 border border-amber-300">Tempo: 15 min</span>
+          </div>
+
+          <!-- Situação-Problema -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl mb-4 text-xs">
+            <span class="font-bold text-slate-800 uppercase tracking-wide block mb-1">Cenário Desafiador:</span>
+            <p class="text-slate-600 leading-relaxed">
+              Uma loja virtual começou suas atividades guardando todas as compras em uma única tabela gigantesca chamada <code class="mono-pill">VENDAS_GERAL</code>. A tabela mistura: número do pedido, data, CPF do cliente, nome do cliente, telefones múltiplos na mesma célula, código do produto, nome do produto, preço unitário, quantidade comprada e CNPJ/nome do fornecedor do produto.
+            </p>
+          </div>
+
+          <!-- As 6 Tarefas do Grupo -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">1. Diagnóstico de Anomalias</span>
+              Apontar um exemplo de anomalia de inserção e um de exclusão nessa tabela.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">2. Aplicação da 1FN</span>
+              Eliminar os telefones múltiplos e campos compostos gerando atomicidade.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">3. Aplicação da 2FN</span>
+              Identificar a Chave Composta e remover dados que dependem só de parte dela.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">4. Aplicação da 3FN</span>
+              Isolar dados de fornecedor que dependem transitivamente do produto.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">5. Mapeamento de Chaves</span>
+              Definir as Chaves Primárias (PK) e Estrangeiras (FK) das novas tabelas.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">6. Escolha Tecnológica</span>
+              Indicar se essa operação deveria rodar em Postgres (SQL) ou MongoDB (NoSQL) e por quê.
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Após o debate em grupo, teste seus conhecimentos individuais!</span>
+          <span class="font-medium text-emerald-700">Quiz Interativo de Fixação →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 22: QUIZ INTERATIVO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Quiz de Fixação Interativo" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Fixação de Conceitos</span>
+              <h2 class="text-xl md:text-2xl font-bold text-slate-800">Quiz Interativo: 5 Perguntas Rápidas</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="quizScore" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Acertos: 0/5</span>
+            </div>
+          </div>
+
+          <!-- Container dinâmico do Quiz -->
+          <div id="quizContainer" class="space-y-3">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-emerald-800 font-mono" id="qNumber">QUESTÃO 1 DE 5</span>
+                <span class="text-[11px] text-slate-400">Clique na alternativa correta</span>
+              </div>
+              <h3 class="text-sm font-semibold text-slate-800 mb-3" id="qQuestion">
+                Qual propriedade ACID assegura o princípio "tudo ou nada" em uma transação?
+              </h3>
+              <div class="space-y-2 text-xs" id="qOptions">
+                <!-- Opções via JS -->
+              </div>
+              <div id="qFeedback" class="mt-3 p-2.5 rounded text-xs hidden"></div>
+            </div>
+
+            <!-- Navegação do Quiz -->
+            <div class="flex items-center justify-between pt-2">
+              <button onclick="prevQuizQuestion()" id="btnPrevQuiz" class="px-3 py-1 text-xs rounded border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40">Anterior</button>
+              <span class="text-xs text-slate-400 font-mono" id="quizNavInfo">Questão 1 de 5</span>
+              <button onclick="nextQuizQuestion()" id="btnNextQuiz" class="px-3 py-1 text-xs rounded bg-emerald-700 text-white hover:bg-emerald-800">Próxima Questão</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O gabarito oficial com orientações do professor vem a seguir.</span>
+          <span class="font-medium text-emerald-700">Ver Gabarito & Guia do Professor →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 23: GABARITO & GUIA DO PROFESSOR ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Gabarito e Guia do Professor" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Exclusivo para o Docente</span>
+              <h2 class="text-2xl font-bold text-slate-800">Gabarito Oficial e Guia Pedagógico</h2>
+            </div>
+            <button onclick="toggleTeacherAnswers()" id="btnToggleAnswers" class="px-2.5 py-1 text-xs font-medium rounded-md bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 transition">
+              🔓 Revelar / Ocultar Gabarito
+            </button>
+          </div>
+
+          <div id="answersContent" class="space-y-2.5 text-xs max-h-[380px] overflow-y-auto pr-2">
+            <!-- Q1 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 1: Propriedades ACID</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> A <strong>Atomicidade</strong>. Ela garante que uma transação seja indivisível: se houver falha no meio do processo, todas as operações anteriores são desfeitas (<code class="mono-pill">ROLLBACK</code>).</p>
+            </div>
+            <!-- Q2 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 2: Bancos NoSQL de Grafos</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> São ideais para representar conexões ricas e caminhos complexos (como redes sociais e detecção de fraudes), utilizando nós e arestas com propriedades (ex: Neo4j).</p>
+            </div>
+            <!-- Q3 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 3: Resolução de Relacionamento N:N no Modelo Lógico</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> Criar uma tabela associativa (intermediária) que recebe as Chaves Primárias das duas tabelas originais como Chaves Estrangeiras (FK).</p>
+            </div>
+            <!-- Q4 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 4: Regra da 1ª Forma Normal (1FN)</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> Exige que todos os atributos contenham valores atômicos indivisíveis, proibindo repetições de listas na mesma célula (como telefones separados por vírgula) e atributos compostos não decompostos.</p>
+            </div>
+            <!-- Q5 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 5: Regra da 3ª Forma Normal (3FN)</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> A tabela deve estar na 2FN e não pode conter dependência transitiva (isto é, nenhum atributo não-chave pode depender funcionalmente de outro atributo não-chave).</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Síntese geral do arquiteto de dados</span>
+          <span class="font-medium text-emerald-700">As 7 Leis de Ouro →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 24: SÍNTESE E BOAS PRÁTICAS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="As Leis do Arquiteto" data-module="Encerramento">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Guia de Carreira</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">As 7 Leis de Ouro do Arquiteto de Dados</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Checklist Profissional</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">1.</span>
+              <div><strong>Nunca pule a modelagem:</strong> Rascunhe o MER antes de encostar no teclado.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">2.</span>
+              <div><strong>Toda tabela precisa de PK:</strong> Nunca crie uma tabela sem Chave Primária definida.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">3.</span>
+              <div><strong>Integridade Referencial sempre:</strong> Use FKs para impedir o nascimento de dados órfãos.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">4.</span>
+              <div><strong>Normalização como padrão:</strong> Alcance a 3FN em todos os sistemas de transação (OLTP).</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">5.</span>
+              <div><strong>Desnormalize apenas com métricas:</strong> Somente em relatórios analíticos pesados e comprovados.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">6.</span>
+              <div><strong>Escolha a ferramenta certa:</strong> Use NoSQL para volume, cache e flexibilidade; use SQL para ACID.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-emerald-300 bg-emerald-50/60 md:col-span-2 flex items-start gap-2.5">
+              <span class="text-emerald-800 font-bold font-mono text-sm">7.</span>
+              <div><strong class="text-emerald-950">Segurança & Tipagem Rígida:</strong> Restrições (<code class="mono-pill">CHECK</code>, <code class="mono-pill">NOT NULL</code>) no banco são a última linha de defesa contra bugs do sistema!</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Conclusão da aula e próximos passos</span>
+          <span class="font-medium text-emerald-700">Slide Final de Encerramento →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 25: CONCLUSÃO & SÍNTESE ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-14 bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white relative overflow-hidden" data-title="Conclusão e Próximos Passos" data-module="Encerramento">
+        <div class="relative z-10 flex items-center justify-between">
+          <span class="px-3 py-1 rounded-full bg-emerald-800 text-emerald-300 text-xs font-mono font-medium">Aula 2 Concluída</span>
+          <span class="text-xs text-emerald-300/70">Módulo de Arquitetura Finalizado</span>
+        </div>
+
+        <div class="relative z-10 my-auto py-4 max-w-3xl">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            Projetar bem é a diferença entre um sistema duradouro e o colapso de dados.
+          </h2>
+          <p class="mt-3 text-sm md:text-base text-emerald-100/90 font-light leading-relaxed">
+            Agora vocês possuem a base mental dos grandes arquitetos de software: sabem quando usar Relacional ou NoSQL, como desenhar um MER e como garantir tabelas blindadas na 3ª Forma Normal.
+          </p>
+
+          <div class="grid grid-cols-3 gap-3 mt-6 text-xs text-emerald-100">
+            <div class="p-3 rounded-lg bg-white/10 border border-white/10">
+              <strong class="text-white block mb-0.5">ACID & NoSQL</strong>
+              Compreendidos em profundidade.
+            </div>
+            <div class="p-3 rounded-lg bg-white/10 border border-white/10">
+              <strong class="text-white block mb-0.5">MER & Lógico</strong>
+              Do negócio até a tabela associativa.
+            </div>
+            <div class="p-3 rounded-lg bg-white/10 border border-white/10">
+              <strong class="text-white block mb-0.5">1FN, 2FN e 3FN</strong>
+              Sem anomalias nem redundâncias.
+            </div>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex items-center justify-between pt-4 border-t border-emerald-800 text-xs text-emerald-300/80">
+          <span>Parabéns pela dedicação! Perguntas e discussões abertas.</span>
+          <span class="font-mono text-emerald-400">Próxima Aula: DDL, DML e Consultas SQL Avançadas</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= BOTTOM BAR (CONTROLES DE SLIDE) ================= -->
+  <footer class="no-print bg-white border-t border-slate-200 px-4 py-2.5 flex items-center justify-between z-20">
+    <div class="flex items-center space-x-2 text-xs text-slate-500">
+      <span class="hidden sm:inline">Navegação:</span>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">←</kbd>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">→</kbd>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">Espaço</kbd>
+    </div>
+
+    <!-- Botões Anterior / Próximo -->
+    <div class="flex items-center space-x-2">
+      <button onclick="prevSlide()" id="btnPrev" class="px-4 py-1.5 rounded-lg border border-slate-200 text-slate-700 font-medium text-xs hover:bg-slate-50 active:scale-95 transition flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        <span>Anterior</span>
+      </button>
+
+      <button onclick="nextSlide()" id="btnNext" class="px-5 py-1.5 rounded-lg bg-emerald-700 text-white font-medium text-xs hover:bg-emerald-800 active:scale-95 transition flex items-center gap-1 shadow-xs">
+        <span>Próximo</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <div class="text-right text-xs text-slate-400 font-mono">
+      <span>Prof. Tecnologia da Informação</span>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL: ÍNDICE DE SLIDES (DRAWER) ================= -->
+  <div id="tocModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="font-bold text-slate-800 text-base">Índice da Apresentação — Aula 2</h3>
+          <p class="text-xs text-slate-500">Clique para saltar diretamente para qualquer slide</p>
+        </div>
+        <button onclick="toggleTocModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-2 flex-1" id="tocList">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAINEL: NOTAS DO PROFESSOR (DRAWER LATERAL) ================= -->
+  <aside id="teacherNotesDrawer" class="no-print fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-white shadow-2xl border-l border-slate-200 z-40 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+    <div>
+      <div class="p-4 border-b border-slate-200 bg-emerald-950 text-white flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block">Guia do Professor</span>
+          <h4 class="font-bold text-sm">Dicas Didáticas & Ritmo (Aula 2)</h4>
+        </div>
+        <button onclick="toggleTeacherNotes()" class="text-emerald-300 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+          <div class="flex items-center justify-between text-xs text-emerald-900 font-semibold mb-1">
+            <span>Tempo Sugerido da Aula:</span>
+            <span class="font-mono text-emerald-700">50 a 60 min</span>
+          </div>
+          <div class="text-[11px] text-emerald-800">
+            Dedique 15 minutos finais para a atividade prática de normalização em duplas.
+          </div>
+        </div>
+
+        <div id="slideSpecificNote" class="space-y-3">
+          <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider" id="noteSlideTitle">Slide Atual</h5>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 leading-relaxed" id="noteContent">
+            Carregando notas...
+          </div>
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900" id="noteQuestionPrompt">
+            Carregando pergunta...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500 flex justify-between items-center">
+      <span>Atalho: Tecla <kbd class="px-1 py-0.5 bg-white border border-slate-300 rounded font-mono">P</kbd></span>
+      <span class="text-emerald-700 font-semibold">Modo Docente Ativo</span>
+    </div>
+  </aside>
+
+  <!-- ================= JAVASCRIPT: LÓGICA DE NAVEGAÇÃO E QUIZ ================= -->
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const currentSlideNum = document.getElementById('currentSlideNum');
+    const totalSlideNum = document.getElementById('totalSlideNum');
+    const progressBar = document.getElementById('progressBar');
+    const headerSubtitle = document.getElementById('headerSubtitle');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const tocList = document.getElementById('tocList');
+
+    totalSlideNum.textContent = totalSlides;
+
+    // Dicas do Professor específicas para cada um dos 25 slides
+    const teacherNotesData = [
+      {
+        slide: 1,
+        title: "Capa da Aula 2",
+        note: "Acolha a turma e conecte com a Aula 1. Explique que agora vamos subir de nível: aprender a desenhar a arquitetura interna que impede desastres nos bancos.",
+        prompt: "\"Quantos de vocês já ouviram falar de NoSQL ou de chaves primárias e estrangeiras?\""
+      },
+      {
+        slide: 2,
+        title: "Objetivos de Aprendizagem",
+        note: "Destaque os 3 grandes pilares: ACID/NoSQL, Níveis de Modelagem e Normalização. Avise que haverá estudo de caso com tabela real desorganizada.",
+        prompt: "\"Por que será que empresas pagam salários tão altos para Arquitetos de Dados?\""
+      },
+      {
+        slide: 3,
+        title: "O Paradigma Relacional",
+        note: "Reforce o papel de E. F. Codd. Mostre que 'relação' é o termo matemático para tabela. Enfatize a independência de ordem das linhas e colunas.",
+        prompt: "\"Se eu mudar a ordem das colunas em uma tabela, o significado dos dados muda?\""
+      },
+      {
+        slide: 4,
+        title: "Propriedades ACID",
+        note: "Use o exemplo do Pix ou transferência bancária. Se a energia cair após tirar da conta A, a Atomicidade desfaz tudo (Rollback).",
+        prompt: "\"O que aconteceria com os bancos se a Atomicidade não existisse e o sistema travasse no meio de uma transferência?\""
+      },
+      {
+        slide: 5,
+        title: "Por que NoSQL?",
+        note: "Explique a diferença entre comprar uma máquina mais cara (escala vertical) e colocar 20 computadores comuns em cluster (escala horizontal).",
+        prompt: "\"Quantas buscas você acha que o Google recebe por segundo? O banco relacional tradicional aguentaria isso em um único computador?\""
+      },
+      {
+        slide: 6,
+        title: "Documentos e Chave-Valor",
+        note: "Aponte que o MongoDB usa JSON, muito natural para quem programa em JavaScript/Python. E o Redis opera na memória RAM para entregar respostas em microssegundos.",
+        prompt: "\"Por que o carrinho de compras do e-commerce precisa ser ultra veloz?\""
+      },
+      {
+        slide: 7,
+        title: "Grafos e Colunar",
+        note: "Desenhe na lousa nós e setas. Destaque que redes sociais como LinkedIn e Instagram dependem de grafos para sugerir conexões de amizade.",
+        prompt: "\"Como o LinkedIn descobre que alguém é 'sua conexão de 2º grau'?\""
+      },
+      {
+        slide: 8,
+        title: "Relacional vs NoSQL",
+        note: "Frise que um não veio para matar o outro. A regra de ouro é a persistência poliglota: usar o melhor de cada ferramenta no mesmo sistema.",
+        prompt: "\"Onde vocês guardariam o saldo bancário de um cliente: Postgres (SQL) ou MongoDB (NoSQL)? Por quê?\""
+      },
+      {
+        slide: 9,
+        title: "Os 3 Níveis de Modelagem",
+        note: "Compare com a construção de uma casa: o proprietário aprova a planta decorativa (Conceitual), o engenheiro faz o cálculo estrutural (Lógico) e o mestre de obras assenta os tijolos (Físico).",
+        prompt: "\"O que acontece se o pedreiro começar a erguer paredes sem ter olhado nenhuma planta arquitetônica?\""
+      },
+      {
+        slide: 10,
+        title: "Nível Conceitual: O MER",
+        note: "Explique os 3 símbolos básicos de Peter Chen: Retângulo (Entidade), Losango (Relacionamento) e Oval (Atributo).",
+        prompt: "\"Na frase 'O Aluno realiza a Matrícula', quem é a entidade e quem é o relacionamento?\""
+      },
+      {
+        slide: 11,
+        title: "Cardinalidades no MER",
+        note: "Ensine a regra de leitura olhando para o máximo dos dois lados: 1 cliente faz N pedidos; 1 pedido é de 1 cliente -> 1:N.",
+        prompt: "\"Qual é a cardinalidade entre Médicos e Pacientes em um hospital geral?\""
+      },
+      {
+        slide: 12,
+        title: "Modelo Lógico e Resolução de N:N",
+        note: "Este é um momento crucial da aula: tabelas relacionais não conseguem armazenar N:N diretamente. O segredo é criar a tabela associativa intermediária!",
+        prompt: "\"Por que não podemos colocar um array com 10 IDs de produtos dentro de uma única célula da tabela Pedidos?\""
+      },
+      {
+        slide: 13,
+        title: "Chaves e Restrições",
+        note: "Mostre que as FKs são a cola que mantém o banco conectado e evitam registros órfãos (pedidos sem cliente). Explique NOT NULL e CHECK.",
+        prompt: "\"O que acontece se o sistema tentar deletar um cliente que ainda possui 5 faturas em aberto no banco?\""
+      },
+      {
+        slide: 14,
+        title: "Nível Físico e Scripts DDL",
+        note: "Apresente o comando CREATE TABLE. Destaque que DDL significa Data Definition Language. Mostre como os tipos específicos são escolhidos.",
+        prompt: "\"Por que usamos VARCHAR(100) em vez de reservar sempre 1000 caracteres para todos os nomes?\""
+      },
+      {
+        slide: 15,
+        title: "Por que Normalizar?",
+        note: "Dramatize as anomalias de inserção, exclusão e alteração. Elas são a causa número 1 de prejuízos financeiros em sistemas mal projetados.",
+        prompt: "\"Se o chefe pedir para mudar o endereço da empresa e você alterar em apenas 1 de 50 lugares, qual endereço sairá na nota fiscal?\""
+      },
+      {
+        slide: 16,
+        title: "1ª Forma Normal (1FN)",
+        note: "Explique o conceito de 'atômico' (indivisível). Proibido guardar telefones separados por vírgula na mesma célula!",
+        prompt: "\"Como você buscaria todos os clientes que têm DDD '11' se os telefones estiverem todos misturados em um único campo de texto?\""
+      },
+      {
+        slide: 17,
+        title: "2ª Forma Normal (2FN)",
+        note: "Foque nas Chaves Primárias Compostas. Se uma coluna depende apenas de parte da chave, ela deve ser expulsa para uma tabela própria.",
+        prompt: "\"Na tabela Item_Pedido (id_pedido, id_prod, nome_prod), o nome do produto muda se o pedido for outro? Então por que repeti-lo ali?\""
+      },
+      {
+        slide: 18,
+        title: "3ª Forma Normal (3FN)",
+        note: "Ensine o famoso lema de Bill Kent: 'O atributo deve depender da chave, de toda a chave e de nada além da chave'. Elimine dependências transitivas.",
+        prompt: "\"Se o nome do departamento depende do código do departamento, por que ele estava na tabela de funcionários?\""
+      },
+      {
+        slide: 19,
+        title: "O Mapa da Normalização",
+        note: "Faça uma revisão panorâmica dos 3 degraus sucessivos. Mostre como a tabela caótica inicial virou 4 tabelas elegantes e limpas.",
+        prompt: "\"Vejam como a redundância caiu para quase zero! O que ganhamos em segurança de dados com isso?\""
+      },
+      {
+        slide: 20,
+        title: "Desnormalização Consciente",
+        note: "Mostre que o arquiteto precisa ter bom senso: em Data Warehouses e extratos fiscais, congelar o preço e o endereço dentro do pedido é saudável e necessário.",
+        prompt: "\"Se o produto custava R$ 50 no Natal e subiu para R$ 70 em janeiro, qual valor deve constar na segunda via do cupom fiscal de dezembro?\""
+      },
+      {
+        slide: 21,
+        title: "Atividade Prática em Grupo",
+        note: "Dê 10 a 15 minutos para os alunos trabalharem na situação-problema da tabela VENDAS_GERAL. Circule pelas mesas tirando dúvidas.",
+        prompt: "\"Quais são as entidades ocultas dentro daquela tabela caótica inicial? Identificaram Clientes, Pedidos, Produtos e Fornecedores?\""
+      },
+      {
+        slide: 22,
+        title: "Quiz Interativo",
+        note: "Conduza o quiz com entusiasmo na lousa. Peça para a turma justificar por que as outras alternativas estão erradas.",
+        prompt: "\"Quem acha que é a alternativa B? E quem vota na C? Vamos ver a justificativa técnica!\""
+      },
+      {
+        slide: 23,
+        title: "Gabarito e Guia do Professor",
+        note: "Use este slide para consolidar o gabarito oficial com a turma após a votação do quiz e da atividade em grupo.",
+        prompt: "\"Ficou bem clara para todos a diferença entre dependência parcial (2FN) e dependência transitiva (3FN)?\""
+      },
+      {
+        slide: 24,
+        title: "As 7 Leis do Arquiteto",
+        note: "Checklist prático de boas práticas para os alunos guardarem para a carreira inteira.",
+        prompt: "\"Qual dessas 7 leis você considera a mais importante para nunca derrubar um sistema em produção?\""
+      },
+      {
+        slide: 25,
+        title: "Conclusão e Encerramento",
+        note: "Parabenize os alunos e dê uma prévia da próxima aula prática: escrita de scripts SQL DDL e DML no computador.",
+        prompt: "\"Sensacional! Na próxima aula, colocaremos a mão no teclado para criar tabelas reais com CREATE TABLE e fazer consultas com SELECT!\""
+      }
+    ];
+
+    function updateSlide() {
+      slides.forEach((slide, idx) => {
+        if (idx === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      currentSlideNum.textContent = currentSlide + 1;
+      const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+
+      const activeSlide = slides[currentSlide];
+      const title = activeSlide.getAttribute('data-title') || '';
+      const moduleName = activeSlide.getAttribute('data-module') || '';
+      headerSubtitle.textContent = `${moduleName} — ${title}`;
+
+      btnPrev.disabled = currentSlide === 0;
+      btnPrev.style.opacity = currentSlide === 0 ? '0.4' : '1';
+
+      if (currentSlide === totalSlides - 1) {
+        btnNext.innerHTML = `<span>Início</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`;
+      } else {
+        btnNext.innerHTML = `<span>Próximo</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>`;
+      }
+
+      updateTeacherNotesContent();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+      } else {
+        currentSlide = 0;
+      }
+      updateSlide();
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(index) {
+      if (index >= 0 && index < totalSlides) {
+        currentSlide = index;
+        updateSlide();
+        closeTocModal();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      switch(e.key) {
+        case 'ArrowRight':
+        case ' ':
+        case 'PageDown':
+          e.preventDefault();
+          nextSlide();
+          break;
+        case 'ArrowLeft':
+        case 'PageUp':
+          e.preventDefault();
+          prevSlide();
+          break;
+        case 'Home':
+          e.preventDefault();
+          goToSlide(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          goToSlide(totalSlides - 1);
+          break;
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          toggleFullScreen();
+          break;
+        case 'm':
+        case 'M':
+        case 'i':
+        case 'I':
+          e.preventDefault();
+          toggleTocModal();
+          break;
+        case 'p':
+        case 'P':
+        case 'n':
+        case 'N':
+          e.preventDefault();
+          toggleTeacherNotes();
+          break;
+        case 'Escape':
+          closeTocModal();
+          closeTeacherNotes();
+          break;
+      }
+    });
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    function buildToc() {
+      tocList.innerHTML = '';
+      slides.forEach((slide, index) => {
+        const title = slide.getAttribute('data-title') || `Slide ${index + 1}`;
+        const moduleName = slide.getAttribute('data-module') || '';
+        
+        const item = document.createElement('button');
+        item.className = 'w-full text-left p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition flex items-center justify-between text-xs group';
+        item.onclick = () => goToSlide(index);
+        
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-full font-mono font-bold text-[11px] flex items-center justify-center ${index === currentSlide ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}">
+              ${index + 1}
+            </span>
+            <div>
+              <span class="font-bold text-slate-800 group-hover:text-emerald-900 block">${title}</span>
+              <span class="text-[10px] text-slate-400">${moduleName}</span>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400 group-hover:text-emerald-700">Ir →</span>
+        `;
+        tocList.appendChild(item);
+      });
+    }
+
+    function toggleTocModal() {
+      const modal = document.getElementById('tocModal');
+      if (modal.classList.contains('hidden')) {
+        buildToc();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function closeTocModal() {
+      document.getElementById('tocModal').classList.add('hidden');
+    }
+
+    function toggleTeacherNotes() {
+      const drawer = document.getElementById('teacherNotesDrawer');
+      drawer.classList.toggle('translate-x-full');
+    }
+
+    function closeTeacherNotes() {
+      const drawer = document.getElementById('teacherNotesDrawer');
+      drawer.classList.add('translate-x-full');
+    }
+
+    function updateTeacherNotesContent() {
+      const noteSlideTitle = document.getElementById('noteSlideTitle');
+      const noteContent = document.getElementById('noteContent');
+      const noteQuestionPrompt = document.getElementById('noteQuestionPrompt');
+      
+      const currentNote = teacherNotesData[currentSlide] || {
+        title: `Slide ${currentSlide + 1}`,
+        note: "Apresente o conceito de forma simples e contextualizada aos alunos.",
+        prompt: "Alguma dúvida sobre este ponto?"
+      };
+
+      noteSlideTitle.textContent = `Slide ${currentSlide + 1}: ${currentNote.title}`;
+      noteContent.textContent = currentNote.note;
+      noteQuestionPrompt.innerHTML = `<strong>Pergunta provocativa para a turma:</strong> ${currentNote.prompt}`;
+    }
+
+    // ================= DADOS E LÓGICA DO QUIZ (AULA 2) =================
+    const quizQuestions = [
+      {
+        question: "1. Qual propriedade ACID assegura o princípio do 'tudo ou nada', desfazendo a transação se houver qualquer erro?",
+        options: [
+          { text: "A) Durabilidade", correct: false },
+          { text: "B) Atomicidade", correct: true },
+          { text: "C) Isolamento", correct: false },
+          { text: "D) Consistência", correct: false }
+        ],
+        explanation: "Correto! A Atomicidade trata a transação como uma unidade indivisível: ou tudo é confirmado (Commit), ou tudo é abortado e revertido (Rollback)."
+      },
+      {
+        question: "2. Qual família NoSQL é ideal para modelar redes de conexões complexas, amizades e detecção de fraudes através de nós e arestas?",
+        options: [
+          { text: "A) Banco Chave-Valor (Redis)", correct: false },
+          { text: "B) Banco Baseado em Documentos (MongoDB)", correct: false },
+          { text: "C) Banco de Grafos (Neo4j)", correct: true },
+          { text: "D) Banco Colunar (Cassandra)", correct: false }
+        ],
+        explanation: "Exato! Bancos de Grafos tratam relacionamentos como cidadãos de primeira classe, navegando rapidamente entre nós (entidades) e arestas (conexões)."
+      },
+      {
+        question: "3. No Modelo Lógico Relacional, como resolvemos tecnicamente um relacionamento do tipo Muitos para Muitos (N:N)?",
+        options: [
+          { text: "A) Colocando uma lista de valores separados por vírgula na mesma célula.", correct: false },
+          { text: "B) Criando uma Tabela Associativa intermediária que recebe as PKs de ambos os lados como FKs.", correct: true },
+          { text: "C) Deletando uma das entidades para simplificar o problema.", correct: false },
+          { text: "D) O modelo relacional proíbe que duas entidades tenham qualquer tipo de relação.", correct: false }
+        ],
+        explanation: "Perfeito! A tabela intermediária/associativa desmembra a relação N:N em duas relações 1:N com integridade referencial."
+      },
+      {
+        question: "4. O que é estritamente exigido para que uma tabela esteja na 1ª Forma Normal (1FN)?",
+        options: [
+          { text: "A) Que todos os atributos contenham valores atômicos indivisíveis e haja uma Chave Primária definida.", correct: true },
+          { text: "B) Que a tabela tenha no máximo duas colunas.", correct: false },
+          { text: "C) Que não existam Chaves Estrangeiras na tabela.", correct: false },
+          { text: "D) Que todos os campos sejam obrigatoriamente do tipo numérico.", correct: false }
+        ],
+        explanation: "Correto! A 1FN exige atomicidade total: sem campos multivalorados (arrays na mesma célula) e sem atributos compostos desmembráveis."
+      },
+      {
+        question: "5. Uma tabela que já está na 2FN violará a 3ª Forma Normal (3FN) se contiver:",
+        options: [
+          { text: "A) Mais de 1.000 linhas gravadas.", correct: false },
+          { text: "B) Uma dependência transitiva (um atributo não-chave determinando outro atributo não-chave).", correct: true },
+          { text: "C) Uma chave primária do tipo auto-incremento.", correct: false },
+          { text: "D) Colunas com nomes em letras maiúsculas.", correct: false }
+        ],
+        explanation: "Muito bem! A 3FN elimina dependências transitivas: nenhum atributo não-chave pode depender de outro atributo não-chave (ex: nome do departamento dependendo do ID do departamento em Funcionários)."
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let quizScoreCount = 0;
+    let answeredQuestions = {};
+
+    function renderQuizQuestion() {
+      const q = quizQuestions[currentQuizIndex];
+      document.getElementById('qNumber').textContent = `QUESTÃO ${currentQuizIndex + 1} DE ${quizQuestions.length}`;
+      document.getElementById('qQuestion').textContent = q.question;
+      document.getElementById('quizNavInfo').textContent = `Questão ${currentQuizIndex + 1} de ${quizQuestions.length}`;
+
+      const optionsContainer = document.getElementById('qOptions');
+      optionsContainer.innerHTML = '';
+
+      const feedbackBox = document.getElementById('qFeedback');
+      feedbackBox.classList.add('hidden');
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition text-xs flex items-center justify-between text-slate-700';
+        
+        if (answeredQuestions[currentQuizIndex] !== undefined) {
+          btn.disabled = true;
+          if (opt.correct) {
+            btn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900', 'font-semibold');
+          } else if (answeredQuestions[currentQuizIndex] === idx) {
+            btn.classList.add('bg-red-100', 'border-red-400', 'text-red-900');
+          }
+        } else {
+          btn.onclick = () => handleAnswer(idx, opt.correct);
+        }
+
+        btn.innerHTML = `<span>${opt.text}</span>`;
+        optionsContainer.appendChild(btn);
+      });
+
+      if (answeredQuestions[currentQuizIndex] !== undefined) {
+        feedbackBox.classList.remove('hidden');
+        const isCorrect = q.options[answeredQuestions[currentQuizIndex]].correct;
+        feedbackBox.className = `mt-3 p-2.5 rounded text-xs ${isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-amber-100 text-amber-900 border border-amber-300'}`;
+        feedbackBox.innerHTML = `<strong>${isCorrect ? '✅ Resposta Correta!' : '💡 Atenção:'}</strong> ${q.explanation}`;
+      }
+
+      document.getElementById('btnPrevQuiz').disabled = currentQuizIndex === 0;
+      document.getElementById('btnNextQuiz').textContent = currentQuizIndex === quizQuestions.length - 1 ? 'Concluir Quiz' : 'Próxima Questão';
+    }
+
+    function handleAnswer(optionIdx, isCorrect) {
+      answeredQuestions[currentQuizIndex] = optionIdx;
+      if (isCorrect) {
+        quizScoreCount++;
+      }
+      document.getElementById('quizScore').textContent = `Acertos: ${quizScoreCount}/${quizQuestions.length}`;
+      renderQuizQuestion();
+    }
+
+    function nextQuizQuestion() {
+      if (currentQuizIndex < quizQuestions.length - 1) {
+        currentQuizIndex++;
+        renderQuizQuestion();
+      } else {
+        alert(`Quiz finalizado! Sua pontuação: ${quizScoreCount} de ${quizQuestions.length} acertos.`);
+      }
+    }
+
+    function prevQuizQuestion() {
+      if (currentQuizIndex > 0) {
+        currentQuizIndex--;
+        renderQuizQuestion();
+      }
+    }
+
+    let answersVisible = true;
+    function toggleTeacherAnswers() {
+      const container = document.getElementById('answersContent');
+      const btn = document.getElementById('btnToggleAnswers');
+      answersVisible = !answersVisible;
+      
+      if (answersVisible) {
+        container.classList.remove('hidden');
+        btn.textContent = '🔒 Ocultar Gabarito';
+      } else {
+        container.classList.add('hidden');
+        btn.textContent = '🔓 Revelar Gabarito';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSlide();
+      renderQuizQuestion();
+    });
+  </script>
+</body>
+</html>
