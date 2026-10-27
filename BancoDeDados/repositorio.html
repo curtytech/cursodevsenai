@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Materiais e aulas de Banco de Dados da turma de Desenvolvimento de Sistemas do SENAI.">
+    <title>Repositório de Banco de Dados — ALCATECH | SENAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        section { --icon-rgb: 125, 211, 252; }
+        #fundamentos { --icon-rgb: 147, 197, 253; }
+        #logica { --icon-rgb: 103, 232, 249; }
+        #redes { --icon-rgb: 125, 211, 252; }
+        #ferramentas { --icon-rgb: 165, 180, 252; }
+        #exercicios { --icon-rgb: 196, 181, 253; }
+        #vue { --icon-rgb: 110, 231, 183; }
+        .topic-icon, .category-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: rgb(var(--icon-rgb));
+            border: 1px solid rgba(var(--icon-rgb), .24);
+            background: linear-gradient(145deg, rgba(var(--icon-rgb), .14), rgba(7, 19, 35, .7));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 4px 14px rgba(2, 8, 23, .18);
+        }
+        .topic-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: .875rem;
+            transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+        .topic-icon i { font-size: 1.25rem; line-height: 1; }
+        .category-icon { width: 2.25rem; height: 2.25rem; border-radius: .7rem; }
+        .group:hover .topic-icon {
+            border-color: rgba(var(--icon-rgb), .5);
+            background: linear-gradient(145deg, rgba(var(--icon-rgb), .23), rgba(7, 19, 35, .7));
+            box-shadow: 0 0 18px rgba(var(--icon-rgb), .1);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .topic-icon { transition: none; }
+        }
+        main #fundamentos { --icon-rgb: 96,165,250; }
+        main #logica { --icon-rgb: 45,212,191; }
+        main #banco-de-dados { --icon-rgb: 52,211,153; }
+        main #redes { --icon-rgb: 251,191,36; }
+        main #ferramentas { --icon-rgb: 167,139,250; }
+        main #exercicios { --icon-rgb: 251,146,60; }
+        main #vue { --icon-rgb: 74,222,128; }
+        main section[id] { margin-bottom: 3.5rem; }
+        main section[id] > div:first-child {
+            padding: 1rem; border: 1px solid rgba(var(--icon-rgb),.35);
+            border-left: 5px solid rgb(var(--icon-rgb)); border-radius: 1rem;
+            background: linear-gradient(100deg,rgba(var(--icon-rgb),.18),#101e34 80%);
+        }
+        main section[id] > div:first-child h2 { color: #fff; line-height: 1.4; }
+        main section[id] > div:first-child > span { color: rgb(var(--icon-rgb)); background: #0b1526; border-color: rgba(var(--icon-rgb),.4); font-weight: 600; }
+        main section[id] .grid { align-items: stretch; gap: 1.25rem; }
+        main section[id] .grid > .group {
+            background: rgba(23, 38, 61, .78); border: 1px solid #3b506b;
+            border-top: 4px solid rgb(var(--icon-rgb));
+            box-shadow: 0 8px 24px rgba(0,0,0,.2); backdrop-filter: none;
+            display: flex; flex-direction: column; padding: 1.4rem;
+        }
+        main section[id] .grid > .group {
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        main section[id] .grid > .group:is(:hover, :focus-within) {
+            background: rgba(23, 38, 61, .78);
+            border-color: rgb(var(--icon-rgb));
+            box-shadow: 0 0 0 1px rgba(var(--icon-rgb), .35), 0 0 22px rgba(var(--icon-rgb), .12), 0 8px 24px rgba(0, 0, 0, .2);
+            transform: none;
+        }
+        main section[id] .grid > .group:is(:hover, :focus-within) .topic-icon {
+            background: rgb(var(--icon-rgb));
+            color: #0b1526;
+            border-color: rgba(15, 23, 42, .12);
+            box-shadow: 0 0 14px rgba(var(--icon-rgb), .22);
+        }
+        main section[id] .group h3 { color: #f8fafc; font-size: 1rem; font-weight: 700; line-height: 1.5; }
+        main section[id] .group p { color: #cbd5e1; line-height: 1.65; }
+        main section[id] .group > .flex:last-child:not(:first-child) { margin-top: auto; padding-top: .5rem; }
+        main section[id] .group a { color: #f1f5f9; background: #253b58; border: 1px solid #526b89; font-weight: 600; padding: .5rem .75rem; }
+        main section[id] .group a:hover { background: #324e70; border-color: #94a3b8; }
+        main section[id] .topic-icon, main section[id] .category-icon { background: rgb(var(--icon-rgb)); color: #0b1526; border: 1px solid rgba(15,23,42,.12); box-shadow: 0 3px 8px rgba(15,23,42,.12); }
+        main section[id] .topic-icon { width: 3.25rem; height: 3.25rem; }
+        main section[id] .topic-icon i { font-size: 1.4rem; }
+        main section[id] .category-icon { width: 2.75rem; height: 2.75rem; font-size: 1.15rem; }
+        main nav[aria-label="Categorias dos materiais"] a { background: #14243a; color: #f1f5f9; border-bottom-width: 3px; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(1) { border-color: #60a5fa; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(2) { border-color: #2dd4bf; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(3) { border-color: #fbbf24; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(4) { border-color: #a78bfa; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(5) { border-color: #fb923c; }
+        main nav[aria-label="Categorias dos materiais"] a:nth-child(6) { border-color: #4ade80; }
+        main nav[aria-label="Categorias dos materiais"] a[href="#banco-de-dados"] { border-color: #34d399; }
+        main nav[aria-label="Categorias dos materiais"] a:hover { background: #223851; }
+        @media (prefers-reduced-motion: reduce) { main section[id] .grid > .group, main section[id] .topic-icon { transition: none; } }
+        .database-hero {
+            background: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,.2), transparent 70%), rgba(15,23,42,.55);
+        }
+        .database-emblem { animation: database-float 5s ease-in-out infinite; }
+        .database-signal { animation: database-signal 3s ease-in-out infinite; }
+        @keyframes database-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes database-signal {
+            0%, 100% { opacity: .5; }
+            50% { opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .database-emblem, .database-signal { animation: none; }
+        }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden bg-[#0b1329] font-sans text-gray-100 antialiased [&_*:focus-visible]:outline-2 [&_*:focus-visible]:outline-sky-300 [&_*:focus-visible]:outline-offset-[3px]">
+    <div aria-hidden="true"
+        class="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-[#071323] via-[#0b1d33] to-[#101a35]">
+        <div
+            class="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(125,211,252,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,0.08)_1px,transparent_1px)] [background-size:56px_56px]">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#071323]/60"></div>
+        <svg aria-hidden="true" class="absolute inset-0 h-full w-full motion-reduce:hidden" viewBox="0 0 1440 900"
+            preserveAspectRatio="none">
+            <defs>
+                <filter id="particle-glow" x="-200%" y="-200%" width="500%" height="500%">
+                    <feGaussianBlur stdDeviation="3" result="glow"></feGaussianBlur>
+                    <feMerge>
+                        <feMergeNode in="glow"></feMergeNode>
+                        <feMergeNode in="SourceGraphic"></feMergeNode>
+                    </feMerge>
+                </filter>
+            </defs>
+            <circle r="2.5" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="18s" repeatCount="indefinite"
+                    path="M -20 160 C 240 30 430 330 720 180 S 1170 80 1460 250"></animateMotion>
+                <animate attributeName="opacity" values="0;1;0.75;0" keyTimes="0;0.15;0.8;1" dur="18s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#bae6fd" filter="url(#particle-glow)">
+                <animateMotion dur="23s" repeatCount="indefinite" path="M 140 -20 C 320 220 40 520 340 930">
+                </animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.65;0" keyTimes="0;0.2;0.8;1" dur="23s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2.5" fill="#22d3ee" filter="url(#particle-glow)">
+                <animateMotion dur="21s" repeatCount="indefinite" path="M 1480 100 C 1190 300 1020 560 720 930">
+                </animateMotion>
+                <animate attributeName="opacity" values="0;1;0.7;0" keyTimes="0;0.15;0.8;1" dur="21s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#fde68a" filter="url(#particle-glow)">
+                <animateMotion dur="26s" repeatCount="indefinite"
+                    path="M -30 600 C 250 430 500 720 780 570 S 1190 450 1470 700"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.6;0" keyTimes="0;0.2;0.8;1" dur="26s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2.5" fill="#e0f2fe" filter="url(#particle-glow)">
+                <animateMotion dur="20s" repeatCount="indefinite"
+                    path="M 1470 820 C 1130 650 920 850 640 640 S 250 780 -30 520"></animateMotion>
+                <animate attributeName="opacity" values="0;1;0.7;0" keyTimes="0;0.15;0.8;1" dur="20s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="25s" repeatCount="indefinite"
+                    path="M 470 -30 C 700 200 400 460 700 650 S 1030 760 960 930"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.65;0" keyTimes="0;0.2;0.8;1" dur="25s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#a5f3fc" filter="url(#particle-glow)">
+                <animateMotion dur="16s" repeatCount="indefinite"
+                    path="M -20 320 C 300 200 520 430 800 300 S 1180 250 1460 380"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.55;0" keyTimes="0;0.2;0.8;1" dur="16s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="22s" repeatCount="indefinite"
+                    path="M 1460 460 C 1160 280 980 530 700 430 S 250 360 -20 500"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.6;0" keyTimes="0;0.2;0.8;1" dur="22s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#cbd5e1" filter="url(#particle-glow)">
+                <animateMotion dur="19s" repeatCount="indefinite"
+                    path="M 300 930 C 430 680 200 480 430 260 S 660 100 610 -20"></animateMotion>
+                <animate attributeName="opacity" values="0;0.8;0.55;0" keyTimes="0;0.2;0.8;1" dur="19s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#fde68a" filter="url(#particle-glow)">
+                <animateMotion dur="24s" repeatCount="indefinite"
+                    path="M 900 -20 C 720 220 1060 340 900 560 S 720 760 840 930"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.6;0" keyTimes="0;0.2;0.8;1" dur="24s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#bae6fd" filter="url(#particle-glow)">
+                <animateMotion dur="17s" repeatCount="indefinite"
+                    path="M -20 760 C 260 840 470 620 720 760 S 1180 900 1460 740"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.55;0" keyTimes="0;0.2;0.8;1" dur="17s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#22d3ee" filter="url(#particle-glow)">
+                <animateMotion dur="27s" repeatCount="indefinite"
+                    path="M 1100 930 C 950 720 1260 580 1090 360 S 880 120 1040 -20"></animateMotion>
+                <animate attributeName="opacity" values="0;0.9;0.65;0" keyTimes="0;0.2;0.8;1" dur="27s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#e0f2fe" filter="url(#particle-glow)">
+                <animateMotion dur="20s" repeatCount="indefinite"
+                    path="M 1460 40 C 1240 180 1320 400 1080 520 S 790 600 620 480"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.55;0" keyTimes="0;0.2;0.8;1" dur="20s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#67e8f9" filter="url(#particle-glow)">
+                <animateMotion dur="23s" repeatCount="indefinite"
+                    path="M 40 930 C 160 710 80 540 300 390 S 520 260 430 -20"></animateMotion>
+                <animate attributeName="opacity" values="0;0.8;0.55;0" keyTimes="0;0.2;0.8;1" dur="23s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="2" fill="#fde68a" filter="url(#particle-glow)">
+                <animateMotion dur="29s" repeatCount="indefinite"
+                    path="M 1460 900 C 1220 720 980 900 760 700 S 520 500 280 650"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.5;0" keyTimes="0;0.2;0.8;1" dur="29s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#a5f3fc" filter="url(#particle-glow)">
+                <animateMotion dur="18s" repeatCount="indefinite"
+                    path="M 760 -20 C 950 160 720 340 930 500 S 1170 710 1320 930"></animateMotion>
+                <animate attributeName="opacity" values="0;0.85;0.55;0" keyTimes="0;0.2;0.8;1" dur="18s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+            <circle r="1.5" fill="#bae6fd" filter="url(#particle-glow)">
+                <animateMotion dur="26s" repeatCount="indefinite"
+                    path="M -20 80 C 230 300 410 80 620 250 S 970 430 1180 260"></animateMotion>
+                <animate attributeName="opacity" values="0;0.8;0.55;0" keyTimes="0;0.2;0.8;1" dur="26s"
+                    repeatCount="indefinite"></animate>
+            </circle>
+        </svg>
+    </div>
+
+    <header class="fixed inset-x-0 top-0 z-50 border-b border-[rgba(148,190,219,0.14)] bg-[rgba(5,15,29,0.82)] shadow-[0_12px_36px_rgba(2,8,23,0.18)] backdrop-blur-xl">
+        <nav aria-label="Navegação principal" class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+            <a href="../index.html" class="flex items-center gap-3" aria-label="ALCATECH — Página principal">
+                <img src="https://eempgprspimlhzlofvjx.supabase.co/storage/v1/object/public/icones/logo_turma.webp" alt="" class="h-10 w-10 rounded-xl border border-sky-300/30 bg-[#005CA9] object-contain shadow-lg shadow-sky-950/40">
+                <div>
+                    <p class="bg-gradient-to-b from-white via-slate-300 to-slate-500 bg-clip-text text-xl font-black leading-tight text-transparent drop-shadow-[0_2px_8px_rgba(203,213,225,0.35)]">ALCATECH</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-[.16em] text-sky-200/80">SENAI DEV TEAM</p>
+                </div>
+            </a>
+            <a href="../index.html" class="inline-flex items-center gap-2 rounded-xl border border-sky-300/25 bg-sky-500/15 px-3 py-2 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-500/25">
+                <i aria-hidden="true" class="fas fa-arrow-left text-sky-300"></i><span>Voltar<span class="hidden sm:inline"> ao início</span></span>
+            </a>
+        </nav>
+    </header>
+    <main class="relative z-10 mx-auto w-full max-w-[1056px] px-4 pb-4 pt-32">
+        <section aria-labelledby="page-title" class="database-hero mb-12 rounded-3xl border border-emerald-300/25 px-5 py-10 text-center shadow-[0_16px_60px_rgba(2,8,23,0.3)] sm:py-14">
+            <div aria-hidden="true" class="database-emblem relative mx-auto mb-7 flex h-28 w-28 items-center justify-center rounded-3xl border border-emerald-200/40 bg-emerald-400/10 shadow-[0_0_45px_rgba(52,211,153,0.2)]">
+                <svg class="h-20 w-20" viewBox="0 0 96 96" fill="none">
+                    <path d="M18 25v46c0 9 60 9 60 0V25" fill="#064e3b" stroke="#6ee7b7" stroke-width="3"/>
+                    <path d="M18 40c0 12 60 12 60 0M18 55c0 12 60 12 60 0M18 70c0 12 60 12 60 0" stroke="#34d399" stroke-width="3"/>
+                    <ellipse cx="48" cy="25" rx="30" ry="11" fill="#065f46" stroke="#a7f3d0" stroke-width="3"/>
+                    <ellipse cx="48" cy="25" rx="17" ry="5" fill="#34d399" fill-opacity=".25"/>
+                    <circle class="database-signal" cx="65" cy="39" r="2" fill="#d1fae5"/>
+                    <circle class="database-signal" cx="65" cy="54" r="2" fill="#d1fae5"/>
+                    <circle class="database-signal" cx="65" cy="69" r="2" fill="#d1fae5"/>
+                </svg>
+                <span class="absolute -bottom-2 -right-3 rounded-lg border border-emerald-200/40 bg-emerald-950 px-3 py-1 font-mono text-sm font-bold text-emerald-200">SQL</span>
+            </div>
+            <p class="mb-4 text-xs font-semibold uppercase tracking-[.2em] text-emerald-200/80">Desenvolvimento de Sistemas · SENAI</p>
+            <h1 id="page-title" class="bg-gradient-to-r from-white via-emerald-100 to-emerald-300 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">Banco de Dados</h1>
+            <div aria-hidden="true" class="mx-auto mt-5 h-1 w-16 rounded-full bg-emerald-400 shadow-[0_0_16px_rgba(52,211,153,0.5)]"></div>
+            <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">Aprenda a organizar, relacionar e consultar dados. Explore os conceitos e os materiais das aulas.</p>
+        </section>
+        <section id="banco-de-dados" aria-labelledby="banco-de-dados-title" class="mb-12 scroll-mt-28">
+            <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
+                <div class="category-icon"><i aria-hidden="true" class="fa-solid fa-database"></i></div>
+                <h2 id="banco-de-dados-title" class="text-xl font-bold text-white sm:text-2xl">Banco de Dados</h2>
+                <span class="rounded-full border border-sky-300/20 bg-sky-500/10 px-2.5 py-1 text-xs text-sky-200">1 cartão</span>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="Aula%201%20Banco%20de%20dados.html" target="_blank" rel="noopener noreferrer"
+                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-lg">
+                    <div class="flex items-start gap-4">
+                        <div class="topic-icon">
+                            <i aria-hidden="true" class="fa-solid fa-database text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">Introdução ao Banco de Dados</h3>
+                            <p class="text-sm text-blue-200/80 mt-1">Introdução aos conceitos fundamentais de bancos de dados</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+        <footer class="mt-12 border-t border-white/10 py-8 text-center">
+            <p class="font-medium text-blue-200"><i aria-hidden="true" class="fas fa-cog mr-2 text-blue-300"></i>Curso de Desenvolvimento de Sistemas — SENAI</p>
+            <p class="mt-2 text-xs text-blue-300/60">© 2026 — Repositório mantido pela turma</p>
+        </footer>
+    </main>
+</body>
+</html>
