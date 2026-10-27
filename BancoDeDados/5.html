@@ -1,0 +1,2176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 5: Segurança, Qualidade & Big Data</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              dark: '#14532D',      /* Verde-escuro institucional */
+              primary: '#16A34A',   /* Verde principal vibrante */
+              light: '#DCFCE7',     /* Verde-claro suave */
+              subtle: '#F0FDF4',    /* Fundo verde sutil */
+              border: '#BBF7D0',    /* Borda verde suave */
+              text: '#1F2937',      /* Texto principal */
+              muted: '#64748B',     /* Cinza secundário */
+              bg: '#F8FAFC',        /* Fundo quase branco */
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #1F2937;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .slide-container {
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 5rem);
+    }
+
+    @media (max-width: 1024px) {
+      .slide-container {
+        aspect-ratio: auto;
+        min-height: calc(100vh - 6rem);
+      }
+    }
+
+    .slide {
+      display: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    }
+    
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mono-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background-color: #F1F5F9;
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.375rem;
+      border: 1px solid #E2E8F0;
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .slide {
+        display: flex !important;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: always;
+        height: 100vh !important;
+        aspect-ratio: 16 / 9;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .slide-container {
+        max-height: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+  <!-- ================= TOP BAR (Navegação & Status) ================= -->
+  <header class="no-print bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-lg bg-emerald-800 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+        M5
+      </div>
+      <div>
+        <h1 class="text-xs font-semibold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+          <span>Segurança, Qualidade & Big Data</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-emerald-700 font-medium lowercase">aula 5</span>
+        </h1>
+        <p class="text-[11px] text-slate-500 font-normal" id="headerSubtitle">Módulo 5.1 — Segurança & Backup</p>
+      </div>
+    </div>
+
+    <!-- Indicador Central de Slide & Progresso -->
+    <div class="flex items-center space-x-3">
+      <div class="hidden sm:flex items-center space-x-1.5 bg-slate-100 rounded-full px-3 py-1 text-xs font-medium text-slate-700 border border-slate-200">
+        <span class="text-emerald-700 font-bold" id="currentSlideNum">1</span>
+        <span class="text-slate-400">/</span>
+        <span id="totalSlideNum">25</span>
+      </div>
+
+      <div class="w-32 md:w-48 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+        <div id="progressBar" class="bg-emerald-600 h-1.5 transition-all duration-300 rounded-full" style="width: 4%;"></div>
+      </div>
+    </div>
+
+    <!-- Controles de Modo e Painéis -->
+    <div class="flex items-center space-x-1 sm:space-x-2">
+      <!-- Botão Menu / Índice -->
+      <button onclick="toggleTocModal()" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition flex items-center gap-1.5 border border-slate-200" title="Índice dos Slides (Atalho: M)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+        <span class="hidden md:inline">Índice</span>
+      </button>
+
+      <!-- Botão Notas do Professor -->
+      <button onclick="toggleTeacherNotes()" id="btnTeacherNotes" class="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition flex items-center gap-1.5 border border-slate-200" title="Dicas Pedagógicas & Tempo (Atalho: P)">
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span class="hidden md:inline">Notas do Professor</span>
+      </button>
+
+      <!-- Botão Tela Cheia -->
+      <button onclick="toggleFullScreen()" class="p-1.5 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-md transition" title="Alternar Tela Cheia (F)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5-5m-7 11l-5 5m0 0h4m-4 0v-4m16 4v-4m0 4l-5-5"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= PALCO PRINCIPAL (SLIDES) ================= -->
+  <main class="flex-1 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-100/60">
+    <div class="w-full max-w-6xl bg-white rounded-2xl shadow-md border border-slate-200/80 slide-container overflow-hidden relative flex flex-col justify-between">
+
+      <!-- ================= SLIDE 1: CAPA ================= -->
+      <section class="slide active flex-col justify-between h-full p-8 md:p-14 bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white relative overflow-hidden" data-title="Abertura da Aula" data-module="Apresentação">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#22c55e_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+        <div class="absolute -right-24 -bottom-24 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-800/80 border border-emerald-600/40 text-emerald-300 text-xs font-medium tracking-wide">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Aula 5 • Governança, Resiliência & Escala de Dados
+          </div>
+          <div class="text-xs text-emerald-200/70 font-mono">Duração estimada: 50 a 60 min</div>
+        </div>
+
+        <div class="relative z-10 my-auto py-6 max-w-3xl">
+          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            Segurança, Qualidade & Big Data
+          </h1>
+          <p class="mt-4 text-base md:text-lg text-emerald-100/90 font-light leading-relaxed">
+            Proteção de dados críticos, estratégias de backup 3-2-1, rastreabilidade em logs, governança de qualidade (*Data Quality*) e arquiteturas analíticas em escala.
+          </p>
+          
+          <div class="mt-8 flex flex-wrap gap-2 text-xs font-medium text-emerald-200">
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Controle RBAC</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Criptografia & Mascaramento</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Backup 3-2-1 & RPO/RTO</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Auditoria & Logs WAL</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">6 Pilares da Qualidade</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">Os 5 Vs do Big Data</span>
+            <span class="px-2.5 py-1 rounded bg-white/10 border border-white/10">ETL vs ELT & Lakehouse</span>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex items-center justify-between pt-6 border-t border-emerald-800/60 text-xs text-emerald-300/80">
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-white">Objetivo Central:</span>
+            <span>Blindar o banco contra desastres, auditar alterações e escalar dados com qualidade</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span>Pressione <kbd class="px-1.5 py-0.5 rounded bg-emerald-800 text-white font-mono border border-emerald-700">Espaço</kbd> ou <kbd class="px-1.5 py-0.5 rounded bg-emerald-800 text-white font-mono border border-emerald-700">→</kbd> para avançar</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 2: OBJETIVOS DE APRENDIZAGEM ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Objetivos de Aprendizagem" data-module="Planejamento">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Plano de Competências</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O que você dominará nesta aula</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Trilha de Resiliência</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Card 1 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">1</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Segurança & Resiliência</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Implementar controle de acesso <strong class="text-slate-800">RBAC</strong>, criptografia (repouso e trânsito), proteção a SQLi e estruturar rotinas de <strong class="text-slate-800">Backup 3-2-1</strong> com metas de <strong class="text-slate-800">RPO e RTO</strong>.
+              </p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">2</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Rastreabilidade & Qualidade</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Construir trilhas invioláveis de auditoria (*Audit Trail*), entender logs e aplicar os <strong class="text-slate-800">6 Pilares de Data Quality</strong> para eliminar os custos do dado incorreto.
+              </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-emerald-500 transition-colors">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-3">3</div>
+              <h3 class="font-semibold text-slate-800 text-sm mb-1.5">Engenharia de Big Data</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Dominar os <strong class="text-slate-800">5 Vs</strong>, comparar Data Warehouses vs Data Lakes vs Lakehouses e projetar pipelines de extração <strong class="text-slate-800">ETL vs ELT</strong> com formatos colunares.
+              </p>
+            </div>
+          </div>
+
+          <!-- Banner de Contexto -->
+          <div class="mt-6 p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex items-start gap-3">
+            <svg class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <p class="text-xs text-emerald-900 leading-relaxed">
+              <strong>A responsabilidade do engenheiro de dados:</strong> De nada adianta um banco rápido se ele for invadido, corrompido ou se perder os dados da empresa em uma falha de hardware. Segurança, backup e qualidade de dados são a barreira que impede empresas de irem à falência!
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Início do Módulo 5.1: Segurança & Métodos de Acesso</span>
+          <span class="font-medium text-emerald-700">Módulo 5.1 — O Cenário Crítico das Ameaças →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 3: MÓDULO 5.1 - CENÁRIO DE SEGURANÇA ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Segurança em Banco de Dados" data-module="Módulo 5.1 — Segurança & Backup">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.1 • Defesa em Profundidade</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Segurança em Banco de Dados: O Cenário Crítico</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-red-100 text-red-800 border border-red-300">Alto Risco</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                Os bancos de dados corporativos são o cofre digital de qualquer organização: guardam segredos industriais, dados de cartões, senhas e prontuários médicos.
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded-lg border border-red-200 bg-red-50/40">
+                  <strong class="text-red-950 block mb-0.5">1. Vazamentos de Dados & Multas da LGPD</strong>
+                  Multas de até 2% do faturamento (limitadas a R$ 50 milhões por infração) e perda irreversível da confiança do cliente.
+                </div>
+                <div class="p-2.5 rounded-lg border border-amber-200 bg-amber-50/40">
+                  <strong class="text-amber-950 block mb-0.5">2. Ataques de Ransomware & Sequestro</strong>
+                  Cibercriminosos criptografam os arquivos de dados físicos do SGBD e exigem resgate milionário em criptomoedas.
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">3. Ameaças Internas (*Insider Threats*)</strong>
+                  Funcionários descontentes ou mal treinados com acesso excessivo deletando ou vazando informações estratégicas.
+                </div>
+              </div>
+            </div>
+
+            <!-- Modelo de Defesa em Camadas -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-center text-xs space-y-3 shadow-2xs">
+              <span class="font-bold text-slate-700 uppercase tracking-wider block text-[11px]">A Estratégia de Defesa em Camadas (*Defense in Depth*)</span>
+
+              <div class="space-y-2 text-slate-800 font-mono text-[11px]">
+                <div class="p-2 bg-slate-800 text-white rounded flex justify-between items-center">
+                  <span>Camada 1: Rede & Firewall</span>
+                  <span class="text-emerald-400 font-bold">Bloqueio de Portas Externas</span>
+                </div>
+                <div class="p-2 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded flex justify-between items-center font-bold">
+                  <span>Camada 2: Autenticação & RBAC</span>
+                  <span class="text-xs">Identidade + Menor Privilégio</span>
+                </div>
+                <div class="p-2 bg-white rounded border border-slate-200 flex justify-between items-center">
+                  <span>Camada 3: Criptografia (TLS + TDE)</span>
+                  <span class="text-slate-500">Dados ilegíveis em trânsito e repouso</span>
+                </div>
+                <div class="p-2 bg-blue-50 text-blue-900 rounded border border-blue-200 flex justify-between items-center font-bold">
+                  <span>Camada 4: Backup Imutável</span>
+                  <span class="text-xs">Garantia final de sobrevivência</span>
+                </div>
+              </div>
+
+              <div class="p-2 bg-emerald-50 rounded text-[10px] text-emerald-950 font-sans">
+                🛡️ Segurança em banco de dados não é uma ferramenta única, mas um processo contínuo em camadas!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Quem pode acessar o quê?</span>
+          <span class="font-medium text-emerald-700">Módulo 5.1 — Controle de Acesso e RBAC →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 4: MÓDULO 5.1 - CONTROLE DE ACESSO & RBAC ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Controle de Acesso e RBAC" data-module="Módulo 5.1 — Segurança & Backup">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.1 • Identidade e Autorização</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Controle de Acesso: O Modelo RBAC</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Role-Based Access Control</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Autenticação vs Autorização -->
+            <div class="space-y-3 text-xs text-slate-700">
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-emerald-800 font-bold block mb-1">1. Autenticação (Quem é você?)</strong>
+                Validação de identidade via senhas fortes, chaves SSH, certificados digitais ou integração com Active Directory / LDAP.
+              </div>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <strong class="text-blue-800 font-bold block mb-1">2. Autorização (O que você pode fazer?)</strong>
+                Definição exata de quais tabelas, views e procedimentos aquele usuário autenticado pode ler ou modificar.
+              </div>
+
+              <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-300 text-emerald-950">
+                ⭐ <strong>Princípio do Menor Privilégio (*Least Privilege*):</strong> Cada usuário ou serviço deve ter apenas as permissões estritamente indispensáveis para sua função, nem mais, nem menos.
+              </div>
+            </div>
+
+            <!-- O Modelo RBAC em Ação -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2.5 font-mono">
+              <span class="font-bold text-slate-700 uppercase font-sans tracking-wider block text-[11px]">Como funciona o RBAC na Prática:</span>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200 text-slate-800">
+                <span class="text-purple-700 font-bold block font-sans">Role (Papel): 'role_atendimento'</span>
+                <span class="text-[11px] text-slate-600 block mt-0.5">Permissões: SELECT em vw_clientes_basico, INSERT em chamados.</span>
+              </div>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200 text-slate-800">
+                <span class="text-blue-700 font-bold block font-sans">Role (Papel): 'role_financeiro'</span>
+                <span class="text-[11px] text-slate-600 block mt-0.5">Permissões: SELECT e UPDATE em faturas e contas_a_pagar.</span>
+              </div>
+
+              <div class="p-2 bg-slate-900 rounded text-emerald-400 text-[10px]">
+                <span class="text-slate-400">-- No SQL atribuímos a Role aos usuários:</span><br>
+                CREATE ROLE role_atendimento;<br>
+                GRANT SELECT ON vw_clientes_basico TO role_atendimento;<br>
+                GRANT role_atendimento TO usuario_joao;
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como proteger os dados caso os arquivos sejam roubados?</span>
+          <span class="font-medium text-emerald-700">Módulo 5.1 — Criptografia e Mascaramento →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 5: MÓDULO 5.1 - CRIPTOGRAFIA & MASCARAMENTO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Criptografia e Mascaramento" data-module="Módulo 5.1 — Segurança & Backup">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.1 • Sigilo Matemático</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Criptografia: Em Trânsito, Em Repouso e Mascaramento</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">TLS & TDE</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <!-- Em Trânsito -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 font-mono">EM TRÂNSITO</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Criptografia em Trânsito (TLS/SSL)</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-relaxed">
+                  Protege os dados enquanto eles viajam pelos cabos de rede e internet entre a aplicação e o servidor de banco.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 text-[10px] text-slate-600">
+                Evita interceptações tipo <em>Man-in-the-Middle</em> e espionagem de rede (*Sniffing*).
+              </div>
+            </div>
+
+            <!-- Em Repouso -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 font-mono">EM REPOUSO</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Criptografia em Repouso (TDE)</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-relaxed">
+                  *Transparent Data Encryption*. Os arquivos <code class="mono-pill">.mdf</code> ou blocos no disco SSD são criptografados com algoritmos como AES-256.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 text-[10px] text-slate-600">
+                Se um invasor roubar o disco físico ou o arquivo de backup, ele não consegue ler nada sem a chave mestra.
+              </div>
+            </div>
+
+            <!-- Mascaramento Dinâmico -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 font-mono">MASCARAMENTO</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Mascaramento Dinâmico (DDM)</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-relaxed">
+                  Ofusca dados sensíveis em tempo real na tela de acordo com o nível do usuário, sem alterar o valor original gravado no disco.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 font-mono text-[10px] text-purple-900">
+                Ex: CPF: ***.456.789-**<br>Cartão: ****-****-****-1234
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O ataque mais famoso e destrutivo contra aplicações de banco</span>
+          <span class="font-medium text-emerald-700">A Ameaça do SQL Injection (SQLi) →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 6: MÓDULO 5.1 - SQL INJECTION ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="SQL Injection e Prevenção" data-module="Módulo 5.1 — Segurança & Backup">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.1 • Vulnerabilidade Nº 1 da Web</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">A Ameaça do SQL Injection (SQLi) e a Blindagem</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-red-100 text-red-800 border border-red-300">OWASP Top 10</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <!-- Como ocorre o ataque -->
+            <div class="space-y-3 text-xs text-slate-700">
+              <p class="leading-relaxed">
+                O <strong>SQL Injection</strong> ocorre quando um sistema junta (concatena) comandos SQL com textos digitados diretamente pelo usuário sem nenhuma validação prévia.
+              </p>
+
+              <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-950 font-mono text-[11px]">
+                <strong class="font-sans block text-red-800 text-xs mb-1">Exemplo de Entrada Maliciosa no Campo Usuário:</strong>
+                <span class="bg-red-200/80 px-1 rounded">' OR '1'='1' --</span>
+                <p class="font-sans text-[10px] text-slate-600 mt-2">
+                  Como <code class="mono-pill text-red-800">'1'='1'</code> é sempre verdadeiro, a query ignora a senha e o invasor faz login como administrador do sistema!
+                </p>
+              </div>
+
+              <div class="p-3 bg-emerald-50 border border-emerald-300 rounded-lg text-emerald-950">
+                🛡️ <strong>A Solução Definitiva: Prepared Statements (Queries Parametrizadas)</strong><br>
+                O SGBD compila o código SQL primeiro e trata o texto do usuário estritamente como dado puro, nunca como código executável!
+              </div>
+            </div>
+
+            <!-- Código Vulnerável vs Blindado -->
+            <div class="bg-slate-900 rounded-xl p-4 text-white font-mono text-[11px] leading-relaxed shadow-sm">
+              <div class="text-slate-400 border-b border-slate-700 pb-1 mb-2 text-[10px]">
+                -- O Erro Mortal vs A Blindagem
+              </div>
+              <span class="text-red-400 font-bold">-- ❌ VULNERÁVEL (Concatenação de String):</span><br>
+              query = <span class="text-yellow-300">"SELECT * FROM users WHERE login = '"</span> + campo_user + <span class="text-yellow-300">"' AND pass = '"</span> + campo_pass + <span class="text-yellow-300">"'"</span>;<br><br>
+              <span class="text-emerald-400 font-bold">-- ✅ BLINDADO (Prepared Statement com Parâmetros ?):</span><br>
+              query = <span class="text-yellow-300">"SELECT * FROM users WHERE login = ? AND pass = ?"</span>;<br>
+              stmt = db.prepare(query);<br>
+              stmt.bind(1, campo_user);<br>
+              stmt.bind(2, campo_pass);<br>
+              stmt.execute(); <span class="text-slate-400">-- 100% Imune a SQLi!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Se o servidor queimar ou for atacado, como recuperamos tudo?</span>
+          <span class="font-medium text-emerald-700">Módulo 5.1 — A Regra 3-2-1 de Backup →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 7: MÓDULO 5.1 - REGRA 3-2-1 DE BACKUP ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="A Estratégia de Backup 3-2-1" data-module="Módulo 5.1 — Segurança & Backup">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.1 • Resiliência Corporativa</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">A Estratégia de Backup: A Regra de Ouro 3-2-1</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Sobrevivência de Dados</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+            Ter uma cópia salva no mesmo servidor não é backup. A indústria de tecnologia adota como padrão a <strong>Regra 3-2-1</strong> para garantir que os dados sobrevivam a incêndios, inundações e ataques cibernéticos:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-center">
+            <!-- 3 Cópias -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 font-extrabold text-xl mx-auto flex items-center justify-center mb-3">3</div>
+                <h3 class="font-bold text-slate-800 text-sm mb-1">3 Cópias dos Dados</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  A cópia de produção principal (onde o sistema roda) + <strong>2 cópias de backup</strong> independentes.
+                </p>
+              </div>
+              <div class="mt-4 pt-2 text-[10px] text-slate-500 font-mono">
+                Produção + Backup A + Backup B
+              </div>
+            </div>
+
+            <!-- 2 Mídias -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-800 font-extrabold text-xl mx-auto flex items-center justify-center mb-3">2</div>
+                <h3 class="font-bold text-slate-800 text-sm mb-1">2 Mídias Diferentes</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Armazenadas em tecnologias distintas: por exemplo, um storage NAS local + armazenamento em Nuvem (Object Storage).
+                </p>
+              </div>
+              <div class="mt-4 pt-2 text-[10px] text-slate-500 font-mono">
+                Evita falha no mesmo tipo de hardware
+              </div>
+            </div>
+
+            <!-- 1 Offsite -->
+            <div class="p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between shadow-2xs">
+              <div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-700 text-white font-extrabold text-xl mx-auto flex items-center justify-center mb-3">1</div>
+                <h3 class="font-bold text-emerald-950 text-sm mb-1">1 Cópia Fora do Local (*Offsite*)</h3>
+                <p class="text-xs text-slate-700 leading-relaxed">
+                  Ao menos uma cópia deve estar geograficamente distante do data center da empresa (em nuvem segura e imutável contra ransomware).
+                </p>
+              </div>
+              <div class="mt-4 pt-2 text-[10px] text-emerald-900 font-bold font-mono">
+                Protege contra desastres físicos
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Quais são as modalidades técnicas de backup?</span>
+          <span class="font-medium text-emerald-700">Full vs Diferencial vs Incremental →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 8: MÓDULO 5.1 - TIPOS DE BACKUP ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Tipos de Backup" data-module="Módulo 5.1 — Segurança & Backup">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.1 • Tipologia de Rotinas</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Os 3 Tipos de Backup: Full, Diferencial e Incremental</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Comparativo Operacional</span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200 text-xs">
+            <table class="w-full text-left">
+              <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Tipo de Backup</th>
+                  <th class="py-2.5 px-3">O que grava exatamente?</th>
+                  <th class="py-2.5 px-3">Tempo para Executar</th>
+                  <th class="py-2.5 px-3">Espaço Ocupado</th>
+                  <th class="py-2.5 px-3 text-emerald-900 bg-emerald-50/50">Tempo de Restauração</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 text-slate-700">
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-900">1. Completo (Full)</td>
+                  <td class="py-2.5 px-3">Copia 100% dos dados, tabelas e estruturas do zero.</td>
+                  <td class="py-2.5 px-3 text-red-700 font-medium">Lento (horas)</td>
+                  <td class="py-2.5 px-3 text-red-700 font-medium">Muito Alto</td>
+                  <td class="py-2.5 px-3 bg-emerald-50/30 text-emerald-800 font-bold">Ultra Rápido (Restaura só ele)</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-900">2. Diferencial</td>
+                  <td class="py-2.5 px-3">Copia tudo o que mudou <strong>desde o último backup Full</strong>.</td>
+                  <td class="py-2.5 px-3 text-amber-700">Moderado</td>
+                  <td class="py-2.5 px-3 text-amber-700">Médio</td>
+                  <td class="py-2.5 px-3 bg-emerald-50/30 text-emerald-800 font-bold">Rápido (Full + último Diferencial)</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-semibold text-slate-900">3. Incremental</td>
+                  <td class="py-2.5 px-3">Copia apenas o que mudou <strong>desde o último backup de qualquer tipo</strong>.</td>
+                  <td class="py-2.5 px-3 text-emerald-700 font-bold">Ultra Rápido (minutos)</td>
+                  <td class="py-2.5 px-3 text-emerald-700 font-bold">Muito Baixo</td>
+                  <td class="py-2.5 px-3 bg-emerald-50/30 text-amber-800">Mais lento (Full + todos os incrementais)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+            💡 <strong>A Estratégia Típica das Empresas:</strong> Backup <strong>Full no domingo à noite</strong> + Backup <strong>Incremental diário de segunda a sábado</strong> de madrugada!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como medimos o sucesso da recuperação de um desastre?</span>
+          <span class="font-medium text-emerald-700">Métricas Vitais: RPO e RTO →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 9: MÓDULO 5.1 - RPO E RTO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Métricas RPO e RTO" data-module="Módulo 5.1 — Segurança & Backup">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.1 • Plano de Continuidade</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Métricas Vitais de Recuperação: RPO & RTO</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Disaster Recovery</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <!-- RPO -->
+            <div class="p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50/30 flex flex-col justify-between shadow-2xs">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-sm text-emerald-950 font-mono">RPO (Recovery Point Objective)</span>
+                  <span class="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-bold">Tolerância a Perdas</span>
+                </div>
+                <h4 class="font-bold text-xs text-slate-800 mb-2">"Quantos dados a empresa tolera perder no tempo?"</h4>
+                <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                  É o intervalo máximo aceitável entre o último backup e o momento do desastre.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-emerald-200 text-xs text-slate-700">
+                  <em>Exemplo:</em> Se o backup roda a cada 1 hora, o RPO máximo é de 1 hora de dados perdidos. Em bancos, o RPO deve ser <strong>zero</strong> (replicação contínua síncrona).
+                </div>
+              </div>
+            </div>
+
+            <!-- RTO -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-sm text-slate-800 font-mono">RTO (Recovery Time Objective)</span>
+                  <span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-bold">Tempo de Parada</span>
+                </div>
+                <h4 class="font-bold text-xs text-slate-800 mb-2">"Quanto tempo o sistema pode ficar fora do ar?"</h4>
+                <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                  É o tempo limite necessário para restaurar a infraestrutura e colocar o banco de dados operacional novamente para os clientes.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-xs text-slate-700">
+                  <em>Exemplo:</em> Se o e-commerce fatura R$ 100 mil/hora, um RTO de 4 horas significa R$ 400 mil de prejuízo imediato.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-slate-900 text-white text-xs flex items-center justify-between">
+            <span>🚨 <strong>A Lei Suprema da TI:</strong> *"O estado de um backup é desconhecido até que você tente restaurá-lo com sucesso."* Faça simulações periódicas de recuperação de desastres!</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Início do Módulo 5.2: Rastreabilidade e Qualidade</span>
+          <span class="font-medium text-emerald-700">Módulo 5.2 — Auditoria de Logs e Rastreabilidade →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 10: MÓDULO 5.2 - AUDITORIA DE LOGS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Auditoria de Logs" data-module="Módulo 5.2 — Rastreabilidade & Qualidade">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.2 • Governança & Rastreabilidade</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Rastreabilidade e Auditoria de Logs (*Audit Trail*)</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Trilha Inviolável</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                Uma <strong>Trilha de Auditoria (Audit Trail)</strong> é o registro cronológico, imutável e detalhado de todas as operações realizadas dentro do banco de dados.
+              </p>
+
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1.5">
+                <span class="font-bold text-slate-800 block text-[11px] uppercase">Os 5 Elementos Obrigatórios de um Log de Auditoria:</span>
+                <div>1. <strong>QUEM fez?</strong> (Usuário do banco e usuário da aplicação).</div>
+                <div>2. <strong>O QUE fez?</strong> (O comando executado: INSERT, UPDATE, DELETE, DROP).</div>
+                <div>3. <strong>QUANDO fez?</strong> (Data e hora exata em microssegundos com fuso horário UTC).</div>
+                <div>4. <strong>DE ONDE fez?</strong> (Endereço IP de origem e nome da máquina).</div>
+                <div>5. <strong>QUAL O IMPACTO?</strong> (Valor anterior vs novo valor gravado).</div>
+              </div>
+            </div>
+
+            <!-- Conformidade Regulatória -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-3 shadow-2xs">
+              <span class="font-bold text-emerald-800 uppercase tracking-wider block text-[11px]">Conformidade Legal & Regulatória</span>
+
+              <div class="space-y-2">
+                <div class="p-2.5 bg-white rounded border border-slate-200">
+                  <strong class="text-slate-900 block font-mono">LGPD (Art. 37 - Brasil)</strong>
+                  O controlador deve manter registro das operações de tratamento de dados pessoais para prestar contas à ANPD.
+                </div>
+                <div class="p-2.5 bg-white rounded border border-slate-200">
+                  <strong class="text-slate-900 block font-mono">PCI-DSS (Requisito 10)</strong>
+                  Obrigatório rastrear e monitorar todo o acesso aos dados dos titulares de cartão de crédito.
+                </div>
+                <div class="p-2.5 bg-white rounded border border-slate-200">
+                  <strong class="text-slate-900 block font-mono">SOX (Lei Sarbanes-Oxley)</strong>
+                  Auditoria de qualquer alteração manual em relatórios ou lançamentos contábeis corporativos.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Quais são os tipos de arquivos de log do motor do banco?</span>
+          <span class="font-medium text-emerald-700">Tipos de Logs no SGBD →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 11: MÓDULO 5.2 - TIPOS DE LOGS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Tipos de Logs no SGBD" data-module="Módulo 5.2 — Rastreabilidade & Qualidade">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.2 • Diagnóstico e Recuperação</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Tipos de Logs no SGBD</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Arquivos de Diagnóstico</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+            <!-- WAL / Redo Log -->
+            <div class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800 font-mono">TRANSAÇÃO</span>
+                <h4 class="font-bold text-sm text-emerald-950 mt-2 mb-1">Logs WAL (Write-Ahead Logging)</h4>
+                <p class="text-[11px] text-slate-700 mb-3 leading-relaxed">
+                  Grava cada alteração em arquivo sequencial antes de gravar nos blocos de tabelas. Garante a durabilidade ACID mesmo com pane súbita de energia.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-emerald-300 text-[10px] text-emerald-900 font-mono">
+                Redo Log (Oracle) / WAL (Postgres)
+              </div>
+            </div>
+
+            <!-- Log de Acesso e Erros -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 font-mono">SEGURANÇA</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Logs de Conexão e Erros</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-relaxed">
+                  Registra todas as tentativas bem-sucedidas ou falhas de autenticação. Detecta ataques de força bruta e tentativas de invasão externa.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 text-[10px] text-slate-600 font-mono">
+                Alerta de tentativas falhas de login
+              </div>
+            </div>
+
+            <!-- Slow Query Log -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 font-mono">PERFORMANCE</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Slow Query Log (Consultas Lentas)</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-relaxed">
+                  Registra automaticamente consultas SQL que demoram mais que o limite esperado (ex: &gt; 2 segundos). Essencial para encontrar queries sem índices.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 text-[10px] text-slate-600 font-mono">
+                Otimização contínua de performance
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O que custa mais caro para a empresa?</span>
+          <span class="font-medium text-emerald-700">Módulo 5.2 — O Custo do Dado Ruim (Regra 1-10-100) →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 12: MÓDULO 5.2 - REGRA 1-10-100 ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="O Custo do Dado Ruim" data-module="Módulo 5.2 — Rastreabilidade & Qualidade">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.2 • Economia da Qualidade</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O Custo do Dado Ruim: A Regra 1-10-100</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Data Quality</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+            Desenvolvida pelos teóricos da qualidade George Labovitz e Yu Sang Chang, a <strong>Regra 1-10-100</strong> demonstra matematicamente o prejuízo exponencial de permitir que dados incorretos entrem no sistema:
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-center">
+            <!-- R$ 1 -->
+            <div class="p-5 rounded-xl border border-emerald-300 bg-emerald-50/50 flex flex-col justify-between">
+              <div>
+                <span class="text-2xl font-black text-emerald-800 font-mono">R$ 1,00</span>
+                <h3 class="font-bold text-slate-800 text-sm mt-2 mb-1">Custo de Prevenção</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Validar na entrada (máscaras de formulário, campos obrigatórios e restrições <code class="mono-pill">CHECK</code> no banco).
+                </p>
+              </div>
+              <div class="mt-4 pt-2 text-[10px] text-emerald-800 font-semibold font-mono">
+                Barato, imediato e automático
+              </div>
+            </div>
+
+            <!-- R$ 10 -->
+            <div class="p-5 rounded-xl border border-amber-300 bg-amber-50/40 flex flex-col justify-between">
+              <div>
+                <span class="text-2xl font-black text-amber-800 font-mono">R$ 10,00</span>
+                <h3 class="font-bold text-slate-800 text-sm mt-2 mb-1">Custo de Correção</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  O dado sujo entrou no banco: agora exige horas de programadores rodando scripts de limpeza, desduplicação e tratamento manual.
+                </p>
+              </div>
+              <div class="mt-4 pt-2 text-[10px] text-amber-800 font-semibold font-mono">
+                10x mais caro que prevenir
+              </div>
+            </div>
+
+            <!-- R$ 100 -->
+            <div class="p-5 rounded-xl border-2 border-red-400 bg-red-50/40 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="text-2xl font-black text-red-800 font-mono">R$ 100,00+</span>
+                <h3 class="font-bold text-red-950 text-sm mt-2 mb-1">Custo da Falha no Cliente</h3>
+                <p class="text-xs text-red-900 leading-relaxed">
+                  O produto foi enviado para o endereço errado, a cobrança gerou processo judicial, o cliente cancelou a conta e a empresa tomou multa.
+                </p>
+              </div>
+              <div class="mt-4 pt-2 text-[10px] text-red-800 font-bold font-mono">
+                100x mais caro + Perda de Reputação
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como avaliar se os dados de uma empresa têm qualidade?</span>
+          <span class="font-medium text-emerald-700">Os 6 Pilares de Data Quality →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 13: MÓDULO 5.2 - OS 6 PILARES ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Os 6 Pilares da Qualidade" data-module="Módulo 5.2 — Rastreabilidade & Qualidade">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.2 • Dimensões da Qualidade</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Os 6 Pilares da Qualidade de Dados</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Métricas de Confiabilidade</span>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs mb-1.5">1</span>
+              <h4 class="font-bold text-slate-800 mb-1">Acurácia (Precisão)</h4>
+              <p class="text-[11px] text-slate-600 leading-tight">O dado reflete exatamente a realidade do mundo físico? (Ex: saldo bancário e estoque real nas prateleiras).</p>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs mb-1.5">2</span>
+              <h4 class="font-bold text-slate-800 mb-1">Completude</h4>
+              <p class="text-[11px] text-slate-600 leading-tight">Todos os dados obrigatórios foram preenchidos ou existem lacunas vazias de e-mail e telefone?</p>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs mb-1.5">3</span>
+              <h4 class="font-bold text-slate-800 mb-1">Consistência</h4>
+              <p class="text-[11px] text-slate-600 leading-tight">A informação concorda entre sistemas diferentes sem contradições? (Ex: endereço no CRM bate com o ERP?).</p>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs mb-1.5">4</span>
+              <h4 class="font-bold text-slate-800 mb-1">Validade</h4>
+              <p class="text-[11px] text-slate-600 leading-tight">O dado obedece ao padrão e domínio esperado? (Ex: CPF com 11 dígitos válidos, e-mail com '@' e domínio real).</p>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs mb-1.5">5</span>
+              <h4 class="font-bold text-slate-800 mb-1">Unicidade</h4>
+              <p class="text-[11px] text-slate-600 leading-tight">Cada entidade existe exatamente uma única vez, sem duplicidades de registros para o mesmo cliente.</p>
+            </div>
+
+            <div class="p-3 bg-emerald-50 border border-emerald-300 rounded-xl">
+              <span class="w-6 h-6 rounded bg-emerald-700 text-white font-bold flex items-center justify-center text-xs mb-1.5">6</span>
+              <h4 class="font-bold text-emerald-950 mb-1">Tempestividade (*Timeliness*)</h4>
+              <p class="text-[11px] text-emerald-900 leading-tight">O dado está disponível no momento certo para a tomada de decisão, sem atrasos de sincronização?</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como garantir esses 6 pilares na rotina das empresas?</span>
+          <span class="font-medium text-emerald-700">Ferramentas e Ciclo PDCA da Qualidade →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 14: MÓDULO 5.2 - CICLO PDCA DA QUALIDADE ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Ciclo PDCA da Qualidade" data-module="Módulo 5.2 — Rastreabilidade & Qualidade">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.2 • Melhoria Contínua</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">O Ciclo PDCA Aplicado à Qualidade de Dados</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Data Governance</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+            <!-- P: Plan -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-sm flex items-center justify-center mb-2">P</span>
+                <h4 class="font-bold text-sm text-slate-800 mb-1">Plan (Planejar)</h4>
+                <p class="text-xs text-slate-600 leading-snug">
+                  Definir dicionários de dados, regras de negócio e limites aceitáveis de tolerância a erro.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-200 text-[10px] text-slate-500">
+                Regras de integridade & schema
+              </div>
+            </div>
+
+            <!-- D: Do -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-sm flex items-center justify-center mb-2">D</span>
+                <h4 class="font-bold text-sm text-slate-800 mb-1">Do (Executar)</h4>
+                <p class="text-xs text-slate-600 leading-snug">
+                  Implementar restrições no banco (<code class="mono-pill">CHECK</code>, <code class="mono-pill">NOT NULL</code>) e validações nos formulários de entrada.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-200 text-[10px] text-slate-500">
+                Coleta com filtros rigorosos
+              </div>
+            </div>
+
+            <!-- C: Check -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-sm flex items-center justify-center mb-2">C</span>
+                <h4 class="font-bold text-sm text-slate-800 mb-1">Check (Verificar)</h4>
+                <p class="text-xs text-slate-600 leading-snug">
+                  Rodar rotinas automáticas de <strong>Data Profiling</strong> e auditoria semanal para medir a taxa de inconsistências.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-200 text-[10px] text-slate-500">
+                Métricas e relatórios de DQ
+              </div>
+            </div>
+
+            <!-- A: Act -->
+            <div class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-700 text-white font-mono font-bold text-sm flex items-center justify-center mb-2">A</span>
+                <h4 class="font-bold text-sm text-emerald-950 mb-1">Act (Agir / Corrigir)</h4>
+                <p class="text-xs text-slate-700 leading-snug">
+                  Corrigir os dados na fonte e aprimorar as regras dos formulários para que o mesmo erro nunca mais volte a ocorrer.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-emerald-300 text-[10px] text-emerald-900 font-bold">
+                Evolução contínua da base
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-slate-100 text-slate-700 text-xs flex items-center justify-between">
+            <span>🛠️ <strong>Ferramentas de Mercado:</strong> <em>Great Expectations</em>, <em>dbt (data build tool)</em>, <em>Talend</em> e <em>Apache Griffin</em> automatizam esses testes de qualidade!</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Início do Módulo 5.3: Big Data e Escala Massiva</span>
+          <span class="font-medium text-emerald-700">Módulo 5.3 — Fundamentos do Big Data →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 15: MÓDULO 5.3 - FUNDAMENTOS DO BIG DATA ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Fundamentos do Big Data" data-module="Módulo 5.3 — Big Data">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.3 • Escala Massiva</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Big Data: Quando o Banco Convencional Não Dá Conta</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Além dos Terabytes</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p>
+                O termo <strong>Big Data</strong> não se refere apenas a "muitos dados". Refere-se a conjuntos de dados tão volumosos, rápidos e variados que <strong>superam a capacidade dos softwares de bancos de dados relacionais tradicionais</strong> de capturar, armazenar e processar em tempo hábil.
+              </p>
+
+              <div class="space-y-2">
+                <div class="p-2.5 rounded border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">A Quebra dos Limites Físicos</strong>
+                  Um único servidor comum não consegue processar 500 milhões de cliques por segundo ou 50 terabytes de logs diários de satélites e sensores de IoT.
+                </div>
+                <div class="p-2.5 rounded border border-slate-200 bg-slate-50">
+                  <strong class="text-slate-800 block mb-0.5">Arquitetura de Processamento Paralelo Distribuído</strong>
+                  O Big Data resolve o desafio dividindo o problema entre centenas de computadores trabalhando em paralelo (frameworks como <strong>Apache Spark</strong> e <strong>Hadoop</strong>).
+                </div>
+              </div>
+            </div>
+
+            <!-- Fato Curioso e Escala -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-xs space-y-3 shadow-2xs">
+              <span class="font-bold text-slate-700 uppercase tracking-wider block text-[11px]">A Escala dos Dados no Mundo Hoje</span>
+
+              <div class="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-center">
+                  <span class="text-emerald-800 font-bold block text-sm">~175 ZB</span>
+                  <span class="text-slate-500 text-[10px]">Volume Global de Dados</span>
+                </div>
+                <div class="p-2.5 bg-white rounded border border-slate-200 text-center">
+                  <span class="text-blue-800 font-bold block text-sm">80%+</span>
+                  <span class="text-slate-500 text-[10px]">Dados Não Estruturados</span>
+                </div>
+              </div>
+
+              <div class="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
+                <span class="font-bold text-slate-800 block text-[11px]">Fontes de Alimentação:</span>
+                <p class="text-[11px] text-slate-600">Telemetria de carros autônomos, câmeras de segurança, cliques de navegação em tempo real, transações de cartão de crédito e posts de redes sociais.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como caracterizar um desafio de Big Data?</span>
+          <span class="font-medium text-emerald-700">Os 5 Vs do Big Data →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 16: MÓDULO 5.3 - OS 5 VS DO BIG DATA ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Os 5 Vs do Big Data" data-module="Módulo 5.3 — Big Data">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.3 • O Modelo Clássico</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Os 5 Vs do Big Data</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Dimensões Chave</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+            <!-- 1. Volume -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs mb-2">V1</span>
+                <h4 class="font-bold text-slate-800 mb-1">Volume</h4>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  Grandezas na casa dos Petabytes e Exabytes que não cabem no disco de um único servidor.
+                </p>
+              </div>
+            </div>
+
+            <!-- 2. Velocidade -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs mb-2">V2</span>
+                <h4 class="font-bold text-slate-800 mb-1">Velocidade</h4>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  A frequência de geração e a necessidade de resposta em tempo real (milissegundos).
+                </p>
+              </div>
+            </div>
+
+            <!-- 3. Variedade -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs mb-2">V3</span>
+                <h4 class="font-bold text-slate-800 mb-1">Variedade</h4>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  Formatos diversos: tabelas SQL, JSONs semiestruturados, áudios, vídeos e PDFs.
+                </p>
+              </div>
+            </div>
+
+            <!-- 4. Veracidade -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs mb-2">V4</span>
+                <h4 class="font-bold text-slate-800 mb-1">Veracidade</h4>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  Filtrar o ruído e garantir que a informação massiva coletada seja autêntica e confiável.
+                </p>
+              </div>
+            </div>
+
+            <!-- 5. Valor -->
+            <div class="p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="w-7 h-7 rounded-lg bg-emerald-700 text-white font-bold flex items-center justify-center text-xs mb-2">V5</span>
+                <h4 class="font-bold text-emerald-950 mb-1">Valor</h4>
+                <p class="text-[11px] text-emerald-900 leading-snug">
+                  O objetivo final de todo o processo: transformar a montanha de dados brutos em lucro e decisões certas!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Onde guardamos petabytes de dados analíticos?</span>
+          <span class="font-medium text-emerald-700">Data Warehouse vs Data Lake vs Lakehouse →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 17: MÓDULO 5.3 - REPOSITÓRIOS ANALÍTICOS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Repositórios Analíticos" data-module="Módulo 5.3 — Big Data">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.3 • Arquitetura de Repositórios</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Data Warehouse vs Data Lake vs Lakehouse</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Armazéns Analíticos</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+            <!-- Data Warehouse -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 font-mono">ESTRUTURADO</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Data Warehouse (DW)</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-relaxed">
+                  Armazém de dados 100% estruturados, limpos e modelados em esquemas estrela (*Star Schema*). Otimizado para consultas SQL analíticas de BI e dashboards executivos rápidos.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 font-mono text-[10px] text-blue-900">
+                Snowflake, Google BigQuery, Redshift
+              </div>
+            </div>
+
+            <!-- Data Lake -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 font-mono">DADOS BRUTOS</span>
+                <h4 class="font-bold text-sm text-slate-800 mt-2 mb-1">Data Lake</h4>
+                <p class="text-[11px] text-slate-600 mb-3 leading-relaxed">
+                  Um grande "lago" que armazena qualquer tipo de dado no formato bruto original (estruturado, semiestruturado e não estruturado) com custo baixíssimo de armazenamento.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-slate-200 font-mono text-[10px] text-amber-900">
+                Amazon S3, Azure Blob, Hadoop HDFS
+              </div>
+            </div>
+
+            <!-- Data Lakehouse -->
+            <div class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between shadow-2xs">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800 font-mono">A EVOLUÇÃO MODERNA</span>
+                <h4 class="font-bold text-sm text-emerald-950 mt-2 mb-1">Data Lakehouse</h4>
+                <p class="text-[11px] text-slate-700 mb-3 leading-relaxed">
+                  A fusão do melhor dos dois mundos: traz a flexibilidade e baixo custo do Data Lake junto com as <strong>transações ACID e governança</strong> do Data Warehouse.
+                </p>
+              </div>
+              <div class="p-2 bg-white rounded border border-emerald-300 font-mono text-[10px] text-emerald-900 font-bold">
+                Databricks, Delta Lake, Apache Iceberg
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como os dados viajam até o armazém analítico?</span>
+          <span class="font-medium text-emerald-700">Pipelines de Dados: ETL vs ELT →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 18: MÓDULO 5.3 - ETL vs ELT ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Pipelines: ETL vs ELT" data-module="Módulo 5.3 — Big Data">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.3 • Engenharia de Pipelines</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Extração de Dados: ETL vs ELT</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Pipelines de Dados</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- ETL Tradicional -->
+            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between text-xs">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 font-mono">TRADICIONAL (ON-PREMISES)</span>
+                <h3 class="text-base font-bold text-slate-800 mt-2 mb-1">ETL (Extract ➔ Transform ➔ Load)</h3>
+                <p class="text-slate-600 mb-3 leading-relaxed">
+                  Os dados são extraídos dos bancos operacionais, transformados e higienizados em um servidor intermediário antes de serem gravados no Data Warehouse.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+                  <div><strong>Gargalo:</strong> O servidor de transformação intermediário pode virar um gargalo de processamento.</div>
+                  <div class="text-slate-500">Ferramentas: Talend, SSIS, Pentaho.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ELT Moderno -->
+            <div class="p-5 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 flex flex-col justify-between text-xs shadow-2xs">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800 font-mono">MODERNO EM NUVEM</span>
+                <h3 class="text-base font-bold text-emerald-950 mt-2 mb-1">ELT (Extract ➔ Load ➔ Transform)</h3>
+                <p class="text-slate-700 mb-3 leading-relaxed">
+                  Os dados são extraídos e carregados brutos imediatamente no Data Warehouse em nuvem. A transformação ocorre <strong>depois</strong>, aproveitando o poder massivo de processamento distribuído da nuvem.
+                </p>
+                <div class="p-2.5 bg-white rounded border border-emerald-300 space-y-1">
+                  <div><strong>Vantagem:</strong> Muito mais rápido, flexível e sem perda do dado bruto original.</div>
+                  <div class="text-emerald-900 font-bold">Ferramentas: dbt (data build tool), Fivetran, Airbyte.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como os dados são transmitidos e compactados?</span>
+          <span class="font-medium text-emerald-700">Batch vs Streaming e Formatos Colunares →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 19: MÓDULO 5.3 - STREAMING & PARQUET ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Streaming e Formato Parquet" data-module="Módulo 5.3 — Big Data">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Módulo 5.3 • Ingestão e Compactação</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Batch vs Streaming & O Formato Colunar Parquet</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Alta Eficiência</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Batch vs Streaming -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 text-xs">
+              <span class="font-bold text-slate-800 uppercase tracking-wider block">Modos de Ingestão de Dados</span>
+
+              <div class="p-2.5 bg-white rounded border border-slate-200">
+                <strong class="text-slate-900 block font-mono">1. Lote (Batch)</strong>
+                <p class="text-slate-600 mt-1">Os dados são acumulados e processados em blocos periódicos (ex: a cada 1 hora ou todas as noites à meia-noite).</p>
+              </div>
+
+              <div class="p-2.5 bg-emerald-50 rounded border border-emerald-300">
+                <strong class="text-emerald-950 block font-mono">2. Tempo Real (Streaming)</strong>
+                <p class="text-emerald-900 mt-1">Cada evento é ingerido e processado no exato milissegundo em que acontece (ex: detecção de fraude de cartão no ato da compra).</p>
+                <div class="text-[10px] text-emerald-800 font-bold mt-1">Padrão da Indústria: Apache Kafka, Apache Flink</div>
+              </div>
+            </div>
+
+            <!-- Formato Colunar Parquet -->
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 text-xs">
+              <span class="font-bold text-emerald-800 uppercase tracking-wider block">O Segredo do Big Data: Apache Parquet</span>
+              <p class="text-slate-600 leading-snug">
+                Em vez de salvar linhas inteiras como no CSV, o <strong>Parquet</strong> armazena dados orientados por colunas com compressão extrema:
+              </p>
+
+              <div class="space-y-1.5 font-mono text-[11px]">
+                <div class="p-2 bg-white rounded border border-slate-200 flex justify-between">
+                  <span>Arquivo em CSV (Texto Puro):</span>
+                  <span class="text-red-700 font-bold">100 GB</span>
+                </div>
+                <div class="p-2 bg-emerald-100/70 rounded border border-emerald-300 flex justify-between text-emerald-950 font-bold">
+                  <span>Mesmo dado em Parquet (Snappy):</span>
+                  <span>15 GB (85% menor!)</span>
+                </div>
+              </div>
+
+              <div class="p-2 bg-white rounded border border-slate-200 text-[10px] text-slate-600">
+                ⚡ <strong>Consulta Seletiva:</strong> Se você pedir apenas a média de salários, o leitor de Parquet lê apenas aquela coluna do disco, ignorando as outras 50 colunas!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Como toda essa arquitetura moderna se conecta na prática?</span>
+          <span class="font-medium text-emerald-700">Visão Panorâmica da Arquitetura Integrada →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 20: VISÃO PANORÂMICA ARQUITETURAL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Visão Panorâmica Integrada" data-module="Arquitetura Integrada">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">A Grande Conexão dos 5 Módulos</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Do Banco Transacional ao Big Data Seguro</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">Arquitetura de Ponta a Ponta</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+            Veja como uma empresa de tecnologia moderna orquestra dados desde o clique do cliente até a inteligência analítica:
+          </p>
+
+          <!-- 4 Estágios Integrados -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
+              <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-800 mx-auto flex items-center justify-center font-bold mb-2">1</div>
+              <h4 class="font-bold text-slate-800 mb-1">OLTP Transacional</h4>
+              <p class="text-[11px] text-slate-500">PostgreSQL / Oracle blindados com <strong>RBAC</strong>, <strong>TDE</strong> e <strong>Backup 3-2-1</strong>.</p>
+            </div>
+
+            <div class="p-3 bg-emerald-50 border border-emerald-300 rounded-xl text-center">
+              <div class="w-8 h-8 rounded-full bg-emerald-200 text-emerald-800 mx-auto flex items-center justify-center font-bold mb-2">2</div>
+              <h4 class="font-bold text-emerald-950 mb-1">Captura CDC & Kafka</h4>
+              <p class="text-[11px] text-emerald-900">Leitura contínua dos logs de transação com streaming para ingestão sem onerar o banco.</p>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
+              <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-800 mx-auto flex items-center justify-center font-bold mb-2">3</div>
+              <h4 class="font-bold text-slate-800 mb-1">Data Lakehouse</h4>
+              <p class="text-[11px] text-slate-500">Arquivos colunares <strong>Parquet</strong> com transações ACID e governança de qualidade.</p>
+            </div>
+
+            <div class="p-3 bg-emerald-900 text-white rounded-xl text-center shadow-xs">
+              <div class="w-8 h-8 rounded-full bg-emerald-700 text-white mx-auto flex items-center justify-center font-bold mb-2">4</div>
+              <h4 class="font-bold text-white mb-1">BI & Inteligência Artificial</h4>
+              <p class="text-[11px] text-emerald-200">Painéis de decisão executiva e modelos de Machine Learning treinados com dados íntegros.</p>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+            🎯 <strong>Missão Cumprida:</strong> Ao garantir segurança, qualidade e escala, você assegura que o dado não seja apenas armazenado, mas protegido como o maior patrimônio da empresa!
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Hora de praticar em sala de aula!</span>
+          <span class="font-medium text-emerald-700">Módulo 10 — Atividade Prática em Grupo →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 21: ATIVIDADE PRÁTICA EM GRUPO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Atividade Prática em Grupo" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Dinâmica de Sala • Estudo de Caso</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">Atividade Prática: O Resgate do Banco FintechSafe</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-amber-100 text-amber-800 border border-amber-300">Tempo: 15 min</span>
+          </div>
+
+          <!-- Situação-Problema -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl mb-4 text-xs">
+            <span class="font-bold text-slate-800 uppercase tracking-wide block mb-1">Cenário Desafiador:</span>
+            <p class="text-slate-600 leading-relaxed">
+              O banco digital <strong>FintechSafe</strong> sofreu uma invasão que comprometeu os servidores locais. Ao tentar restaurar o backup, descobriram que a fita estava corrompida e o último backup válido tinha <strong>72 horas de atraso</strong> (violando o RPO de 15 minutos). Além disso, a base possuía 14% de cadastros duplicados e a equipe de suporte conseguia visualizar senhas de cartões sem criptografia.
+            </p>
+          </div>
+
+          <!-- As 6 Tarefas do Grupo -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">1. Política de Backup 3-2-1</span>
+              Desenhar a nova rotina de backup (Full, Diferencial e Incremental) para garantir o RPO de 15 min.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">2. Controle de Acesso (RBAC)</span>
+              Criar perfis de acesso separados para a equipe de suporte e administradores com Menor Privilégio.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">3. Criptografia & Mascaramento</span>
+              Indicar como implementar TDE e Dynamic Data Masking para dados de cartão de crédito.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">4. Trilha de Auditoria</span>
+              Especificar quais campos mínimos devem ser logados em cada transação financeira para a LGPD.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">5. Higienização de Dados</span>
+              Aplicar os 6 pilares de Data Quality para eliminar as duplicidades e cadastros inválidos.
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="font-bold text-emerald-700 block mb-1">6. Pipeline de Big Data</span>
+              Sugerir como usar ELT e formato Parquet para consolidar dados históricos em um Data Lakehouse.
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Após o debate em grupo, teste seus conhecimentos individuais!</span>
+          <span class="font-medium text-emerald-700">Quiz Interativo de Fixação →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 22: QUIZ INTERATIVO ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Quiz de Fixação Interativo" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Fixação de Conteúdo</span>
+              <h2 class="text-xl md:text-2xl font-bold text-slate-800">Quiz Interativo: 5 Perguntas Rápidas</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="quizScore" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Acertos: 0/5</span>
+            </div>
+          </div>
+
+          <!-- Container dinâmico do Quiz -->
+          <div id="quizContainer" class="space-y-3">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-emerald-800 font-mono" id="qNumber">QUESTÃO 1 DE 5</span>
+                <span class="text-[11px] text-slate-400">Clique na alternativa correta</span>
+              </div>
+              <h3 class="text-sm font-semibold text-slate-800 mb-3" id="qQuestion">
+                O que determina a Regra de Ouro 3-2-1 para uma política de backup resiliente?
+              </h3>
+              <div class="space-y-2 text-xs" id="qOptions">
+                <!-- Opções via JS -->
+              </div>
+              <div id="qFeedback" class="mt-3 p-2.5 rounded text-xs hidden"></div>
+            </div>
+
+            <!-- Navegação do Quiz -->
+            <div class="flex items-center justify-between pt-2">
+              <button onclick="prevQuizQuestion()" id="btnPrevQuiz" class="px-3 py-1 text-xs rounded border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40">Anterior</button>
+              <span class="text-xs text-slate-400 font-mono" id="quizNavInfo">Questão 1 de 5</span>
+              <button onclick="nextQuizQuestion()" id="btnNextQuiz" class="px-3 py-1 text-xs rounded bg-emerald-700 text-white hover:bg-emerald-800">Próxima Questão</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>O gabarito oficial com orientações do professor vem a seguir.</span>
+          <span class="font-medium text-emerald-700">Ver Gabarito & Guia do Professor →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 23: GABARITO & GUIA DO PROFESSOR ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="Gabarito e Guia do Professor" data-module="Módulo 10 — Prática e Avaliação">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Exclusivo para o Docente</span>
+              <h2 class="text-2xl font-bold text-slate-800">Gabarito Oficial e Guia Pedagógico</h2>
+            </div>
+            <button onclick="toggleTeacherAnswers()" id="btnToggleAnswers" class="px-2.5 py-1 text-xs font-medium rounded-md bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 transition">
+              🔓 Revelar / Ocultar Gabarito
+            </button>
+          </div>
+
+          <div id="answersContent" class="space-y-2.5 text-xs max-h-[380px] overflow-y-auto pr-2">
+            <!-- Q1 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 1: Regra 3-2-1 de Backup</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> Ter 3 cópias dos dados (1 produção + 2 backups), em 2 mídias distintas, com pelo menos 1 cópia fora do local físico (*offsite* / nuvem imutável).</p>
+            </div>
+            <!-- Q2 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 2: Diferença entre RPO e RTO</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> O <strong>RPO</strong> mede o volume de dados que a empresa tolera perder no tempo (tolerância a perda); o <strong>RTO</strong> mede quanto tempo o sistema pode demorar para ser restabelecido (tempo de inatividade).</p>
+            </div>
+            <!-- Q3 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 3: Prevenção contra SQL Injection</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> Utilizar <strong>Prepared Statements (Queries Parametrizadas)</strong>, onde os dados digitados pelo usuário nunca são concatenados diretamente como código executável.</p>
+            </div>
+            <!-- Q4 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 4: Regra 1-10-100 da Qualidade</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> O custo de prevenir um erro é muito baixo (R$ 1), corrigir o dado no banco custa 10 vezes mais (R$ 10) e arcar com o erro já no cliente custa 100 vezes mais (R$ 100).</p>
+            </div>
+            <!-- Q5 -->
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+              <span class="font-bold text-emerald-800 block">Questão 5: Formato Parquet em Big Data</span>
+              <p class="text-slate-700 mt-0.5"><strong>Resposta Correta:</strong> É um formato colunar com alta taxa de compressão que permite ler apenas as colunas solicitadas na consulta, economizando até 85% de I/O de disco.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Síntese geral da governança de dados</span>
+          <span class="font-medium text-emerald-700">As 7 Leis da Governança de Dados →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 24: SÍNTESE E BOAS PRÁTICAS ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-12 bg-white" data-title="As Leis da Governança" data-module="Encerramento">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest">Guia de Excelência e Ética</span>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-800">As 7 Leis da Governança, Segurança e Qualidade de Dados</h2>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Checklist Executivo</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">1.</span>
+              <div><strong>Menor Privilégio sempre:</strong> Ninguém tem acesso de administrador sem justificativa comprovada.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">2.</span>
+              <div><strong>Criptografe tudo:</strong> TLS em trânsito e TDE em repouso são obrigatórios para conformidade LGPD.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">3.</span>
+              <div><strong>Nunca concatene SQL:</strong> Prepared Statements são a única blindagem aceitável contra SQLi.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">4.</span>
+              <div><strong>A Regra 3-2-1 é sagrada:</strong> 3 cópias, 2 mídias diferentes, 1 cópia fora da empresa (*offsite*).</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">5.</span>
+              <div><strong>Restaure para crer:</strong> Backup não testado não existe; simule recuperações com frequência.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+              <span class="text-emerald-700 font-bold font-mono text-sm">6.</span>
+              <div><strong>Previna na fonte (Regra 1-10-100):</strong> Custa R$ 1 validar na entrada e R$ 100 corrigir no cliente.</div>
+            </div>
+            <div class="p-3 rounded-lg border border-emerald-300 bg-emerald-50/60 md:col-span-2 flex items-start gap-2.5">
+              <span class="text-emerald-800 font-bold font-mono text-sm">7.</span>
+              <div><strong class="text-emerald-950">Big Data com Propósito:</strong> De nada adianta acumular petabytes de dados brutos se você não extrai <strong>Valor (o 5º V)</strong> para transformar os negócios e a sociedade!</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Encerramento oficial da trilha completa</span>
+          <span class="font-medium text-emerald-700">Slide Final de Conclusão →</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 25: ENCERRAMENTO OFICIAL ================= -->
+      <section class="slide flex-col justify-between h-full p-8 md:p-14 bg-emerald-950 text-white relative overflow-hidden" data-title="Encerramento Oficial" data-module="Encerramento">
+        <div class="relative z-10 flex items-center justify-between">
+          <span class="px-3 py-1 rounded-full bg-emerald-800 text-emerald-300 text-xs font-mono font-medium">Trilha de Engenharia de Dados Finalizada</span>
+          <span class="text-xs text-emerald-400 font-mono">5 Aulas Concluídas com Sucesso</span>
+        </div>
+
+        <div class="relative z-10 my-auto py-6 max-w-3xl text-center mx-auto">
+          <div class="w-16 h-16 rounded-2xl bg-emerald-800 border border-emerald-600/60 flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg">
+            🛡️
+          </div>
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            Parabéns! Você completou a formação fundamental de Banco de Dados.
+          </h2>
+          <p class="mt-3 text-sm md:text-base text-emerald-100/90 font-light leading-relaxed max-w-2xl mx-auto">
+            Da teoria à arquitetura, da instalação e comandos avançados até a segurança em camadas, auditoria de qualidade e Big Data analítico. Você está pronto para liderar o futuro dos dados!
+          </p>
+
+          <div class="mt-6 flex justify-center gap-3 text-xs">
+            <button onclick="goToSlide(0)" class="px-4 py-2 rounded-lg bg-emerald-700 text-white font-medium hover:bg-emerald-600 transition shadow-xs">
+              Reiniciar Apresentação ↺
+            </button>
+            <button onclick="window.print()" class="px-4 py-2 rounded-lg bg-white/10 text-emerald-200 border border-white/20 hover:bg-white/20 transition">
+              Exportar Apostila PDF (Ctrl + P)
+            </button>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex items-center justify-between pt-4 border-t border-emerald-900 text-xs text-emerald-300/80">
+          <span>Curso de Banco de Dados • Formação Completa</span>
+          <span class="font-mono text-emerald-400">Professor de Tecnologia da Informação</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= BOTTOM BAR (CONTROLES DE SLIDE) ================= -->
+  <footer class="no-print bg-white border-t border-slate-200 px-4 py-2.5 flex items-center justify-between z-20">
+    <div class="flex items-center space-x-2 text-xs text-slate-500">
+      <span class="hidden sm:inline">Navegação:</span>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">←</kbd>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">→</kbd>
+      <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono text-slate-700">Espaço</kbd>
+    </div>
+
+    <!-- Botões Anterior / Próximo -->
+    <div class="flex items-center space-x-2">
+      <button onclick="prevSlide()" id="btnPrev" class="px-4 py-1.5 rounded-lg border border-slate-200 text-slate-700 font-medium text-xs hover:bg-slate-50 active:scale-95 transition flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        <span>Anterior</span>
+      </button>
+
+      <button onclick="nextSlide()" id="btnNext" class="px-5 py-1.5 rounded-lg bg-emerald-700 text-white font-medium text-xs hover:bg-emerald-800 active:scale-95 transition flex items-center gap-1 shadow-xs">
+        <span>Próximo</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <div class="text-right text-xs text-slate-400 font-mono">
+      <span>Prof. Tecnologia da Informação</span>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL: ÍNDICE DE SLIDES (DRAWER) ================= -->
+  <div id="tocModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="font-bold text-slate-800 text-base">Índice da Apresentação — Aula 5</h3>
+          <p class="text-xs text-slate-500">Clique para saltar diretamente para qualquer slide</p>
+        </div>
+        <button onclick="toggleTocModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-2 flex-1" id="tocList">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAINEL: NOTAS DO PROFESSOR (DRAWER LATERAL) ================= -->
+  <aside id="teacherNotesDrawer" class="no-print fixed right-0 top-0 bottom-0 w-80 md:w-96 bg-white shadow-2xl border-l border-slate-200 z-40 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+    <div>
+      <div class="p-4 border-b border-slate-200 bg-emerald-950 text-white flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block">Guia do Professor</span>
+          <h4 class="font-bold text-sm">Dicas Didáticas & Ritmo (Aula 5)</h4>
+        </div>
+        <button onclick="toggleTeacherNotes()" class="text-emerald-300 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+          <div class="flex items-center justify-between text-xs text-emerald-900 font-semibold mb-1">
+            <span>Tempo Sugerido da Aula:</span>
+            <span class="font-mono text-emerald-700">50 a 60 min</span>
+          </div>
+          <div class="text-[11px] text-emerald-800">
+            Reserve 15 minutos para o estudo de caso da FintechSafe e resolução do Quiz de fixação.
+          </div>
+        </div>
+
+        <div id="slideSpecificNote" class="space-y-3">
+          <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider" id="noteSlideTitle">Slide Atual</h5>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 leading-relaxed" id="noteContent">
+            Carregando notas...
+          </div>
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900" id="noteQuestionPrompt">
+            Carregando pergunta...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-slate-200 bg-slate-50 text-[11px] text-slate-500 flex justify-between items-center">
+      <span>Atalho: Tecla <kbd class="px-1 py-0.5 bg-white border border-slate-300 rounded font-mono">P</kbd></span>
+      <span class="text-emerald-700 font-semibold">Modo Docente Ativo</span>
+    </div>
+  </aside>
+
+  <!-- ================= JAVASCRIPT: NAVEGAÇÃO E QUIZ ================= -->
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const currentSlideNum = document.getElementById('currentSlideNum');
+    const totalSlideNum = document.getElementById('totalSlideNum');
+    const progressBar = document.getElementById('progressBar');
+    const headerSubtitle = document.getElementById('headerSubtitle');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const tocList = document.getElementById('tocList');
+
+    totalSlideNum.textContent = totalSlides;
+
+    // Dicas do Professor para cada um dos 25 slides da Aula 5
+    const teacherNotesData = [
+      {
+        slide: 1,
+        title: "Capa da Aula 5",
+        note: "Acolha a turma e destaque a importância deste módulo de encerramento: dados sem segurança são um perigo, sem qualidade são inúteis e sem escala não atendem ao mercado moderno.",
+        prompt: "\"Quantos de vocês já receberam mensagens de empresas avisando que seus dados vazaram na internet?\""
+      },
+      {
+        slide: 2,
+        title: "Objetivos de Aprendizagem",
+        note: "Apresente os 3 eixos: Segurança/Backup, Rastreabilidade/Qualidade e Big Data. Mostre que essas três competências definem os cargos seniores de TI.",
+        prompt: "\"Por que a perda de dados é considerada o maior risco existencial para empresas digitais modernas?\""
+      },
+      {
+        slide: 3,
+        title: "Segurança em Banco de Dados",
+        note: "Mencione a LGPD e as multas reais que empresas já tomaram. Explique que segurança deve ser planejada em camadas (rede, autenticação, criptografia, backup).",
+        prompt: "\"Se o servidor da sua empresa pegar fogo hoje, o negócio sobrevive amanhã de manhã?\""
+      },
+      {
+        slide: 4,
+        title: "Controle de Acesso e RBAC",
+        note: "Diferencie Autenticação de Autorização. Enfatize o modelo RBAC baseado em papéis e o Princípio do Menor Privilégio.",
+        prompt: "\"Por que um atendente de call center não deve ter permissão de apagar dados ou ver o salário da diretoria?\""
+      },
+      {
+        slide: 5,
+        title: "Criptografia e Mascaramento",
+        note: "Explique a diferença entre criptografar o canal de rede (TLS) e criptografar o disco físico (TDE). Mostre como o mascaramento protege telas de suporte.",
+        prompt: "\"Por que os sites bancários mostram apenas os últimos 4 dígitos do seu cartão de crédito?\""
+      },
+      {
+        slide: 6,
+        title: "SQL Injection e Prevenção",
+        note: "Demonstre a malícia do ' OR '1'='1. Explique com calma por que Prepared Statements são a única blindagem 100% eficaz.",
+        prompt: "\"Vocês conseguem ver como a expressão '1'='1' engana o banco e anula a checagem de senha?\""
+      },
+      {
+        slide: 7,
+        title: "A Estratégia de Backup 3-2-1",
+        note: "Faça a turma repetir: 3 cópias, 2 mídias diferentes, 1 cópia fora da empresa (offsite). Essa regra salva carreiras e empresas.",
+        prompt: "\"Se você guardar o backup no mesmo computador onde o banco roda, o que acontece se o computador for roubado ou queimar?\""
+      },
+      {
+        slide: 8,
+        title: "Tipos de Backup",
+        note: "Compare Full, Diferencial e Incremental. Explique o trade-off: Incremental é rápido para gravar, mas exige restaurar toda a cadeia de arquivos.",
+        prompt: "\"Por que as empresas não fazem backup Full a cada 10 minutos durante o horário comercial?\""
+      },
+      {
+        slide: 9,
+        title: "Métricas RPO e RTO",
+        note: "Defina claramente: RPO é tempo de dados perdidos; RTO é tempo de sistema fora do ar. Destaque a frase: 'Backup não testado não existe'.",
+        prompt: "\"Se um hospital ficar 6 horas com o sistema de prontuários fora do ar, qual é o impacto real nas vidas dos pacientes?\""
+      },
+      {
+        slide: 10,
+        title: "Auditoria de Logs (Audit Trail)",
+        note: "Mostre que a auditoria responde: quem, o que, quando, de onde e o que mudou. Conecte com a obrigatoriedade da LGPD e normas financeiras (PCI-DSS).",
+        prompt: "\"Se alguém desviar R$ 10.000 no banco, como a trilha de auditoria descobre o responsável?\""
+      },
+      {
+        slide: 11,
+        title: "Tipos de Logs no SGBD",
+        note: "Diferencie os logs de transação (WAL/Redo Log) que salvam o banco de panes elétricas dos logs de slow queries que ajudam a otimizar performance.",
+        prompt: "\"Como os desenvolvedores sabem quais consultas estão travando o servidor em dias de Black Friday? (Slow Query Log!)\""
+      },
+      {
+        slide: 12,
+        title: "O Custo do Dado Ruim",
+        note: "Explique a Regra 1-10-100. Mostre que economizar na validação de entrada gera prejuízos centenas de vezes maiores quando o erro estoura no cliente.",
+        prompt: "\"Quanto custa para uma loja consertar um pacote enviado para a cidade errada porque o CEP estava digitado incorretamente?\""
+      },
+      {
+        slide: 13,
+        title: "Os 6 Pilares da Qualidade",
+        note: "Percorra os 6 pilares: Acurácia, Completude, Consistência, Validade, Unicidade e Tempestividade. Peça exemplos cotidianos para a turma.",
+        prompt: "\"Se um sistema diz que seu saldo é R$ 500 mas na verdade você tem R$ 50, qual pilar da qualidade foi violado? (Acurácia!)\""
+      },
+      {
+        slide: 14,
+        title: "Ciclo PDCA da Qualidade",
+        note: "Mostre que qualidade de dados não é uma tarefa única, mas um ciclo contínuo: Planejar, Executar, Verificar com métricas e Corrigir na raiz.",
+        prompt: "\"Por que adianta pouco rodar scripts de limpeza todo mês se você não consertar o formulário onde o erro é digitado?\""
+      },
+      {
+        slide: 15,
+        title: "Fundamentos do Big Data",
+        note: "Explique que Big Data é quando os dados quebram os limites de um computador comum. A resposta da engenharia é o processamento paralelo em cluster.",
+        prompt: "\"Como o Spotify consegue processar os gostos musicais de 500 milhões de usuários para gerar a retrospectiva de fim de ano?\""
+      },
+      {
+        slide: 16,
+        title: "Os 5 Vs do Big Data",
+        note: "Apresente os 5 Vs: Volume, Velocidade, Variedade, Veracidade e Valor. Destaque que o Valor é o único que justifica o investimento.",
+        prompt: "\"De que adianta gastar milhões para guardar petabytes de dados se a empresa não souber o que fazer com eles? (O 5º V: Valor!)\""
+      },
+      {
+        slide: 17,
+        title: "Repositórios Analíticos",
+        note: "Compare Data Warehouse (organizado, estruturado), Data Lake (bruto, barato) e Data Lakehouse (a união moderna dos dois com ACID e governança).",
+        prompt: "\"Onde vocês guardariam gravações de áudio de câmeras de segurança: no Data Warehouse caro ou no Data Lake barato?\""
+      },
+      {
+        slide: 18,
+        title: "Pipelines: ETL vs ELT",
+        note: "Mostre a mudança de paradigma: com a nuvem superpoderosa, hoje carregamos tudo primeiro (Load) e transformamos depois (Transform), acelerando o processo.",
+        prompt: "\"Por que a computação em nuvem tornou o ELT muito mais popular que o antigo ETL tradicional?\""
+      },
+      {
+        slide: 19,
+        title: "Streaming e Formato Parquet",
+        note: "Explique por que o Apache Kafka é o coração das fintechs (processa eventos em tempo real) e mostre a mágica do formato colunar Parquet economizando 85% de espaço.",
+        prompt: "\"Se você só precisa saber a média de idades dos clientes, por que o formato colunar é infinitamente mais rápido que ler um arquivo CSV linha por linha?\""
+      },
+      {
+        slide: 20,
+        title: "Visão Panorâmica Integrada",
+        note: "Amarre todas as peças da formação: o banco transacional protegido com RBAC gerando logs CDC, ingerido pelo Kafka, armazenado no Lakehouse e servindo BI e IA.",
+        prompt: "\"Vejam como todas as peças que aprendemos ao longo das aulas se encaixam na arquitetura de uma grande empresa!\""
+      },
+      {
+        slide: 21,
+        title: "Atividade Prática em Grupo",
+        note: "Divida a turma em grupos. Dê 10 a 15 minutos para debaterem o caso do banco digital FintechSafe. Estimule-os a propor soluções completas.",
+        prompt: "\"Como o grupo de vocês resolveria o backup para garantir o RPO de 15 minutos sem travar o sistema em horário de pico?\""
+      },
+      {
+        slide: 22,
+        title: "Quiz Interativo",
+        note: "Faça a votação dinâmica na lousa. Estimule os alunos a justificarem por que as outras opções estão incorretas antes de revelar a resposta.",
+        prompt: "\"Quem vota na alternativa A? E na B? Vamos conferir a resposta oficial!\""
+      },
+      {
+        slide: 23,
+        title: "Gabarito e Guia do Professor",
+        note: "Consolide as respostas com a turma. Feche todas as dúvidas sobre RPO/RTO, SQLi e formato Parquet.",
+        prompt: "\"Ficou nítida para todos a diferença entre o RPO (perda de dados) e o RTO (tempo fora do ar)?\""
+      },
+      {
+        slide: 24,
+        title: "As 7 Leis da Governança",
+        note: "Leitura conjunta do checklist definitivo da governança de dados. Parabenize os alunos pela maturidade técnica alcançada.",
+        prompt: "\"Qual dessas 7 leis você levará como lema profissional para a sua carreira em tecnologia?\""
+      },
+      {
+        slide: 25,
+        title: "Encerramento Oficial da Formação",
+        note: "Agradeça calorosamente a turma. Destaque o orgulho pelo progresso deles ao longo das 5 aulas e incentive-os a continuar estudando e praticando.",
+        prompt: "\"Parabéns a todos! Vocês agora dominam a espinha dorsal de dados da tecnologia moderna!\""
+      }
+    ];
+
+    function updateSlide() {
+      slides.forEach((slide, idx) => {
+        if (idx === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      currentSlideNum.textContent = currentSlide + 1;
+      const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+
+      const activeSlide = slides[currentSlide];
+      const title = activeSlide.getAttribute('data-title') || '';
+      const moduleName = activeSlide.getAttribute('data-module') || '';
+      headerSubtitle.textContent = `${moduleName} — ${title}`;
+
+      btnPrev.disabled = currentSlide === 0;
+      btnPrev.style.opacity = currentSlide === 0 ? '0.4' : '1';
+
+      if (currentSlide === totalSlides - 1) {
+        btnNext.innerHTML = `<span>Início</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`;
+      } else {
+        btnNext.innerHTML = `<span>Próximo</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>`;
+      }
+
+      updateTeacherNotesContent();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+      } else {
+        currentSlide = 0;
+      }
+      updateSlide();
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(index) {
+      if (index >= 0 && index < totalSlides) {
+        currentSlide = index;
+        updateSlide();
+        closeTocModal();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      switch(e.key) {
+        case 'ArrowRight':
+        case ' ':
+        case 'PageDown':
+          e.preventDefault();
+          nextSlide();
+          break;
+        case 'ArrowLeft':
+        case 'PageUp':
+          e.preventDefault();
+          prevSlide();
+          break;
+        case 'Home':
+          e.preventDefault();
+          goToSlide(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          goToSlide(totalSlides - 1);
+          break;
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          toggleFullScreen();
+          break;
+        case 'm':
+        case 'M':
+        case 'i':
+        case 'I':
+          e.preventDefault();
+          toggleTocModal();
+          break;
+        case 'p':
+        case 'P':
+        case 'n':
+        case 'N':
+          e.preventDefault();
+          toggleTeacherNotes();
+          break;
+        case 'Escape':
+          closeTocModal();
+          closeTeacherNotes();
+          break;
+      }
+    });
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    function buildToc() {
+      tocList.innerHTML = '';
+      slides.forEach((slide, index) => {
+        const title = slide.getAttribute('data-title') || `Slide ${index + 1}`;
+        const moduleName = slide.getAttribute('data-module') || '';
+        
+        const item = document.createElement('button');
+        item.className = 'w-full text-left p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition flex items-center justify-between text-xs group';
+        item.onclick = () => goToSlide(index);
+        
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-full font-mono font-bold text-[11px] flex items-center justify-center ${index === currentSlide ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}">
+              ${index + 1}
+            </span>
+            <div>
+              <span class="font-bold text-slate-800 group-hover:text-emerald-900 block">${title}</span>
+              <span class="text-[10px] text-slate-400">${moduleName}</span>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400 group-hover:text-emerald-700">Ir →</span>
+        `;
+        tocList.appendChild(item);
+      });
+    }
+
+    function toggleTocModal() {
+      const modal = document.getElementById('tocModal');
+      if (modal.classList.contains('hidden')) {
+        buildToc();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function closeTocModal() {
+      document.getElementById('tocModal').classList.add('hidden');
+    }
+
+    function toggleTeacherNotes() {
+      const drawer = document.getElementById('teacherNotesDrawer');
+      drawer.classList.toggle('translate-x-full');
+    }
+
+    function closeTeacherNotes() {
+      const drawer = document.getElementById('teacherNotesDrawer');
+      drawer.classList.add('translate-x-full');
+    }
+
+    function updateTeacherNotesContent() {
+      const noteSlideTitle = document.getElementById('noteSlideTitle');
+      const noteContent = document.getElementById('noteContent');
+      const noteQuestionPrompt = document.getElementById('noteQuestionPrompt');
+      
+      const currentNote = teacherNotesData[currentSlide] || {
+        title: `Slide ${currentSlide + 1}`,
+        note: "Apresente o conceito de forma simples e contextualizada aos alunos.",
+        prompt: "Alguma dúvida sobre este ponto?"
+      };
+
+      noteSlideTitle.textContent = `Slide ${currentSlide + 1}: ${currentNote.title}`;
+      noteContent.textContent = currentNote.note;
+      noteQuestionPrompt.innerHTML = `<strong>Pergunta provocativa para a turma:</strong> ${currentNote.prompt}`;
+    }
+
+    // ================= DADOS E LÓGICA DO QUIZ (AULA 5) =================
+    const quizQuestions = [
+      {
+        question: "1. O que prescreve a Regra de Ouro 3-2-1 para uma política de backup resiliente?",
+        options: [
+          { text: "A) Fazer backup apenas 3 vezes por ano em 2 pendrives.", correct: false },
+          { text: "B) Manter 3 cópias dos dados, em 2 mídias diferentes, com pelo menos 1 cópia fora do local físico (offsite / nuvem).", correct: true },
+          { text: "C) Ter 3 administradores com 2 senhas e 1 computador.", correct: false },
+          { text: "D) Apagar dados antigos a cada 3 meses para economizar 2 gigabytes.", correct: false }
+        ],
+        explanation: "Correto! A regra 3-2-1 garante sobrevivência a desastres: 3 cópias no total, 2 tecnologias de mídia distintas e 1 cópia geograficamente distante (offsite)."
+      },
+      {
+        question: "2. Qual é a diferença técnica fundamental entre as métricas RPO e RTO no plano de Disaster Recovery?",
+        options: [
+          { text: "A) RPO mede a perda aceitável de dados no tempo; RTO mede o tempo aceitável para o sistema voltar a funcionar.", correct: true },
+          { text: "B) RPO é a velocidade do processador e RTO é o tamanho da memória RAM.", correct: false },
+          { text: "C) RPO é usado apenas em NoSQL e RTO apenas em SQL.", correct: false },
+          { text: "D) Ambas são idênticas e medem o preço da licença do SGBD.", correct: false }
+        ],
+        explanation: "Exato! RPO (Recovery Point Objective) define a tolerância à perda de transações; RTO (Recovery Time Objective) define o tempo de inatividade tolerável."
+      },
+      {
+        question: "3. Qual é a melhor prática de engenharia para blindar uma aplicação de banco de dados contra ataques de SQL Injection (SQLi)?",
+        options: [
+          { text: "A) Desligar o firewall durante a madrugada.", correct: false },
+          { text: "B) Concatenar os textos digitados pelo usuário com o sinal de soma (+).", correct: false },
+          { text: "C) Utilizar Prepared Statements (Queries Parametrizadas), separando a instrução SQL dos valores de dados.", correct: true },
+          { text: "D) Mudar o nome das tabelas para letras maiúsculas.", correct: false }
+        ],
+        explanation: "Perfeito! Com Prepared Statements, o SGBD trata os valores do usuário estritamente como texto de parâmetro, impedindo que comandos maliciosos sejam interpretados."
+      },
+      {
+        question: "4. O que preconiza a Regra 1-10-100 da Qualidade de Dados?",
+        options: [
+          { text: "A) Custa R$ 1 prevenir na entrada, R$ 10 corrigir dentro do banco e R$ 100 para arcar com o prejuízo da falha no cliente.", correct: true },
+          { text: "B) Que 1 banco de dados deve ter 10 tabelas e 100 colunas.", correct: false },
+          { text: "C) Que o backup deve ser feito 1 vez ao dia por 10 dias seguidos.", correct: false },
+          { text: "D) Que cada consulta SQL deve durar no máximo 100 milissegundos.", correct: false }
+        ],
+        explanation: "Correto! A regra demonstra o custo exponencial da má qualidade: prevenir no início é 100 vezes mais barato do que remediar as consequências no cliente."
+      },
+      {
+        question: "5. Por que formatos colunares como o Apache Parquet são amplamente adotados em arquiteturas de Big Data analítico?",
+        options: [
+          { text: "A) Porque o Parquet só aceita textos sem números.", correct: false },
+          { text: "B) Porque eles armazenam dados orientados por coluna com compressão extrema (economizando até 85% de espaço) e permitem ler apenas as colunas necessárias na consulta.", correct: true },
+          { text: "C) Porque o Parquet substitui a necessidade de ter memória RAM.", correct: false },
+          { text: "D) Porque o Parquet é executado sem eletricidade.", correct: false }
+        ],
+        explanation: "Muito bem! O Parquet organiza dados em colunas, permitindo compressão altíssima e leitura ultra seletiva no disco sem escanear dados irrelevantes."
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let quizScoreCount = 0;
+    let answeredQuestions = {};
+
+    function renderQuizQuestion() {
+      const q = quizQuestions[currentQuizIndex];
+      document.getElementById('qNumber').textContent = `QUESTÃO ${currentQuizIndex + 1} DE ${quizQuestions.length}`;
+      document.getElementById('qQuestion').textContent = q.question;
+      document.getElementById('quizNavInfo').textContent = `Questão ${currentQuizIndex + 1} de ${quizQuestions.length}`;
+
+      const optionsContainer = document.getElementById('qOptions');
+      optionsContainer.innerHTML = '';
+
+      const feedbackBox = document.getElementById('qFeedback');
+      feedbackBox.classList.add('hidden');
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition text-xs flex items-center justify-between text-slate-700';
+        
+        if (answeredQuestions[currentQuizIndex] !== undefined) {
+          btn.disabled = true;
+          if (opt.correct) {
+            btn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900', 'font-semibold');
+          } else if (answeredQuestions[currentQuizIndex] === idx) {
+            btn.classList.add('bg-red-100', 'border-red-400', 'text-red-900');
+          }
+        } else {
+          btn.onclick = () => handleAnswer(idx, opt.correct);
+        }
+
+        btn.innerHTML = `<span>${opt.text}</span>`;
+        optionsContainer.appendChild(btn);
+      });
+
+      if (answeredQuestions[currentQuizIndex] !== undefined) {
+        feedbackBox.classList.remove('hidden');
+        const isCorrect = q.options[answeredQuestions[currentQuizIndex]].correct;
+        feedbackBox.className = `mt-3 p-2.5 rounded text-xs ${isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-amber-100 text-amber-900 border border-amber-300'}`;
+        feedbackBox.innerHTML = `<strong>${isCorrect ? '✅ Resposta Correta!' : '💡 Atenção:'}</strong> ${q.explanation}`;
+      }
+
+      document.getElementById('btnPrevQuiz').disabled = currentQuizIndex === 0;
+      document.getElementById('btnNextQuiz').textContent = currentQuizIndex === quizQuestions.length - 1 ? 'Concluir Quiz' : 'Próxima Questão';
+    }
+
+    function handleAnswer(optionIdx, isCorrect) {
+      answeredQuestions[currentQuizIndex] = optionIdx;
+      if (isCorrect) {
+        quizScoreCount++;
+      }
+      document.getElementById('quizScore').textContent = `Acertos: ${quizScoreCount}/${quizQuestions.length}`;
+      renderQuizQuestion();
+    }
+
+    function nextQuizQuestion() {
+      if (currentQuizIndex < quizQuestions.length - 1) {
+        currentQuizIndex++;
+        renderQuizQuestion();
+      } else {
+        alert(`Quiz finalizado! Sua pontuação: ${quizScoreCount} de ${quizQuestions.length} acertos.`);
+      }
+    }
+
+    function prevQuizQuestion() {
+      if (currentQuizIndex > 0) {
+        currentQuizIndex--;
+        renderQuizQuestion();
+      }
+    }
+
+    let answersVisible = true;
+    function toggleTeacherAnswers() {
+      const container = document.getElementById('answersContent');
+      const btn = document.getElementById('btnToggleAnswers');
+      answersVisible = !answersVisible;
+      
+      if (answersVisible) {
+        container.classList.remove('hidden');
+        btn.textContent = '🔒 Ocultar Gabarito';
+      } else {
+        container.classList.add('hidden');
+        btn.textContent = '🔓 Revelar Gabarito';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSlide();
+      renderQuizQuestion();
+    });
+  </script>
+</body>
+</html>
