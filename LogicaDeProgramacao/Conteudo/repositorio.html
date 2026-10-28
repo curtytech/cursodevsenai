@@ -43,7 +43,6 @@
         }
         main #fundamentos { --icon-rgb: 96,165,250; }
         main #logica { --icon-rgb: 45,212,191; }
-        main #banco-de-dados { --icon-rgb: 52,211,153; }
         main #redes { --icon-rgb: 251,191,36; }
         main #ferramentas { --icon-rgb: 167,139,250; }
         main #exercicios { --icon-rgb: 251,146,60; }
@@ -94,9 +93,24 @@
         main nav[aria-label="Categorias dos materiais"] a:nth-child(4) { border-color: #a78bfa; }
         main nav[aria-label="Categorias dos materiais"] a:nth-child(5) { border-color: #fb923c; }
         main nav[aria-label="Categorias dos materiais"] a:nth-child(6) { border-color: #4ade80; }
-        main nav[aria-label="Categorias dos materiais"] a[href="#banco-de-dados"] { border-color: #34d399; }
         main nav[aria-label="Categorias dos materiais"] a:hover { background: #223851; }
         @media (prefers-reduced-motion: reduce) { main section[id] .grid > .group, main section[id] .topic-icon { transition: none; } }
+        .logic-hero {
+            background: radial-gradient(ellipse at 50% 0%, rgba(14,165,233,.2), transparent 70%), rgba(15,23,42,.55);
+        }
+        .logic-emblem { animation: logic-float 5s ease-in-out infinite; }
+        .logic-cursor { animation: logic-signal 3s ease-in-out infinite; }
+        @keyframes logic-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes logic-signal {
+            0%, 100% { opacity: .4; }
+            50% { opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .logic-emblem, .logic-cursor { animation: none; }
+        }
     </style>
 </head>
 <body class="min-h-screen overflow-x-hidden bg-[#0b1329] font-sans text-gray-100 antialiased [&_*:focus-visible]:outline-2 [&_*:focus-visible]:outline-sky-300 [&_*:focus-visible]:outline-offset-[3px]">
@@ -237,11 +251,23 @@
         </nav>
     </header>
     <main class="relative z-10 mx-auto w-full max-w-[1056px] px-4 pb-4 pt-32">
-        <section aria-labelledby="page-title" class="mb-12 text-center">
-            <div class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-sky-300/25 bg-sky-500/15 shadow-lg shadow-sky-950/40"><i aria-hidden="true" class="fas fa-terminal text-3xl text-sky-300"></i></div>
-            <p class="mb-3 text-xs font-semibold uppercase tracking-[.2em] text-sky-300">Desenvolvimento de Sistemas · SENAI</p>
-            <h1 id="page-title" class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Lógica de Programação</h1>
-            <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-blue-200/80">Seu espaço para aprender, praticar e consultar os materiais das aulas.</p>
+        <section aria-labelledby="page-title" class="logic-hero mb-12 rounded-3xl border border-sky-300/25 px-5 py-10 text-center shadow-[0_16px_60px_rgba(2,8,23,0.3)] sm:py-14">
+            <div aria-hidden="true" class="logic-emblem relative mx-auto mb-7 flex h-28 w-28 items-center justify-center rounded-3xl border border-sky-200/40 bg-sky-400/10 shadow-[0_0_45px_rgba(56,189,248,0.2)]">
+                <svg class="h-20 w-20" viewBox="0 0 96 96" fill="none">
+                    <rect x="10" y="15" width="76" height="65" rx="9" fill="#0c4a6e" stroke="#7dd3fc" stroke-width="3"/>
+                    <path d="M11 32h74" stroke="#38bdf8" stroke-width="3"/>
+                    <circle cx="21" cy="24" r="2" fill="#bae6fd"/>
+                    <circle cx="29" cy="24" r="2" fill="#38bdf8"/>
+                    <circle cx="37" cy="24" r="2" fill="#0ea5e9"/>
+                    <path d="m32 44-12 11 12 11m32-22 12 11-12 11m-11-25-10 30" stroke="#bae6fd" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="logic-cursor" d="M62 72h12" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+                <span class="absolute -bottom-2 -right-3 rounded-lg border border-sky-200/40 bg-sky-950 px-3 py-1 font-mono text-sm font-bold text-sky-200">&lt;/&gt;</span>
+            </div>
+            <p class="mb-4 text-xs font-semibold uppercase tracking-[.2em] text-sky-200/80">Desenvolvimento de Sistemas · SENAI</p>
+            <h1 id="page-title" class="bg-gradient-to-r from-white via-sky-100 to-sky-300 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">Lógica de Programação</h1>
+            <div aria-hidden="true" class="mx-auto mt-5 h-1 w-16 rounded-full bg-sky-400 shadow-[0_0_16px_rgba(56,189,248,0.5)]"></div>
+            <p class="mx-auto mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">Desenvolva seu raciocínio, construa algoritmos e dê vida às suas ideias com código. Explore os materiais e pratique com os desafios das aulas.</p>
         </section>
 <nav aria-label="Categorias dos materiais" class="mb-10 flex flex-wrap gap-2"><a href="#fundamentos" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Fundamentos de informática e trabalho em equipe</a>
 <a href="#logica" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Lógica e algoritmos</a>
@@ -249,7 +275,7 @@
 <a href="#ferramentas" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Ferramentas e desenvolvimento</a>
 <a href="#exercicios" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Exercícios, desafios e avaliação</a>
 <a href="#vue" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Vue.js e interfaces</a>
-<a href="#banco-de-dados" class="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-sky-100 transition-colors hover:bg-white/20">Banco de Dados</a></nav>
+</nav>
         <section id="fundamentos" aria-labelledby="fundamentos-title" class="mb-12 scroll-mt-28">
             <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
                 <div class="category-icon"><i aria-hidden="true" class="fas fa-computer"></i></div>
@@ -509,28 +535,7 @@
                 </a>
             </div>
         </section>
-        <section id="banco-de-dados" aria-labelledby="banco-de-dados-title" class="mb-12 scroll-mt-28">
-            <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
-                <div class="category-icon"><i aria-hidden="true" class="fa-solid fa-database"></i></div>
-                <h2 id="banco-de-dados-title" class="text-xl font-bold text-white sm:text-2xl">Banco de Dados</h2>
-                <span class="rounded-full border border-sky-300/20 bg-sky-500/10 px-2.5 py-1 text-xs text-sky-200">1 cartão</span>
-            </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <a href="../../BancoDeDados/Aula%201%20Banco%20de%20dados.html" target="_blank" rel="noopener noreferrer"
-                    class="group bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/20 transition-all duration-300 hover:scale-[1.02] motion-reduce:transform-none hover:shadow-lg">
-                    <div class="flex items-start gap-4">
-                        <div class="topic-icon">
-                            <i aria-hidden="true" class="fa-solid fa-database text-3xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-white group-hover:text-blue-300 transition-colors">Introdução ao Banco de Dados</h3>
-                            <p class="text-sm text-blue-200/80 mt-1">Introdução aos conceitos fundamentais de bancos de dados</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </section>
-        <section id="redes" aria-labelledby="redes-title" class="mb-12 scroll-mt-28">
+<section id="redes" aria-labelledby="redes-title" class="mb-12 scroll-mt-28">
             <div class="mb-6 flex flex-wrap items-center gap-3 border-b border-white/10 pb-3">
                 <div class="category-icon"><i aria-hidden="true" class="fas fa-network-wired"></i></div>
                 <h2 id="redes-title" class="text-xl font-bold text-white sm:text-2xl">Redes, internet e APIs</h2>
