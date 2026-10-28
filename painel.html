@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Acesse seu painel para atualizar seu perfil e currículo.">
+    <meta name="description" content="Acesse seu painel para atualizar seu perfil, currículo e ver suas S-Coins e inventário.">
     <title>Painel do Usuário | CursoDevSENAI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -42,14 +42,6 @@
                 <animateMotion dur="26s" repeatCount="indefinite" path="M -30 600 C 250 430 500 720 780 570 S 1190 450 1470 700"></animateMotion>
                 <animate attributeName="opacity" values="0;0.9;0.6;0" keyTimes="0;0.2;0.8;1" dur="26s" repeatCount="indefinite"></animate>
             </circle>
-            <circle r="2.5" fill="#e0f2fe" filter="url(#particle-glow)">
-                <animateMotion dur="20s" repeatCount="indefinite" path="M 1470 820 C 1130 650 920 850 640 640 S 250 780 -30 520"></animateMotion>
-                <animate attributeName="opacity" values="0;1;0.7;0" keyTimes="0;0.15;0.8;1" dur="20s" repeatCount="indefinite"></animate>
-            </circle>
-            <circle r="2" fill="#67e8f9" filter="url(#particle-glow)">
-                <animateMotion dur="25s" repeatCount="indefinite" path="M 470 -30 C 700 200 400 460 700 650 S 1030 760 960 930"></animateMotion>
-                <animate attributeName="opacity" values="0;0.9;0.65;0" keyTimes="0;0.2;0.8;1" dur="25s" repeatCount="indefinite"></animate>
-            </circle>
         </svg>
     </div>
     <div class="relative z-10 mx-auto min-h-screen w-full max-w-[1056px] px-4 pb-10 pt-24">
@@ -75,7 +67,7 @@
             <div class="mb-6">
                 <p class="text-sm font-bold uppercase tracking-[.18em] text-sky-300">Área do aluno</p>
                 <h1 class="mt-2 text-3xl font-black text-white sm:text-4xl">Painel do usuário</h1>
-                <p class="mt-2 text-blue-100/80">Entre para atualizar sua foto, seu currículo e sua senha.</p>
+                <p class="mt-2 text-blue-100/80">Entre para atualizar sua foto, seu currículo, sua senha e acompanhar suas S-Coins.</p>
             </div>
 
             <p id="page-message" class="mb-4 hidden rounded-xl border border-rose-300/30 bg-rose-500/10 px-4 py-3 text-sm" role="status" aria-live="polite"></p>
@@ -122,15 +114,61 @@
                     </button>
                 </div>
 
+                <!-- CARDS DE ESTATÍSTICAS (SALDO DISPONÍVEL + TOTAL CONQUISTADO) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="rounded-2xl border border-sky-400/30 bg-gradient-to-r from-sky-600/20 via-blue-600/20 to-sky-500/10 p-4 text-center backdrop-blur-sm shadow-xl">
+                        <div class="flex items-center justify-center gap-2 mb-1">
+                            <span class="w-5 h-5 rounded-full flex items-center justify-center text-white font-black text-[10px] bg-[#004B87]">S</span>
+                            <p class="text-xs font-bold uppercase tracking-widest text-sky-200">Saldo Disponível</p>
+                        </div>
+                        <p id="stat-disponivel" class="text-2xl font-black text-white mt-1">0 <span class="text-xs font-bold text-sky-300">S-Coins</span></p>
+                    </div>
+
+                    <div class="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-4 text-center backdrop-blur-sm shadow-xl">
+                        <div class="flex items-center justify-center gap-2 mb-1">
+                            <i class="fas fa-trophy text-emerald-300 text-xs"></i>
+                            <p class="text-xs font-bold uppercase tracking-widest text-emerald-200">Total Conquistado</p>
+                        </div>
+                        <p id="stat-conquistado" class="text-2xl font-black text-white mt-1">0 <span class="text-xs font-bold text-emerald-300">S-Coins</span></p>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO DO INVENTÁRIO -->
+                <section class="rounded-2xl border border-white/15 bg-white/10 p-5 shadow-xl shadow-slate-950/20 backdrop-blur-sm sm:p-7">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white"><i class="fas fa-box-open mr-2 text-sky-300"></i>Seu Inventário</h3>
+                            <p class="text-xs text-slate-300">Itens resgatados com suas S-Coins.</p>
+                        </div>
+                        <span id="inventory-count-badge" class="rounded-full bg-sky-500/20 px-3 py-1 text-xs font-bold text-sky-300 border border-sky-400/30">0 itens</span>
+                    </div>
+                    
+                    <div id="inventory-container" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-1">
+                        <!-- Cards de itens injetados via JS -->
+                    </div>
+                    <div id="inventory-empty" class="mt-6 py-8 text-center hidden">
+                        <i class="fas fa-box-archive text-3xl text-slate-500 mb-2"></i>
+                        <p class="text-sm text-slate-400 italic">Seu inventário está vazio no momento.</p>
+                    </div>
+                </section>
+
                 <section class="rounded-2xl border border-white/15 bg-white/10 p-5 shadow-xl shadow-slate-950/20 backdrop-blur-sm sm:p-7">
                     <h3 class="text-lg font-bold text-white"><i class="fas fa-id-card mr-2 text-sky-300"></i>Seu perfil</h3>
                     <p class="mt-1 text-sm text-slate-300">Atualize os endereços públicos da sua foto e do currículo.</p>
                     <form id="profile-form" class="mt-5 space-y-4">
                         <div>
                             <label for="photo-url" class="mb-1.5 block text-sm font-semibold text-slate-200">Link da foto</label>
-                            <input id="photo-url" name="photoUrl" type="url" inputmode="url"
-                                class="w-full rounded-xl border border-white/15 bg-slate-950/60 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-300 focus:outline-none"
-                                placeholder="https://...">
+                            <div class="flex gap-2">
+                                <input id="photo-url" name="photoUrl" type="url" inputmode="url"
+                                    class="w-full rounded-xl border border-white/15 bg-slate-950/60 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-300 focus:outline-none"
+                                    placeholder="https://...">
+                                <label for="upload-photo-input" class="flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-3 font-semibold text-white transition hover:bg-sky-500">
+                                    <i class="fas fa-cloud-arrow-up"></i>
+                                    <span class="hidden sm:inline">Enviar foto</span>
+                                </label>
+                                <input id="upload-photo-input" type="file" accept="image/*" class="hidden">
+                            </div>
+                            <p id="upload-status" class="mt-1 text-xs text-sky-300 hidden" role="status" aria-live="polite"></p>
                         </div>
                         <div>
                             <label for="resume-url" class="mb-1.5 block text-sm font-semibold text-slate-200">Link do currículo</label>
@@ -249,7 +287,14 @@
             passwordLoading: document.getElementById("password-loading"),
             passwordForm: document.getElementById("password-form"),
             passwordButton: document.getElementById("password-button"),
-            passwordMessage: document.getElementById("password-message")
+            passwordMessage: document.getElementById("password-message"),
+            statDisponivel: document.getElementById("stat-disponivel"),
+            statConquistado: document.getElementById("stat-conquistado"),
+            inventoryContainer: document.getElementById("inventory-container"),
+            inventoryEmpty: document.getElementById("inventory-empty"),
+            inventoryCountBadge: document.getElementById("inventory-count-badge"),
+            uploadPhotoInput: document.getElementById("upload-photo-input"),
+            uploadStatus: document.getElementById("upload-status")
         };
         let passwordLoadRequest = 0;
 
@@ -312,18 +357,6 @@
             if (!data.value || !Array.isArray(data.value.usuarios)) {
                 throw new Error("A resposta da API não contém a lista esperada de usuários.");
             }
-
-            if (data.value.usuarios.some(user =>
-                !user ||
-                user.id === null ||
-                user.id === undefined ||
-                !user.nome ||
-                user.senha === null ||
-                user.senha === undefined
-            )) {
-                throw new Error("A lista de usuários contém um cadastro incompleto.");
-            }
-
             return data.value;
         }
 
@@ -435,6 +468,54 @@
 
         function displayProfile() {
             elements.profileName.textContent = String(currentUser.nome).trim();
+            
+            // Cálculo do Saldo Disponível: coins (conquistadas) - moedas_gastas
+            const totalConquistado = Number(currentUser.coins || 0);
+            const moedasGastas = Number(currentUser.moedas_gastas || 0);
+            const saldoDisponivel = Math.max(0, totalConquistado - moedasGastas);
+
+            // Exibir nos cards
+            elements.statDisponivel.innerHTML = `${saldoDisponivel.toLocaleString("pt-BR")} <span class="text-xs font-bold text-sky-300">S-Coins</span>`;
+            elements.statConquistado.innerHTML = `${totalConquistado.toLocaleString("pt-BR")} <span class="text-xs font-bold text-emerald-300">S-Coins</span>`;
+
+            // Exibir Inventário em Grid Melhorado
+            const inventory = Array.isArray(currentUser.inventario) ? currentUser.inventario : [];
+            elements.inventoryContainer.innerHTML = "";
+            elements.inventoryCountBadge.textContent = `${inventory.length} ${inventory.length === 1 ? 'item' : 'itens'}`;
+
+            if (inventory.length > 0) {
+                elements.inventoryEmpty.classList.add("hidden");
+                elements.inventoryContainer.classList.remove("hidden");
+                
+                inventory.forEach(item => {
+                    const card = document.createElement("div");
+                    card.className = "flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/50 p-3.5 transition hover:border-sky-400/40 hover:bg-slate-950/70 shadow-md";
+                    
+                    const itemName = item.nome || item.id || "Item sem nome";
+                    const itemQtd = item.quantidade || 1;
+                    const itemPreco = item.preco_moedas || 0;
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-500/10 border border-sky-400/20 text-sky-300">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white text-sm">${itemName}</h4>
+                                <p class="text-[11px] text-slate-400">Preço un.: <span class="text-amber-300 font-medium">${itemPreco} S-Coins</span></p>
+                            </div>
+                        </div>
+                        <span class="rounded-lg bg-sky-400/10 px-2.5 py-1 text-xs font-bold text-sky-300 border border-sky-400/20 shadow-inner">
+                            x${itemQtd}
+                        </span>
+                    `;
+                    elements.inventoryContainer.append(card);
+                });
+            } else {
+                elements.inventoryContainer.classList.add("hidden");
+                elements.inventoryEmpty.classList.remove("hidden");
+            }
+
             elements.photoUrl.value = currentProfile.foto_url || "";
             elements.resumeUrl.value = currentProfile.curriculo_url || "";
             const safeResumeUrl = safeLink(currentProfile.curriculo_url || "");
@@ -500,6 +581,59 @@
                 sessionStorage.removeItem("cursoDevUserId");
             } finally {
                 elements.loginButton.disabled = false;
+            }
+        });
+
+        // Lógica de Upload de Foto para o Supabase Storage
+        elements.uploadPhotoInput.addEventListener("change", async event => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            elements.uploadStatus.textContent = "Enviando foto...";
+            elements.uploadStatus.classList.remove("hidden");
+
+            try {
+                // Nome único para o arquivo baseado no ID do aluno e timestamp
+                const fileExt = file.name.split('.').pop();
+                const fileName = `aluno_${currentProfile.id}_${Date.now()}.${fileExt}`;
+                const filePath = `fotos/${fileName}`;
+
+                // Fazendo o upload para o bucket padrão do projeto (geralmente 'fotos' ou 'public')
+                // Como a URL base do Supabase já aponta para os arquivos públicos, listamos no bucket correto.
+                const { data, error } = await supabaseClient.storage
+                    .from("fotos")
+                    .upload(filePath, file, { upsert: true });
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                // Recuperando a URL pública do arquivo enviado
+                const { data: publicUrlData } = supabaseClient.storage
+                    .from("fotos")
+                    .getPublicUrl(filePath);
+
+                if (!publicUrlData || !publicUrlData.publicUrl) {
+                    throw new Error("Não foi possível gerar a URL pública da foto.");
+                }
+
+                const uploadedUrl = publicUrlData.publicUrl;
+                elements.photoUrl.value = uploadedUrl;
+
+                // Atualiza a pré-visualização instantaneamente
+                elements.avatarPreview.src = uploadedUrl;
+                elements.avatarPreview.classList.remove("hidden");
+                elements.avatarPlaceholder.classList.add("hidden");
+
+                elements.uploadStatus.textContent = "Foto enviada com sucesso! Clique em 'Salvar perfil' para confirmar.";
+                elements.uploadStatus.classList.remove("text-rose-300");
+                elements.uploadStatus.classList.add("text-emerald-300");
+            } catch (error) {
+                elements.uploadStatus.textContent = `Erro no upload: ${error.message}`;
+                elements.uploadStatus.classList.remove("text-emerald-300");
+                elements.uploadStatus.classList.add("text-rose-300");
+            } finally {
+                elements.uploadPhotoInput.value = "";
             }
         });
 
