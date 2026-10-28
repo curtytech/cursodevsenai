@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTML e CSS — Fundamentos do Desenvolvimento Web</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#9A3412',
+              primary: '#F97316',
+              light: '#FFEDD5',
+              bg: '#F8FAFC',
+              text: '#1F2937',
+              muted: '#64748B'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Fira Code', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar for Code Blocks */
+    pre::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    pre::-webkit-scrollbar-thumb {
+      background: #4B5563;
+      border-radius: 4px;
+    }
+    pre::-webkit-scrollbar-track {
+      background: #1E293B;
+    }
+
+    /* Transition Animations */
+    .slide-enter {
+      animation: fadeInRight 0.35s ease-out forwards;
+    }
+    @keyframes fadeInRight {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Box Model Highlight Effects */
+    .box-hover-margin:hover { outline: 2px dashed #F97316; }
+    .box-hover-border:hover { outline: 2px solid #EA580C; }
+    .box-hover-padding:hover { outline: 2px dashed #3B82F6; }
+    .box-hover-content:hover { outline: 2px solid #10B981; }
+  </style>
+</head>
+<body class="bg-brand-bg text-brand-text font-sans antialiased h-screen overflow-hidden flex flex-col justify-between selection:bg-brand-primary selection:text-white">
+
+  <!-- TOP PROGRESS BAR & HEADER -->
+  <header class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between z-20 shadow-sm shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="bg-brand-primary text-white p-1.5 rounded-lg flex items-center justify-center">
+        <i data-lucide="code-2" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold text-slate-800 leading-none">HTML & CSS — Fundamentos</h1>
+        <p class="text-xs text-brand-muted mt-0.5">Aula Introdutória para Iniciantes</p>
+      </div>
+    </div>
+
+    <!-- Center Slide Counter -->
+    <div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+      <span id="current-slide-num" class="font-bold text-brand-dark text-sm">1</span>
+      <span class="text-xs text-slate-400">/</span>
+      <span id="total-slides-num" class="text-xs text-slate-500 font-medium">24</span>
+    </div>
+
+    <!-- Right Top Actions -->
+    <div class="flex items-center gap-2">
+      <button onclick="toggleSlideListModal()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors" title="Índice de Slides">
+        <i data-lucide="list" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Índice</span>
+      </button>
+      <button onclick="toggleTeacherMode()" id="teacher-toggle-btn" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-800 bg-amber-100 hover:bg-amber-200 rounded-lg transition-colors" title="Modo Professor">
+        <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Modo Professor</span>
+      </button>
+      <button onclick="toggleFullScreen()" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="Tela Cheia">
+        <i data-lucide="maximize-2" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- TOP PROGRESS BAR -->
+  <div class="w-full bg-slate-200 h-1 z-20">
+    <div id="progress-bar" class="bg-brand-primary h-1 transition-all duration-300" style="width: 4.16%;"></div>
+  </div>
+
+  <!-- MAIN SLIDE CONTAINER -->
+  <main id="slide-container" class="flex-1 relative overflow-y-auto overflow-x-hidden p-4 md:p-8 flex items-center justify-center">
+    
+    <!-- SLIDE 1: CAPA -->
+    <section class="slide-content w-full max-w-5xl mx-auto flex flex-col justify-center items-center text-center py-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-light text-brand-dark font-medium text-xs md:text-sm mb-6 border border-orange-200 shadow-sm">
+        <i data-lucide="sparkles" class="w-4 h-4 text-brand-primary"></i>
+        <span>Desenvolvimento Web Front-End</span>
+      </div>
+      <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+        HTML e CSS
+      </h1>
+      <p class="text-xl md:text-2xl font-medium text-brand-primary mb-6">
+        Fundamentos do Desenvolvimento Web
+      </p>
+      <p class="text-base md:text-lg text-slate-600 max-w-2xl mb-10 leading-relaxed">
+        Aprenda a criar sua primeira página na Web do zero: da estrutura com elementos de marcação à estilização visual moderna.
+      </p>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl text-left mb-8">
+        <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col gap-1">
+          <i data-lucide="layout" class="w-6 h-6 text-brand-primary"></i>
+          <span class="font-bold text-slate-800 text-sm">Estrutura Web</span>
+          <span class="text-xs text-slate-500">Conceitos de HTML5</span>
+        </div>
+        <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col gap-1">
+          <i data-lucide="palette" class="w-6 h-6 text-brand-primary"></i>
+          <span class="font-bold text-slate-800 text-sm">Estilização</span>
+          <span class="text-xs text-slate-500">Design com CSS3</span>
+        </div>
+        <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col gap-1">
+          <i data-lucide="smartphone" class="w-6 h-6 text-brand-primary"></i>
+          <span class="font-bold text-slate-800 text-sm">Responsividade</span>
+          <span class="text-xs text-slate-500">Adaptado para telas</span>
+        </div>
+        <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col gap-1">
+          <i data-lucide="rocket" class="w-6 h-6 text-brand-primary"></i>
+          <span class="font-bold text-slate-800 text-sm">Projeto Prático</span>
+          <span class="text-xs text-slate-500">Página Pessoal</span>
+        </div>
+      </div>
+
+      <button onclick="nextSlide()" class="inline-flex items-center gap-2 bg-brand-primary hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-md hover:shadow-lg">
+        <span>Iniciar Aula</span>
+        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+      </button>
+    </section>
+
+    <!-- SLIDE 2: OBJETIVOS DA AULA -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 0</span>
+        <h2 class="text-3xl font-bold text-slate-900">Objetivos de Aprendizagem</h2>
+        <p class="text-slate-600">O que você será capaz de fazer ao final desta aula de 60 minutos:</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-4">
+          <div class="p-2.5 rounded-xl bg-orange-100 text-brand-dark shrink-0">
+            <i data-lucide="globe" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 mb-1">Entender a Funcionamento da Web</h3>
+            <p class="text-sm text-slate-600">Compreender como os navegadores interpretam e exibem páginas através da internet.</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-4">
+          <div class="p-2.5 rounded-xl bg-orange-100 text-brand-dark shrink-0">
+            <i data-lucide="code" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 mb-1">Dominar Tags e Estruturas HTML</h3>
+            <p class="text-sm text-slate-600">Criar títulos, parágrafos, listas, links e imagens com sintaxe correta.</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-4">
+          <div class="p-2.5 rounded-xl bg-orange-100 text-brand-dark shrink-0">
+            <i data-lucide="paint-brush" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 mb-1">Aplicar Estilos Visual com CSS</h3>
+            <p class="text-sm text-slate-600">Controlar cores, fontes, tamanhos, espaçamentos (margin/padding) e bordas.</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-4">
+          <div class="p-2.5 rounded-xl bg-orange-100 text-brand-dark shrink-0">
+            <i data-lucide="link" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 mb-1">Conectar Arquivos HTML e CSS</h3>
+            <p class="text-sm text-slate-600">Organizar pastas de projeto e vincular folhas de estilo externas.</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-4 md:col-span-2">
+          <div class="p-2.5 rounded-xl bg-emerald-100 text-emerald-800 shrink-0">
+            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-800 mb-1">Construir uma Página Pessoal Completa</h3>
+            <p class="text-sm text-slate-600">Desenvolver um cartão/página de apresentação responsivo com boas práticas de acessibilidade e semântica.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: O QUE É A WEB? -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 1 — Introdução</span>
+        <h2 class="text-3xl font-bold text-slate-900">O que é a World Wide Web?</h2>
+        <p class="text-slate-600">Entendendo os termos básicos do cotidiano digital.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 text-brand-primary flex items-center justify-center font-bold text-lg mb-4">1</div>
+          <h3 class="font-bold text-slate-800 text-lg mb-2">Página Web</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Um documento único escrito em HTML que você lê no navegador (ex: um artigo específico ou o perfil de um usuário).
+          </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 text-brand-primary flex items-center justify-center font-bold text-lg mb-4">2</div>
+          <h3 class="font-bold text-slate-800 text-lg mb-2">Website (Site)</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Conjunto de páginas web interconectadas sob o mesmo nome de domínio (ex: <code class="bg-slate-100 px-1 py-0.5 rounded text-xs font-mono">wikipedia.org</code>).
+          </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 text-brand-primary flex items-center justify-center font-bold text-lg mb-4">3</div>
+          <h3 class="font-bold text-slate-800 text-lg mb-2">Navegador (Browser)</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            O aplicativo (Chrome, Firefox, Edge, Safari) responsável por traduzir códigos HTML/CSS em elementos visuais interativos.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-md flex items-center gap-4">
+        <i data-lucide="server" class="w-8 h-8 text-brand-primary shrink-0"></i>
+        <p class="text-sm text-slate-300">
+          <strong class="text-white">Como funciona na prática?</strong> Quando você digita um endereço, seu navegador faz um pedido a um computador remoto (<strong class="text-brand-light">Servidor</strong>), que responde enviando arquivos de código <code class="text-orange-300 font-mono">.html</code> e <code class="text-orange-300 font-mono">.css</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: COMO UMA PÁGINA SURGE NA TELA? (ANALOGIA) -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 1 — Analogia Fundamental</span>
+        <h2 class="text-3xl font-bold text-slate-900">Como uma Página Funciona? A Analogia da Casa</h2>
+        <p class="text-slate-600">Entenda os papéis das tecnologias com um exemplo do mundo real.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- HTML -->
+        <div class="bg-white p-6 rounded-2xl border-2 border-orange-200 shadow-sm flex flex-col items-center text-center">
+          <div class="p-4 bg-orange-100 rounded-full text-brand-primary mb-4">
+            <i data-lucide="home" class="w-10 h-10"></i>
+          </div>
+          <span class="px-3 py-1 bg-orange-100 text-brand-dark text-xs font-bold rounded-full mb-2">HTML</span>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">A Estrutura e Tijolos</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Define onde ficam as paredes, portas, janelas e cômodos. Sem o HTML, a casa não existe.
+          </p>
+        </div>
+
+        <!-- CSS -->
+        <div class="bg-white p-6 rounded-2xl border-2 border-blue-200 shadow-sm flex flex-col items-center text-center">
+          <div class="p-4 bg-blue-100 text-blue-600 mb-4">
+            <i data-lucide="paint-bucket" class="w-10 h-10"></i>
+          </div>
+          <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full mb-2">CSS</span>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">Pintura e Decoração</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Determina a cor das paredes, o tipo de piso, cortinas, tamanho das janelas e disposição dos móveis.
+          </p>
+        </div>
+
+        <!-- BROWSER -->
+        <div class="bg-white p-6 rounded-2xl border-2 border-emerald-200 shadow-sm flex flex-col items-center text-center">
+          <div class="p-4 bg-emerald-100 text-emerald-600 mb-4">
+            <i data-lucide="eye" class="w-10 h-10"></i>
+          </div>
+          <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full mb-2">Navegador</span>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">O Arquiteto / Visitante</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Lê a planta (HTML) e o manual de design (CSS) e constrói a visão final pronta para morar e interagir.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: HTML VS CSS INTERATIVO -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-2">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 1 — Demonstração Prática</span>
+          <h2 class="text-3xl font-bold text-slate-900">HTML sem CSS vs HTML com CSS</h2>
+        </div>
+
+        <!-- Interactive Toggle -->
+        <div class="inline-flex bg-slate-200 p-1 rounded-xl">
+          <button id="toggle-naked-btn" onclick="toggleCSSDemo(false)" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-slate-800">
+            Apenas HTML (Puro)
+          </button>
+          <button id="toggle-styled-btn" onclick="toggleCSSDemo(true)" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+            HTML + CSS (Estilizado)
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview Window simulation -->
+      <div class="bg-white rounded-2xl border border-slate-300 shadow-lg overflow-hidden">
+        <!-- Mock Browser Titlebar -->
+        <div class="bg-slate-100 px-4 py-2 border-b border-slate-200 flex items-center gap-2">
+          <div class="flex gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+          </div>
+          <div class="bg-white px-3 py-0.5 rounded text-xs text-slate-500 font-mono mx-auto w-1/2 text-center border">
+            meusite.com/perfil.html
+          </div>
+        </div>
+
+        <!-- Interactive Canvas Viewport -->
+        <div id="css-demo-viewport" class="p-8 transition-all duration-300 min-h-[300px]">
+          <div id="css-demo-card" class="transition-all duration-500">
+            <h1 id="css-demo-title" class="text-2xl font-serif">Ana Silva</h1>
+            <p id="css-demo-subtitle" class="text-base text-black">Desenvolvedora Web Front-End em Formação.</p>
+            <hr class="my-2 border-slate-300" id="css-demo-hr" />
+            <p id="css-demo-text">Apaixonada por tecnologia, design e criação de interfaces simples e acessíveis.</p>
+            <button id="css-demo-btn" class="mt-4 text-blue-600 underline">Entre em Contato</button>
+          </div>
+        </div>
+      </div>
+      <p class="text-xs text-center text-slate-500 mt-3">Clique no botão superior para ver a transformação mágica que o CSS realiza!</p>
+    </section>
+
+    <!-- SLIDE 6: TAGS, ELEMENTOS E ATRIBUTOS -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 2 — Conhecendo o HTML</span>
+        <h2 class="text-3xl font-bold text-slate-900">O que são Tags, Elementos e Atributos?</h2>
+        <p class="text-slate-600">Desmontando a anatomia da linguagem de marcação.</p>
+      </div>
+
+      <!-- Code Diagram Breakdown -->
+      <div class="bg-slate-900 rounded-2xl p-6 text-white font-mono shadow-xl mb-6">
+        <p class="text-xs text-slate-400 uppercase tracking-widest mb-4 font-sans">Anatomia de uma Linha de Código HTML:</p>
+        
+        <div class="text-xl md:text-3xl flex flex-wrap items-center justify-center gap-1 md:gap-2 py-6 bg-slate-950 rounded-xl border border-slate-800">
+          <span class="text-orange-400 font-bold">&lt;a</span>
+          <span class="text-amber-300 font-bold">href</span><span class="text-slate-400">=</span><span class="text-emerald-400">"https://google.com"</span><span class="text-orange-400 font-bold">&gt;</span><span class="text-white font-semibold">Visitar Google</span><span class="text-orange-400 font-bold">&lt;/a&gt;</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-sans text-sm font-sans">
+          <div class="p-3 bg-orange-950/60 border border-orange-500/30 rounded-xl">
+            <span class="text-orange-400 font-bold block mb-1">Tag de Abertura & Fechamento</span>
+            <p class="text-xs text-slate-300"><code class="text-orange-300">&lt;a&gt;</code> indica o início e <code class="text-orange-300">&lt;/a&gt;</code> (com barra) indica o fim do elemento.</p>
+          </div>
+
+          <div class="p-3 bg-amber-950/60 border border-amber-500/30 rounded-xl">
+            <span class="text-amber-300 font-bold block mb-1">Atributo & Valor</span>
+            <p class="text-xs text-slate-300"><code class="text-amber-300">href="..."</code> fornece uma informação extra (o destino do link).</p>
+          </div>
+
+          <div class="p-3 bg-emerald-950/60 border border-emerald-500/30 rounded-xl">
+            <span class="text-emerald-400 font-bold block mb-1">Conteúdo do Elemento</span>
+            <p class="text-xs text-slate-300">O texto visível na tela que o usuário pode clicar ("Visitar Google").</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: ESTRUTURA BÁSICA DE UM DOCUMENTO HTML -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 3 — Estrutura Inicial</span>
+        <h2 class="text-3xl font-bold text-slate-900">Estrutura Básica de um Arquivo HTML</h2>
+        <p class="text-slate-600">Todo arquivo <code class="bg-slate-200 px-1 py-0.5 rounded text-xs font-mono">.html</code> começa com este modelo obrigatório.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- Code Editor View -->
+        <div class="md:col-span-7 bg-slate-900 text-slate-200 rounded-2xl p-4 font-mono text-xs md:text-sm shadow-lg overflow-x-auto">
+          <div class="text-slate-500 pb-2 mb-2 border-b border-slate-800 flex justify-between">
+            <span>index.html</span>
+            <span class="text-xs">UTF-8</span>
+          </div>
+          <pre class="leading-relaxed"><code><span class="text-slate-500">&lt;!DOCTYPE html&gt;</span>
+<span class="text-orange-400">&lt;html <span class="text-amber-300">lang</span>=<span class="text-emerald-300">"pt-BR"</span>&gt;</span>
+<span class="text-orange-400">&lt;head&gt;</span>
+  <span class="text-orange-400">&lt;meta <span class="text-amber-300">charset</span>=<span class="text-emerald-300">"UTF-8"</span>&gt;</span>
+  <span class="text-orange-400">&lt;meta <span class="text-amber-300">name</span>=<span class="text-emerald-300">"viewport"</span> <span class="text-amber-300">content</span>=<span class="text-emerald-300">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+  <span class="text-orange-400">&lt;title&gt;</span>Meu Primeiro Site<span class="text-orange-400">&lt;/title&gt;</span>
+<span class="text-orange-400">&lt;/head&gt;</span>
+<span class="text-orange-400">&lt;body&gt;</span>
+
+  <span class="text-orange-400">&lt;h1&gt;</span>Olá, Mundo!<span class="text-orange-400">&lt;/h1&gt;</span>
+  <span class="text-orange-400">&lt;p&gt;</span>Esta é minha primeira página web.<span class="text-orange-400">&lt;/p&gt;</span>
+
+<span class="text-orange-400">&lt;/body&gt;</span>
+<span class="text-orange-400">&lt;/html&gt;</span></code></pre>
+        </div>
+
+        <!-- Explanations -->
+        <div class="md:col-span-5 flex flex-col gap-2.5 text-xs text-slate-700">
+          <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+            <strong class="text-brand-dark block font-mono">&lt;!DOCTYPE html&gt;</strong>
+            Avisa ao navegador que estamos utilizando a versão mais atual (HTML5).
+          </div>
+          <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+            <strong class="text-brand-dark block font-mono">&lt;head&gt; (Cabeça)</strong>
+            Guarda configurações invisíveis ao usuário: título na aba, acentuação e links CSS.
+          </div>
+          <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+            <strong class="text-brand-dark block font-mono">&lt;body&gt; (Corpo)</strong>
+            Contém **todo o conteúdo visível** na tela: textos, botões, imagens e vídeos.
+          </div>
+          <div class="p-2.5 bg-white rounded-xl border border-slate-200">
+            <strong class="text-brand-dark block font-mono">meta charset="UTF-8"</strong>
+            Garante a exibição correta de acentos e caracteres em português (Ex: á, ç, ã).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: TÍTULOS E PARÁGRAFOS -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 4 — Elementos de Texto</span>
+        <h2 class="text-3xl font-bold text-slate-900">Títulos, Parágrafos e Formatação</h2>
+        <p class="text-slate-600">Organizando hierarquia e conteúdo escrito na sua página.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Titles Demo -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Hierarquia de Títulos (&lt;h1&gt; até &lt;h6&gt;)</h3>
+          <div class="space-y-2 border-l-2 border-brand-primary pl-4">
+            <h1 class="text-2xl font-bold text-slate-900">Heading 1 (&lt;h1&gt;) — Mais importante</h1>
+            <h2 class="text-xl font-bold text-slate-800">Heading 2 (&lt;h2&gt;) — Seção principal</h2>
+            <h3 class="text-lg font-semibold text-slate-700">Heading 3 (&lt;h3&gt;) — Subseção</h3>
+            <h4 class="text-base font-semibold text-slate-600">Heading 4 (&lt;h4&gt;)</h4>
+            <h5 class="text-sm font-medium text-slate-500">Heading 5 (&lt;h5&gt;)</h5>
+            <h6 class="text-xs font-medium text-slate-400">Heading 6 (&lt;h6&gt;)</h6>
+          </div>
+          <p class="text-xs text-slate-500 mt-4">⚠️ <strong>Regra de Ouro:</strong> Use apenas UM <code class="text-brand-dark">&lt;h1&gt;</code> por página para indicar o assunto principal!</p>
+        </div>
+
+        <!-- Paragraphs & Inline Elements -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Parágrafos e Destaques Inline</h3>
+            <div class="bg-slate-50 p-4 rounded-xl font-mono text-xs text-slate-800 space-y-3 mb-4">
+              <p>&lt;p&gt;Este é um parágrafo normal.&lt;/p&gt;</p>
+              <p>&lt;p&gt;Texto com &lt;strong&gt;negrito importante&lt;/strong&gt; e &lt;em&gt;itálico enfático&lt;/em&gt;.&lt;/p&gt;</p>
+              <p>&lt;p&gt;Primeira linha.&lt;br&gt;Segunda linha.&lt;/p&gt;</p>
+            </div>
+          </div>
+
+          <div class="p-3 bg-orange-50 rounded-xl border border-orange-200 text-xs text-brand-dark">
+            <strong class="block mb-1">Diferença Visual Renderizada:</strong>
+            Texto com <strong>negrito importante</strong> e <em>itálico enfático</em>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: LISTAS, LINKS E IMAGENS -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 4 — Mídia e Conexões</span>
+        <h2 class="text-3xl font-bold text-slate-900">Listas, Links e Imagens</h2>
+        <p class="text-slate-600">Tornando seu site interativo, dinâmico e rico em conteúdo visual.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Listas -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="px-2 py-0.5 bg-orange-100 text-brand-dark text-xs font-bold rounded">Listas</span>
+          <h3 class="font-bold text-slate-800 my-2 text-sm">&lt;ul&gt; e &lt;ol&gt;</h3>
+          <p class="text-xs text-slate-500 mb-3">Item de lista é sempre envolvido por <code class="text-brand-primary">&lt;li&gt;</code>.</p>
+          <div class="bg-slate-50 p-3 rounded-lg text-xs">
+            <p class="font-bold text-slate-700 mb-1">Não Ordenada (&lt;ul&gt;):</p>
+            <ul class="list-disc list-inside text-slate-600 mb-3">
+              <li>HTML</li>
+              <li>CSS</li>
+            </ul>
+            <p class="font-bold text-slate-700 mb-1">Ordenada (&lt;ol&gt;):</p>
+            <ol class="list-decimal list-inside text-slate-600">
+              <li>Passo 1</li>
+              <li>Passo 2</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Links -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-bold rounded">Hiperlinks</span>
+          <h3 class="font-bold text-slate-800 my-2 text-sm">&lt;a href="..."&gt;</h3>
+          <p class="text-xs text-slate-500 mb-3">Permite navegar entre páginas e sites externos.</p>
+          <div class="bg-slate-900 text-slate-200 p-3 rounded-lg font-mono text-[11px] mb-3">
+            &lt;a href="https://site.com" target="_blank"&gt;<br>
+            &nbsp;&nbsp;Visitar Web<br>
+            &lt;/a&gt;
+          </div>
+          <p class="text-[11px] text-slate-600">O atributo <code class="text-amber-600 font-mono">target="_blank"</code> abre o link em uma nova aba do navegador.</p>
+        </div>
+
+        <!-- Imagens -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded">Imagens</span>
+          <h3 class="font-bold text-slate-800 my-2 text-sm">&lt;img src="..." alt="..."&gt;</h3>
+          <p class="text-xs text-slate-500 mb-3">Tag auto-fechável (não precisa de &lt;/img&gt;).</p>
+          <div class="bg-slate-900 text-slate-200 p-3 rounded-lg font-mono text-[11px] mb-2">
+            &lt;img src="foto.jpg"<br>
+            &nbsp;&nbsp;alt="Foto de perfil"&gt;
+          </div>
+          <p class="text-[11px] text-slate-600">⚠️ <strong class="text-slate-800">alt:</strong> essencial para leitores de tela e acessibilidade!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: O QUE É CSS? -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 5 — Estilização Visual</span>
+        <h2 class="text-3xl font-bold text-slate-900">O que é CSS?</h2>
+        <p class="text-slate-600">Cascading Style Sheets (Folhas de Estilo em Cascata).</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="space-y-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-slate-800 text-lg mb-2 flex items-center gap-2">
+              <i data-lucide="sparkles" class="w-5 h-5 text-brand-primary"></i>
+              Separação de Responsabilidades
+            </h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              O HTML cuida estritamente de **O QUE** está na página (conteúdo), enquanto o CSS determina **COMO** esse conteúdo é apresentado graficamente.
+            </p>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-slate-800 text-lg mb-2 flex items-center gap-2">
+              <i data-lucide="layers" class="w-5 h-5 text-brand-primary"></i>
+              O que significa "Em Cascata"?
+            </h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              As regras são aplicadas de cima para baixo. Se houver regras conflitantes, as definidas mais abaixo (ou mais específicas) prevalecem!
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl flex flex-col gap-4">
+          <span class="text-xs font-mono text-orange-400"># O que você pode controlar com CSS?</span>
+          <ul class="space-y-2 text-sm text-slate-300 font-mono">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Cores de texto e fundos</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Fontes, tamanhos e pesos</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Espaçamentos e margens</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Posicionamento e layouts em grade</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Sombras, bordas arredondadas e efeitos</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: ANATOMIA DE UMA REGRA CSS -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 5 — Sintaxe CSS</span>
+        <h2 class="text-3xl font-bold text-slate-900">Anatomia de uma Regra CSS</h2>
+        <p class="text-slate-600">Como escrever instruções corretas para o navegador estilar um elemento.</p>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl p-6 text-white font-mono shadow-xl mb-6">
+        <p class="text-xs text-slate-400 uppercase tracking-widest mb-4 font-sans">Exemplo de Código CSS:</p>
+
+        <div class="text-lg md:text-2xl p-6 bg-slate-950 rounded-xl border border-slate-800 space-y-2 leading-relaxed">
+          <div><span class="text-orange-400 font-bold">h1</span> <span class="text-slate-400">{</span></div>
+          <div class="pl-6"><span class="text-amber-300">color</span><span class="text-slate-400">:</span> <span class="text-emerald-400">#F97316</span><span class="text-slate-400">;</span></div>
+          <div class="pl-6"><span class="text-amber-300">font-size</span><span class="text-slate-400">:</span> <span class="text-emerald-400">24px</span><span class="text-slate-400">;</span></div>
+          <div><span class="text-slate-400">}</span></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-sans text-sm font-sans">
+          <div class="p-3 bg-orange-950/60 border border-orange-500/30 rounded-xl">
+            <span class="text-orange-400 font-bold block mb-1">Seletor</span>
+            <p class="text-xs text-slate-300">Indica **qual** elemento do HTML será estilizado (no caso, todos os <code class="text-orange-300">&lt;h1&gt;</code>).</p>
+          </div>
+
+          <div class="p-3 bg-amber-950/60 border border-amber-500/30 rounded-xl">
+            <span class="text-amber-300 font-bold block mb-1">Propriedade</span>
+            <p class="text-xs text-slate-300">O aspecto visual que você deseja alterar (ex: <code class="text-amber-300">color</code>, <code class="text-amber-300">font-size</code>).</p>
+          </div>
+
+          <div class="p-3 bg-emerald-950/60 border border-emerald-500/30 rounded-xl">
+            <span class="text-emerald-400 font-bold block mb-1">Valor + Ponto e Vírgula</span>
+            <p class="text-xs text-slate-300">A nova configuração aplicada. Cada declaração **deve terminar com ponto e vírgula (;)**!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: SELETORES CSS -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 6 — Seletores</span>
+        <h2 class="text-3xl font-bold text-slate-900">Seletores: Elemento, Classe e ID</h2>
+        <p class="text-slate-600">Como mirar exatamente no elemento que você deseja estilizar.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Elemento -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="px-2 py-0.5 bg-orange-100 text-brand-dark text-xs font-bold rounded">Seletor de Elemento</span>
+            <h3 class="font-bold text-slate-800 my-2">Por Tag HTML</h3>
+            <p class="text-xs text-slate-600 mb-3">Afeta **TODAS** as tags desse tipo na página inteira.</p>
+            <div class="bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-xs">
+              p {<br>
+              &nbsp;&nbsp;color: gray;<br>
+              }
+            </div>
+          </div>
+          <span class="mt-4 text-[11px] text-slate-400">Ex: Aplica estilo em todos os &lt;p&gt;</span>
+        </div>
+
+        <!-- Classe -->
+        <div class="bg-white p-5 rounded-2xl border-2 border-brand-primary shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded">Seletor de Classe (Mais Usado!)</span>
+            <h3 class="font-bold text-slate-800 my-2">Usa Ponto ( . )</h3>
+            <p class="text-xs text-slate-600 mb-3">Estiliza qualquer elemento que possua o atributo <code class="text-brand-primary font-mono">class="..."</code>. Reutilizável!</p>
+            <div class="bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-xs">
+              .cartao {<br>
+              &nbsp;&nbsp;background: white;<br>
+              }
+            </div>
+          </div>
+          <span class="mt-4 text-[11px] text-brand-dark font-medium">Ex: &lt;div class="cartao"&gt;</span>
+        </div>
+
+        <!-- ID -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="px-2 py-0.5 bg-slate-200 text-slate-800 text-xs font-bold rounded">Seletor de ID</span>
+            <h3 class="font-bold text-slate-800 my-2">Usa Cerquilha ( # )</h3>
+            <p class="text-xs text-slate-600 mb-3">Para elementos **ÚNICOS** na página (<code class="text-slate-800 font-mono">id="..."</code>).</p>
+            <div class="bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-xs">
+              #topo-principal {<br>
+              &nbsp;&nbsp;height: 80px;<br>
+              }
+            </div>
+          </div>
+          <span class="mt-4 text-[11px] text-slate-400">Ex: &lt;header id="topo-principal"&gt;</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: ESTILIZANDO TEXTOS E CORES -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 6 — Propriedades Visuais</span>
+        <h2 class="text-3xl font-bold text-slate-900">Cores, Fontes e Alinhamento</h2>
+        <p class="text-slate-600">As principais propriedades para dar vida ao seu texto.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Properties Table -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b pb-2">
+            <code class="text-brand-dark font-bold font-mono text-sm">color</code>
+            <span class="text-xs text-slate-600">Cor do texto (ex: <code class="text-orange-600">#F97316</code> ou <code class="text-orange-600">orange</code>)</span>
+          </div>
+
+          <div class="flex items-center justify-between border-b pb-2">
+            <code class="text-brand-dark font-bold font-mono text-sm">background-color</code>
+            <span class="text-xs text-slate-600">Cor do fundo do elemento</span>
+          </div>
+
+          <div class="flex items-center justify-between border-b pb-2">
+            <code class="text-brand-dark font-bold font-mono text-sm">font-family</code>
+            <span class="text-xs text-slate-600">Família tipográfica (ex: Arial, Inter, sans-serif)</span>
+          </div>
+
+          <div class="flex items-center justify-between border-b pb-2">
+            <code class="text-brand-dark font-bold font-mono text-sm">font-size</code>
+            <span class="text-xs text-slate-600">Tamanho da fonte em pixels (ex: <code class="text-orange-600">16px</code>)</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <code class="text-brand-dark font-bold font-mono text-sm">text-align</code>
+            <span class="text-xs text-slate-600">Alinhamento: <code class="text-orange-600">left</code>, <code class="text-orange-600">center</code>, <code class="text-orange-600">right</code></span>
+          </div>
+        </div>
+
+        <!-- Live Style Visualizer Card -->
+        <div class="bg-slate-900 p-6 rounded-2xl text-white flex flex-col justify-between shadow-lg">
+          <div>
+            <span class="text-xs font-mono text-slate-400 block mb-2">// Código CSS Combinado:</span>
+            <pre class="bg-slate-950 p-4 rounded-xl font-mono text-xs text-amber-300 mb-4"><code>.titulo-destaque {
+  color: #F97316;
+  background-color: #FFEDD5;
+  font-size: 20px;
+  text-align: center;
+  padding: 10px;
+}</code></pre>
+          </div>
+
+          <div>
+            <span class="text-xs font-mono text-slate-400 block mb-2">// Resultado Visível:</span>
+            <div style="color: #F97316; background-color: #FFEDD5; font-size: 20px; text-align: center; padding: 10px;" class="rounded-lg font-bold">
+              Texto Estilizado!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: MODELO DE CAIXA (BOX MODEL) -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 6 — O Coração do CSS</span>
+        <h2 class="text-3xl font-bold text-slate-900">O Modelo de Caixa (CSS Box Model)</h2>
+        <p class="text-slate-600">No CSS, **absolutamente tudo** é uma caixa retangular!</p>
+      </div>
+
+      <!-- Interactive Diagram Box Model -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+        
+        <!-- Outer Box: Margin -->
+        <div class="w-full max-w-xl bg-orange-100 p-6 rounded-2xl border-2 border-dashed border-orange-400 text-center relative transition-all box-hover-margin">
+          <span class="absolute top-2 left-3 text-xs font-bold text-orange-700 font-mono">MARGIN (Espaço Externo)</span>
+          
+          <!-- Middle Box: Border -->
+          <div class="bg-amber-200 p-6 rounded-xl border-4 border-amber-600 text-center relative transition-all box-hover-border my-3">
+            <span class="absolute top-1 left-3 text-xs font-bold text-amber-900 font-mono">BORDER (Borda da Caixa)</span>
+            
+            <!-- Inner Box: Padding -->
+            <div class="bg-blue-100 p-6 rounded-lg border-2 border-dashed border-blue-400 text-center relative transition-all box-hover-padding my-2">
+              <span class="absolute top-1 left-3 text-xs font-bold text-blue-700 font-mono">PADDING (Preenchimento Interno)</span>
+              
+              <!-- Content -->
+              <div class="bg-emerald-500 text-white font-bold py-4 rounded text-sm shadow transition-all box-hover-content">
+                CONTEÚDO (Texto, Imagem, etc.)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full mt-6 text-center text-xs">
+          <div class="bg-orange-50 p-2 rounded-lg border border-orange-200"><strong class="text-orange-700 block">Margin:</strong> Afasta elementos vizinhos.</div>
+          <div class="bg-amber-50 p-2 rounded-lg border border-amber-200"><strong class="text-amber-800 block">Border:</strong> A linha de contorno.</div>
+          <div class="bg-blue-50 p-2 rounded-lg border border-blue-200"><strong class="text-blue-700 block">Padding:</strong> Empurra o conteúdo para dentro.</div>
+          <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200"><strong class="text-emerald-700 block">Conteúdo:</strong> O tamanho real (<code class="font-mono">width/height</code>).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 15: CONECTANDO HTML AO CSS -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 7 — Conectando HTML e CSS</span>
+        <h2 class="text-3xl font-bold text-slate-900">Como Conectar HTML ao CSS?</h2>
+        <p class="text-slate-600">As três formas de aplicar estilos — e qual é a melhor prática profissional.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm opacity-60">
+          <span class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded uppercase">Não Recomendado</span>
+          <h3 class="font-bold text-slate-800 my-1 text-sm">1. CSS Inline</h3>
+          <p class="text-xs text-slate-500 mb-2">Diretamente na tag HTML com o atributo <code class="text-slate-700">style="..."</code>.</p>
+          <div class="bg-slate-900 text-slate-200 p-2.5 rounded-lg font-mono text-[10px]">
+            &lt;h1 style="color: red;"&gt;<br>
+            &nbsp;&nbsp;Título<br>
+            &lt;/h1&gt;
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm opacity-80">
+          <span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded uppercase">Uso Ocasional</span>
+          <h3 class="font-bold text-slate-800 my-1 text-sm">2. CSS Interno</h3>
+          <p class="text-xs text-slate-500 mb-2">Dentro da tag <code class="text-slate-700">&lt;style&gt;</code> no cabeçalho <code class="text-slate-700">&lt;head&gt;</code>.</p>
+          <div class="bg-slate-900 text-slate-200 p-2.5 rounded-lg font-mono text-[10px]">
+            &lt;head&gt;<br>
+            &nbsp;&nbsp;&lt;style&gt;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;h1 { color: red; }<br>
+            &nbsp;&nbsp;&lt;/style&gt;<br>
+            &lt;/head&gt;
+          </div>
+        </div>
+
+        <!-- External Link -->
+        <div class="bg-white p-4 rounded-2xl border-2 border-brand-primary shadow-md">
+          <span class="px-2 py-0.5 bg-orange-500 text-white text-[10px] font-bold rounded uppercase">Boas Práticas (Padrão)</span>
+          <h3 class="font-bold text-slate-800 my-1 text-sm">3. CSS Externo</h3>
+          <p class="text-xs text-slate-500 mb-2">Arquivo <code class="text-brand-dark font-bold font-mono">style.css</code> separado e conectado no HTML!</p>
+          <div class="bg-slate-900 text-slate-200 p-2.5 rounded-lg font-mono text-[10px] border border-orange-400">
+            &lt;head&gt;<br>
+            &nbsp;&nbsp;<span class="text-orange-400">&lt;link <span class="text-amber-300">rel</span>=<span class="text-emerald-300">"stylesheet"</span></span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-300">href</span>=<span class="text-emerald-300">"style.css"</span>&gt;<br>
+            &lt;/head&gt;
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16: ORGANIZAÇÃO DOS ARQUIVOS -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 7 — Organização do Projeto</span>
+        <h2 class="text-3xl font-bold text-slate-900">Estrutura de Arquivos Profissional</h2>
+        <p class="text-slate-600">Como organizar suas pastas para manter o projeto limpo e sem links quebrados.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <!-- Directory Tree Diagram -->
+        <div class="bg-slate-900 p-6 rounded-2xl text-white font-mono shadow-xl">
+          <div class="flex items-center gap-2 text-slate-400 text-xs border-b border-slate-800 pb-3 mb-4">
+            <i data-lucide="folder" class="w-4 h-4 text-orange-400"></i>
+            <span>meu-primeiro-site/</span>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <div class="flex items-center gap-3 pl-4">
+              <i data-lucide="file-code" class="w-5 h-5 text-orange-400"></i>
+              <span class="text-orange-300 font-bold">index.html</span>
+              <span class="text-xs text-slate-500 font-sans">(Página Principal)</span>
+            </div>
+
+            <div class="flex items-center gap-3 pl-4">
+              <i data-lucide="file-spread-sheet" class="w-5 h-5 text-blue-400"></i>
+              <span class="text-blue-300 font-bold">style.css</span>
+              <span class="text-xs text-slate-500 font-sans">(Folha de Estilos)</span>
+            </div>
+
+            <div class="flex items-center gap-3 pl-4">
+              <i data-lucide="folder" class="w-5 h-5 text-amber-400"></i>
+              <span class="text-amber-300 font-bold">imagens/</span>
+            </div>
+
+            <div class="flex items-center gap-3 pl-10">
+              <i data-lucide="image" class="w-4 h-4 text-emerald-400"></i>
+              <span class="text-emerald-300">perfil.jpg</span>
+              <span class="text-xs text-slate-500 font-sans">(Sua Foto)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4 text-sm text-slate-600">
+          <div class="p-4 bg-white rounded-xl border border-slate-200">
+            <strong class="text-slate-800 block mb-1">1. Sempre nomeie como `index.html`</strong>
+            Os servidores web buscam automaticamente o arquivo chamado <code class="bg-slate-100 px-1 py-0.5 rounded text-xs font-mono">index.html</code> ao abrir seu site.
+          </div>
+
+          <div class="p-4 bg-white rounded-xl border border-slate-200">
+            <strong class="text-slate-800 block mb-1">2. Evite espaços e acentos</strong>
+            Use nomes simples com hífen em vez de espaços (Exemplo: <code class="bg-slate-100 px-1 py-0.5 rounded text-xs font-mono">minha-foto.jpg</code>).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17: LAYOUT E HTML SEMÂNTICO -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 8 — Estrutura Semântica</span>
+        <h2 class="text-3xl font-bold text-slate-900">Layout e HTML Semântico</h2>
+        <p class="text-slate-600">Usando as tags corretas para estruturar as áreas de uma página moderna.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Visual Skeleton layout -->
+        <div class="bg-slate-100 p-4 rounded-2xl border border-slate-300 space-y-2 text-xs font-mono font-bold text-center">
+          <div class="bg-orange-200 text-orange-900 p-3 rounded-xl border border-orange-300">
+            &lt;header&gt; (Cabeçalho do Site)
+            <div class="bg-orange-300 text-orange-950 p-1.5 rounded mt-2 text-[10px]">
+              &lt;nav&gt; Menu de Navegação
+            </div>
+          </div>
+
+          <div class="bg-emerald-100 text-emerald-900 p-6 rounded-xl border border-emerald-300 space-y-2">
+            &lt;main&gt; Conteúdo Principal
+            <div class="bg-emerald-200 text-emerald-950 p-2 rounded text-[10px]">
+              &lt;section&gt; Seção "Sobre Mim"
+            </div>
+          </div>
+
+          <div class="bg-slate-300 text-slate-800 p-3 rounded-xl border border-slate-400">
+            &lt;footer&gt; (Rodapé - Direitos Autorais e Redes)
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs text-slate-600 flex flex-col justify-center">
+          <div class="p-3 bg-white rounded-xl border border-slate-200">
+            <strong class="text-brand-dark block mb-0.5 font-mono">&lt;header&gt;</strong>
+            Topo da página contendo logotipo, título do site ou menu de opções.
+          </div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200">
+            <strong class="text-brand-dark block mb-0.5 font-mono">&lt;main&gt;</strong>
+            O assunto principal e exclusivo daquela página específica.
+          </div>
+          <div class="p-3 bg-white rounded-xl border border-slate-200">
+            <strong class="text-brand-dark block mb-0.5 font-mono">&lt;footer&gt;</strong>
+            Rodapé com contatos, copyright e links secundários.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 18: CONSTRUINDO UM CARTÃO DE PERFIL -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 8 — Exemplo Prático</span>
+        <h2 class="text-3xl font-bold text-slate-900">Construindo um Cartão de Perfil</h2>
+        <p class="text-slate-600">Juntando HTML e CSS em um componente real.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <!-- HTML & CSS Code -->
+        <div class="md:col-span-7 bg-slate-900 p-4 rounded-2xl text-white font-mono text-[11px] overflow-x-auto shadow-md">
+          <span class="text-xs text-orange-400 block mb-2 font-sans font-semibold">// Código da Página:</span>
+          <pre><code><span class="text-slate-400">&lt;!-- HTML --&gt;</span>
+<span class="text-orange-400">&lt;div <span class="text-amber-300">class</span>=<span class="text-emerald-300">"cartao"</span>&gt;</span>
+  <span class="text-orange-400">&lt;h2&gt;</span>Ana Silva<span class="text-orange-400">&lt;/h2&gt;</span>
+  <span class="text-orange-400">&lt;p&gt;</span>Estudante de Web Design<span class="text-orange-400">&lt;/p&gt;</span>
+  <span class="text-orange-400">&lt;a <span class="text-amber-300">href</span>=<span class="text-emerald-300">"#"</span> <span class="text-amber-300">class</span>=<span class="text-emerald-300">"botao"</span>&gt;</span>Ver Perfil<span class="text-orange-400">&lt;/a&gt;</span>
+<span class="text-orange-400">&lt;/div&gt;</span>
+
+<span class="text-slate-400">/* CSS */</span>
+<span class="text-orange-400">.cartao</span> {
+  <span class="text-amber-300">background</span>: #FFFFFF;
+  <span class="text-amber-300">border-radius</span>: 12px;
+  <span class="text-amber-300">padding</span>: 20px;
+  <span class="text-amber-300">text-align</span>: center;
+}
+<span class="text-orange-400">.botao</span> {
+  <span class="text-amber-300">background</span>: #F97316;
+  <span class="text-amber-300">color</span>: white;
+  <span class="text-amber-300">padding</span>: 8px 16px;
+  <span class="text-amber-300">border-radius</span>: 6px;
+}</code></pre>
+        </div>
+
+        <!-- Rendered Card Preview -->
+        <div class="md:col-span-5 bg-slate-100 p-6 rounded-2xl flex flex-col items-center justify-center border border-slate-300 shadow-inner">
+          <span class="text-xs text-slate-500 mb-4 font-mono">// Resultado Renderizado:</span>
+          
+          <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 text-center w-full max-w-xs">
+            <div class="w-16 h-16 bg-orange-100 text-brand-primary rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-3">
+              AS
+            </div>
+            <h2 class="text-xl font-bold text-slate-800">Ana Silva</h2>
+            <p class="text-xs text-slate-500 mb-4">Estudante de Web Design</p>
+            <a href="#" onclick="return false;" class="inline-block bg-brand-primary hover:bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow">
+              Ver Perfil
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 19: RESPONSIVIDADE -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 9 — Design Responsivo</span>
+        <h2 class="text-3xl font-bold text-slate-900">Adaptando para Celulares e Monitores</h2>
+        <p class="text-slate-600">Seu site precisa parecer incrível em qualquer tamanho de tela.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-slate-800 text-base mb-2 flex items-center gap-2">
+              <i data-lucide="smartphone" class="w-5 h-5 text-brand-primary"></i>
+              Boas Práticas de Responsividade
+            </h3>
+            <ul class="space-y-2 text-xs text-slate-600">
+              <li class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+                <span>Sempre inclua a tag de <code class="text-brand-dark font-mono">viewport</code> no <code class="text-brand-dark font-mono">&lt;head&gt;</code>.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+                <span>Use <code class="text-brand-dark font-mono">max-width: 100%</code> em imagens para não estourar a largura da tela.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+                <span>Prefira unidades flexíveis (%) em vez de larguras fixas exageradas em pixels.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="p-3 bg-orange-50 rounded-xl border border-orange-200 text-xs text-brand-dark mt-4">
+            <strong class="block mb-1">Introdução às Media Queries:</strong>
+            <code class="font-mono text-[11px] block text-slate-800">@media (max-width: 600px) { ... }</code>
+            Permite aplicar regras de CSS específicas para telas menores!
+          </div>
+        </div>
+
+        <!-- Devices Visual Comparison -->
+        <div class="bg-slate-900 p-6 rounded-2xl text-white flex items-center justify-around">
+          <!-- Desktop Mock -->
+          <div class="text-center">
+            <div class="w-32 h-20 bg-slate-800 border-2 border-slate-600 rounded-lg mx-auto flex items-center justify-center p-2 mb-2 shadow">
+              <div class="w-full h-full bg-slate-700 rounded flex gap-1 p-1">
+                <div class="w-1/3 bg-orange-500 rounded"></div>
+                <div class="w-2/3 bg-slate-500 rounded"></div>
+              </div>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">Desktop (Lado a Lado)</span>
+          </div>
+
+          <!-- Mobile Mock -->
+          <div class="text-center">
+            <div class="w-12 h-24 bg-slate-800 border-2 border-slate-600 rounded-xl mx-auto flex flex-col gap-1 p-1 mb-2 shadow">
+              <div class="w-full h-6 bg-orange-500 rounded"></div>
+              <div class="w-full h-12 bg-slate-500 rounded"></div>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">Celular (Empilhado)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 20: ACESSIBILIDADE E BOAS PRÁTICAS -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 9 — Qualidade do Código</span>
+        <h2 class="text-3xl font-bold text-slate-900">Acessibilidade e Boas Práticas</h2>
+        <p class="text-slate-600">Construindo a Web para **todas** as pessoas com código limpo.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-start gap-3">
+            <div class="p-2 bg-emerald-100 text-emerald-800 rounded-lg"><i data-lucide="eye" class="w-5 h-5"></i></div>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">Texto Alternativo (alt)</h3>
+              <p class="text-xs text-slate-600">Descreva a imagem para deficientes visuais e leitores de tela.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="p-2 bg-emerald-100 text-emerald-800 rounded-lg"><i data-lucide="contrast" class="w-5 h-5"></i></div>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">Contraste de Cores</h3>
+              <p class="text-xs text-slate-600">Garanta contraste alto entre o fundo e a cor do texto para facilidade de leitura.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-start gap-3">
+            <div class="p-2 bg-orange-100 text-brand-dark rounded-lg"><i data-lucide="align-left" class="w-5 h-5"></i></div>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">Indentação Limpa</h3>
+              <p class="text-xs text-slate-600">Recue o código com espaços/tabs para identificar claramente o que está dentro do quê.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="p-2 bg-orange-100 text-brand-dark rounded-lg"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">Sintaxe Correta</h3>
+              <p class="text-xs text-slate-600">Sempre feche suas tags e verifique caminhos de arquivos para evitar links quebrados.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 21: PROJETO PRÁTICO -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 10 — Atividade Prática</span>
+        <h2 class="text-3xl font-bold text-slate-900">Desafio Prático: Sua Página Pessoal</h2>
+        <p class="text-slate-600">Hora de colocar as mãos no código! Crie seu primeiro projeto web em 15 minutos.</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl border-2 border-brand-primary shadow-lg space-y-4">
+        <h3 class="font-bold text-slate-800 text-base border-b pb-2">Requisitos Obrigatórios do Projeto:</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-700">
+          <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border">
+            <i data-lucide="check-square" class="w-4 h-4 text-brand-primary"></i>
+            <span>Criar a estrutura básica com <code class="font-mono text-brand-dark">&lt;!DOCTYPE html&gt;</code></span>
+          </div>
+          <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border">
+            <i data-lucide="check-square" class="w-4 h-4 text-brand-primary"></i>
+            <span>Adicionar um título principal <code class="font-mono text-brand-dark">&lt;h1&gt;</code> com seu nome</span>
+          </div>
+          <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border">
+            <i data-lucide="check-square" class="w-4 h-4 text-brand-primary"></i>
+            <span>Escrever um parágrafo de apresentação pessoal</span>
+          </div>
+          <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border">
+            <i data-lucide="check-square" class="w-4 h-4 text-brand-primary"></i>
+            <span>Listar pelo menos 3 interesses em uma <code class="font-mono text-brand-dark">&lt;ul&gt;</code></span>
+          </div>
+          <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border">
+            <i data-lucide="check-square" class="w-4 h-4 text-brand-primary"></i>
+            <span>Inserir uma imagem com atributo <code class="font-mono text-brand-dark">alt</code></span>
+          </div>
+          <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border">
+            <i data-lucide="check-square" class="w-4 h-4 text-brand-primary"></i>
+            <span>Criar o arquivo <code class="font-mono text-brand-dark">style.css</code> e mudar a cor do fundo</span>
+          </div>
+        </div>
+
+        <div class="p-3 bg-orange-100 rounded-xl text-xs text-brand-dark font-medium flex items-center justify-between">
+          <span>💡 Dica: Salve os arquivos na mesma pasta e abra o <code class="font-mono">index.html</code> dando dois cliques!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 22: DESAFIO DE PERSONALIZAÇÃO -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 10 — Playground CSS</span>
+        <h2 class="text-3xl font-bold text-slate-900">Desafio de Personalização ao Vivo</h2>
+        <p class="text-slate-600">Experimente alterar as propriedades abaixo e veja a alteração instantânea no cartão ao lado:</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- Controls -->
+        <div class="md:col-span-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Cor do Fundo do Cartão:</label>
+            <input type="color" id="play-bg-color" value="#FFFFFF" oninput="updateLivePlayground()" class="w-full h-8 cursor-pointer rounded">
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Cor do Botão de Destaque:</label>
+            <input type="color" id="play-btn-color" value="#F97316" oninput="updateLivePlayground()" class="w-full h-8 cursor-pointer rounded">
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Arredondamento das Bordas (border-radius):</label>
+            <input type="range" id="play-radius" min="0" max="30" value="16" oninput="updateLivePlayground()" class="w-full accent-brand-primary">
+          </div>
+        </div>
+
+        <!-- Live Playground Card Result -->
+        <div class="md:col-span-6 bg-slate-900 p-6 rounded-2xl flex items-center justify-center shadow-lg">
+          <div id="playground-card" class="bg-white p-6 rounded-2xl text-center w-full max-w-xs transition-all shadow-xl">
+            <h3 class="text-lg font-bold text-slate-800 mb-1">Seu Nome Aqui</h3>
+            <p class="text-xs text-slate-500 mb-4">Desenvolvedor Web</p>
+            <button id="playground-btn" class="bg-brand-primary text-white font-bold text-xs px-4 py-2 rounded-lg shadow">
+              Botão de Destaque
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 23: 5 PERGUNTAS DE FIXAÇÃO / QUIZ -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div class="mb-4">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Módulo 10 — Revisão do Aluno</span>
+        <h2 class="text-3xl font-bold text-slate-900">Perguntas de Fixação</h2>
+        <p class="text-slate-600">Teste seus conhecimentos selecionando as opções corretas:</p>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <!-- Q1 -->
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <p class="font-bold text-slate-800 mb-2">1. Qual é a função principal do HTML em uma página web?</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <button onclick="checkQuiz(1, true, this)" class="quiz-opt p-2 rounded bg-slate-100 hover:bg-slate-200 text-left">A) Definir a estrutura e o conteúdo textual/visual.</button>
+            <button onclick="checkQuiz(1, false, this)" class="quiz-opt p-2 rounded bg-slate-100 hover:bg-slate-200 text-left">B) Aplicar cores e animações complexas.</button>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <p class="font-bold text-slate-800 mb-2">2. Para que serve o CSS no desenvolvimento web?</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <button onclick="checkQuiz(2, false, this)" class="quiz-opt p-2 rounded bg-slate-100 hover:bg-slate-200 text-left">A) Armazenar bancos de dados no servidor.</button>
+            <button onclick="checkQuiz(2, true, this)" class="quiz-opt p-2 rounded bg-slate-100 hover:bg-slate-200 text-left">B) Controlar a aparência visual, cores e layout.</button>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <p class="font-bold text-slate-800 mb-2">3. Como se conecta um arquivo CSS externo ao HTML?</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <button onclick="checkQuiz(3, true, this)" class="quiz-opt p-2 rounded bg-slate-100 hover:bg-slate-200 text-left">A) Com a tag &lt;link rel="stylesheet" href="style.css"&gt; no &lt;head&gt;.</button>
+            <button onclick="checkQuiz(3, false, this)" class="quiz-opt p-2 rounded bg-slate-100 hover:bg-slate-200 text-left">B) Com a tag &lt;script src="style.css"&gt; no &lt;body&gt;.</button>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <p class="font-bold text-slate-800 mb-2">4. Qual é a diferença entre `margin` e `padding` no CSS Box Model?</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <button onclick="checkQuiz(4, true, this)" class="quiz-opt p-2 rounded bg-slate-100 hover:bg-slate-200 text-left">A) Margin é o espaço externo; Padding é o espaço interno.</button>
+            <button onclick="checkQuiz(4, false, this)" class="quiz-opt p-2 rounded bg-slate-100 hover:bg-slate-200 text-left">B) Padding altera a cor da borda; Margin altera o tamanho da fonte.</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 24: MATERIAL DO PROFESSOR - GABARITO & ENCERRAMENTO -->
+    <section class="slide-content w-full max-w-5xl mx-auto hidden">
+      <div id="teacher-lock-screen" class="bg-amber-50 p-8 rounded-2xl border-2 border-amber-300 text-center space-y-4">
+        <i data-lucide="lock" class="w-12 h-12 text-amber-700 mx-auto"></i>
+        <h2 class="text-2xl font-bold text-amber-900">Material do Professor — Gabarito Protegido</h2>
+        <p class="text-sm text-amber-800 max-w-md mx-auto">
+          Este slide contém o gabarito oficial e o resumo da aula. Clique abaixo para desbloquear o visualização do professor.
+        </p>
+        <button onclick="unlockTeacherMode()" class="bg-amber-800 hover:bg-amber-900 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow">
+          Desbloquear Gabarito
+        </button>
+      </div>
+
+      <div id="teacher-content" class="hidden space-y-4">
+        <div class="bg-amber-100 p-4 rounded-xl border border-amber-300 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="graduation-cap" class="w-6 h-6 text-amber-900"></i>
+            <h2 class="text-lg font-bold text-amber-900">Gabarito Oficial para o Professor</h2>
+          </div>
+          <span class="text-xs bg-amber-200 text-amber-900 font-bold px-2.5 py-1 rounded">Respostas das Questões</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 text-xs">
+          <p><strong class="text-brand-dark">Q1:</strong> O HTML define a estrutura lógica e o conteúdo do documento (Resposta A).</p>
+          <p><strong class="text-brand-dark">Q2:</strong> O CSS estiliza a apresentação visual como cores, fontes e espaçamentos (Resposta B).</p>
+          <p><strong class="text-brand-dark">Q3:</strong> Conecta-se via <code class="font-mono bg-slate-100 p-0.5">&lt;link rel="stylesheet" href="style.css"&gt;</code> no cabeçalho (Resposta A).</p>
+          <p><strong class="text-brand-dark">Q4:</strong> <code class="font-mono">margin</code> afasta outros elementos externamente, enquanto <code class="font-mono">padding</code> empurra o conteúdo internamente (Resposta A).</p>
+        </div>
+
+        <!-- Encerramento -->
+        <div class="bg-slate-900 text-white p-6 rounded-2xl text-center space-y-3">
+          <h3 class="text-xl font-bold text-brand-primary">Parabéns aos Alunos pelo Primeiro Passo! 🚀</h3>
+          <p class="text-xs text-slate-300 max-w-lg mx-auto">
+            Vocês aprenderam a base fundamental que sustenta toda a World Wide Web. Continuem praticando e explorando novos elementos!
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAVIGATION CONTROLS -->
+  <footer class="bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between z-20 shrink-0">
+    <button id="prev-btn" onclick="prevSlide()" class="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+      <i data-lucide="chevron-left" class="w-4 h-4"></i>
+      <span>Anterior</span>
+    </button>
+
+    <!-- Slide Selection Dropdown -->
+    <select id="slide-select" onchange="goToSlide(parseInt(this.value))" class="bg-slate-100 border border-slate-300 text-slate-700 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary max-w-[200px] md:max-w-xs">
+      <!-- Options injected via JS -->
+    </select>
+
+    <button id="next-btn" onclick="nextSlide()" class="flex items-center gap-1.5 px-4 py-2 bg-brand-primary hover:bg-orange-600 text-white font-bold rounded-xl text-xs transition-colors shadow">
+      <span>Próximo</span>
+      <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    </button>
+  </footer>
+
+  <!-- MODAL: INDEX DE SLIDES -->
+  <div id="slide-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+          <i data-lucide="list" class="w-4 h-4 text-brand-primary"></i>
+          Índice da Apresentação
+        </h3>
+        <button onclick="toggleSlideListModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="modal-slide-list" class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+        <!-- List items injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTING LOGIC -->
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide-content'));
+    const slideTitles = [
+      "1. Capa Principal",
+      "2. Objetivos de Aprendizagem",
+      "3. O que é a Web?",
+      "4. Analogia da Casa",
+      "5. Demonstrativo HTML vs CSS",
+      "6. Tags, Elementos e Atributos",
+      "7. Estrutura Básica HTML",
+      "8. Títulos e Parágrafos",
+      "9. Listas, Links e Imagens",
+      "10. Conceito de CSS",
+      "11. Anatomia Regra CSS",
+      "12. Seletores CSS",
+      "13. Cores e Tipografia",
+      "14. Modelo de Caixa (Box Model)",
+      "15. Como Conectar HTML ao CSS",
+      "16. Estrutura de Pastas",
+      "17. Layout Semântico",
+      "18. Cartão de Perfil Prático",
+      "19. Responsividade",
+      "20. Acessibilidade e Boas Práticas",
+      "21. Projeto Prático Pessoal",
+      "22. Desafio Playground Live",
+      "23. Quiz de Fixação",
+      "24. Material do Professor"
+    ];
+
+    let currentSlide = 0;
+    let isTeacherUnlocked = false;
+
+    // Initialize Page
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      buildSlideDropdown();
+      buildModalList();
+      showSlide(currentSlide);
+    });
+
+    function showSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+
+      slides.forEach((s, idx) => {
+        if (idx === index) {
+          s.classList.remove('hidden');
+          s.classList.add('slide-enter');
+        } else {
+          s.classList.add('hidden');
+          s.classList.remove('slide-enter');
+        }
+      });
+
+      currentSlide = index;
+
+      // Update HUD & Controls
+      document.getElementById('current-slide-num').innerText = currentSlide + 1;
+      document.getElementById('slide-select').value = currentSlide;
+      
+      const progressPercent = ((currentSlide + 1) / slides.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+      document.getElementById('prev-btn').disabled = (currentSlide === 0);
+      document.getElementById('next-btn').disabled = (currentSlide === slides.length - 1);
+
+      // Re-trigger icon rendering if needed
+      lucide.createIcons();
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) showSlide(currentSlide - 1);
+    }
+
+    function goToSlide(index) {
+      showSlide(index);
+      closeModal();
+    }
+
+    function buildSlideDropdown() {
+      const select = document.getElementById('slide-select');
+      select.innerHTML = '';
+      slideTitles.forEach((title, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.innerText = title;
+        select.appendChild(opt);
+      });
+    }
+
+    function buildModalList() {
+      const modalList = document.getElementById('modal-slide-list');
+      modalList.innerHTML = '';
+      slideTitles.forEach((title, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'p-2.5 rounded-lg border border-slate-200 text-left hover:bg-orange-50 hover:border-orange-300 font-medium transition-colors flex items-center justify-between';
+        btn.innerHTML = `<span>${title}</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>`;
+        btn.onclick = () => goToSlide(idx);
+        modalList.appendChild(btn);
+      });
+    }
+
+    function toggleSlideListModal() {
+      const modal = document.getElementById('slide-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('slide-modal').classList.add('hidden');
+    }
+
+    // Keyboard Shortcuts Navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Interactive Demo Toggle (Slide 5)
+    function toggleCSSDemo(isStyled) {
+      const card = document.getElementById('css-demo-card');
+      const title = document.getElementById('css-demo-title');
+      const text = document.getElementById('css-demo-text');
+      const btn = document.getElementById('css-demo-btn');
+
+      const nakedBtn = document.getElementById('toggle-naked-btn');
+      const styledBtn = document.getElementById('toggle-styled-btn');
+
+      if (isStyled) {
+        card.className = "bg-white p-6 rounded-2xl shadow-xl border border-orange-200 text-center max-w-sm mx-auto";
+        title.className = "text-2xl font-bold text-slate-800 mb-1";
+        text.className = "text-xs text-slate-600 mt-2";
+        btn.className = "mt-4 bg-brand-primary text-white text-xs font-bold px-4 py-2 rounded-lg shadow inline-block hover:bg-orange-600 transition-colors";
+        
+        styledBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-slate-800";
+        nakedBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+      } else {
+        card.className = "text-left";
+        title.className = "text-2xl font-serif text-black";
+        text.className = "text-base text-black mt-1";
+        btn.className = "mt-2 text-blue-600 underline block";
+
+        nakedBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-slate-800";
+        styledBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+      }
+    }
+
+    // Interactive Playground (Slide 22)
+    function updateLivePlayground() {
+      const bgColor = document.getElementById('play-bg-color').value;
+      const btnColor = document.getElementById('play-btn-color').value;
+      const radius = document.getElementById('play-radius').value;
+
+      const card = document.getElementById('playground-card');
+      const btn = document.getElementById('playground-btn');
+
+      card.style.backgroundColor = bgColor;
+      card.style.borderRadius = `${radius}px`;
+      btn.style.backgroundColor = btnColor;
+      btn.style.borderRadius = `${Math.min(radius, 12)}px`;
+    }
+
+    // Quiz Verification (Slide 23)
+    function checkQuiz(qNum, isCorrect, btnElement) {
+      const parent = btnElement.parentElement;
+      const buttons = parent.querySelectorAll('button');
+      buttons.forEach(b => {
+        b.classList.remove('bg-emerald-100', 'bg-red-100', 'border-emerald-500', 'border-red-500');
+      });
+
+      if (isCorrect) {
+        btnElement.classList.add('bg-emerald-100', 'border', 'border-emerald-500', 'text-emerald-900');
+      } else {
+        btnElement.classList.add('bg-red-100', 'border', 'border-red-500', 'text-red-900');
+      }
+    }
+
+    // Teacher Mode Toggle
+    function toggleTeacherMode() {
+      goToSlide(23); // Go to slide 24
+      unlockTeacherMode();
+    }
+
+    function unlockTeacherMode() {
+      document.getElementById('teacher-lock-screen').classList.add('hidden');
+      document.getElementById('teacher-content').classList.remove('hidden');
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+  </script>
+</body>
+</html>
