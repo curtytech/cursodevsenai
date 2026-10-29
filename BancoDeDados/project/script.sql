@@ -7,4 +7,4 @@
 -- INSERT INTO usuarios (nome, idade)
 -- VALUES ('Phelipe', 32);
 
-SELECT * FROM usuarios;
+SELECT idade FROM usuarios;
