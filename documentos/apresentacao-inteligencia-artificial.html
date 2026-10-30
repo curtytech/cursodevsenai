@@ -834,7 +834,7 @@
     </div>
   </footer>
 
-  <script>
+ <script>
     const slides = document.querySelectorAll('.slide');
     const progressBar = document.getElementById('progress-bar');
     const indicator = document.getElementById('slide-indicator');
@@ -848,6 +848,8 @@
     const totalSlides = slides.length;
 
     function updatePresentation() {
+      if (totalSlides === 0) return;
+
       slides.forEach((slide, idx) => {
         slide.classList.toggle('active', idx === currentIndex);
       });
@@ -855,15 +857,19 @@
       const currentSlide = slides[currentIndex];
       const progressPercent = ((currentIndex + 1) / totalSlides) * 100;
 
-      progressBar.style.width = `${progressPercent}%`;
-      indicator.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
-      headerTopic.textContent = currentSlide.dataset.topic || '';
+      if (progressBar) progressBar.style.width = `${progressPercent}%`;
+      if (indicator) indicator.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+      if (headerTopic && currentSlide) headerTopic.textContent = currentSlide.dataset.topic || '';
 
       // Atualiza notas do apresentador
-      notesContent.textContent = currentSlide.dataset.notes || 'Sem notas para este slide.';
+      if (notesContent && currentSlide) {
+        notesContent.textContent = currentSlide.dataset.notes || 'Sem notas para este slide.';
+      }
 
-      btnPrev.disabled = currentIndex === 0;
-      btnNext.textContent = currentIndex === totalSlides - 1 ? 'Reiniciar ⟲' : 'Próximo ❯';
+      if (btnPrev) btnPrev.disabled = currentIndex === 0;
+      if (btnNext) {
+        btnNext.textContent = currentIndex === totalSlides - 1 ? 'Reiniciar ⟲' : 'Próximo ❯';
+      }
     }
 
     function nextSlide() {
@@ -883,7 +889,7 @@
     }
 
     function toggleNotes() {
-      notesModal.classList.toggle('open');
+      if (notesModal) notesModal.classList.toggle('open');
     }
 
     function toggleFullscreen() {
@@ -894,21 +900,84 @@
       }
     }
 
-    // Gerador dinâmico do slide interativo
-    function generateInteractivePrompt() {
-      const obj = document.getElementById('in-obj').value.trim();
-      const ctx = document.getElementById('in-ctx').value.trim();
-      const fmt = document.getElementById('in-fmt').value.trim();
-      const out = document.getElementById('prompt-output');
+    // --- INTEGRAÇÃO COM WEBSOCKET E BOTÕES ---
+    const WS_URL = 'ws://localhost:3000';
+    const connectionStatus = document.getElementById('connection-status');
+    const statusText = document.getElementById('status-text');
 
-      out.textContent = `"${obj}, com ${ctx}, detalhes visuais bem definidos, entregue ${fmt}."`;
+    let socket;
+
+    function connectWebSocket() {
+      socket = new WebSocket(WS_URL);
+
+      socket.onopen = () => {
+        if (connectionStatus) {
+          connectionStatus.innerText = 'Online (WebSocket)';
+          connectionStatus.className = 'text-xs text-emerald-400 mt-1 font-medium';
+        }
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (statusText) statusText.innerText = data.message || 'Comando recebido!';
+          console.log('Mensagem recebida do servidor:', data);
+          // Exemplo: Se o servidor mandar uma ação para mudar o slide remotamente
+          if (data.action === 'forward') nextSlide();
+          if (data.action === 'back') prevSlide();
+          if (data.action === 'refresh') location.reload();
+        } catch (e) {
+          if (statusText) statusText.innerText = event.data;
+        }
+      };
+
+      socket.onerror = () => {
+        if (connectionStatus) {
+          connectionStatus.innerText = 'Erro na conexão WS';
+          connectionStatus.className = 'text-xs text-rose-400 mt-1 font-medium';
+        }
+      };
+
+      socket.onclose = () => {
+        if (connectionStatus) {
+          connectionStatus.innerText = 'Desconectado - Reconectando...';
+          connectionStatus.className = 'text-xs text-amber-400 mt-1 font-medium';
+        }
+        setTimeout(connectWebSocket, 3000);
+      };
     }
+
+    // Inicializa o WebSocket
+    connectWebSocket();
+
+    // Event Listeners dos botões da interface mobile
+    document.querySelectorAll('.action-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const action = button.getAttribute('data-action');
+
+        // Ações locais na apresentação baseadas nos botões
+        if (action === 'forward') nextSlide();
+        if (action === 'back') prevSlide();
+        if (action === 'refresh') location.reload();
+        if (action === 'audio') {
+          if (statusText) statusText.innerText = 'Áudio/Silêncio alternado.';
+        }
+
+        // Envia o evento para o servidor WebSocket
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({
+            action: action,
+            timestamp: new Date().toISOString()
+          }));
+        }
+      });
+    });
 
     // Atalhos de teclado
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-      if (e.key === 'ArrowRight' || e.key === 'Space') {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
         e.preventDefault();
         nextSlide();
       } else if (e.key === 'ArrowLeft') {

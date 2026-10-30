@@ -18,15 +18,15 @@
     <header class="p-6 text-center border-b border-slate-700/50">
       <div class="w-12 h-1 bg-slate-600 rounded-full mx-auto mb-4"></div> <!-- Barra simulando topo do celular -->
       <h1 class="text-xl font-bold tracking-wide">Navegação & Áudio</h1>
-      <p class="text-xs text-slate-400 mt-1">Interface Mobile Responsiva</p>
+      <p id="connection-status" class="text-xs text-amber-400 mt-1">Conectando ao WebSocket...</p>
     </header>
 
     <!-- Área Central de Conteúdo/Exibição -->
     <main class="flex-1 flex flex-col items-center justify-center p-6 text-center">
       <div class="w-24 h-24 bg-indigo-600/20 text-indigo-400 rounded-full flex items-center justify-center mb-4 border border-indigo-500/30">
-        <i class="fa-solid fa-compass text-4xl"></i>
+        <i id="status-icon" class="fa-solid fa-compass text-4xl"></i>
       </div>
-      <p class="text-sm text-slate-300">Use os controles abaixo para interagir com a aplicação.</p>
+      <p id="status-text" class="text-sm text-slate-300">Aguardando interação...</p>
     </main>
 
     <!-- Barra de Ações / Controles Inferiores -->
@@ -36,8 +36,9 @@
         <!-- Botão Voltar -->
         <button 
           type="button" 
+          data-action="back"
           aria-label="Voltar"
-          class="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-700/50 hover:bg-slate-700 active:scale-95 transition-all text-slate-200 hover:text-white group">
+          class="action-btn flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-700/50 hover:bg-slate-700 active:scale-95 transition-all text-slate-200 hover:text-white group">
           <i class="fa-solid fa-chevron-left text-lg group-hover:-translate-x-0.5 transition-transform"></i>
           <span class="text-[10px] mt-1 font-medium text-slate-400 group-hover:text-slate-200">Voltar</span>
         </button>
@@ -45,17 +46,19 @@
         <!-- Botão Atualizar -->
         <button 
           type="button" 
+          data-action="refresh"
           aria-label="Atualizar"
-          class="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-700/50 hover:bg-slate-700 active:scale-95 transition-all text-slate-200 hover:text-white group">
+          class="action-btn flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-700/50 hover:bg-slate-700 active:scale-95 transition-all text-slate-200 hover:text-white group">
           <i class="fa-solid fa-rotate-right text-lg group-hover:rotate-180 transition-transform duration-500"></i>
           <span class="text-[10px] mt-1 font-medium text-slate-400 group-hover:text-slate-200">Atualizar</span>
         </button>
 
-        <!-- Botão Alto-Falante -->
+        <!-- Botão Alto-Falante / Mute -->
         <button 
           type="button" 
+          data-action="audio"
           aria-label="Alto-Falante"
-          class="flex flex-col items-center justify-center p-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white shadow-lg shadow-indigo-600/30 group">
+          class="action-btn flex flex-col items-center justify-center p-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white shadow-lg shadow-indigo-600/30 group">
           <i class="fa-solid fa-volume-mute text-lg group-hover:scale-110 transition-transform"></i>
           <span class="text-[10px] mt-1 font-medium text-indigo-100">Silêncio</span>
         </button>
@@ -63,8 +66,9 @@
         <!-- Botão Avançar -->
         <button 
           type="button" 
+          data-action="forward"
           aria-label="Avançar"
-          class="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-700/50 hover:bg-slate-700 active:scale-95 transition-all text-slate-200 hover:text-white group">
+          class="action-btn flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-700/50 hover:bg-slate-700 active:scale-95 transition-all text-slate-200 hover:text-white group">
           <i class="fa-solid fa-chevron-right text-lg group-hover:translate-x-0.5 transition-transform"></i>
           <span class="text-[10px] mt-1 font-medium text-slate-400 group-hover:text-slate-200">Avançar</span>
         </button>
@@ -73,6 +77,68 @@
     </footer>
 
   </div>
+
+  <!-- Script WebSocket -->
+  <script>
+    const WS_URL = 'ws://localhost:3000';
+    const connectionStatus = document.getElementById('connection-status');
+    const statusText = document.getElementById('status-text');
+
+    let socket;
+
+    function connectWebSocket() {
+      socket = new WebSocket(WS_URL);
+
+      socket.onopen = () => {
+        connectionStatus.innerText = 'Online (WebSocket)';
+        connectionStatus.className = 'text-xs text-emerald-400 mt-1 font-medium';
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          statusText.innerText = data.message || 'Comando processado com sucesso!';
+        } catch (e) {
+          statusText.innerText = event.data;
+        }
+      };
+
+      socket.onerror = (error) => {
+        console.error('Erro no WebSocket:', error);
+        connectionStatus.innerText = 'Erro na conexão WS';
+        connectionStatus.className = 'text-xs text-rose-400 mt-1 font-medium';
+      };
+
+      socket.onclose = () => {
+        connectionStatus.innerText = 'Desconectado - Reconectando...';
+        connectionStatus.className = 'text-xs text-amber-400 mt-1 font-medium';
+        // Tenta reconectar após 3 segundos
+        setTimeout(connectWebSocket, 3000);
+      };
+    }
+
+    // Inicializa a conexão WS
+    connectWebSocket();
+
+    // Event Listener nos botões
+    document.querySelectorAll('.action-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const action = button.getAttribute('data-action');
+
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          const payload = {
+            action: action,
+            timestamp: new Date().toISOString()
+          };
+
+          socket.send(JSON.stringify(payload));
+          statusText.innerText = `Enviando ação: ${action}...`;
+        } else {
+          statusText.innerText = 'Não foi possível enviar: WebSocket desconectado.';
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>
