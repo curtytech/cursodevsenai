@@ -1,10 +1,10 @@
--- CREATE TABLE usuarios (
---     id INTEGER PRIMARY KEY AUTOINCREMENT,
---     nome TEXT NOT NULL,
---     idade INTEGER
--- );
+CREATE TABLE test (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    idade INTEGER
+);
 
--- INSERT INTO usuarios (nome, idade)
--- VALUES ('Phelipe', 32);
+INSERT INTO test (nome, idade)
+VALUES ('Ana', 25);
 
-SELECT * FROM usuarios;
+SELECT * FROM test;
