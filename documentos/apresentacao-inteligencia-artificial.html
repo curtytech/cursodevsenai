@@ -406,7 +406,42 @@
         padding: 16px;
       }
     }
-  </style>
+
+    /* Melhorias CIDI e Gemini */
+    .cidi-steps .card { min-height: 190px; }
+    .cidi-steps p, .cidi-explain { color:var(--text-muted); font-size:.88rem; line-height:1.55; margin-top:8px; }
+    .cidi-steps small { display:block; color:var(--text-muted); margin-top:12px; font-size:.78rem; }
+    .cidi-letter { font-size:2.5rem; font-weight:800; line-height:1.1; margin-bottom:7px; text-shadow:0 0 18px currentColor; }
+    .gemini-card { display:flex; flex-direction:column; align-items:center; gap:14px; padding:24px; }
+    .gemini-brand { display:flex; align-items:center; gap:9px; font-size:1.25rem; }
+    .gemini-spark { font-size:2rem; color:#8ab4f8; text-shadow:0 0 18px #8ab4f8; }
+    .qr-frame { background:#fff; padding:12px; border-radius:14px; width:min( min(62vw, 340px), 100%); box-shadow:0 0 28px rgba(0,229,255,.2); }
+    .qr-frame img { display:block; width:100%; height:auto; image-rendering:auto; }
+    .gemini-call { color:var(--neon-cyan); font-size:1.35rem; }
+    .gemini-link { color:var(--neon-green); font-weight:700; text-decoration:none; overflow-wrap:anywhere; }
+    .gemini-link:hover { text-decoration:underline; }
+    .gemini-hint { color:var(--text-muted); font-size:.85rem; text-align:center; }
+    .cidi-builder { display:flex; flex-direction:column; gap:14px; }
+    .cidi-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .cidi-field { display:flex; flex-direction:column; gap:6px; font-size:.85rem; font-weight:800; }
+    .cidi-field small { color:var(--text-muted); font-weight:400; }
+    .cidi-field textarea, #cidi-output { width:100%; resize:vertical; min-height:86px; padding:11px 12px; color:var(--text); background:rgba(0,0,0,.38); border:1px solid rgba(255,255,255,.18); border-radius:8px; font:400 .88rem/1.5 'Plus Jakarta Sans',sans-serif; }
+    .cidi-field textarea:focus, #cidi-output:focus { outline:2px solid var(--neon-cyan); border-color:transparent; }
+    .cidi-actions { display:flex; flex-wrap:wrap; gap:10px; }
+    .cidi-status { color:var(--text-muted); font-size:.83rem; min-height:20px; }
+    .cidi-status.error { color:var(--neon-red); }
+    .cidi-status.success { color:var(--neon-green); }
+    .cidi-output-wrap { border-top:1px solid var(--card-border); padding-top:13px; }
+    .cidi-output-wrap > label { display:block; color:var(--neon-cyan); font-size:.8rem; font-weight:800; margin-bottom:7px; }
+    #cidi-output { min-height:150px; font-family:'JetBrains Mono',monospace; color:var(--neon-green); }
+    .btn:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+    @media (max-width:850px) {
+      .cidi-form-grid { grid-template-columns:1fr; }
+      .cidi-steps .card { min-height:0; }
+      .cidi-actions .btn { flex:1 1 100%; justify-content:center; }
+      .gemini-card { padding:18px; }
+    }
+\n  </style>
 </head>
 
 <body>
@@ -418,7 +453,7 @@
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
       <span class="slide-badge" id="slide-indicator">01 / 10</span>
-      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);" id="header-topic">Introdução</span>
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);" id="header-topic">Abertura</span>
     </div>
     <div class="nav-controls">
       <button class="btn" onclick="toggleNotes()" title="Ver notas do orador (Tecla N)">🎙️ Notas (N)</button>
@@ -552,56 +587,89 @@
       </div>
     </section>
 
-    <!-- SLIDE 4: Fórmula do Prompt Eficiente -->
-    <section class="slide" data-topic="Framework de Criação"
-      data-notes="Sempre que for falar com uma IA, lembre-se desses 4 blocos: Objetivo, Contexto, Detalhes e Formato. Eles garantem que você nunca receba uma resposta rasa.">
+    <!-- SLIDE 4: Aplicações Práticas -->
+    <section class="slide" data-topic="Aplicações Práticas"
+      data-notes="A IA já é realidade no mercado e na vida acadêmica. Quem domina essas ferramentas ganha velocidade sem perder o controle criativo.">
       <div>
         <span class="slide-badge">SLIDE 04</span>
-        <h2 style="font-size: 2.2rem; margin-top: 8px;">A FÓRMULA DO <span class="title-gradient">PROMPT
-            EFICIENTE</span></h2>
-        <p class="subtitle">Use esta arquitetura para estruturar instruções à prova de falhas:</p>
+        <h2 style="font-size: 2.2rem; margin-top: 8px;">APLICAÇÕES <span class="title-gradient">PRÁTICAS NO DIA A
+            DIA</span></h2>
+        <p class="subtitle">Conheça algumas formas de aplicar essas técnicas no dia a dia:</p>
       </div>
 
-      <div class="grid-4" style="margin-top: 5px;">
+      <div class="grid-3">
         <div class="card">
-          <div style="color: var(--neon-cyan); font-weight: 800; font-size: 1.1rem;">1. OBJETIVO</div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">O que exatamente você quer que a IA
-            realize?</p>
-        </div>
-        <div class="card">
-          <div style="color: var(--neon-green); font-weight: 800; font-size: 1.1rem;">2. CONTEXTO</div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Qual é o cenário? Quem é o público?
-            Qual o tom?</p>
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🎓</div>
+          <strong style="color: var(--neon-cyan);">Educação & Estudos</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Explicador de matérias complexas,
+            resumos de artigos, simulador de testes e provas.</p>
         </div>
         <div class="card">
-          <div style="color: var(--neon-yellow); font-weight: 800; font-size: 1.1rem;">3. DETALHES</div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Elementos essenciais, restrições e
-            referências.</p>
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">💼</div>
+          <strong style="color: var(--neon-green);">Trabalho & Produtividade</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Automação de planilhas, redação de
+            e-mails corporativos, atas de reuniões e relatórios.</p>
         </div>
         <div class="card">
-          <div style="color: #ff77e9; font-weight: 800; font-size: 1.1rem;">4. FORMATO</div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Texto, código, tabela, proporção de
-            imagem (16:9).</p>
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🎨</div>
+          <strong style="color: var(--neon-yellow);">Criação & Mídia</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Roteiros para vídeos, storyboards,
+            concept art, protótipos de interfaces visuais.</p>
         </div>
-      </div>
-
-      <div class="card card-highlight">
-        <div style="font-weight: 700; color: var(--neon-cyan); margin-bottom: 8px;">⭐ EXEMPLO DA FÓRMULA NA PRÁTICA:
+        <div class="card">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🕹️</div>
+          <strong style="color: #ff77e9;">Entretenimento</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Criação de mundos para RPG,
+            mecânicas de jogos independentes e fanfics interativas.</p>
         </div>
-        <p class="code-box">
-          "<span style="color: var(--neon-cyan);">Crie uma imagem de um robô futurista</span>, <span
-            style="color: var(--neon-green);">em estilo cyberpunk para um jogo de ficção científica</span>, <span
-            style="color: var(--neon-yellow);">com iluminação neon contrastante, cenário urbano noturno chuvoso</span>,
-          <span style="color: #ff77e9;">no formato 16:9 ultra-wide</span>."
-        </p>
+        <div class="card">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">📈</div>
+          <strong style="color: var(--neon-cyan);">Negócios & Estratégia</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Benchmarking de mercado, mapeamento
+            de personas e roteiros de pitch para investidores.</p>
+        </div>
+        <div class="card">
+          <div style="font-size: 1.8rem; margin-bottom: 6px;">🌱</div>
+          <strong style="color: var(--neon-green);">Vida Pessoal</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Planejamento de rotinas fitness,
+            organização financeira pessoal e roteiros de viagens.</p>
+        </div>
       </div>
     </section>
 
-    <!-- SLIDE 5: Básico vs Avançado -->
+    <!-- SLIDE 5: Método CIDI -->
+    <section class="slide" data-topic="Método CIDI"
+      data-notes="Apresente o método CIDI como quatro etapas que ajudam a IA a entender não apenas o que deve fazer, mas em qual cenário, com quais requisitos e para qual finalidade. Leia o exemplo simples e depois compare com o prompt estruturado.">
+      <div>
+        <span class="slide-badge">SLIDE 05</span>
+        <h2 style="font-size:2.2rem;margin-top:8px;">MÉTODO <span class="title-gradient">CIDI</span></h2>
+        <p class="subtitle">Quatro etapas para transformar uma ideia em uma instrução clara e completa.</p>
+      </div>
+      <div class="grid-4 cidi-steps">
+        <div class="card"><div class="cidi-letter" style="color:var(--neon-cyan)">C</div><strong style="color:var(--neon-cyan)">Contexto</strong><p>Explique a situação, o cenário e as informações que a IA precisa conhecer.</p><small>Onde estamos? Para quem?</small></div>
+        <div class="card"><div class="cidi-letter" style="color:var(--neon-green)">I</div><strong style="color:var(--neon-green)">Instrução</strong><p>Diga claramente o que você quer que a inteligência artificial faça.</p><small>Qual tarefa realizar?</small></div>
+        <div class="card"><div class="cidi-letter" style="color:var(--neon-yellow)">D</div><strong style="color:var(--neon-yellow)">Detalhes</strong><p>Informe requisitos, características, limites, ferramentas e preferências.</p><small>Como deve ser feito?</small></div>
+        <div class="card"><div class="cidi-letter" style="color:#ff77e9">I</div><strong style="color:#ff77e9">Intenção</strong><p>Mostre o resultado esperado e a finalidade do que está sendo criado.</p><small>Para qual resultado?</small></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <strong style="color:var(--neon-red)">❌ Pedido simples</strong>
+          <p class="code-box" style="margin-top:10px">"Crie um site."</p>
+          <p class="cidi-explain">A IA não sabe o público, o tipo de site, os recursos nem o objetivo.</p>
+        </div>
+        <div class="card card-highlight">
+          <strong style="color:var(--neon-green)">✔ O mesmo pedido com CIDI</strong>
+          <p class="code-box" style="margin-top:10px;white-space:normal"><b style="color:var(--neon-cyan)">Contexto:</b> Sou estudante e estou criando um portfólio de tecnologia.<br><b style="color:var(--neon-green)">Instrução:</b> Desenvolva um site de portfólio.<br><b style="color:var(--neon-yellow)">Detalhes:</b> Use HTML, CSS e JavaScript, tema escuro, layout responsivo, seção de projetos e contato.<br><b style="color:#ff77e9">Intenção:</b> Apresentar meus trabalhos de forma profissional para oportunidades de estudo e trabalho.</p>
+        </div>
+      </div>
+      <div class="banner-highlight">💡 Dica: quanto melhor você explica C + I + D + I, mais direcionada tende a ser a resposta.</div>
+    </section>
+
+    <!-- SLIDE 6: Básico vs Avançado -->
     <section class="slide" data-topic="Comparativo"
       data-notes="Reparem como o mesmo objetivo inicial — criar um jogo de luta — produz resultados do dia para a noite dependendo apenas da qualidade da comunicação com a ferramenta.">
       <div>
-        <span class="slide-badge">SLIDE 05</span>
+        <span class="slide-badge">SLIDE 06</span>
         <h2 style="font-size: 2.2rem; margin-top: 8px;">PROMPT BÁSICO <span class="title-gradient">VS. AVANÇADO</span>
         </h2>
         <p class="subtitle">Veja como o nível de especificidade muda dramaticamente o jogo:</p>
@@ -638,154 +706,50 @@
       </div>
     </section>
 
-    <!-- SLIDE 6: Exemplos de Prompts -->
-    <section class="slide" data-topic="Biblioteca de Prompts"
-      data-notes="A IA é multidisciplinar. Com bons comandos, ela atua como designer gráfico, programadora frontend, diretora de arte e estrategista de marketing simultaneamente.">
-      <div>
-        <span class="slide-badge">SLIDE 06</span>
-        <h2 style="font-size: 2.2rem; margin-top: 8px;">EXEMPLOS DE <span class="title-gradient">PROMPTS PARA
-            CRIAR</span></h2>
-        <p class="subtitle">Aplicações práticas em diferentes vertentes:</p>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-            <span style="font-size: 1.4rem;">🎮</span>
-            <strong style="color: var(--neon-cyan);">Desenvolvimento de Jogos</strong>
-          </div>
-          <div class="code-box">
-            "Crie um jogo 2D de plataforma com temática espacial em pixel art. O astronauta coleta cristais de oxigênio
-            e pula sobre meteoros. Entregue em arquivo único com HTML Canvas e JavaScript."
-          </div>
-        </div>
-
-        <div class="card">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-            <span style="font-size: 1.4rem;">👤</span>
-            <strong style="color: var(--neon-green);">Criação de Personagens</strong>
-          </div>
-          <div class="code-box">
-            "Ilustração de personagem guerreira cyberpunk, armadura modular luminosa com detalhes em turquesa neon,
-            visor holográfico, fundo escuro de metrópole chuvosa, traço estilizado no estilo anime moderno."
-          </div>
-        </div>
-
-        <div class="card">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-            <span style="font-size: 1.4rem;">🌐</span>
-            <strong style="color: var(--neon-yellow);">Websites e Aplicações</strong>
-          </div>
-          <div class="code-box">
-            "Desenvolva uma landing page moderna para uma plataforma de cursos de tecnologia. Use layout responsivo com
-            Tailwind CSS, tema escuro, seção de depoimentos e botão de chamada com efeito de brilho."
-          </div>
-        </div>
-
-        <div class="card">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-            <span style="font-size: 1.4rem;">📢</span>
-            <strong style="color: #ff77e9);">Campanhas Publicitárias</strong>
-          </div>
-          <div class="code-box">
-            "Crie o conceito de anúncio para um headphone sem fio de cancelamento de ruído voltado para programadores.
-            Inclua slogan marcante, proposta de valor em 3 tópicos e chamada para ação urgente."
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 7: Atividade Interativa -->
-    <section class="slide" data-topic="Dinâmica Prática"
-      data-notes="Momento de engajar a plateia! Peça uma ideia aleatória para alguém do público e construa o prompt junto com eles usando esse gerador ao vivo na tela.">
+    <!-- SLIDE 7: Acesse o Gemini -->
+    <section class="slide" data-topic="Ferramenta: Gemini"
+      data-notes="Convide o público a abrir a câmera do celular e apontar para o QR Code. O código leva diretamente ao site oficial do Gemini. Também é possível acessar pelo link exibido abaixo.">
       <div>
         <span class="slide-badge">SLIDE 07</span>
-        <h2 style="font-size: 2.2rem; margin-top: 8px;">ATIVIDADE INTERATIVA: <span class="title-gradient">VAMOS CRIAR
-            JUNTOS?</span></h2>
-        <p class="subtitle">Monte um prompt agora mesmo combinando os parâmetros:</p>
+        <h2 style="font-size:2.2rem;margin-top:8px;">CONHEÇA O <span class="title-gradient">GEMINI</span></h2>
+        <p class="subtitle">Acesse uma ferramenta de IA generativa do Google pelo celular.</p>
       </div>
-
-      <div class="card card-highlight">
-        <div class="grid-3" style="margin-bottom: 15px;">
-          <div>
-            <label style="font-size: 0.8rem; color: var(--neon-cyan); font-weight: 700;">1. PROJETO</label>
-            <input type="text" id="in-obj" value="Crie um jogo de corrida retrô"
-              style="width: 100%; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; margin-top: 5px;">
-          </div>
-          <div>
-            <label style="font-size: 0.8rem; color: var(--neon-green); font-weight: 700;">2. CONTEXTO & ESTILO</label>
-            <input type="text" id="in-ctx" value="estilo synthwave dos anos 80"
-              style="width: 100%; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; margin-top: 5px;">
-          </div>
-          <div>
-            <label style="font-size: 0.8rem; color: var(--neon-yellow); font-weight: 700;">3. FORMATO /
-              REQUISITOS</label>
-            <input type="text" id="in-fmt" value="em HTML/JS com pontuação na tela"
-              style="width: 100%; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; margin-top: 5px;">
-          </div>
-        </div>
-
-        <button class="btn btn-primary" onclick="generateInteractivePrompt()"
-          style="width: 100%; justify-content: center;">
-          ⚡ Gerar Super Prompt ao Vivo
-        </button>
-
-        <div style="margin-top: 15px;">
-          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">RESULTADO GERADO:</div>
-          <div class="code-box" id="prompt-output" style="color: var(--neon-green); font-size: 0.95rem;">
-            "Crie um jogo de corrida retrô, estilo synthwave dos anos 80, com estética neon, pista infinita e entregue
-            em HTML/JS com pontuação na tela."
-          </div>
-        </div>
+      <div class="card card-highlight gemini-card">
+        <div class="gemini-brand"><span class="gemini-spark">✦</span><strong>Google Gemini</strong></div>
+        <div class="qr-frame"><img id="gemini-qr" alt="QR Code para acessar https://gemini.google.com/" src="data:image/png;base64,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"></div>
+        <h3 class="gemini-call">Acesse o Gemini</h3>
+        <p style="color:var(--text-muted);text-align:center;max-width:520px">Abra a câmera do celular, aponte para o QR Code e toque no link que aparecer. Você também pode clicar no endereço abaixo.</p>
+        <a class="gemini-link" href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">https://gemini.google.com/ ↗</a>
+        <div class="gemini-hint">📱 Dica: mantenha o QR Code inteiro dentro da câmera e aguarde a leitura.</div>
       </div>
     </section>
 
-    <!-- SLIDE 8: Aplicações Práticas -->
-    <section class="slide" data-topic="Casos de Uso"
-      data-notes="A IA já é realidade no mercado e na vida acadêmica. Quem domina essas ferramentas ganha velocidade sem perder o controle criativo.">
+    <!-- SLIDE 8: Gerador CIDI interativo -->
+    <section class="slide" data-topic="Laboratório CIDI"
+      data-notes="Convide os participantes a preencherem as quatro etapas. Mostre que cada campo contribui para um prompt mais completo. Gere o texto, revise em conjunto e use o botão de cópia para experimentar em qualquer ferramenta de IA.">
       <div>
         <span class="slide-badge">SLIDE 08</span>
-        <h2 style="font-size: 2.2rem; margin-top: 8px;">APLICAÇÕES <span class="title-gradient">PRÁTICAS NO DIA A
-            DIA</span></h2>
-        <p class="subtitle">Onde você já pode aplicar essas técnicas a partir de hoje:</p>
+        <h2 style="font-size:2.2rem;margin-top:8px;">LABORATÓRIO <span class="title-gradient">CIDI</span></h2>
+        <p class="subtitle">Preencha as quatro etapas e gere um prompt pronto para usar em qualquer IA.</p>
       </div>
-
-      <div class="grid-3">
-        <div class="card">
-          <div style="font-size: 1.8rem; margin-bottom: 6px;">🎓</div>
-          <strong style="color: var(--neon-cyan);">Educação & Estudos</strong>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Explicador de matérias complexas,
-            resumos de artigos, simulador de testes e provas.</p>
+      <div class="card card-highlight cidi-builder">
+        <div class="cidi-form-grid">
+          <label class="cidi-field"><span style="color:var(--neon-cyan)">C — CONTEXTO</span><small>Qual é a situação ou cenário?</small><textarea id="cidi-context" placeholder="Ex.: Sou estudante e estou desenvolvendo um projeto para aprender programação..." rows="3"></textarea></label>
+          <label class="cidi-field"><span style="color:var(--neon-green)">I — INSTRUÇÃO</span><small>O que você deseja que a IA faça?</small><textarea id="cidi-instruction" placeholder="Ex.: Crie um site de portfólio pessoal..." rows="3"></textarea></label>
+          <label class="cidi-field"><span style="color:var(--neon-yellow)">D — DETALHES</span><small>Quais são os requisitos e características?</small><textarea id="cidi-details" placeholder="Ex.: HTML, CSS e JavaScript; tema escuro; responsivo; menu e galeria..." rows="3"></textarea></label>
+          <label class="cidi-field"><span style="color:#ff77e9">I — INTENÇÃO</span><small>Qual resultado você espera alcançar?</small><textarea id="cidi-intention" placeholder="Ex.: Apresentar meus projetos de forma profissional..." rows="3"></textarea></label>
         </div>
-        <div class="card">
-          <div style="font-size: 1.8rem; margin-bottom: 6px;">💼</div>
-          <strong style="color: var(--neon-green);">Trabalho & Produtividade</strong>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Automação de planilhas, redação de
-            e-mails corporativos, atas de reuniões e relatórios.</p>
+        <div class="cidi-actions">
+          <button class="btn btn-primary" id="generate-cidi" type="button">⚡ Gerar Prompt CIDI</button>
+          <button class="btn" id="clear-cidi" type="button">↺ Limpar Campos</button>
         </div>
-        <div class="card">
-          <div style="font-size: 1.8rem; margin-bottom: 6px;">🎨</div>
-          <strong style="color: var(--neon-yellow);">Criação & Mídia</strong>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Roteiros para vídeos, storyboards,
-            concept art, protótipos de interfaces visuais.</p>
-        </div>
-        <div class="card">
-          <div style="font-size: 1.8rem; margin-bottom: 6px;">🕹️</div>
-          <strong style="color: #ff77e9);">Entretenimento</strong>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Criação de mundos para RPG,
-            mecânicas de jogos independentes e fanfics interativas.</p>
-        </div>
-        <div class="card">
-          <div style="font-size: 1.8rem; margin-bottom: 6px;">📈</div>
-          <strong style="color: var(--neon-cyan);">Negócios & Estratégia</strong>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Benchmarking de mercado, mapeamento
-            de personas e roteiros de pitch para investidores.</p>
-        </div>
-        <div class="card">
-          <div style="font-size: 1.8rem; margin-bottom: 6px;">🌱</div>
-          <strong style="color: var(--neon-green);">Vida Pessoal</strong>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Planejamento de rotinas fitness,
-            organização financeira pessoal e roteiros de viagens.</p>
+        <div id="cidi-status" class="cidi-status" role="status" aria-live="polite">Preencha os quatro campos para montar seu prompt.</div>
+        <div class="cidi-output-wrap">
+          <label for="cidi-output">PROMPT GERADO</label>
+          <textarea id="cidi-output" readonly rows="8" placeholder="Seu prompt completo aparecerá aqui..."></textarea>
+          <div class="cidi-actions output-actions">
+            <button class="btn btn-primary" id="copy-cidi" type="button" disabled>▣ Copiar Prompt</button>
+          </div>
         </div>
       </div>
     </section>
@@ -842,7 +806,7 @@
     <section class="slide" data-topic="Encerramento"
       data-notes="Feche com entusiasmo e convite à ação! Lembre-os de que a vantagem competitiva não está na tecnologia em si, mas em quem tem curiosidade de experimentar e construir coisas novas.">
       <div class="card card-highlight" style="text-align: center; padding: 45px 30px;">
-        <span class="slide-badge">CONCLUSÃO</span>
+        <span class="slide-badge">SLIDE 10</span>
 
         <h2 style="font-size: 2.8rem; margin: 15px 0 10px 0;">
           O FUTURO É DE <span class="title-gradient">QUEM CRIA!</span>
@@ -898,9 +862,110 @@
     const notesContent = document.getElementById('notes-content');
     const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
+    const cidiFields = [
+      { id: 'cidi-context', label: 'Contexto' },
+      { id: 'cidi-instruction', label: 'Instrução' },
+      { id: 'cidi-details', label: 'Detalhes' },
+      { id: 'cidi-intention', label: 'Intenção' }
+    ];
+    const cidiOutput = document.getElementById('cidi-output');
+    const cidiStatus = document.getElementById('cidi-status');
+    const generateCidiButton = document.getElementById('generate-cidi');
+    const clearCidiButton = document.getElementById('clear-cidi');
+    const copyCidiButton = document.getElementById('copy-cidi');
 
     let currentIndex = 0;
     const totalSlides = slides.length;
+
+    function setCidiStatus(message, type = '') {
+      if (!cidiStatus) return;
+      cidiStatus.textContent = message;
+      cidiStatus.classList.remove('error', 'success');
+      if (type) cidiStatus.classList.add(type);
+    }
+
+    function generateCidiPrompt() {
+      const values = cidiFields.map(field => ({
+        ...field,
+        value: document.getElementById(field.id)?.value.trim() || ''
+      }));
+      const missingFields = values.filter(field => !field.value);
+
+      if (missingFields.length) {
+        setCidiStatus(
+          `Preencha todos os campos: ${missingFields.map(field => field.label).join(', ')}.`,
+          'error'
+        );
+        document.getElementById(missingFields[0].id)?.focus();
+        return;
+      }
+
+      cidiOutput.value = values
+        .map(field => `${field.label}: ${field.value}`)
+        .join('\n\n');
+      if (copyCidiButton) copyCidiButton.disabled = false;
+      setCidiStatus('Prompt CIDI gerado. Revise o texto antes de copiar.', 'success');
+    }
+
+    function clearCidiForm() {
+      cidiFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (input) input.value = '';
+      });
+      if (cidiOutput) cidiOutput.value = '';
+      if (copyCidiButton) copyCidiButton.disabled = true;
+      setCidiStatus('Campos limpos. Preencha as quatro etapas para montar seu prompt.');
+      document.getElementById('cidi-context')?.focus();
+    }
+
+    function copyTextWithFallback(text) {
+      const temporaryInput = document.createElement('textarea');
+      temporaryInput.value = text;
+      temporaryInput.setAttribute('readonly', '');
+      temporaryInput.style.position = 'fixed';
+      temporaryInput.style.opacity = '0';
+      document.body.appendChild(temporaryInput);
+
+      try {
+        temporaryInput.select();
+        return document.execCommand('copy');
+      } finally {
+        temporaryInput.remove();
+      }
+    }
+
+    async function copyCidiPrompt() {
+      const text = cidiOutput?.value || '';
+      if (!text) {
+        setCidiStatus('Gere um prompt antes de copiá-lo.', 'error');
+        return;
+      }
+
+      let clipboardError = null;
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+          setCidiStatus('Prompt copiado para a área de transferência.', 'success');
+          return;
+        }
+      } catch (error) {
+        clipboardError = error;
+      }
+
+      try {
+        if (!copyTextWithFallback(text)) {
+          throw new Error('O navegador não permitiu copiar o texto.');
+        }
+        setCidiStatus('Prompt copiado para a área de transferência.', 'success');
+      } catch (fallbackError) {
+        console.error('Erro ao copiar o prompt CIDI:', { clipboardError, fallbackError });
+        setCidiStatus('Não foi possível copiar automaticamente. Selecione e copie o texto manualmente.', 'error');
+      }
+    }
+
+    if (generateCidiButton) generateCidiButton.addEventListener('click', generateCidiPrompt);
+    if (clearCidiButton) clearCidiButton.addEventListener('click', clearCidiForm);
+    if (copyCidiButton) copyCidiButton.addEventListener('click', copyCidiPrompt);
 
     function updatePresentation() {
       if (totalSlides === 0) return;
