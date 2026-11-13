@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modelagem de Negócios, Organização de Dados & Autonomia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              dark:    '#1E3A5F',
+              primary: '#2563EB',
+              mid:     '#3B82F6',
+              light:   '#DBEAFE',
+              subtle:  '#EFF6FF',
+              border:  '#BFDBFE',
+              text:    '#1F2937',
+              muted:   '#6B7280',
+              bg:      '#F8FAFC',
+              gray:    '#94A3B8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F1F5F9;
+      color: #1F2937;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .slide-container {
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 5rem);
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .mono-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72em;
+      background: #DBEAFE;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+      border-radius: 4px;
+      padding: 1px 6px;
+    }
+
+    /* Progress bar */
+    #progress-bar {
+      transition: width 0.35s ease;
+    }
+
+    /* TOC Modal */
+    #toc-modal {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(15,23,42,0.6);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+    }
+    #toc-modal.open { display: flex; }
+
+    /* Notes drawer */
+    #notes-drawer {
+      position: fixed;
+      top: 0; right: -420px;
+      width: 400px; height: 100vh;
+      background: #1E3A5F;
+      color: #E2E8F0;
+      z-index: 60;
+      transition: right 0.3s ease;
+      overflow-y: auto;
+      padding: 1.5rem;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+    }
+    #notes-drawer.open { right: 0; }
+
+    /* Quiz */
+    .quiz-opt {
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid #BFDBFE;
+    }
+    .quiz-opt:hover { border-color: #2563EB; background: #EFF6FF; }
+    .quiz-opt.correct { border-color: #16A34A; background: #DCFCE7; color: #15803D; }
+    .quiz-opt.wrong   { border-color: #DC2626; background: #FEE2E2; color: #B91C1C; }
+
+    /* Print */
+    @media print {
+      header, footer, #toc-modal, #notes-drawer { display: none !important; }
+      .slide { display: flex !important; page-break-after: always; height: 100vh; }
+      .slide-container { max-height: none; aspect-ratio: auto; }
+    }
+
+    /* Scrollbar in notes */
+    #notes-drawer::-webkit-scrollbar { width: 6px; }
+    #notes-drawer::-webkit-scrollbar-thumb { background: #3B82F6; border-radius: 3px; }
+
+    /* Canvas grid */
+    .canvas-cell {
+      border: 2px solid #BFDBFE;
+      border-radius: 8px;
+      background: #EFF6FF;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+    }
+    .canvas-cell .label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #2563EB;
+      margin-bottom: 4px;
+    }
+    .canvas-cell .content {
+      font-size: 0.65rem;
+      color: #374151;
+      line-height: 1.4;
+    }
+
+    /* PDCA wheel */
+    .pdca-card {
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    /* checklist item */
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #EFF6FF;
+      border-left: 3px solid #2563EB;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ═══════════════ STICKY HEADER ═══════════════ -->
+  <header class="sticky top-0 z-40 bg-brand-dark shadow-md flex items-center justify-between px-4 py-2 gap-4" style="min-height:3rem">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-primary flex-shrink-0">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+      </div>
+      <span class="text-white font-semibold text-sm truncate">Modelagem de Negócios & Organização de Dados</span>
+    </div>
+    <div class="flex items-center gap-3 flex-shrink-0">
+      <span class="text-blue-200 text-xs font-mono">
+        Slide <span id="cur-slide-num" class="text-white font-bold">1</span> / <span id="total-slide-num" class="text-white font-bold">14</span>
+      </span>
+      <button onclick="toggleTOC()" class="text-blue-200 hover:text-white transition-colors text-xs border border-blue-700 rounded px-2 py-1 hover:bg-blue-700">☰ Sumário</button>
+      <button onclick="toggleNotes()" class="text-blue-200 hover:text-white transition-colors text-xs border border-blue-700 rounded px-2 py-1 hover:bg-blue-700">📝 Notas</button>
+    </div>
+  </header>
+
+  <!-- Progress bar -->
+  <div class="h-1 bg-blue-900">
+    <div id="progress-bar" class="h-1 bg-brand-primary" style="width:7.14%"></div>
+  </div>
+
+  <!-- ═══════════════ SLIDES WRAPPER ═══════════════ -->
+  <main class="flex-1 flex items-center justify-center p-4">
+    <div class="slide-container w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-blue-100">
+
+      <!-- ══════ SLIDE 1 — CAPA ══════ -->
+      <section class="slide active" style="background: linear-gradient(135deg, #1E3A5F 0%, #1D4ED8 60%, #2563EB 100%);">
+        <div class="flex flex-col items-center justify-center h-full px-12 text-center relative">
+          <!-- decorative circles -->
+          <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10" style="background:radial-gradient(circle,#60A5FA,transparent);transform:translate(30%,-30%)"></div>
+          <div class="absolute bottom-0 left-0 w-48 h-48 rounded-full opacity-10" style="background:radial-gradient(circle,#93C5FD,transparent);transform:translate(-30%,30%)"></div>
+
+          <div class="inline-flex items-center gap-2 bg-white bg-opacity-15 rounded-full px-4 py-1 mb-6">
+            <span class="text-blue-200 text-xs font-semibold tracking-widest uppercase">Tecnologia da Informação</span>
+          </div>
+          <h1 class="text-4xl font-black text-white leading-tight mb-4">
+            Modelagem de Negócios<br>
+            <span class="text-blue-300">Organização de Dados</span><br>
+            <span class="text-blue-200 text-3xl">& Autonomia Profissional</span>
+          </h1>
+          <p class="text-blue-200 text-sm mt-4 max-w-xl">
+            Aprenda a entender um negócio, organizar informações, aplicar o PDCA e agir com autonomia e responsabilidade.
+          </p>
+          <div class="mt-8 flex gap-6 text-blue-300 text-xs">
+            <span>⏱ 50–60 min</span>
+            <span>📊 14 slides</span>
+            <span>🎯 Iniciantes em TI</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 2 — O QUE É MODELAGEM DE NEGÓCIOS ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <!-- header strip -->
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🏗️</span>
+            <h2 class="text-white font-bold text-lg">O que é Modelagem de Negócios?</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 2</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5 overflow-hidden">
+            <!-- left concept -->
+            <div class="flex-1 flex flex-col gap-4">
+              <div class="bg-brand-subtle rounded-xl p-5 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-2">📌 Definição</p>
+                <p class="text-brand-text text-sm leading-relaxed">
+                  Modelagem de negócios é a representação estruturada de como uma organização
+                  <strong>cria, entrega e captura valor</strong> — descrevendo seus processos,
+                  atividades, recursos e relacionamentos.
+                </p>
+              </div>
+              <div class="bg-white rounded-xl p-5 border border-blue-100 shadow-sm">
+                <p class="text-brand-primary font-bold text-sm mb-3">🔄 Componentes básicos</p>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div class="flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-2">
+                    <span class="text-brand-primary font-bold text-base">→</span>
+                    <div><strong>Entrada</strong><br><span class="text-brand-muted">O que chega ao processo</span></div>
+                  </div>
+                  <div class="flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-2">
+                    <span class="text-brand-primary font-bold text-base">⚙️</span>
+                    <div><strong>Atividade</strong><br><span class="text-brand-muted">O que é feito</span></div>
+                  </div>
+                  <div class="flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-2">
+                    <span class="text-brand-primary font-bold text-base">←</span>
+                    <div><strong>Saída</strong><br><span class="text-brand-muted">O resultado gerado</span></div>
+                  </div>
+                  <div class="flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-2">
+                    <span class="text-brand-primary font-bold text-base">🔗</span>
+                    <div><strong>Relação</strong><br><span class="text-brand-muted">Como os setores se conectam</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- right: example flow -->
+            <div class="w-72 flex flex-col gap-3">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Exemplo: Loja de Roupas</p>
+              <!-- flow diagram -->
+              <div class="flex flex-col gap-1 items-center text-xs">
+                <div class="w-full bg-brand-primary text-white rounded-lg px-4 py-2 text-center font-semibold">🧵 Fornecedor envia roupas</div>
+                <div class="text-brand-muted text-base">↓</div>
+                <div class="w-full bg-blue-100 text-brand-dark rounded-lg px-4 py-2 text-center border border-brand-border">📦 Estoque é cadastrado no sistema</div>
+                <div class="text-brand-muted text-base">↓</div>
+                <div class="w-full bg-blue-100 text-brand-dark rounded-lg px-4 py-2 text-center border border-brand-border">🛒 Cliente realiza compra</div>
+                <div class="text-brand-muted text-base">↓</div>
+                <div class="w-full bg-brand-dark text-white rounded-lg px-4 py-2 text-center font-semibold">📊 Venda registrada — relatório gerado</div>
+              </div>
+              <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 mt-1">
+                <p class="text-yellow-700 text-xs">💡 <strong>Por que modelar?</strong> Para entender como o negócio funciona antes de criar ou melhorar sistemas.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 3 — CANVAS ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🖼️</span>
+            <h2 class="text-white font-bold text-lg">Business Model Canvas</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 2.1</span>
+          </div>
+          <div class="flex flex-1 gap-5 px-8 py-4 overflow-hidden">
+            <!-- description -->
+            <div class="w-52 flex flex-col gap-3 justify-center">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-xs mb-1">O que é?</p>
+                <p class="text-xs text-brand-text leading-relaxed">Uma ferramenta visual de <strong>uma página</strong> que resume como um negócio funciona, usando 9 blocos interligados.</p>
+              </div>
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-xs mb-1">Para que serve?</p>
+                <p class="text-xs text-brand-text leading-relaxed">Mapear rapidamente um negócio, identificar problemas e oportunidades, e planejar sistemas de TI.</p>
+              </div>
+              <div class="bg-blue-900 rounded-xl p-3 text-white">
+                <p class="text-xs font-bold mb-1">💡 Dica prática</p>
+                <p class="text-blue-200 text-xs">Antes de criar qualquer banco de dados, entenda o Canvas da empresa!</p>
+              </div>
+            </div>
+            <!-- canvas grid -->
+            <div class="flex-1 overflow-hidden">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider mb-2">Exemplo: Plataforma de Cursos Online</p>
+              <div class="grid h-5/6" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap:6px; height:calc(100% - 1.5rem)">
+                <div class="canvas-cell" style="grid-row:1/3">
+                  <div class="label">Parceiros-Chave</div>
+                  <div class="content">• Instrutores<br>• Plataformas de pagamento<br>• Provedores de nuvem</div>
+                </div>
+                <div class="canvas-cell">
+                  <div class="label">Atividades-Chave</div>
+                  <div class="content">• Produção de conteúdo<br>• Suporte ao aluno<br>• Marketing digital</div>
+                </div>
+                <div class="canvas-cell" style="grid-row:1/3; background:#EFF6FF; border-color:#2563EB;">
+                  <div class="label" style="color:#1D4ED8">Proposta de Valor</div>
+                  <div class="content" style="color:#1E3A5F"><strong>Cursos acessíveis, certificados reconhecidos e aprendizado no próprio ritmo.</strong></div>
+                </div>
+                <div class="canvas-cell">
+                  <div class="label">Relacionamento</div>
+                  <div class="content">• Suporte via chat<br>• Comunidade online<br>• E-mails automáticos</div>
+                </div>
+                <div class="canvas-cell" style="grid-row:1/3">
+                  <div class="label">Segmentos de Clientes</div>
+                  <div class="content">• Profissionais em requalificação<br>• Estudantes universitários<br>• Empresas (treinamento)</div>
+                </div>
+                <div class="canvas-cell">
+                  <div class="label">Recursos-Chave</div>
+                  <div class="content">• Plataforma (sistema)<br>• Banco de dados<br>• Equipe de TI</div>
+                </div>
+                <div class="canvas-cell">
+                  <div class="label">Canais</div>
+                  <div class="content">• Site próprio<br>• App mobile<br>• Redes sociais</div>
+                </div>
+                <!-- full width bottom row -->
+                <div class="canvas-cell" style="grid-column:1/4; grid-row:2/3; background:#FEF3C7; border-color:#F59E0B;">
+                  <div class="label" style="color:#B45309">Estrutura de Custos</div>
+                  <div class="content">Servidores • Pagamento de instrutores • Marketing • Suporte técnico</div>
+                </div>
+                <div class="canvas-cell" style="grid-column:4/6; grid-row:2/3; background:#D1FAE5; border-color:#059669;">
+                  <div class="label" style="color:#065F46">Fontes de Receita</div>
+                  <div class="content">Mensalidades • Venda avulsa de cursos • Planos empresariais</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 4 — ORGANIZAÇÃO DE DADOS ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🗂️</span>
+            <h2 class="text-white font-bold text-lg">Organização de Dados</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 3</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-4">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-2">Por que organizar dados?</p>
+                <p class="text-sm text-brand-text">Dados desorganizados geram decisões erradas, retrabalho e prejuízos. Organizar é a base de qualquer sistema eficiente.</p>
+              </div>
+              <!-- 4 pillars -->
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex items-start gap-3">
+                  <span class="text-2xl">🏷️</span>
+                  <div>
+                    <p class="text-brand-dark font-bold text-xs">Classificação</p>
+                    <p class="text-brand-muted text-xs mt-1">Separar dados por tipo, categoria ou origem.</p>
+                  </div>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex items-start gap-3">
+                  <span class="text-2xl">📐</span>
+                  <div>
+                    <p class="text-brand-dark font-bold text-xs">Estruturação</p>
+                    <p class="text-brand-muted text-xs mt-1">Definir campos, formatos e padrões de preenchimento.</p>
+                  </div>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex items-start gap-3">
+                  <span class="text-2xl">🔍</span>
+                  <div>
+                    <p class="text-brand-dark font-bold text-xs">Identificação</p>
+                    <p class="text-brand-muted text-xs mt-1">Encontrar os dados relevantes para cada análise.</p>
+                  </div>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex items-start gap-3">
+                  <span class="text-2xl">🧹</span>
+                  <div>
+                    <p class="text-brand-dark font-bold text-xs">Limpeza</p>
+                    <p class="text-brand-muted text-xs mt-1">Remover duplicatas, corrigir erros e padronizar formatos.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- right: before/after -->
+            <div class="w-72 flex flex-col gap-3">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Antes × Depois</p>
+              <div class="bg-red-50 border border-red-200 rounded-xl p-3">
+                <p class="text-red-600 font-bold text-xs mb-2">❌ Dados desorganizados</p>
+                <table class="text-xs w-full">
+                  <tr class="text-red-700"><td>João silva</td><td>joao@</td><td>99999</td></tr>
+                  <tr class="text-red-700"><td>JOÃO SILVA</td><td>joao@gmail.com</td><td>(11) 99999-0000</td></tr>
+                  <tr class="text-red-700"><td>Ana</td><td></td><td>88-8888888</td></tr>
+                </table>
+              </div>
+              <div class="text-center text-brand-primary text-xl">↓ organizar ↓</div>
+              <div class="bg-green-50 border border-green-200 rounded-xl p-3">
+                <p class="text-green-700 font-bold text-xs mb-2">✅ Dados organizados</p>
+                <table class="text-xs w-full">
+                  <thead><tr class="text-green-800 font-bold border-b border-green-200"><td>Nome</td><td>E-mail</td><td>Telefone</td></tr></thead>
+                  <tr class="text-green-700"><td>João Silva</td><td>joao@gmail.com</td><td>(11) 99999-0000</td></tr>
+                  <tr class="text-green-700"><td>Ana Souza</td><td>—</td><td>(88) 88888-8888</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 5 — CHECKLIST ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">✅</span>
+            <h2 class="text-white font-bold text-lg">Roteiro de Trabalho — Checklist</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 3.1</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-3">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-1">O que é um Checklist?</p>
+                <p class="text-sm text-brand-text">Uma lista sequencial de tarefas ou verificações que garante que nada seja esquecido durante um processo de trabalho.</p>
+              </div>
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Exemplo: Levantamento de informações de um cliente</p>
+              <div class="flex flex-col gap-2">
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold mt-0.5">1.</span><div><strong>Identificar</strong> o setor ou processo a ser analisado</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold mt-0.5">2.</span><div><strong>Listar</strong> as informações necessárias (campos, dados)</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold mt-0.5">3.</span><div><strong>Definir</strong> as fontes de coleta (formulário, planilha, entrevista)</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold mt-0.5">4.</span><div><strong>Coletar</strong> os dados conforme o roteiro</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold mt-0.5">5.</span><div><strong>Verificar</strong> a qualidade e completude dos dados</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold mt-0.5">6.</span><div><strong>Organizar</strong> os dados em tabelas ou planilhas</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold mt-0.5">7.</span><div><strong>Validar</strong> as informações com o responsável</div></div>
+              </div>
+            </div>
+            <div class="w-64 flex flex-col gap-3 justify-center">
+              <div class="bg-brand-primary rounded-xl p-5 text-white text-center">
+                <div class="text-4xl mb-2">📋</div>
+                <p class="font-bold text-sm mb-1">Por que usar?</p>
+                <ul class="text-xs text-blue-100 text-left mt-2 space-y-1">
+                  <li>✔ Evita esquecimentos</li>
+                  <li>✔ Padroniza o processo</li>
+                  <li>✔ Facilita o trabalho em equipe</li>
+                  <li>✔ Reduz erros e retrabalho</li>
+                  <li>✔ Permite rastrear o progresso</li>
+                </ul>
+              </div>
+              <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 text-xs text-yellow-700">
+                💡 <strong>Analogia:</strong> Como o pré-voo de um piloto de avião — cada item precisa ser verificado antes de decolar!
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 6 — ORGANIZAÇÃO PARA ANÁLISE ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">📊</span>
+            <h2 class="text-white font-bold text-lg">Organização de Dados para Análise</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 3.2</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <!-- pipeline -->
+            <div class="flex-1 flex flex-col gap-4">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Pipeline de preparação de dados</p>
+              <div class="flex flex-col gap-2">
+                <!-- steps -->
+                <div class="flex items-center gap-3 bg-white rounded-xl p-3 border border-blue-100 shadow-sm">
+                  <div class="w-7 h-7 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0">1</div>
+                  <div class="text-xs"><strong class="text-brand-dark">Coleta</strong> — Formulários, sistemas, planilhas, APIs, cadastros</div>
+                </div>
+                <div class="ml-4 text-brand-primary text-sm">↓</div>
+                <div class="flex items-center gap-3 bg-white rounded-xl p-3 border border-blue-100 shadow-sm">
+                  <div class="w-7 h-7 rounded-full bg-brand-mid text-white flex items-center justify-center font-bold text-xs flex-shrink-0">2</div>
+                  <div class="text-xs"><strong class="text-brand-dark">Separação</strong> — Classificar por tipo: numérico, texto, data, booleano</div>
+                </div>
+                <div class="ml-4 text-brand-primary text-sm">↓</div>
+                <div class="flex items-center gap-3 bg-white rounded-xl p-3 border border-blue-100 shadow-sm">
+                  <div class="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">3</div>
+                  <div class="text-xs"><strong class="text-brand-dark">Padrões</strong> — Identificar repetições, tendências e anomalias</div>
+                </div>
+                <div class="ml-4 text-brand-primary text-sm">↓</div>
+                <div class="flex items-center gap-3 bg-brand-subtle rounded-xl p-3 border border-brand-border">
+                  <div class="w-7 h-7 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold text-xs flex-shrink-0">4</div>
+                  <div class="text-xs"><strong class="text-brand-primary">Pronto para análise!</strong> — Dados limpos, padronizados e organizados</div>
+                </div>
+              </div>
+            </div>
+            <!-- right panel -->
+            <div class="w-72 flex flex-col gap-3">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-xs mb-2">Exemplo prático: Vendas mensais</p>
+                <table class="text-xs w-full border-collapse">
+                  <thead>
+                    <tr class="bg-brand-primary text-white text-center">
+                      <th class="px-2 py-1 rounded-tl-md">Mês</th>
+                      <th class="px-2 py-1">Vendas</th>
+                      <th class="px-2 py-1 rounded-tr-md">Região</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-brand-text">
+                    <tr class="bg-white"><td class="px-2 py-1">Jan</td><td class="px-2 py-1 text-center">R$ 42.000</td><td class="px-2 py-1 text-center">Sul</td></tr>
+                    <tr class="bg-blue-50"><td class="px-2 py-1">Fev</td><td class="px-2 py-1 text-center">R$ 38.500</td><td class="px-2 py-1 text-center">Sul</td></tr>
+                    <tr class="bg-white"><td class="px-2 py-1">Mar</td><td class="px-2 py-1 text-center font-bold text-green-600">R$ 51.200</td><td class="px-2 py-1 text-center">Sul</td></tr>
+                  </tbody>
+                </table>
+                <p class="text-brand-muted text-xs mt-2">🔍 Padrão identificado: crescimento em março → investigar campanha de marketing</p>
+              </div>
+              <div class="bg-brand-dark rounded-xl p-4 text-white text-xs">
+                <p class="font-bold mb-2 text-blue-300">Tipos de dados mais comuns</p>
+                <div class="grid grid-cols-2 gap-1">
+                  <span class="bg-blue-900 rounded px-2 py-1">🔢 Numérico</span>
+                  <span class="bg-blue-900 rounded px-2 py-1">📝 Texto</span>
+                  <span class="bg-blue-900 rounded px-2 py-1">📅 Data/Hora</span>
+                  <span class="bg-blue-900 rounded px-2 py-1">✔ Booleano</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 7 — MÉTODOS E TÉCNICAS ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">⚙️</span>
+            <h2 class="text-white font-bold text-lg">Métodos e Técnicas de Trabalho</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 3.3</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 grid grid-cols-2 gap-4">
+              <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">🗓️</span>
+                  <p class="font-bold text-brand-dark text-sm">Planejamento</p>
+                </div>
+                <p class="text-xs text-brand-muted">Definir metas, prazos e responsáveis antes de executar qualquer tarefa.</p>
+                <div class="bg-blue-50 rounded-lg px-3 py-2 text-xs text-brand-primary">Ex: Criar um cronograma de levantamento de requisitos</div>
+              </div>
+              <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">🎯</span>
+                  <p class="font-bold text-brand-dark text-sm">Priorização</p>
+                </div>
+                <p class="text-xs text-brand-muted">Separar o urgente do importante. Trabalhar primeiro no que gera mais impacto.</p>
+                <div class="bg-blue-50 rounded-lg px-3 py-2 text-xs text-brand-primary">Ex: Matriz Urgente × Importante (Eisenhower)</div>
+              </div>
+              <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">📏</span>
+                  <p class="font-bold text-brand-dark text-sm">Padronização</p>
+                </div>
+                <p class="text-xs text-brand-muted">Criar procedimentos padrão para que qualquer pessoa da equipe possa executar a mesma tarefa.</p>
+                <div class="bg-blue-50 rounded-lg px-3 py-2 text-xs text-brand-primary">Ex: Procedimento Operacional Padrão (POP)</div>
+              </div>
+              <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">📊</span>
+                  <p class="font-bold text-brand-dark text-sm">Organização das atividades</p>
+                </div>
+                <p class="text-xs text-brand-muted">Dividir o trabalho em etapas menores, acompanhar o progresso e ajustar quando necessário.</p>
+                <div class="bg-blue-50 rounded-lg px-3 py-2 text-xs text-brand-primary">Ex: Kanban — A fazer | Em andamento | Concluído</div>
+              </div>
+            </div>
+            <!-- kanban visual -->
+            <div class="w-64 flex flex-col gap-3">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Exemplo: Kanban</p>
+              <div class="bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden flex-1 flex flex-col">
+                <div class="grid grid-cols-3 gap-0 h-full text-xs">
+                  <div class="border-r border-blue-100 p-2 flex flex-col gap-1">
+                    <div class="bg-slate-100 text-slate-600 font-bold text-center rounded py-1 text-xs">A Fazer</div>
+                    <div class="bg-slate-50 border border-slate-200 rounded p-1">Mapear processos</div>
+                    <div class="bg-slate-50 border border-slate-200 rounded p-1">Entrevistar clientes</div>
+                  </div>
+                  <div class="border-r border-blue-100 p-2 flex flex-col gap-1">
+                    <div class="bg-blue-100 text-brand-primary font-bold text-center rounded py-1 text-xs">Em andamento</div>
+                    <div class="bg-blue-50 border border-brand-border rounded p-1">Montar checklist</div>
+                  </div>
+                  <div class="p-2 flex flex-col gap-1">
+                    <div class="bg-green-100 text-green-700 font-bold text-center rounded py-1 text-xs">Concluído</div>
+                    <div class="bg-green-50 border border-green-200 rounded p-1">Levantar requisitos</div>
+                    <div class="bg-green-50 border border-green-200 rounded p-1">Definir Canvas</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 8 — ANÁLISE DE DADOS E INFORMAÇÕES ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🔎</span>
+            <h2 class="text-white font-bold text-lg">Análise de Dados e Informações</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 3.4</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-4">
+              <!-- dado -> informação -> conhecimento -->
+              <div class="flex items-center gap-2">
+                <div class="bg-slate-100 border border-slate-300 rounded-xl px-5 py-3 text-center flex-1">
+                  <p class="text-slate-500 text-xs font-bold uppercase">Dado</p>
+                  <p class="text-brand-dark text-sm font-bold mt-1">R$ 51.200</p>
+                  <p class="text-xs text-slate-400 mt-1">Fato bruto, sem contexto</p>
+                </div>
+                <div class="text-brand-primary text-xl font-bold">→</div>
+                <div class="bg-brand-subtle border border-brand-border rounded-xl px-5 py-3 text-center flex-1">
+                  <p class="text-brand-primary text-xs font-bold uppercase">Informação</p>
+                  <p class="text-brand-dark text-sm font-bold mt-1">Vendas de março<br>cresceram 33%</p>
+                  <p class="text-xs text-brand-muted mt-1">Dado + contexto</p>
+                </div>
+                <div class="text-brand-primary text-xl font-bold">→</div>
+                <div class="bg-brand-dark rounded-xl px-5 py-3 text-center flex-1">
+                  <p class="text-blue-300 text-xs font-bold uppercase">Conhecimento</p>
+                  <p class="text-white text-sm font-bold mt-1">Campanha de março<br>deve ser repetida</p>
+                  <p class="text-xs text-blue-300 mt-1">Informação + decisão</p>
+                </div>
+              </div>
+              <!-- analysis steps -->
+              <div class="grid grid-cols-2 gap-3 mt-2">
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm text-xs">
+                  <p class="font-bold text-brand-primary mb-1">🔍 Interpretação</p>
+                  <p class="text-brand-muted">Compreender o que os dados realmente significam no contexto do negócio.</p>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm text-xs">
+                  <p class="font-bold text-brand-primary mb-1">⚠️ Identificação de problemas</p>
+                  <p class="text-brand-muted">Encontrar quedas, inconsistências ou anomalias que precisam de ação.</p>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm text-xs">
+                  <p class="font-bold text-brand-primary mb-1">💡 Oportunidades</p>
+                  <p class="text-brand-muted">Padrões que indicam onde a empresa pode crescer ou melhorar.</p>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm text-xs">
+                  <p class="font-bold text-brand-primary mb-1">🎯 Tomada de decisão</p>
+                  <p class="text-brand-muted">Usar os dados para escolher a melhor ação com menor risco.</p>
+                </div>
+              </div>
+            </div>
+            <!-- right: example -->
+            <div class="w-64 flex flex-col gap-3">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Exemplo empresa</p>
+              <div class="bg-brand-dark rounded-xl p-4 text-white text-xs flex flex-col gap-2 flex-1">
+                <p class="text-blue-300 font-bold">📦 Situação: Queda nas vendas</p>
+                <div class="bg-blue-900 rounded-lg p-2 mt-1">
+                  <p class="text-blue-200">📊 <strong>Dado:</strong> Vendas caíram 20% em julho</p>
+                </div>
+                <div class="bg-blue-900 rounded-lg p-2">
+                  <p class="text-blue-200">📰 <strong>Análise:</strong> Concorrente lançou promoção</p>
+                </div>
+                <div class="bg-blue-900 rounded-lg p-2">
+                  <p class="text-blue-200">🛒 <strong>Decisão:</strong> Criar campanha de fidelidade</p>
+                </div>
+                <div class="bg-green-800 rounded-lg p-2 mt-1">
+                  <p class="text-green-200">✅ <strong>Resultado:</strong> Recuperação de 15% em agosto</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 9 — PDCA CONCEITO ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🔄</span>
+            <h2 class="text-white font-bold text-lg">Ciclo PDCA — Melhoria Contínua</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 3.5</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <!-- PDCA cards -->
+            <div class="flex-1 grid grid-cols-2 gap-4">
+              <div class="pdca-card bg-blue-600 text-white">
+                <div class="text-3xl mb-2">📋</div>
+                <div class="text-xs font-black tracking-widest uppercase text-blue-200 mb-1">P — Plan</div>
+                <div class="font-bold text-sm mb-2">Planejar</div>
+                <ul class="text-xs text-blue-100 text-left space-y-1 w-full px-4">
+                  <li>• Identificar o problema</li>
+                  <li>• Definir metas</li>
+                  <li>• Escolher ações</li>
+                </ul>
+              </div>
+              <div class="pdca-card bg-blue-500 text-white">
+                <div class="text-3xl mb-2">🚀</div>
+                <div class="text-xs font-black tracking-widest uppercase text-blue-200 mb-1">D — Do</div>
+                <div class="font-bold text-sm mb-2">Executar</div>
+                <ul class="text-xs text-blue-100 text-left space-y-1 w-full px-4">
+                  <li>• Implementar o plano</li>
+                  <li>• Treinar a equipe</li>
+                  <li>• Registrar resultados</li>
+                </ul>
+              </div>
+              <div class="pdca-card bg-indigo-600 text-white">
+                <div class="text-3xl mb-2">🔍</div>
+                <div class="text-xs font-black tracking-widest uppercase text-indigo-200 mb-1">C — Check</div>
+                <div class="font-bold text-sm mb-2">Verificar</div>
+                <ul class="text-xs text-indigo-100 text-left space-y-1 w-full px-4">
+                  <li>• Comparar com a meta</li>
+                  <li>• Analisar desvios</li>
+                  <li>• Usar dados coletados</li>
+                </ul>
+              </div>
+              <div class="pdca-card bg-slate-700 text-white">
+                <div class="text-3xl mb-2">🛠️</div>
+                <div class="text-xs font-black tracking-widest uppercase text-slate-300 mb-1">A — Act</div>
+                <div class="font-bold text-sm mb-2">Agir / Corrigir</div>
+                <ul class="text-xs text-slate-300 text-left space-y-1 w-full px-4">
+                  <li>• Corrigir os desvios</li>
+                  <li>• Padronizar o sucesso</li>
+                  <li>• Reiniciar o ciclo 🔄</li>
+                </ul>
+              </div>
+            </div>
+            <!-- right -->
+            <div class="w-64 flex flex-col gap-4 justify-center">
+              <!-- circular diagram SVG -->
+              <svg viewBox="0 0 200 200" class="w-40 h-40 mx-auto" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="#E2E8F0" stroke-width="3"/>
+                <!-- P sector -->
+                <path d="M100,100 L100,10 A90,90 0 0,1 190,100 Z" fill="#2563EB" opacity="0.9"/>
+                <!-- D sector -->
+                <path d="M100,100 L190,100 A90,90 0 0,1 100,190 Z" fill="#3B82F6" opacity="0.9"/>
+                <!-- C sector -->
+                <path d="M100,100 L100,190 A90,90 0 0,1 10,100 Z" fill="#4F46E5" opacity="0.9"/>
+                <!-- A sector -->
+                <path d="M100,100 L10,100 A90,90 0 0,1 100,10 Z" fill="#475569" opacity="0.9"/>
+                <circle cx="100" cy="100" r="30" fill="white"/>
+                <text x="100" y="97" text-anchor="middle" font-size="10" font-weight="bold" fill="#1E3A5F" font-family="Inter">PDCA</text>
+                <text x="100" y="109" text-anchor="middle" font-size="7" fill="#64748B" font-family="Inter">Ciclo</text>
+                <!-- labels -->
+                <text x="142" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="white" font-family="Inter">P</text>
+                <text x="155" y="142" text-anchor="middle" font-size="12" font-weight="bold" fill="white" font-family="Inter">D</text>
+                <text x="55" y="155" text-anchor="middle" font-size="12" font-weight="bold" fill="white" font-family="Inter">C</text>
+                <text x="45" y="58" text-anchor="middle" font-size="12" font-weight="bold" fill="white" font-family="Inter">A</text>
+              </svg>
+              <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-3 text-xs text-yellow-700">
+                💡 O PDCA é <strong>cíclico</strong> — após o A, retorna ao P com melhorias incorporadas. A empresa evolui a cada ciclo!
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 10 — PDCA EXEMPLO ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">📌</span>
+            <h2 class="text-white font-bold text-lg">PDCA na prática — Estudo de caso</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 3.5</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-3">
+              <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-xs">
+                <p class="text-red-700 font-bold mb-1">🚨 Problema: Clientes reclamando de demora no atendimento</p>
+                <p class="text-red-600">Tempo médio de resposta: 48 horas. Meta: 4 horas.</p>
+              </div>
+              <!-- PDCA steps -->
+              <div class="flex flex-col gap-2">
+                <div class="flex gap-3 items-stretch">
+                  <div class="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl flex-shrink-0">P</div>
+                  <div class="bg-blue-50 border border-brand-border rounded-xl p-3 flex-1 text-xs">
+                    <p class="font-bold text-brand-dark mb-1">Planejar</p>
+                    <p class="text-brand-muted">Mapear o processo de atendimento; identificar gargalos; treinar 2 novos atendentes; implantar sistema de tickets.</p>
+                  </div>
+                </div>
+                <div class="flex gap-3 items-stretch">
+                  <div class="w-14 h-14 rounded-xl bg-blue-500 flex items-center justify-center text-white font-black text-xl flex-shrink-0">D</div>
+                  <div class="bg-blue-50 border border-brand-border rounded-xl p-3 flex-1 text-xs">
+                    <p class="font-bold text-brand-dark mb-1">Executar</p>
+                    <p class="text-brand-muted">Treinar equipe, configurar sistema de tickets, criar SLA (prazo máximo de resposta), comunicar ao cliente.</p>
+                  </div>
+                </div>
+                <div class="flex gap-3 items-stretch">
+                  <div class="w-14 h-14 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-xl flex-shrink-0">C</div>
+                  <div class="bg-blue-50 border border-brand-border rounded-xl p-3 flex-1 text-xs">
+                    <p class="font-bold text-brand-dark mb-1">Verificar</p>
+                    <p class="text-brand-muted">Após 30 dias: tempo médio caiu para 6 horas. Satisfação do cliente subiu de 62% para 84%.</p>
+                  </div>
+                </div>
+                <div class="flex gap-3 items-stretch">
+                  <div class="w-14 h-14 rounded-xl bg-slate-700 flex items-center justify-center text-white font-black text-xl flex-shrink-0">A</div>
+                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex-1 text-xs">
+                    <p class="font-bold text-brand-dark mb-1">Agir</p>
+                    <p class="text-brand-muted">Meta não atingida (6h vs 4h). Novo ciclo: automação de triagem de tickets e chatbot para respostas simples.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="w-56 flex flex-col gap-3 justify-center">
+              <div class="bg-brand-primary rounded-xl p-5 text-white text-center">
+                <p class="text-3xl mb-2">📈</p>
+                <p class="font-bold text-sm">Resultado do 1º ciclo</p>
+                <div class="mt-3 space-y-2 text-xs text-blue-100">
+                  <div class="flex justify-between items-center">
+                    <span>Tempo resposta</span>
+                    <span class="bg-green-500 text-white rounded px-2 py-0.5 font-bold">-87,5%</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span>Satisfação</span>
+                    <span class="bg-green-500 text-white rounded px-2 py-0.5 font-bold">+22%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-3 text-xs text-yellow-700">
+                🔄 O ciclo <strong>nunca termina</strong> — sempre há algo a melhorar!
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 11 — AUTONOMIA ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🚀</span>
+            <h2 class="text-white font-bold text-lg">Autonomia Profissional</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 4</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-4">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-1">O que é autonomia?</p>
+                <p class="text-sm text-brand-text">É a capacidade de <strong>tomar decisões, resolver problemas e executar tarefas</strong> sem depender constantemente de supervisão — mas sempre <em>com responsabilidade</em>.</p>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm text-xs flex flex-col gap-2">
+                  <span class="text-xl">🧠</span>
+                  <p class="font-bold text-brand-dark">Tomada de decisão</p>
+                  <p class="text-brand-muted">Avaliar opções e escolher a melhor com base nos dados disponíveis.</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm text-xs flex flex-col gap-2">
+                  <span class="text-xl">🔧</span>
+                  <p class="font-bold text-brand-dark">Busca por soluções</p>
+                  <p class="text-brand-muted">Pesquisar, testar e implementar soluções sem esperar que alguém resolva por você.</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm text-xs flex flex-col gap-2">
+                  <span class="text-xl">📋</span>
+                  <p class="font-bold text-brand-dark">Trabalho independente</p>
+                  <p class="text-brand-muted">Organizar a própria agenda, prioridades e entregas com disciplina.</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm text-xs flex flex-col gap-2">
+                  <span class="text-xl">🤝</span>
+                  <p class="font-bold text-brand-dark">Responsabilidade</p>
+                  <p class="text-brand-muted">Responder pelos resultados das próprias decisões — bons ou ruins.</p>
+                </div>
+              </div>
+            </div>
+            <!-- autonomia spectrum -->
+            <div class="w-64 flex flex-col gap-3 justify-center">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider text-center">Espectro da autonomia</p>
+              <div class="flex flex-col gap-2 text-xs">
+                <div class="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  <span class="text-red-500 font-bold">😰</span>
+                  <div><strong>Dependência total</strong><br><span class="text-brand-muted">Precisa de aprovação para tudo</span></div>
+                </div>
+                <div class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                  <span class="text-yellow-500 font-bold">🤔</span>
+                  <div><strong>Iniciativa básica</strong><br><span class="text-brand-muted">Age em tarefas rotineiras</span></div>
+                </div>
+                <div class="flex items-center gap-2 bg-blue-50 border border-brand-border rounded-lg px-3 py-2">
+                  <span class="text-brand-primary font-bold">💪</span>
+                  <div><strong>Autonomia saudável</strong><br><span class="text-brand-muted">Decide + comunica + responde</span></div>
+                </div>
+                <div class="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <span class="text-green-600 font-bold">🌟</span>
+                  <div><strong>Liderança</strong><br><span class="text-brand-muted">Guia outros com autonomia</span></div>
+                </div>
+              </div>
+              <div class="bg-brand-dark rounded-xl p-3 text-white text-xs text-center">
+                🎯 O objetivo é a <strong class="text-blue-300">Autonomia Saudável</strong>: liberdade + responsabilidade.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 12 — CONSEQUÊNCIAS ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">⚖️</span>
+            <h2 class="text-white font-bold text-lg">Consequências Favoráveis e Desfavoráveis</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 4.1</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <!-- favorable -->
+            <div class="flex-1 bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden">
+              <div class="bg-green-600 px-4 py-2">
+                <p class="text-white font-bold text-sm">✅ Autonomia com responsabilidade</p>
+              </div>
+              <div class="p-4 flex flex-col gap-3 text-xs">
+                <div class="flex items-start gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <span class="text-green-600 font-bold mt-0.5">+</span>
+                  <div><strong>Maior produtividade</strong><br><span class="text-brand-muted">Menos tempo esperando aprovações, mais tarefas concluídas.</span></div>
+                </div>
+                <div class="flex items-start gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <span class="text-green-600 font-bold mt-0.5">+</span>
+                  <div><strong>Resolução rápida de problemas</strong><br><span class="text-brand-muted">Equipe age imediatamente, sem esperar o gestor para cada detalhe.</span></div>
+                </div>
+                <div class="flex items-start gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <span class="text-green-600 font-bold mt-0.5">+</span>
+                  <div><strong>Melhoria nos resultados</strong><br><span class="text-brand-muted">Profissionais autônomos inovam e encontram soluções criativas.</span></div>
+                </div>
+                <div class="flex items-start gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <span class="text-green-600 font-bold mt-0.5">+</span>
+                  <div><strong>Crescimento profissional</strong><br><span class="text-brand-muted">Quem age com autonomia responsável é percebido como líder.</span></div>
+                </div>
+              </div>
+            </div>
+            <!-- divider -->
+            <div class="flex flex-col items-center justify-center gap-2">
+              <div class="text-brand-muted text-xs font-bold">VS</div>
+              <div class="w-px h-32 bg-blue-200"></div>
+            </div>
+            <!-- unfavorable -->
+            <div class="flex-1 bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden">
+              <div class="bg-red-600 px-4 py-2">
+                <p class="text-white font-bold text-sm">❌ Autonomia sem responsabilidade</p>
+              </div>
+              <div class="p-4 flex flex-col gap-3 text-xs">
+                <div class="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  <span class="text-red-600 font-bold mt-0.5">−</span>
+                  <div><strong>Decisões incorretas</strong><br><span class="text-brand-muted">Agir sem informação ou sem alinhamento gera erros custosos.</span></div>
+                </div>
+                <div class="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  <span class="text-red-600 font-bold mt-0.5">−</span>
+                  <div><strong>Falhas de comunicação</strong><br><span class="text-brand-muted">Equipe age sem informar o grupo — trabalho duplicado ou contraditório.</span></div>
+                </div>
+                <div class="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  <span class="text-red-600 font-bold mt-0.5">−</span>
+                  <div><strong>Impactos negativos no projeto</strong><br><span class="text-brand-muted">Um passo errado pode comprometer o cronograma e o orçamento.</span></div>
+                </div>
+                <div class="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  <span class="text-red-600 font-bold mt-0.5">−</span>
+                  <div><strong>Perda de confiança</strong><br><span class="text-brand-muted">Decisões ruins sem transparência destroem a credibilidade.</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 13 — ATIVIDADE PRÁTICA ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🧪</span>
+            <h2 class="text-white font-bold text-lg">Atividade de Fixação</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Prática</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-4 overflow-hidden">
+            <!-- scenario -->
+            <div class="flex-1 flex flex-col gap-3 overflow-hidden">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-2">🏪 Situação: Empresa "TechVendas Ltda."</p>
+                <p class="text-xs text-brand-text leading-relaxed">Uma loja de eletrônicos percebeu que suas vendas online caíram 30% em 3 meses consecutivos. O gestor pediu à equipe de TI para <strong>analisar os dados e propor soluções</strong>. Os dados disponíveis são: relatórios de vendas, cadastro de clientes, histórico de reclamações e tempo médio de entrega.</p>
+              </div>
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Responda em equipe:</p>
+              <div class="flex flex-col gap-2 overflow-y-auto">
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold">1.</span><div>Como você <strong>organizaria os dados</strong> disponíveis para iniciar a análise? Quais campos seriam mais relevantes?</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold">2.</span><div>Monte um <strong>checklist</strong> com as 5 primeiras etapas do seu roteiro de trabalho.</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold">3.</span><div>Como aplicaria o <strong>Ciclo PDCA</strong> para resolver o problema de queda nas vendas? Descreva cada etapa.</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold">4.</span><div>Que decisão você tomaria de forma <strong>autônoma</strong> e qual decisão dependeria da aprovação do gestor? Justifique.</div></div>
+                <div class="check-item text-xs"><span class="text-brand-primary font-bold">5.</span><div>Desenhe um <strong>Canvas simplificado</strong> (3 blocos) para a TechVendas: Proposta de Valor, Clientes e Canais.</div></div>
+              </div>
+            </div>
+            <!-- quiz -->
+            <div class="w-72 flex flex-col gap-2">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Quiz rápido</p>
+              <div id="quiz-box" class="bg-white rounded-xl border border-blue-100 shadow-sm p-4 flex flex-col gap-3 text-xs overflow-y-auto flex-1">
+                <div id="quiz-content">
+                  <p id="quiz-q-num" class="text-brand-primary font-bold text-xs mb-1">Questão 1 de 5</p>
+                  <p id="quiz-question" class="text-brand-dark font-semibold text-sm mb-3"></p>
+                  <div id="quiz-options" class="flex flex-col gap-2"></div>
+                  <div id="quiz-feedback" class="hidden mt-3 p-2 rounded-lg text-xs"></div>
+                  <button id="quiz-next" onclick="nextQuestion()" class="hidden mt-3 w-full bg-brand-primary text-white rounded-lg py-2 font-bold hover:bg-blue-700 transition-colors text-xs">Próxima →</button>
+                </div>
+                <div id="quiz-score" class="hidden text-center py-4">
+                  <div class="text-4xl mb-2" id="quiz-emoji">🏆</div>
+                  <p class="font-bold text-brand-dark text-sm" id="quiz-score-text"></p>
+                  <button onclick="resetQuiz()" class="mt-3 bg-brand-primary text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-blue-700 transition-colors">Tentar novamente</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 14 — ENCERRAMENTO ══════ -->
+      <section class="slide" style="background: linear-gradient(135deg, #1E3A5F 0%, #1D4ED8 60%, #2563EB 100%);">
+        <div class="flex flex-col items-center justify-center h-full px-12 text-center relative">
+          <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-8 left-8 w-32 h-32 rounded-full bg-blue-400 blur-2xl"></div>
+            <div class="absolute bottom-8 right-8 w-40 h-40 rounded-full bg-indigo-400 blur-2xl"></div>
+          </div>
+
+          <div class="relative z-10 w-full max-w-3xl">
+            <h2 class="text-3xl font-black text-white mb-6">7 Lições desta Aula</h2>
+            <div class="grid grid-cols-7 gap-2 mb-8">
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20">
+                <div class="text-xl mb-1">🏗️</div>
+                <p class="text-blue-200 text-xs font-bold">Modele antes de programar</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20">
+                <div class="text-xl mb-1">🖼️</div>
+                <p class="text-blue-200 text-xs font-bold">Canvas resume o negócio em 9 blocos</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20">
+                <div class="text-xl mb-1">🗂️</div>
+                <p class="text-blue-200 text-xs font-bold">Dados organizados = decisões melhores</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20">
+                <div class="text-xl mb-1">✅</div>
+                <p class="text-blue-200 text-xs font-bold">Checklist evita esquecimentos</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20">
+                <div class="text-xl mb-1">🔄</div>
+                <p class="text-blue-200 text-xs font-bold">PDCA garante melhoria contínua</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20">
+                <div class="text-xl mb-1">🚀</div>
+                <p class="text-blue-200 text-xs font-bold">Autonomia + responsabilidade = crescimento</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20">
+                <div class="text-xl mb-1">⚖️</div>
+                <p class="text-blue-200 text-xs font-bold">Sem responsabilidade, autonomia vira risco</p>
+              </div>
+            </div>
+            <div class="inline-flex items-center gap-2 bg-white bg-opacity-20 rounded-full px-6 py-2">
+              <span class="text-white font-semibold text-sm">Obrigado pela atenção!</span>
+              <span class="text-blue-300">🎓</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- end slide-container -->
+  </main>
+
+  <!-- ═══════════════ STICKY FOOTER ═══════════════ -->
+  <footer class="sticky bottom-0 z-40 bg-white border-t border-blue-100 shadow-md flex items-center justify-between px-6 py-2">
+    <button onclick="prevSlide()" id="btn-prev"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 text-brand-dark text-sm font-semibold hover:bg-brand-subtle hover:border-brand-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+      ← Anterior
+    </button>
+
+    <!-- dot indicators -->
+    <div class="flex items-center gap-1.5 flex-wrap justify-center max-w-lg">
+      <div id="dot-indicators" class="flex gap-1.5 flex-wrap justify-center"></div>
+    </div>
+
+    <button onclick="nextSlide()" id="btn-next"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-blue-700 transition-all">
+      Próximo →
+    </button>
+  </footer>
+
+  <!-- ═══════════════ TOC MODAL ═══════════════ -->
+  <div id="toc-modal" onclick="closeTOCOutside(event)">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 mx-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-brand-dark text-lg">📑 Sumário</h3>
+        <button onclick="toggleTOC()" class="text-brand-muted hover:text-brand-dark transition-colors text-xl">✕</button>
+      </div>
+      <div id="toc-list" class="flex flex-col gap-1 max-h-80 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ NOTES DRAWER ═══════════════ -->
+  <div id="notes-drawer">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-blue-200 text-sm">📝 Notas do Professor</h3>
+      <button onclick="toggleNotes()" class="text-blue-400 hover:text-white text-xl transition-colors">✕</button>
+    </div>
+    <div id="notes-content" class="text-sm leading-relaxed"></div>
+  </div>
+
+  <!-- ═══════════════ KEYBOARD HINT ═══════════════ -->
+  <div id="key-hint" class="fixed bottom-16 left-4 bg-brand-dark bg-opacity-90 text-white text-xs rounded-xl px-4 py-2 z-50 transition-opacity duration-500">
+    ⌨️ Teclas: <strong>→/Space</strong> avançar &nbsp;|&nbsp; <strong>←</strong> voltar &nbsp;|&nbsp; <strong>F</strong> tela cheia &nbsp;|&nbsp; <strong>M</strong> sumário &nbsp;|&nbsp; <strong>P</strong> notas
+  </div>
+
+  <script>
+  // ─── DATA ───────────────────────────────────────────────
+  const slidesMeta = [
+    { title: "Capa", module: "Apresentação" },
+    { title: "Modelagem de Negócios", module: "Módulo 2" },
+    { title: "Business Model Canvas", module: "Módulo 2.1" },
+    { title: "Organização de Dados", module: "Módulo 3" },
+    { title: "Checklist / Roteiro de Trabalho", module: "Módulo 3.1" },
+    { title: "Organização de Dados para Análise", module: "Módulo 3.2" },
+    { title: "Métodos e Técnicas de Trabalho", module: "Módulo 3.3" },
+    { title: "Análise de Dados e Informações", module: "Módulo 3.4" },
+    { title: "Ciclo PDCA — Conceito", module: "Módulo 3.5" },
+    { title: "PDCA — Estudo de Caso", module: "Módulo 3.5" },
+    { title: "Autonomia Profissional", module: "Módulo 4" },
+    { title: "Consequências Favoráveis e Desfavoráveis", module: "Módulo 4.1" },
+    { title: "Atividade de Fixação + Quiz", module: "Prática" },
+    { title: "Encerramento — 7 Lições", module: "Fechamento" },
+  ];
+
+  const teacherNotes = [
+    { note: "Apresente o objetivo da aula. Pergunte aos alunos: 'Como vocês acham que uma empresa organiza suas informações?'. Levante expectativas.", prompt: "💬 Pergunta de abertura: Alguém sabe o que é um modelo de negócios?" },
+    { note: "Enfatize a diferença entre processo e sistema: processos existem sem tecnologia; sistemas de TI automatizam processos existentes. Sem entender o processo, o sistema falha.", prompt: "💬 Peça a um aluno para identificar entradas e saídas de um processo que ele conhece." },
+    { note: "O Canvas é uma ferramenta muito visual. Se possível, projete um Canvas em branco e preencha com os alunos em tempo real com um exemplo que eles conhecem (ex: escola, lanchonete).", prompt: "💬 Atividade rápida: em duplas, identifiquem 2 segmentos de clientes de uma empresa que vocês usam." },
+    { note: "Use o exemplo visual do 'antes e depois'. Mostre dados reais de uma planilha desorganizada e discuta quais problemas isso causaria em uma empresa.", prompt: "💬 Pergunta: Que problemas acontecem quando os dados de um cliente estão errados no sistema?" },
+    { note: "Checklists são usados em aviação, medicina e construção civil. Mencione esses casos para mostrar que a ferramenta é séria e comprovada. Distribua um checklist em papel para os alunos preencherem.", prompt: "💬 Desafio: Montem um checklist de 5 itens para 'cadastrar um novo fornecedor'." },
+    { note: "Foque na ideia de que organizar dados é pré-requisito para qualquer análise. Dados sujos = análise errada = decisão errada. O custo de não organizar é muito maior que o custo de organizar.", prompt: "💬 Pergunta: Que tipo de padrão vocês buscariam em dados de vendas de uma loja de roupas?" },
+    { note: "O Kanban pode ser demonstrado com post-its na lousa dividida em 3 colunas. Peça aos alunos que movam os post-its conforme o status das tarefas.", prompt: "💬 Atividade: Listem 3 tarefas do projeto de vocês e classifiquem no Kanban." },
+    { note: "O tripé Dado → Informação → Conhecimento é fundamental. Use um exemplo simples: temperatura (dado), 'está quente' (informação), 'levar sombrinha' (conhecimento/decisão).", prompt: "💬 Pergunta: Qual a diferença entre ter o dado de que 500 clientes reclamaram e saber o que fazer com isso?" },
+    { note: "O PDCA parece simples mas é poderoso. Mencione que empresas como Toyota e Google o utilizam. O segredo é o 'A': a maioria das empresas para no 'D' e não verifica nem age.", prompt: "💬 Pergunta: Por que tantas empresas têm problemas que se repetem mês após mês sem resolver?" },
+    { note: "Percorra o estudo de caso passo a passo. Peça aos alunos para calcularem a melhoria percentual. Destaque que o objetivo de 4h não foi atingido, mas o ciclo continua — isso é melhoria contínua.", prompt: "💬 Desafio: Se no 2º ciclo o tempo cair de 6h para 3,5h, qual foi a melhoria em relação à meta?" },
+    { note: "Autonomia não é 'fazer o que quiser'. É uma responsabilidade maior. Mencione que profissionais autônomos ganham mais confiança dos gestores e, consequentemente, mais oportunidades.", prompt: "💬 Debate: Já passaram por uma situação em que tomaram uma decisão sozinhos e deu certo? E errado?" },
+    { note: "O slide de consequências é o mais importante para formação de caráter profissional. Enfatize a coluna negativa: autonomia sem responsabilidade é irresponsabilidade. Dê exemplos reais.", prompt: "💬 Situação-problema: Um desenvolvedor encontra um bug crítico às 18h. O gestor está indisponível. O que ele deve fazer?" },
+    { note: "Para o quiz, dê 2 minutos por questão. Para a atividade em equipe, forme grupos de 3-4 alunos e dê 15 minutos. Peça uma equipe para apresentar as respostas.", prompt: "💬 Instrução: Cada grupo escolhe um porta-voz para apresentar a aplicação do PDCA ao caso da TechVendas." },
+    { note: "Use os 7 cards para fazer uma revisão coletiva. Aponte para cada card e peça a um aluno diferente para explicar o conceito com suas próprias palavras.", prompt: "💬 Encerramento: O que vocês vão levar desta aula para o dia a dia profissional de vocês?" },
+  ];
+
+  // ─── QUIZ DATA ───────────────────────────────────────────────
+  const quizData = [
+    {
+      q: "O que é o Business Model Canvas?",
+      opts: [
+        "Uma ferramenta visual de uma página com 9 blocos que descreve como um negócio funciona.",
+        "Um software de banco de dados para empresas.",
+        "Um tipo de relatório financeiro trimestral.",
+        "Um método de programação orientada a objetos."
+      ],
+      correct: 0,
+      explanation: "O Canvas é uma ferramenta de planejamento estratégico que resume o modelo de negócio em 9 elementos interligados, em uma única folha."
+    },
+    {
+      q: "Qual das opções descreve corretamente o 'C' do ciclo PDCA?",
+      opts: [
+        "Coletar — coletar todos os dados disponíveis.",
+        "Corrigir — corrigir erros de digitação nos relatórios.",
+        "Verificar — comparar os resultados obtidos com as metas definidas.",
+        "Criar — criar um novo processo do zero."
+      ],
+      correct: 2,
+      explanation: "O 'C' vem de 'Check' (Verificar). Nesta etapa, comparamos o que foi alcançado com o que foi planejado, analisando desvios e causas."
+    },
+    {
+      q: "Por que a organização de dados é importante antes de fazer uma análise?",
+      opts: [
+        "Para que os dados fiquem mais bonitos nas planilhas.",
+        "Para que qualquer análise seja realizada mais rapidamente, sem necessidade de verificação.",
+        "Porque dados desorganizados geram análises incorretas, decisões erradas e retrabalho.",
+        "Porque o banco de dados exige dados organizados por lei."
+      ],
+      correct: 2,
+      explanation: "Dados desorganizados (duplicados, inconsistentes, incompletos) produzem análises incorretas que levam a decisões ruins e prejuízo para a empresa."
+    },
+    {
+      q: "Qual é a principal diferença entre autonomia saudável e autonomia sem responsabilidade?",
+      opts: [
+        "Não há diferença; qualquer forma de autonomia é positiva.",
+        "A autonomia saudável combina liberdade de decisão com responsabilidade pelos resultados.",
+        "A autonomia sem responsabilidade é melhor porque acelera o trabalho.",
+        "A autonomia saudável só existe em cargos de gestão."
+      ],
+      correct: 1,
+      explanation: "Autonomia saudável é a capacidade de tomar decisões e agir de forma independente, assumindo a responsabilidade pelos resultados — tanto positivos quanto negativos."
+    },
+    {
+      q: "O que é um Checklist no contexto do trabalho profissional?",
+      opts: [
+        "Uma lista de compras para o escritório.",
+        "Um tipo de banco de dados não relacional.",
+        "Uma lista sequencial de tarefas ou verificações que garante que nada seja esquecido.",
+        "Um relatório gerado automaticamente pelo sistema."
+      ],
+      correct: 2,
+      explanation: "O Checklist é um roteiro de trabalho que garante consistência, evita erros por esquecimento e padroniza processos para que toda a equipe execute as tarefas da mesma forma."
+    }
+  ];
+
+  // ─── STATE ───────────────────────────────────────────────────
+  let currentSlide = 0;
+  let notesOpen = false;
+  let tocOpen = false;
+  let quizCurrent = 0;
+  let quizScore = 0;
+  let quizAnswered = {};
+  let hintTimeout;
+
+  // ─── INIT ────────────────────────────────────────────────────
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  const curNum = document.getElementById('cur-slide-num');
+  const totNum = document.getElementById('total-slide-num');
+  const progressBar = document.getElementById('progress-bar');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const dotContainer = document.getElementById('dot-indicators');
+  const tocList = document.getElementById('toc-list');
+
+  totNum.textContent = totalSlides;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'w-2 h-2 rounded-full transition-all duration-300 ' + (i === 0 ? 'bg-brand-primary w-5' : 'bg-blue-200');
+    dot.onclick = () => goToSlide(i);
+    dot.setAttribute('title', slidesMeta[i]?.title || `Slide ${i+1}`);
+    dotContainer.appendChild(dot);
+  });
+
+  // Build TOC
+  slidesMeta.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.id = `toc-item-${i}`;
+    btn.className = 'flex items-center gap-3 w-full text-left px-3 py-2 rounded-lg hover:bg-brand-subtle transition-colors';
+    btn.innerHTML = `
+      <span class="w-6 h-6 rounded-full bg-brand-primary text-white text-xs flex items-center justify-center font-bold flex-shrink-0">${i+1}</span>
+      <div>
+        <p class="text-brand-dark text-sm font-medium">${s.title}</p>
+        <p class="text-brand-muted text-xs">${s.module}</p>
+      </div>
+    `;
+    btn.onclick = () => { goToSlide(i); closeTOC(); };
+    tocList.appendChild(btn);
+  });
+
+  function updateSlide() {
+    slides.forEach((s, i) => {
+      s.classList.toggle('active', i === currentSlide);
+    });
+    // dots
+    const dots = dotContainer.children;
+    for (let i = 0; i < dots.length; i++) {
+      dots[i].className = 'h-2 rounded-full transition-all duration-300 ' + (i === currentSlide ? 'bg-brand-primary w-5' : 'bg-blue-200 w-2');
+    }
+    curNum.textContent = currentSlide + 1;
+    progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+    btnPrev.disabled = currentSlide === 0;
+    btnNext.textContent = currentSlide === totalSlides - 1 ? '✓ Fim' : 'Próximo →';
+
+    // Update TOC highlight
+    document.querySelectorAll('[id^="toc-item-"]').forEach((el, i) => {
+      el.classList.toggle('bg-brand-subtle', i === currentSlide);
+    });
+
+    // Update notes
+    if (teacherNotes[currentSlide]) {
+      const n = teacherNotes[currentSlide];
+      document.getElementById('notes-content').innerHTML = `
+        <div class="bg-blue-900 rounded-xl p-4 mb-4">
+          <p class="text-blue-300 font-bold text-xs uppercase tracking-wider mb-2">Slide ${currentSlide + 1} — ${slidesMeta[currentSlide]?.title}</p>
+          <p class="text-blue-100 text-sm leading-relaxed">${n.note}</p>
+        </div>
+        <div class="bg-blue-800 rounded-xl p-4">
+          <p class="text-blue-300 font-bold text-xs uppercase tracking-wider mb-2">Sugestão de engajamento</p>
+          <p class="text-blue-100 text-sm">${n.prompt}</p>
+        </div>
+      `;
+    }
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); }
+  }
+  function prevSlide() {
+    if (currentSlide > 0) { currentSlide--; updateSlide(); }
+  }
+  function goToSlide(i) {
+    currentSlide = i; updateSlide();
+  }
+
+  // ─── TOC ─────────────────────────────────────────────────────
+  function toggleTOC() {
+    tocOpen = !tocOpen;
+    document.getElementById('toc-modal').classList.toggle('open', tocOpen);
+  }
+  function closeTOC() {
+    tocOpen = false;
+    document.getElementById('toc-modal').classList.remove('open');
+  }
+  function closeTOCOutside(e) {
+    if (e.target === document.getElementById('toc-modal')) closeTOC();
+  }
+
+  // ─── NOTES ───────────────────────────────────────────────────
+  function toggleNotes() {
+    notesOpen = !notesOpen;
+    document.getElementById('notes-drawer').classList.toggle('open', notesOpen);
+  }
+
+  // ─── KEYBOARD ────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+    switch(e.key) {
+      case 'ArrowRight': case ' ': e.preventDefault(); nextSlide(); break;
+      case 'ArrowLeft':  e.preventDefault(); prevSlide(); break;
+      case 'f': case 'F': toggleFullscreen(); break;
+      case 'm': case 'M': case 'i': case 'I': toggleTOC(); break;
+      case 'p': case 'P': case 'n': case 'N': toggleNotes(); break;
+    }
+  });
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+    else document.exitFullscreen();
+  }
+
+  // ─── QUIZ ────────────────────────────────────────────────────
+  function renderQuiz() {
+    if (quizCurrent >= quizData.length) {
+      document.getElementById('quiz-content').classList.add('hidden');
+      document.getElementById('quiz-score').classList.remove('hidden');
+      const pct = Math.round((quizScore / quizData.length) * 100);
+      document.getElementById('quiz-score-text').textContent = `Pontuação: ${quizScore}/${quizData.length} (${pct}%)`;
+      document.getElementById('quiz-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '👏' : '📚';
+      return;
+    }
+    const q = quizData[quizCurrent];
+    document.getElementById('quiz-q-num').textContent = `Questão ${quizCurrent + 1} de ${quizData.length}`;
+    document.getElementById('quiz-question').textContent = q.q;
+    const optEl = document.getElementById('quiz-options');
+    optEl.innerHTML = '';
+    q.opts.forEach((o, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt w-full text-left px-3 py-2 rounded-lg bg-blue-50 text-xs text-brand-text';
+      btn.textContent = `${String.fromCharCode(65+i)}) ${o}`;
+      btn.onclick = () => answerQuiz(i, btn);
+      optEl.appendChild(btn);
+    });
+    document.getElementById('quiz-feedback').classList.add('hidden');
+    document.getElementById('quiz-next').classList.add('hidden');
+  }
+
+  function answerQuiz(i, btn) {
+    if (quizAnswered[quizCurrent]) return;
+    quizAnswered[quizCurrent] = true;
+    const q = quizData[quizCurrent];
+    const opts = document.getElementById('quiz-options').children;
+    const fb = document.getElementById('quiz-feedback');
+    if (i === q.correct) {
+      quizScore++;
+      btn.classList.add('correct');
+      fb.className = 'mt-3 p-2 rounded-lg text-xs bg-green-50 text-green-700 border border-green-200';
+      fb.textContent = '✅ Correto! ' + q.explanation;
+    } else {
+      btn.classList.add('wrong');
+      opts[q.correct].classList.add('correct');
+      fb.className = 'mt-3 p-2 rounded-lg text-xs bg-red-50 text-red-700 border border-red-200';
+      fb.textContent = '❌ Incorreto. ' + q.explanation;
+    }
+    fb.classList.remove('hidden');
+    document.getElementById('quiz-next').classList.remove('hidden');
+  }
+
+  function nextQuestion() {
+    quizCurrent++;
+    renderQuiz();
+  }
+
+  function resetQuiz() {
+    quizCurrent = 0; quizScore = 0; quizAnswered = {};
+    document.getElementById('quiz-content').classList.remove('hidden');
+    document.getElementById('quiz-score').classList.add('hidden');
+    renderQuiz();
+  }
+
+  // ─── HINT AUTO HIDE ──────────────────────────────────────────
+  const hint = document.getElementById('key-hint');
+  hintTimeout = setTimeout(() => { hint.style.opacity = '0'; setTimeout(() => hint.remove(), 500); }, 5000);
+
+  // ─── BOOTSTRAP ───────────────────────────────────────────────
+  updateSlide();
+  renderQuiz();
+  </script>
+</body>
+</html>
