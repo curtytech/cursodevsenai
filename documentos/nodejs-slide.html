@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node.js, Express & APIs REST — Arquitetura em Camadas</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind Configuration with Node.js Green Theme -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            node: {
+              50: '#F0FDF4',
+              100: '#DCFCE7',
+              200: '#BBF7D0',
+              300: '#86EFAC',
+              400: '#4ADE80',
+              500: '#22C55E',
+              600: '#16A34A',
+              700: '#15803D',
+              800: '#166534',
+              900: '#14532D',
+              950: '#052E16',
+            },
+            dark: {
+              bg: '#0B1120',
+              card: '#131D31',
+              border: '#1E293B',
+              surface: '#1A263D'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Fira Code', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0B1120;
+      color: #E2E8F0;
+      overflow-x: hidden;
+      user-select: none;
+    }
+    
+    code, pre {
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* Custom Syntax Highlighting */
+    .syn-keyword { color: #F43F5E; font-weight: 600; }
+    .syn-func { color: #38BDF8; font-weight: 500; }
+    .syn-string { color: #4ADE80; }
+    .syn-comment { color: #64748B; font-style: italic; }
+    .syn-prop { color: #FBBF24; }
+    .syn-num { color: #C084FC; }
+    .syn-op { color: #94A3B8; }
+    .syn-punct { color: #CBD5E1; }
+
+    /* Slide transition styles */
+    .slide-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .slide-page {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      opacity: 0;
+      transform: translateY(12px) scale(0.995);
+      transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 4.5rem 3.5rem 5rem 3.5rem;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .slide-page.active {
+      display: flex;
+      flex-direction: column;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Custom subtle scrollbar */
+    .slide-page::-webkit-scrollbar {
+      width: 6px;
+    }
+    .slide-page::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 4px;
+    }
+
+    /* Terminal window decor */
+    .terminal-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Glow highlights */
+    .node-glow {
+      box-shadow: 0 0 30px -5px rgba(34, 197, 94, 0.25);
+    }
+    
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body class="bg-[#0B1120] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-node-500 selection:text-black">
+
+  <!-- Top Fixed Header & Progress Bar -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#0B1120]/90 backdrop-blur-md border-b border-slate-800/80 px-6 py-2.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-node-500/10 border border-node-500/30 flex items-center justify-center text-node-400 font-bold text-lg font-mono">
+        ⬡
+      </div>
+      <div>
+        <h1 class="text-xs font-semibold text-white tracking-wide uppercase">Node.js + Express</h1>
+        <p class="text-[10px] text-slate-400 tracking-wider">APIs REST • Arquitetura em Camadas</p>
+      </div>
+    </div>
+
+    <!-- Center Module Indicator -->
+    <div class="hidden md:flex items-center gap-2">
+      <span id="module-badge" class="badge-pill bg-node-500/10 text-node-400 border border-node-500/20 text-[11px]">
+        Módulo 1
+      </span>
+      <span id="module-title-header" class="text-xs font-medium text-slate-300">
+        Introdução ao Backend
+      </span>
+    </div>
+
+    <!-- Slide Counter & Actions -->
+    <div class="flex items-center gap-3">
+      <button onclick="toggleTeacherMode()" id="btn-teacher-mode" title="Modo Professor (Shift + G)" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800/70 border border-slate-700 hover:border-node-500/50 text-[11px] text-slate-300 transition">
+        <span>👨‍🏫</span>
+        <span id="teacher-status-text">Gabarito</span>
+      </button>
+
+      <button onclick="toggleFullscreen()" title="Tela Cheia (F)" class="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+      </button>
+
+      <div class="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 font-mono text-xs text-slate-300">
+        <span id="current-slide-num" class="text-node-400 font-bold">1</span>
+        <span class="text-slate-600">/</span>
+        <span id="total-slides-num" class="text-slate-400">24</span>
+      </div>
+    </div>
+
+    <!-- Micro Progress Bar -->
+    <div class="absolute bottom-0 left-0 h-[2px] bg-slate-800 w-full overflow-hidden">
+      <div id="progress-bar" class="h-full bg-gradient-to-r from-node-500 to-emerald-400 transition-all duration-300 w-[4.16%]"></div>
+    </div>
+  </header>
+
+  <!-- Main Slides Container -->
+  <main class="slide-wrapper relative z-10">
+
+    <!-- ==========================================
+         SLIDE 1: CAPA
+         ========================================== -->
+    <div class="slide-page active items-center justify-center text-center" data-module="Apresentação" data-title="Capa">
+      <div class="max-w-4xl mx-auto flex flex-col items-center">
+        <!-- Floating Node Badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-node-500/10 border border-node-500/30 text-node-400 text-xs font-semibold mb-6 animate-pulse">
+          <span class="w-2 h-2 rounded-full bg-node-400"></span>
+          AULA INTRODUTÓRIA • BACKEND ESSENTIALS
+        </div>
+
+        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-4">
+          Node.js, Express &amp; <br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-node-400 via-emerald-400 to-teal-300">APIs REST Profissionais</span>
+        </h1>
+
+        <p class="text-lg sm:text-xl text-slate-300 max-w-2xl mb-8 leading-relaxed font-normal">
+          Fundamentos da construção de servidores modernos, boas práticas e arquitetura em camadas:
+          <span class="text-node-400 font-mono text-sm block mt-2 font-semibold">Routes ➔ Controllers ➔ Services ➔ Models ➔ Middlewares</span>
+        </p>
+
+        <!-- Mini Visual Diagram Preview -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 w-full max-w-3xl mb-10 text-left font-mono text-xs">
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800 text-center hover:border-node-500/40 transition">
+            <div class="text-node-400 text-base mb-1 font-bold">🛣️ Routes</div>
+            <div class="text-[11px] text-slate-400">Rotas &amp; Métodos</div>
+          </div>
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800 text-center hover:border-node-500/40 transition">
+            <div class="text-sky-400 text-base mb-1 font-bold">🎮 Controllers</div>
+            <div class="text-[11px] text-slate-400">Req / Res</div>
+          </div>
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800 text-center hover:border-node-500/40 transition">
+            <div class="text-amber-400 text-base mb-1 font-bold">⚙️ Services</div>
+            <div class="text-[11px] text-slate-400">Regras de Negócio</div>
+          </div>
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800 text-center hover:border-node-500/40 transition">
+            <div class="text-purple-400 text-base mb-1 font-bold">📦 Models</div>
+            <div class="text-[11px] text-slate-400">Manipulação de Dados</div>
+          </div>
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800 text-center hover:border-node-500/40 transition col-span-2 sm:col-span-1">
+            <div class="text-emerald-400 text-base mb-1 font-bold">🛡️ Middlewares</div>
+            <div class="text-[11px] text-slate-400">Interceptadores</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 text-xs text-slate-400">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-900 border border-slate-800 font-mono">
+            <kbd class="text-node-400 font-bold">➔</kbd> ou <kbd class="text-node-400 font-bold">Espaço</kbd> para navegar
+          </span>
+          <span class="text-slate-600">•</span>
+          <span>Projeto prático: <strong class="text-slate-200">API de Usuários</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 2: OBJETIVOS DA AULA
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 0" data-title="Objetivos da Aula">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-6">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Metas de Aprendizagem</span>
+          <h2 class="text-3xl font-bold text-white mt-1">O que você será capaz de fazer hoje?</h2>
+          <p class="text-slate-400 text-sm mt-1">Ao final desta aula de 60 minutos, você terá construído uma API completa com estrutura profissional.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800/90 flex gap-3.5 items-start hover:border-node-500/30 transition">
+            <div class="w-8 h-8 rounded-lg bg-node-500/10 text-node-400 flex items-center justify-center shrink-0 font-bold">1</div>
+            <div>
+              <h3 class="font-semibold text-white">Compreender Node.js &amp; Protocolo HTTP</h3>
+              <p class="text-slate-400 text-xs mt-1">Entender a diferença entre Frontend e Backend, arquitetura cliente-servidor e os métodos HTTP (GET, POST, PUT, DELETE).</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800/90 flex gap-3.5 items-start hover:border-node-500/30 transition">
+            <div class="w-8 h-8 rounded-lg bg-node-500/10 text-node-400 flex items-center justify-center shrink-0 font-bold">2</div>
+            <div>
+              <h3 class="font-semibold text-white">Criar um Servidor Express do Zero</h3>
+              <p class="text-slate-400 text-xs mt-1">Inicializar projetos com NPM, instalar dependências e levantar uma aplicação escutando em porta local.</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800/90 flex gap-3.5 items-start hover:border-node-500/30 transition">
+            <div class="w-8 h-8 rounded-lg bg-node-500/10 text-node-400 flex items-center justify-center shrink-0 font-bold">3</div>
+            <div>
+              <h3 class="font-semibold text-white">Dominar a Arquitetura em Camadas</h3>
+              <p class="text-slate-400 text-xs mt-1">Separar responsabilidades com clareza: Routes (caminhos), Controllers (requisição), Services (regras) e Models (dados).</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800/90 flex gap-3.5 items-start hover:border-node-500/30 transition">
+            <div class="w-8 h-8 rounded-lg bg-node-500/10 text-node-400 flex items-center justify-center shrink-0 font-bold">4</div>
+            <div>
+              <h3 class="font-semibold text-white">Construir um CRUD Completo</h3>
+              <p class="text-slate-400 text-xs mt-1">Implementar criação, listagem, busca por ID, atualização e remoção de dados recebendo Params, Query e Body JSON.</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800/90 flex gap-3.5 items-start hover:border-node-500/30 transition">
+            <div class="w-8 h-8 rounded-lg bg-node-500/10 text-node-400 flex items-center justify-center shrink-0 font-bold">5</div>
+            <div>
+              <h3 class="font-semibold text-white">Aplicar Middlewares &amp; Validações</h3>
+              <p class="text-slate-400 text-xs mt-1">Interceptar requisições para logs, validação de campos obrigatórios e tratamento de erros padronizado.</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800/90 flex gap-3.5 items-start hover:border-node-500/30 transition">
+            <div class="w-8 h-8 rounded-lg bg-node-500/10 text-node-400 flex items-center justify-center shrink-0 font-bold">6</div>
+            <div>
+              <h3 class="font-semibold text-white">Testar Endpoints com Postman / Insomnia</h3>
+              <p class="text-slate-400 text-xs mt-1">Executar requisições reais, inspecionar status codes e validar payloads JSON retornados pela API.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 p-3.5 rounded-lg bg-node-950/40 border border-node-500/30 flex items-center justify-between text-xs text-node-300">
+          <span>💡 <strong>Projeto Base da Aula:</strong> Criaremos passo a passo a <code>API de Usuários (/users)</code> aplicando cada conceito gradualmente.</span>
+          <span class="font-mono text-slate-400">Duração prevista: ~55 min</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 3: MÓDULO 1 — INTRODUÇÃO AO BACKEND
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 1" data-title="Introdução ao Backend">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 1 • Fundamentos</span>
+          <h2 class="text-3xl font-bold text-white mt-1">O que é Backend e como uma API opera?</h2>
+          <p class="text-slate-400 text-sm mt-1">O backend é o "cérebro" invisível: processa lógica de negócio, autenticação e dados com segurança.</p>
+        </div>
+
+        <!-- Visual Flow Comparison -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800 text-center">
+            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">💻</div>
+            <h3 class="font-bold text-white text-sm">Frontend (Cliente)</h3>
+            <p class="text-xs text-slate-400 mt-1">Navegador, React, Vue, App Mobile. Renderiza botões, telas e captura cliques do usuário.</p>
+            <div class="mt-3 py-1 px-2 rounded bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+              Dispara HTTP Requests
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-dark-card border border-node-500/40 text-center node-glow">
+            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-node-500/20 text-node-400 flex items-center justify-center text-lg">⚙️</div>
+            <h3 class="font-bold text-node-300 text-sm">Backend / API (Node.js)</h3>
+            <p class="text-xs text-slate-400 mt-1">Servidor com regras, validações, cálculos e segurança. Nunca expõe senhas ou dados sensíveis.</p>
+            <div class="mt-3 py-1 px-2 rounded bg-node-950/60 border border-node-500/30 text-[11px] font-mono text-node-300">
+              Devolve JSON padronizado
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800 text-center">
+            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg">🗄️</div>
+            <h3 class="font-bold text-white text-sm">Banco de Dados</h3>
+            <p class="text-xs text-slate-400 mt-1">PostgreSQL, MongoDB, MySQL. Guarda informações de forma persistente e duradoura.</p>
+            <div class="mt-3 py-1 px-2 rounded bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+              Persistência de Dados
+            </div>
+          </div>
+        </div>
+
+        <!-- Full Request Lifecycle Flowchart -->
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+          <h4 class="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider mb-3">Ciclo Completo da Requisição:</h4>
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono">
+            <div class="px-3 py-2 rounded bg-blue-950/60 border border-blue-500/30 text-blue-300 text-center w-full sm:w-auto">
+              1. Usuário clica "Salvar"
+            </div>
+            <span class="text-slate-600 hidden sm:inline">➔</span>
+            <div class="px-3 py-2 rounded bg-slate-800 border border-slate-700 text-slate-200 text-center w-full sm:w-auto">
+              2. POST /users (HTTP)
+            </div>
+            <span class="text-slate-600 hidden sm:inline">➔</span>
+            <div class="px-3 py-2 rounded bg-node-950/80 border border-node-500/40 text-node-300 text-center w-full sm:w-auto">
+              3. Node.js valida &amp; grava
+            </div>
+            <span class="text-slate-600 hidden sm:inline">➔</span>
+            <div class="px-3 py-2 rounded bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-center w-full sm:w-auto">
+              4. Retorno HTTP 201 Created
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 4: MÓDULO 2 — O QUE É NODE.JS?
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 2" data-title="O que é Node.js?">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 2 • Runtime</span>
+          <h2 class="text-3xl font-bold text-white mt-1">O que é Node.js e por que utilizá-lo?</h2>
+          <p class="text-slate-400 text-sm mt-1">Node.js não é uma linguagem ou framework: é um <strong>ambiente de execução (runtime)</strong> que roda JavaScript fora do navegador.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+          <!-- Left: Key Concepts -->
+          <div class="space-y-3">
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+                <span class="text-node-400 font-mono">⚡</span> Motor V8 do Google Chrome
+              </h4>
+              <p class="text-xs text-slate-400 mt-1">Executa JavaScript compilado diretamente para código de máquina ultra-rápido.</p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+                <span class="text-node-400 font-mono">🔄</span> Assíncrono &amp; Não Bloqueante (Event Loop)
+              </h4>
+              <p class="text-xs text-slate-400 mt-1">Capacidade de lidar com milhares de requisições simultâneas com baixo consumo de memória.</p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+                <span class="text-node-400 font-mono">🌐</span> Mesma Linguagem Ponta a Ponta
+              </h4>
+              <p class="text-xs text-slate-400 mt-1">Você utiliza JavaScript tanto no Frontend quanto no Backend, compartilhando conhecimentos e tipos.</p>
+            </div>
+          </div>
+
+          <!-- Right: Terminal Simulation -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden flex flex-col justify-between">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="terminal-dot bg-rose-500"></span>
+                <span class="terminal-dot bg-amber-500"></span>
+                <span class="terminal-dot bg-emerald-500"></span>
+              </div>
+              <span class="text-[11px] font-mono text-slate-400">index.js &amp; Terminal</span>
+            </div>
+
+            <div class="p-4 font-mono text-xs space-y-3">
+              <div>
+                <span class="text-slate-500">// 1. Código JavaScript no arquivo index.js</span>
+                <div class="mt-1 text-slate-200">
+                  <span class="syn-func">console</span>.<span class="syn-func">log</span>(<span class="syn-string">"Olá, Servidor Node.js!"</span>);
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-slate-800/80">
+                <span class="text-slate-500"># 2. Executando via linha de comando:</span>
+                <div class="mt-1 text-node-400 flex items-center gap-2">
+                  <span class="text-slate-500">$</span> node index.js
+                </div>
+                <div class="text-slate-300 mt-1 pl-3 border-l-2 border-node-500">
+                  Olá, Servidor Node.js!
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-900/50 border-t border-slate-800 text-[11px] text-slate-400">
+              🎯 <strong>No navegador:</strong> temos <code>window</code> e <code>document</code>.<br>
+              🎯 <strong>No Node.js:</strong> temos <code>process</code>, <code>fs</code> (arquivos) e <code>http</code>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 5: MÓDULO 3 — NPM & DEPENDÊNCIAS
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 3" data-title="NPM & Gerenciamento">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 3 • Ecossistema</span>
+          <h2 class="text-3xl font-bold text-white mt-1">NPM: O Gerenciador de Pacotes do Node</h2>
+          <p class="text-slate-400 text-sm mt-1">Como estruturar projetos e instalar bibliotecas externas criadas pela comunidade global.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Terminal: Commands -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center gap-2">
+              <span class="terminal-dot bg-rose-500"></span>
+              <span class="terminal-dot bg-amber-500"></span>
+              <span class="terminal-dot bg-emerald-500"></span>
+              <span class="text-[11px] font-mono text-slate-400 ml-2">Passo a passo no terminal</span>
+            </div>
+            <div class="p-4 font-mono text-xs space-y-3">
+              <div>
+                <p class="text-slate-500"># 1. Cria o arquivo package.json inicial</p>
+                <p class="text-node-400 mt-0.5">$ npm init -y</p>
+              </div>
+              <div class="pt-2 border-t border-slate-800">
+                <p class="text-slate-500"># 2. Instala o framework Express</p>
+                <p class="text-node-400 mt-0.5">$ npm install express</p>
+              </div>
+              <div class="pt-2 border-t border-slate-800 text-slate-400 text-[11px]">
+                <span class="text-emerald-400">✔</span> adicionados pacotes em node_modules/<br>
+                <span class="text-emerald-400">✔</span> dependência registrada no package.json
+              </div>
+            </div>
+          </div>
+
+          <!-- File roles explanation -->
+          <div class="space-y-3 font-mono text-xs">
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <span class="text-node-400 font-bold">📄 package.json</span>
+              <p class="text-slate-400 font-sans text-xs mt-1">
+                A "certidão de nascimento" do projeto. Lista nome, versão, scripts de execução e dependências instaladas.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <span class="text-sky-400 font-bold">🔒 package-lock.json</span>
+              <p class="text-slate-400 font-sans text-xs mt-1">
+                Garante que qualquer pessoa da equipe instale exatamente as mesmas subversões de pacotes (reprodutibilidade).
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <span class="text-amber-400 font-bold">📁 node_modules/</span>
+              <p class="text-slate-400 font-sans text-xs mt-1">
+                Pasta onde o código-fonte das dependências fica fisicamente baixado. <strong>Nunca suba no Git</strong> (coloque no .gitignore).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 flex items-center gap-3">
+          <span class="text-base">📌</span>
+          <span>Ao clonar um projeto existente, basta rodar <code>npm install</code> para restaurar todas as dependências declaradas no <code>package.json</code>.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 6: MÓDULO 4 — CRIANDO O SERVIDOR EXPRESS
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 4" data-title="Primeiro Servidor Express">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 4 • Hello Server</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Criando nosso Primeiro Servidor com Express</h2>
+          <p class="text-slate-400 text-sm mt-1">Express é o microframework mais popular do Node.js: simplifica roteamento, requisições e respostas HTTP.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Code Block -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="terminal-dot bg-rose-500"></span>
+                <span class="terminal-dot bg-amber-500"></span>
+                <span class="terminal-dot bg-emerald-500"></span>
+                <span class="text-slate-400 text-[11px] ml-2">server.js</span>
+              </div>
+            </div>
+            <div class="p-4 space-y-1.5 leading-relaxed">
+              <div><span class="syn-comment">// 1. Importa o Express</span></div>
+              <div><span class="syn-keyword">const</span> express = <span class="syn-func">require</span>(<span class="syn-string">"express"</span>);</div>
+              <br>
+              <div><span class="syn-comment">// 2. Instancia a aplicação</span></div>
+              <div><span class="syn-keyword">const</span> app = <span class="syn-func">express</span>();</div>
+              <div>app.<span class="syn-func">use</span>(express.<span class="syn-func">json</span>()); <span class="syn-comment">// suporte a JSON</span></div>
+              <br>
+              <div><span class="syn-comment">// 3. Rota de teste</span></div>
+              <div>app.<span class="syn-func">get</span>(<span class="syn-string">"/"</span>, (req, res) =&gt; {</div>
+              <div class="pl-4">  <span class="syn-keyword">return</span> res.<span class="syn-func">json</span>({ message: <span class="syn-string">"API no ar! 🚀"</span> });</div>
+              <div>});</div>
+              <br>
+              <div><span class="syn-comment">// 4. Abre a porta do servidor</span></div>
+              <div>app.<span class="syn-func">listen</span>(<span class="syn-num">3000</span>, () =&gt; {</div>
+              <div class="pl-4">  <span class="syn-func">console</span>.<span class="syn-func">log</span>(<span class="syn-string">"Servidor rodando em http://localhost:3000"</span>);</div>
+              <div>});</div>
+            </div>
+          </div>
+
+          <!-- Conceptual Breakdown -->
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <span class="font-mono text-node-400 font-bold">require("express")</span>
+              <p class="text-slate-400 mt-1">Carrega o módulo Express instalado através do NPM via sistema CommonJS.</p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <span class="font-mono text-sky-400 font-bold">app.get("/", (req, res) =&gt; ...)</span>
+              <p class="text-slate-400 mt-1">Registra um ouvinte para requisições do tipo <code>GET</code> na raiz. <code>req</code> traz dados do cliente e <code>res</code> envia a resposta.</p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <span class="font-mono text-purple-400 font-bold">app.listen(3000)</span>
+              <p class="text-slate-400 mt-1">Coloca o servidor em modo de escuta ativa na porta 3000 do computador local (localhost).</p>
+            </div>
+
+            <!-- Browser preview mockup -->
+            <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 font-mono text-[11px]">
+              <div class="text-slate-500 mb-1">Resposta no navegador em http://localhost:3000:</div>
+              <div class="text-emerald-400 bg-black/40 p-2 rounded border border-slate-800">
+                { "message": "API no ar! 🚀" }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 7: MÓDULO 5 — PROTOCOLO HTTP & MÉTODOS
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 5" data-title="Protocolo HTTP">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 5 • Comunicação Web</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Protocolo HTTP: Métodos e Status Codes</h2>
+          <p class="text-slate-400 text-sm mt-1">O protocolo HTTP define a semântica da web: ações intencionais através de verbos e respostas por códigos.</p>
+        </div>
+
+        <!-- 2 Columns: Methods vs Status Codes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Methods Column -->
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800">
+            <h3 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <span class="text-node-400">⚡</span> Principais Verbos HTTP
+            </h3>
+            <div class="space-y-2 text-xs font-mono">
+              <div class="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800/80">
+                <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">GET</span>
+                <span class="text-slate-300 font-sans">Buscar / Ler dados</span>
+                <span class="text-slate-500 text-[11px]">/users</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800/80">
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">POST</span>
+                <span class="text-slate-300 font-sans">Criar novo registro</span>
+                <span class="text-slate-500 text-[11px]">/users</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800/80">
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">PUT</span>
+                <span class="text-slate-300 font-sans">Atualizar todo o registro</span>
+                <span class="text-slate-500 text-[11px]">/users/:id</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800/80">
+                <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 font-bold">PATCH</span>
+                <span class="text-slate-300 font-sans">Atualizar campo parcial</span>
+                <span class="text-slate-500 text-[11px]">/users/:id</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800/80">
+                <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-bold">DELETE</span>
+                <span class="text-slate-300 font-sans">Excluir um registro</span>
+                <span class="text-slate-500 text-[11px]">/users/:id</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Codes Column -->
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800">
+            <h3 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <span class="text-sky-400">🚥</span> Códigos de Status Mais Usados
+            </h3>
+            <div class="space-y-1.5 text-xs font-mono">
+              <div class="p-1.5 rounded bg-slate-900 flex items-center justify-between border-l-2 border-emerald-500">
+                <span class="text-emerald-400 font-bold">200 OK</span>
+                <span class="text-slate-400 font-sans text-[11px]">Sucesso genérico na operação</span>
+              </div>
+              <div class="p-1.5 rounded bg-slate-900 flex items-center justify-between border-l-2 border-emerald-500">
+                <span class="text-emerald-400 font-bold">201 Created</span>
+                <span class="text-slate-400 font-sans text-[11px]">Recurso criado com êxito</span>
+              </div>
+              <div class="p-1.5 rounded bg-slate-900 flex items-center justify-between border-l-2 border-emerald-500">
+                <span class="text-emerald-400 font-bold">204 No Content</span>
+                <span class="text-slate-400 font-sans text-[11px]">Sucesso sem corpo de retorno (ex: DELETE)</span>
+              </div>
+              <div class="p-1.5 rounded bg-slate-900 flex items-center justify-between border-l-2 border-amber-500">
+                <span class="text-amber-400 font-bold">400 Bad Request</span>
+                <span class="text-slate-400 font-sans text-[11px]">Dados enviados inválidos ou ausentes</span>
+              </div>
+              <div class="p-1.5 rounded bg-slate-900 flex items-center justify-between border-l-2 border-rose-500">
+                <span class="text-rose-400 font-bold">404 Not Found</span>
+                <span class="text-slate-400 font-sans text-[11px]">Recurso ou rota não encontrada</span>
+              </div>
+              <div class="p-1.5 rounded bg-slate-900 flex items-center justify-between border-l-2 border-red-600">
+                <span class="text-red-400 font-bold">500 Server Error</span>
+                <span class="text-slate-400 font-sans text-[11px]">Falha inesperada no código do servidor</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 8: MÓDULO 6 — O QUE É UMA API REST?
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 6" data-title="O que é API REST?">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 6 • Padrão Arquitetural</span>
+          <h2 class="text-3xl font-bold text-white mt-1">O que define uma API REST?</h2>
+          <p class="text-slate-400 text-sm mt-1">REST (Representational State Transfer) é um padrão que padroniza rotas em torno de <strong>recursos (substantivos)</strong> e não de ações.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+          <!-- Comparison: Good REST vs Bad REST -->
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800">
+            <h3 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider mb-3">Modelando Endpoints:</h3>
+            
+            <div class="space-y-3 font-mono text-xs">
+              <div class="p-3 rounded-lg bg-rose-950/20 border border-rose-500/30">
+                <div class="text-rose-400 font-bold flex items-center gap-1.5">
+                  <span>❌ NÃO RECOMENDADO (Ação na URL)</span>
+                </div>
+                <div class="text-slate-400 mt-1 space-y-1">
+                  <div>GET /getUsers</div>
+                  <div>POST /criarUsuario</div>
+                  <div>POST /deleteUser?id=10</div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-lg bg-emerald-950/20 border border-emerald-500/30">
+                <div class="text-emerald-400 font-bold flex items-center gap-1.5">
+                  <span>✔ PADRÃO REST (Substantivo no plural)</span>
+                </div>
+                <div class="text-slate-300 mt-1 space-y-1">
+                  <div>GET /users <span class="text-slate-500 font-sans">➔ Lista todos</span></div>
+                  <div>POST /users <span class="text-slate-500 font-sans">➔ Cria usuário</span></div>
+                  <div>DELETE /users/10 <span class="text-slate-500 font-sans">➔ Deleta o ID 10</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- REST Principles -->
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="font-bold text-white flex items-center gap-2">
+                <span class="text-node-400">📦</span> Recurso (Resource)
+              </h4>
+              <p class="text-slate-400 mt-1">A entidade manipulada pelo sistema (ex: Usuário, Produto, Pedido). Sempre nomeada no plural.</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="font-bold text-white flex items-center gap-2">
+                <span class="text-sky-400">📄</span> Formato JSON Universal
+              </h4>
+              <p class="text-slate-400 mt-1">O intercâmbio de dados ocorre via JSON (JavaScript Object Notation), legível por qualquer tecnologia.</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="font-bold text-white flex items-center gap-2">
+                <span class="text-amber-400">⚡</span> Stateless (Sem Estado)
+              </h4>
+              <p class="text-slate-400 mt-1">Cada requisição carrega todas as informações necessárias para ser processada, sem depender de sessões salvas no servidor.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 9: MÓDULO 7 — ESTRUTURA DO PROJETO
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 7" data-title="Estrutura de Pastas">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 7 • Arquitetura</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Estrutura Profissional de Arquivos</h2>
+          <p class="text-slate-400 text-sm mt-1">Por que nunca devemos colocar todo o código em um único arquivo <code>server.js</code>?</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Folder Tree -->
+          <div class="p-4 rounded-xl bg-[#0F172A] border border-slate-800 font-mono text-xs">
+            <div class="text-slate-400 mb-2 font-bold flex items-center gap-1.5">
+              <span>📁 api-node/</span>
+            </div>
+            <div class="pl-4 space-y-1 text-slate-300">
+              <div class="text-slate-500">├── 📁 src/</div>
+              <div class="pl-6 text-slate-400">├── 📁 <strong class="text-node-400">routes/</strong> <span class="text-slate-500">// user.routes.js</span></div>
+              <div class="pl-6 text-slate-400">├── 📁 <strong class="text-sky-400">controllers/</strong> <span class="text-slate-500">// user.controller.js</span></div>
+              <div class="pl-6 text-slate-400">├── 📁 <strong class="text-amber-400">services/</strong> <span class="text-slate-500">// user.service.js</span></div>
+              <div class="pl-6 text-slate-400">├── 📁 <strong class="text-purple-400">models/</strong> <span class="text-slate-500">// user.model.js</span></div>
+              <div class="pl-6 text-slate-400">├── 📁 <strong class="text-emerald-400">middlewares/</strong> <span class="text-slate-500">// auth.middleware.js</span></div>
+              <div class="pl-6 text-slate-300">└── 📄 app.js <span class="text-slate-500">// Configura o Express</span></div>
+              <div class="text-slate-400">├── 📄 server.js <span class="text-slate-500">// Inicializa a porta</span></div>
+              <div class="text-slate-400">├── 📄 package.json</div>
+              <div class="text-slate-400">└── 📄 .gitignore</div>
+            </div>
+          </div>
+
+          <!-- Benefits of Separation -->
+          <div class="space-y-2.5 text-xs">
+            <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="font-bold text-white">🎯 Separação de Responsabilidades (SoC)</h4>
+              <p class="text-slate-400 mt-1">Cada arquivo tem uma única razão para mudar. Quem cuida de rota não cuida de regra matemática.</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="font-bold text-white">🧪 Facilidade de Testes Unitários</h4>
+              <p class="text-slate-400 mt-1">Podemos testar o <code>user.service.js</code> sem precisar levantar o servidor HTTP ou fazer requisições reais.</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="font-bold text-white">👥 Trabalho em Equipe Sem Conflitos</h4>
+              <p class="text-slate-400 mt-1">Vários desenvolvedores podem criar módulos diferentes ao mesmo tempo sem colidir no Git.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 10: MÓDULO 8 — ROUTES
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 8" data-title="Camada de Routes">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 8 • Camada 1</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Routes: O Recepcionista da API</h2>
+          <p class="text-slate-400 text-sm mt-1">A rota identifica <strong>qual método e URL</strong> foram chamados e encaminha para o Controller competente.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Code Block -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400 text-[11px]">src/routes/user.routes.js</span>
+            </div>
+            <div class="p-4 space-y-1.5 leading-relaxed">
+              <div><span class="syn-keyword">const</span> express = <span class="syn-func">require</span>(<span class="syn-string">"express"</span>);</div>
+              <div><span class="syn-keyword">const</span> router = express.<span class="syn-func">Router</span>();</div>
+              <div><span class="syn-keyword">const</span> userController = <span class="syn-func">require</span>(<span class="syn-string">"../controllers/user.controller"</span>);</div>
+              <br>
+              <div><span class="syn-comment">// Mapeamento dos Endpoints</span></div>
+              <div>router.<span class="syn-func">get</span>(<span class="syn-string">"/users"</span>, userController.index);</div>
+              <div>router.<span class="syn-func">get</span>(<span class="syn-string">"/users/:id"</span>, userController.show);</div>
+              <div>router.<span class="syn-func">post</span>(<span class="syn-string">"/users"</span>, userController.store);</div>
+              <div>router.<span class="syn-func">put</span>(<span class="syn-string">"/users/:id"</span>, userController.update);</div>
+              <div>router.<span class="syn-func">delete</span>(<span class="syn-string">"/users/:id"</span>, userController.destroy);</div>
+              <br>
+              <div>module.<span class="syn-prop">exports</span> = router;</div>
+            </div>
+          </div>
+
+          <!-- Explanation -->
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-lg bg-dark-card border border-node-500/30">
+              <h4 class="font-bold text-node-300">Regra de Ouro das Rotas:</h4>
+              <p class="text-slate-400 mt-1">
+                Uma rota deve ser <strong>"magra"</strong>. Ela não deve conter cálculos, consultas a banco de dados ou ifs complexos. Sua única missão é ligar um caminho a um método do Controller.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800 font-mono">
+              <span class="text-sky-400 font-bold">express.Router()</span>
+              <p class="text-slate-400 font-sans mt-1">
+                Permite modularizar rotas em arquivos separados e depois acoplá-las no <code>app.js</code> principal com <code>app.use(userRoutes)</code>.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800 font-mono">
+              <span class="text-amber-400 font-bold">:id (Parâmetro de Rota)</span>
+              <p class="text-slate-400 font-sans mt-1">
+                Os dois pontos indicam que aquele segmento é dinâmico (ex: <code>/users/1</code>, <code>/users/42</code>).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 11: MÓDULO 9 — CONTROLLERS
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 9" data-title="Camada de Controllers">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 9 • Camada 2</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Controllers: O Atendente da Requisição</h2>
+          <p class="text-slate-400 text-sm mt-1">O Controller recebe os dados do HTTP, chama a regra de negócio no Service e retorna a resposta com o status code correto.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Code Block -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400 text-[11px]">src/controllers/user.controller.js</span>
+            </div>
+            <div class="p-4 space-y-1.5 leading-relaxed">
+              <div><span class="syn-keyword">const</span> userService = <span class="syn-func">require</span>(<span class="syn-string">"../services/user.service"</span>);</div>
+              <br>
+              <div><span class="syn-keyword">async function</span> <span class="syn-func">index</span>(req, res) {</div>
+              <div class="pl-4"><span class="syn-keyword">const</span> users = <span class="syn-keyword">await</span> userService.<span class="syn-func">getAll</span>();</div>
+              <div class="pl-4"><span class="syn-keyword">return</span> res.<span class="syn-func">json</span>(users);</div>
+              <div>}</div>
+              <br>
+              <div><span class="syn-keyword">async function</span> <span class="syn-func">store</span>(req, res) {</div>
+              <div class="pl-4"><span class="syn-keyword">const</span> { name, email } = req.<span class="syn-prop">body</span>;</div>
+              <div class="pl-4"><span class="syn-keyword">const</span> newUser = <span class="syn-keyword">await</span> userService.<span class="syn-func">create</span>({ name, email });</div>
+              <div class="pl-4"><span class="syn-keyword">return</span> res.<span class="syn-func">status</span>(<span class="syn-num">201</span>).<span class="syn-func">json</span>(newUser);</div>
+              <div>}</div>
+              <br>
+              <div>module.<span class="syn-prop">exports</span> = { index, store };</div>
+            </div>
+          </div>
+
+          <!-- Responsibilities Checklist -->
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-lg bg-dark-card border border-sky-500/30">
+              <h4 class="font-bold text-sky-300">As 4 Tarefas do Controller:</h4>
+              <ul class="text-slate-300 mt-2 space-y-1.5 list-disc list-inside">
+                <li>Extrair dados da requisição (<code>params</code>, <code>query</code>, <code>body</code>)</li>
+                <li>Fazer validações básicas de formato de entrada</li>
+                <li>Delegar a execução para o <strong>Service</strong></li>
+                <li>Enviar a resposta HTTP (<code>res.status().json()</code>)</li>
+              </ul>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <span class="text-amber-400 font-bold">⚠️ O que NÃO colocar no Controller:</span>
+              <p class="text-slate-400 mt-1">
+                Nunca escreva consultas SQL diretas ou lógicas de cálculo no Controller. Se amanhã você trocar o Express por outro framework, o Service continuará funcionando intacto!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 12: MÓDULO 10 — SERVICES
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 10" data-title="Camada de Services">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 10 • Camada 3</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Services: O Especialista em Negócio</h2>
+          <p class="text-slate-400 text-sm mt-1">O Service é o coração da aplicação: onde ficam todas as regras, validações lógicas e cálculos da sua empresa.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Code Block -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400 text-[11px]">src/services/user.service.js</span>
+            </div>
+            <div class="p-4 space-y-1.5 leading-relaxed">
+              <div><span class="syn-keyword">const</span> userModel = <span class="syn-func">require</span>(<span class="syn-string">"../models/user.model"</span>);</div>
+              <br>
+              <div><span class="syn-keyword">async function</span> <span class="syn-func">create</span>({ name, email }) {</div>
+              <div class="pl-4"><span class="syn-comment">// 1. Regra de Negócio: email deve ser único</span></div>
+              <div class="pl-4"><span class="syn-keyword">const</span> exists = <span class="syn-keyword">await</span> userModel.<span class="syn-func">findByEmail</span>(email);</div>
+              <div class="pl-4"><span class="syn-keyword">if</span> (exists) {</div>
+              <div class="pl-8"><span class="syn-keyword">throw new</span> <span class="syn-func">Error</span>(<span class="syn-string">"E-mail já cadastrado!"</span>);</div>
+              <div class="pl-4">}</div>
+              <br>
+              <div class="pl-4"><span class="syn-comment">// 2. Gravação através do Model</span></div>
+              <div class="pl-4"><span class="syn-keyword">return await</span> userModel.<span class="syn-func">create</span>({ name, email });</div>
+              <div>}</div>
+              <br>
+              <div>module.<span class="syn-prop">exports</span> = { create };</div>
+            </div>
+          </div>
+
+          <!-- Concept Notes -->
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-lg bg-dark-card border border-amber-500/30">
+              <h4 class="font-bold text-amber-300">Exemplos de Regras de Negócio:</h4>
+              <ul class="text-slate-300 mt-2 space-y-1.5 list-disc list-inside">
+                <li>Verificar se o CPF/CNPJ é válido</li>
+                <li>Checar se a idade mínima para cadastro foi atingida</li>
+                <li>Disparar e-mail de boas-vindas após cadastro</li>
+                <li>Aplicar desconto em pedidos promocionais</li>
+              </ul>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800 font-sans">
+              <span class="text-node-400 font-bold font-mono">Totalmente agnóstico ao Express!</span>
+              <p class="text-slate-400 mt-1">
+                Note que no <code>user.service.js</code> não existe <code>req</code> ou <code>res</code>! O Service trabalha apenas com parâmetros puros de JavaScript.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 13: MÓDULO 11 — MODELS
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 11" data-title="Camada de Models">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 11 • Camada 4</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Models: Acesso e Manipulação dos Dados</h2>
+          <p class="text-slate-400 text-sm mt-1">O Model conversa diretamente com a fonte de dados (nesta aula, um array em memória simulando um banco).</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Code Block -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400 text-[11px]">src/models/user.model.js (Em Memória)</span>
+            </div>
+            <div class="p-4 space-y-1.5 leading-relaxed">
+              <div><span class="syn-comment">// Simula nossa tabela de usuários</span></div>
+              <div><span class="syn-keyword">const</span> users = [</div>
+              <div class="pl-4">{ id: <span class="syn-num">1</span>, name: <span class="syn-string">"Phelipe"</span>, email: <span class="syn-string">"phelipe@email.com"</span> }</div>
+              <div>];</div>
+              <br>
+              <div><span class="syn-keyword">function</span> <span class="syn-func">findAll</span>() { <span class="syn-keyword">return</span> users; }</div>
+              <br>
+              <div><span class="syn-keyword">function</span> <span class="syn-func">findById</span>(id) {</div>
+              <div class="pl-4"><span class="syn-keyword">return</span> users.<span class="syn-func">find</span>(u =&gt; u.id === <span class="syn-func">Number</span>(id));</div>
+              <div>}</div>
+              <br>
+              <div><span class="syn-keyword">function</span> <span class="syn-func">create</span>({ name, email }) {</div>
+              <div class="pl-4"><span class="syn-keyword">const</span> newUser = { id: <span class="syn-func">Date</span>.<span class="syn-func">now</span>(), name, email };</div>
+              <div class="pl-4">users.<span class="syn-func">push</span>(newUser);</div>
+              <div class="pl-4"><span class="syn-keyword">return</span> newUser;</div>
+              <div>}</div>
+              <br>
+              <div>module.<span class="syn-prop">exports</span> = { findAll, findById, create };</div>
+            </div>
+          </div>
+
+          <!-- Database Evolution Note -->
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-lg bg-dark-card border border-purple-500/30">
+              <h4 class="font-bold text-purple-300">Futuro com Banco de Dados Real:</h4>
+              <p class="text-slate-400 mt-1">
+                Quando seu projeto crescer e for conectar em um PostgreSQL ou MongoDB (usando Prisma, TypeORM ou Sequelize), <strong>apenas este arquivo Model será reescrito</strong>! O Controller e as Rotas continuarão iguaizinhos.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <span class="text-slate-300 font-bold font-mono">Bancos Suportados no Ecossistema:</span>
+              <div class="flex flex-wrap gap-1.5 mt-2 font-mono text-[11px]">
+                <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-blue-300">PostgreSQL</span>
+                <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-sky-300">MySQL</span>
+                <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-emerald-300">MongoDB</span>
+                <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-purple-300">Prisma ORM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 14: MÓDULO 12 — FLUXO COMPLETO
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 12" data-title="Fluxo Completo">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 12 • Visão Geral</span>
+          <h2 class="text-3xl font-bold text-white mt-1">O Fluxo Completo de uma Requisição</h2>
+          <p class="text-slate-400 text-sm mt-1">Veja como as quatro camadas trabalham em perfeita harmonia desde o clique até a resposta.</p>
+        </div>
+
+        <!-- Interactive Visual Chain -->
+        <div class="p-5 rounded-2xl bg-dark-card border border-slate-800 mb-5">
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-center text-xs font-mono">
+            
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-700 flex flex-col items-center">
+              <span class="text-xl mb-1">💻</span>
+              <span class="font-bold text-slate-200">1. CLIENTE</span>
+              <span class="text-[10px] text-slate-400 mt-1">GET /users/10</span>
+              <span class="text-slate-500 text-[10px] mt-2">Dispara Request</span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-node-500/40 flex flex-col items-center">
+              <span class="text-xl mb-1">🛣️</span>
+              <span class="font-bold text-node-400">2. ROUTE</span>
+              <span class="text-[10px] text-slate-400 mt-1">/users/:id</span>
+              <span class="text-node-500 text-[10px] mt-2">Identifica caminho</span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-sky-500/40 flex flex-col items-center">
+              <span class="text-xl mb-1">🎮</span>
+              <span class="font-bold text-sky-400">3. CONTROLLER</span>
+              <span class="text-[10px] text-slate-400 mt-1">req.params.id</span>
+              <span class="text-sky-500 text-[10px] mt-2">Coordena chamada</span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-amber-500/40 flex flex-col items-center">
+              <span class="text-xl mb-1">⚙️</span>
+              <span class="font-bold text-amber-400">4. SERVICE</span>
+              <span class="text-[10px] text-slate-400 mt-1">validaRegras()</span>
+              <span class="text-amber-500 text-[10px] mt-2">Executa a lógica</span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-purple-500/40 flex flex-col items-center">
+              <span class="text-xl mb-1">📦</span>
+              <span class="font-bold text-purple-400">5. MODEL</span>
+              <span class="text-[10px] text-slate-400 mt-1">findById(10)</span>
+              <span class="text-purple-500 text-[10px] mt-2">Retorna o registro</span>
+            </div>
+
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-center text-xs text-slate-400 gap-2">
+            <span>🔄 Retorno em cascata reversa:</span>
+            <span class="font-mono text-node-400">Model ➔ Service ➔ Controller ➔ res.json({ user }) ➔ Cliente (HTTP 200)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 15: MÓDULO 13 — REQUEST & RESPONSE
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 13" data-title="Request & Response">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 13 • Objetos do Express</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Os 3 Formatos de Envio: Params, Query e Body</h2>
+          <p class="text-slate-400 text-sm mt-1">Como extrair dados enviados pelo cliente no objeto <code>req</code> do Express.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 font-mono text-xs">
+          <!-- Params -->
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800">
+            <div class="text-node-400 font-bold text-sm mb-1">1. Route Params</div>
+            <div class="text-slate-400 font-sans text-xs mb-2">Usado para identificar um recurso único na URL.</div>
+            <div class="bg-black/50 p-2 rounded text-[11px] text-slate-300 border border-slate-800 mb-2">
+              GET /users/<span class="text-node-400 font-bold">10</span>
+            </div>
+            <div class="text-slate-400 text-[11px] font-sans">Como ler no código:</div>
+            <div class="bg-slate-900 p-2 rounded text-node-300 mt-1 border border-slate-800">
+              req.params.id <span class="text-slate-500">// "10"</span>
+            </div>
+          </div>
+
+          <!-- Query Params -->
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800">
+            <div class="text-sky-400 font-bold text-sm mb-1">2. Query Params</div>
+            <div class="text-slate-400 font-sans text-xs mb-2">Usado para filtros, paginação e ordenação opcionais.</div>
+            <div class="bg-black/50 p-2 rounded text-[11px] text-slate-300 border border-slate-800 mb-2">
+              GET /users?<span class="text-sky-400">role=admin&amp;page=2</span>
+            </div>
+            <div class="text-slate-400 text-[11px] font-sans">Como ler no código:</div>
+            <div class="bg-slate-900 p-2 rounded text-sky-300 mt-1 border border-slate-800">
+              req.query.role <span class="text-slate-500">// "admin"</span>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800">
+            <div class="text-amber-400 font-bold text-sm mb-1">3. Request Body</div>
+            <div class="text-slate-400 font-sans text-xs mb-2">Usado para payloads maiores em POST e PUT (JSON).</div>
+            <div class="bg-black/50 p-2 rounded text-[11px] text-slate-300 border border-slate-800 mb-2">
+              { "name": "Ana", "email": "ana@..." }
+            </div>
+            <div class="text-slate-400 text-[11px] font-sans">Como ler no código:</div>
+            <div class="bg-slate-900 p-2 rounded text-amber-300 mt-1 border border-slate-800">
+              req.body.name <span class="text-slate-500">// "Ana"</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200">
+          ⚠️ <strong>Atenção:</strong> Para que <code>req.body</code> funcione no Express, lembre-se sempre de habilitar <code>app.use(express.json())</code> no seu arquivo de entrada!
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 16: MÓDULO 14 — MIDDLEWARES
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 14" data-title="Middlewares">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 14 • Interceptação</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Middlewares: A Portaria do Servidor</h2>
+          <p class="text-slate-400 text-sm mt-1">Funções intermediárias executadas no meio do caminho entre a chegada da requisição e o Controller final.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Middleware Code -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400 text-[11px]">Exemplo de Middleware de Log</span>
+            </div>
+            <div class="p-4 space-y-1.5 leading-relaxed">
+              <div><span class="syn-keyword">function</span> <span class="syn-func">loggerMiddleware</span>(req, res, next) {</div>
+              <div class="pl-4"><span class="syn-keyword">const</span> time = <span class="syn-keyword">new</span> <span class="syn-func">Date</span>().<span class="syn-func">toISOString</span>();</div>
+              <div class="pl-4"><span class="syn-func">console</span>.<span class="syn-func">log</span>(<span class="syn-string">`[${time}] ${req.method} em ${req.url}`</span>);</div>
+              <br>
+              <div class="pl-4"><span class="syn-comment">// Libera para a próxima etapa:</span></div>
+              <div class="pl-4"><span class="syn-func">next</span>();</div>
+              <div>}</div>
+              <br>
+              <div><span class="syn-comment">// Aplicando globalmente em todas as rotas:</span></div>
+              <div>app.<span class="syn-func">use</span>(loggerMiddleware);</div>
+            </div>
+          </div>
+
+          <!-- The next() function and use cases -->
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-lg bg-dark-card border border-node-500/30">
+              <h4 class="font-bold text-node-300 font-mono">O Poder do next()</h4>
+              <p class="text-slate-400 mt-1">
+                Se você não chamar <code>next()</code> e não retornar uma resposta com <code>res.json()</code>, a requisição ficará "travada" aguardando para sempre até estourar timeout!
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800">
+              <h4 class="font-bold text-white mb-2">Principais Usos de Middlewares:</h4>
+              <div class="space-y-1.5 text-slate-300">
+                <div>🔐 <strong>Autenticação:</strong> Checar se o token JWT é válido</div>
+                <div>📝 <strong>Logging &amp; Métricas:</strong> Monitorar tempo de resposta</div>
+                <div>🛡️ <strong>Segurança (CORS / Helmet):</strong> Bloquear origens suspeitas</div>
+                <div>💥 <strong>Tratamento de Erros:</strong> Capturar exceções globais</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 17: MÓDULO 15 — CONCEITO DE CRUD
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 15" data-title="Conceito de CRUD">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 15 • Operações Essenciais</span>
+          <h2 class="text-3xl font-bold text-white mt-1">CRUD: As 4 Operações Básicas</h2>
+          <p class="text-slate-400 text-sm mt-1">Quase todo sistema de software é, no seu núcleo, uma composição de Create, Read, Update e Delete.</p>
+        </div>
+
+        <!-- CRUD Matrix Table -->
+        <div class="rounded-xl border border-slate-800 bg-dark-card overflow-hidden text-xs mb-4">
+          <table class="w-full text-left font-mono">
+            <thead class="bg-slate-900 border-b border-slate-800 text-slate-400 text-[11px]">
+              <tr>
+                <th class="p-3">Operação</th>
+                <th class="p-3">Verbo HTTP</th>
+                <th class="p-3">Endpoint</th>
+                <th class="p-3 font-sans">Ação / Descrição</th>
+                <th class="p-3">Status Esperado</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/80">
+              <tr>
+                <td class="p-3 font-bold text-white">Create</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">POST</span></td>
+                <td class="p-3 text-slate-300">/users</td>
+                <td class="p-3 font-sans text-slate-400">Cadastra um novo usuário no banco</td>
+                <td class="p-3 text-emerald-400 font-bold">201 Created</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Read (Todos)</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">GET</span></td>
+                <td class="p-3 text-slate-300">/users</td>
+                <td class="p-3 font-sans text-slate-400">Lista todos os usuários cadastrados</td>
+                <td class="p-3 text-blue-400 font-bold">200 OK</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Read (Individual)</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">GET</span></td>
+                <td class="p-3 text-slate-300">/users/:id</td>
+                <td class="p-3 font-sans text-slate-400">Retorna os detalhes de um único usuário por ID</td>
+                <td class="p-3 text-blue-400 font-bold">200 OK</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Update</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">PUT</span></td>
+                <td class="p-3 text-slate-300">/users/:id</td>
+                <td class="p-3 font-sans text-slate-400">Atualiza os dados de um usuário existente</td>
+                <td class="p-3 text-amber-400 font-bold">200 OK</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Delete</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-bold">DELETE</span></td>
+                <td class="p-3 text-slate-300">/users/:id</td>
+                <td class="p-3 font-sans text-slate-400">Remove o usuário da base de dados</td>
+                <td class="p-3 text-rose-400 font-bold">204 No Content</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 18: MÓDULO 16 — CRIANDO UM CRUD SIMPLES
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 16" data-title="CRUD na Prática">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 16 • Implementação</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Implementando o CRUD em Memória</h2>
+          <p class="text-slate-400 text-sm mt-1">Veja como as operações de atualização e exclusão acontecem sobre a estrutura de dados.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
+          <!-- PUT Implementation -->
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800">
+            <div class="text-amber-400 font-bold mb-2">PUT /users/:id (Atualizar)</div>
+            <pre class="text-slate-300 leading-relaxed text-[11px]">
+<span class="syn-keyword">function</span> <span class="syn-func">update</span>(id, { name, email }) {
+  <span class="syn-keyword">const</span> user = <span class="syn-func">findById</span>(id);
+  <span class="syn-keyword">if</span> (!user) <span class="syn-keyword">return null</span>;
+
+  <span class="syn-keyword">if</span> (name) user.<span class="syn-prop">name</span> = name;
+  <span class="syn-keyword">if</span> (email) user.<span class="syn-prop">email</span> = email;
+
+  <span class="syn-keyword">return</span> user;
+}
+            </pre>
+          </div>
+
+          <!-- DELETE Implementation -->
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800">
+            <div class="text-rose-400 font-bold mb-2">DELETE /users/:id (Excluir)</div>
+            <pre class="text-slate-300 leading-relaxed text-[11px]">
+<span class="syn-keyword">function</span> <span class="syn-func">destroy</span>(id) {
+  <span class="syn-keyword">const</span> index = users.<span class="syn-func">findIndex</span>(
+    u =&gt; u.id === <span class="syn-func">Number</span>(id)
+  );
+  
+  <span class="syn-keyword">if</span> (index === -<span class="syn-num">1</span>) <span class="syn-keyword">return false</span>;
+
+  users.<span class="syn-func">splice</span>(index, <span class="syn-num">1</span>);
+  <span class="syn-keyword">return true</span>;
+}
+            </pre>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300">
+          💡 <strong>Nota didática:</strong> Usar um array em memória é perfeito para aprender os conceitos de rotas e status sem a distração de configurar credenciais de bancos de dados no primeiro dia!
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 19: MÓDULO 17 — VALIDAÇÃO DE DADOS
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 17" data-title="Validação de Dados">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 17 • Integridade</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Validação: Nunca Confie no Cliente</h2>
+          <p class="text-slate-400 text-sm mt-1">Quem consome a API pode enviar dados incompletos, tipos errados ou informações maliciosas.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Code Block -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400 text-[11px]">Validação manual no Controller</span>
+            </div>
+            <div class="p-4 space-y-2 leading-relaxed">
+              <div><span class="syn-keyword">async function</span> <span class="syn-func">store</span>(req, res) {</div>
+              <div class="pl-4"><span class="syn-keyword">const</span> { name, email } = req.<span class="syn-prop">body</span>;</div>
+              <br>
+              <div class="pl-4"><span class="syn-comment">// Validação de presença obrigatória:</span></div>
+              <div class="pl-4"><span class="syn-keyword">if</span> (!name || !email) {</div>
+              <div class="pl-8"><span class="syn-keyword">return</span> res.<span class="syn-func">status</span>(<span class="syn-num">400</span>).<span class="syn-func">json</span>({</div>
+              <div class="pl-12">error: <span class="syn-string">"Nome e e-mail são obrigatórios!"</span></div>
+              <div class="pl-8">});</div>
+              <div class="pl-4">}</div>
+              <br>
+              <div class="pl-4"><span class="syn-keyword">const</span> user = <span class="syn-keyword">await</span> userService.<span class="syn-func">create</span>({ name, email });</div>
+              <div class="pl-4"><span class="syn-keyword">return</span> res.<span class="syn-func">status</span>(<span class="syn-num">201</span>).<span class="syn-func">json</span>(user);</div>
+              <div>}</div>
+            </div>
+          </div>
+
+          <!-- Why Validate -->
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-lg bg-dark-card border border-amber-500/30">
+              <h4 class="font-bold text-amber-300">Regras Essenciais de Validação:</h4>
+              <ul class="text-slate-300 mt-2 space-y-1.5 list-disc list-inside">
+                <li>Campos obrigatórios preenchidos</li>
+                <li>Formato correto de e-mail (conter @ e domínio)</li>
+                <li>Tamanho mínimo e máximo de caracteres</li>
+                <li>Tipagem adequada (número x texto)</li>
+              </ul>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-dark-card border border-slate-800 font-sans">
+              <span class="text-node-400 font-bold font-mono">Bibliotecas Avançadas (Próximo Nível):</span>
+              <p class="text-slate-400 mt-1">
+                Em projetos corporativos, usamos bibliotecas de validação com schemas como <strong>Zod</strong> ou <strong>Yup</strong> para validar objetos complexos automaticamente.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 20: MÓDULO 18 — TRATAMENTO DE ERROS
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 18" data-title="Tratamento de Erros">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 18 • Resiliência</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Tratamento de Erros Previsível</h2>
+          <p class="text-slate-400 text-sm mt-1">Uma boa API nunca deixa a requisição sem resposta ou expõe rastros técnicos (stack trace) para o usuário final.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          <!-- Try Catch in Controller -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400 text-[11px]">1. try / catch no Controller</span>
+            </div>
+            <div class="p-4 space-y-2 leading-relaxed">
+              <div><span class="syn-keyword">try</span> {</div>
+              <div class="pl-4"><span class="syn-keyword">const</span> user = <span class="syn-keyword">await</span> userService.<span class="syn-func">getById</span>(id);</div>
+              <div class="pl-4"><span class="syn-keyword">return</span> res.<span class="syn-func">json</span>(user);</div>
+              <div>} <span class="syn-keyword">catch</span> (error) {</div>
+              <div class="pl-4"><span class="syn-keyword">return</span> res.<span class="syn-func">status</span>(<span class="syn-num">404</span>).<span class="syn-func">json</span>({</div>
+              <div class="pl-8">error: error.<span class="syn-prop">message</span></div>
+              <div class="pl-4">});</div>
+              <div>}</div>
+            </div>
+          </div>
+
+          <!-- Global Error Middleware -->
+          <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs">
+            <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400 text-[11px]">2. Middleware Global de Erros</span>
+            </div>
+            <div class="p-4 space-y-2 leading-relaxed">
+              <div><span class="syn-comment">// Tem 4 parâmetros (o primeiro é 'err')</span></div>
+              <div>app.<span class="syn-func">use</span>((err, req, res, next) =&gt; {</div>
+              <div class="pl-4"><span class="syn-func">console</span>.<span class="syn-func">error</span>(err.<span class="syn-prop">stack</span>);</div>
+              <br>
+              <div class="pl-4"><span class="syn-keyword">return</span> res.<span class="syn-func">status</span>(<span class="syn-num">500</span>).<span class="syn-func">json</span>({</div>
+              <div class="pl-8">error: <span class="syn-string">"Ocorreu um erro interno no servidor"</span></div>
+              <div class="pl-4">});</div>
+              <div>});</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300">
+          🎯 <strong>Regra de Ouro:</strong> Sempre retorne respostas com formato consistente em JSON: <code>{ "error": "motivo claro" }</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 21: MÓDULO 19 — TESTANDO A API COM POSTMAN
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 19" data-title="Testando a API">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 19 • Ferramentas</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Como Testar a API: Postman &amp; Insomnia</h2>
+          <p class="text-slate-400 text-sm mt-1">Navegadores comuns só fazem requisições <code>GET</code> pela barra de endereços. Para testar <code>POST</code>, <code>PUT</code> e <code>DELETE</code>, usamos clientes de API.</p>
+        </div>
+
+        <!-- Simulated Postman Interface -->
+        <div class="rounded-xl bg-[#0F172A] border border-slate-800 overflow-hidden font-mono text-xs mb-4">
+          <!-- Request Bar -->
+          <div class="bg-slate-900/90 px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 font-bold text-xs">POST</span>
+            <span class="text-slate-300 bg-black/40 px-3 py-1 rounded border border-slate-700/80 w-full text-xs">
+              http://localhost:3000/users
+            </span>
+            <button class="bg-node-600 hover:bg-node-500 text-black font-bold px-4 py-1 rounded font-sans text-xs">Send</button>
+          </div>
+
+          <!-- Body JSON Sent -->
+          <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-800">
+            <div class="p-4">
+              <span class="text-slate-500 text-[11px] block mb-2 font-bold font-sans">Request Body (application/json):</span>
+              <pre class="text-slate-300 text-[11px]">
+{
+  <span class="syn-prop">"name"</span>: <span class="syn-string">"Phelipe"</span>,
+  <span class="syn-prop">"email"</span>: <span class="syn-string">"phelipe@email.com"</span>
+}
+              </pre>
+            </div>
+
+            <div class="p-4 bg-slate-950/40">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-slate-500 text-[11px] font-bold font-sans">Response (Preview):</span>
+                <span class="text-emerald-400 font-bold text-[11px]">Status: 201 Created</span>
+              </div>
+              <pre class="text-node-300 text-[11px]">
+{
+  <span class="syn-prop">"id"</span>: <span class="syn-num">1709283749</span>,
+  <span class="syn-prop">"name"</span>: <span class="syn-string">"Phelipe"</span>,
+  <span class="syn-prop">"email"</span>: <span class="syn-string">"phelipe@email.com"</span>
+}
+              </pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 pt-2">
+          <span>Outras ferramentas recomendadas:</span>
+          <span class="font-mono text-slate-300 font-bold">Insomnia</span>
+          <span class="text-slate-600">•</span>
+          <span class="font-mono text-slate-300 font-bold">Thunder Client (Extensão do VS Code)</span>
+          <span class="text-slate-600">•</span>
+          <span class="font-mono text-slate-300 font-bold">curl (Terminal)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 22: MÓDULO 20 — BOAS PRÁTICAS
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 20" data-title="Boas Práticas">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 20 • Qualidade</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Guia de Boas Práticas no Backend</h2>
+          <p class="text-slate-400 text-sm mt-1">Hábitos que separam desenvolvedores amadores de profissionais no dia a dia da indústria.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div class="p-3.5 rounded-xl bg-dark-card border border-slate-800 space-y-2">
+            <div class="text-node-400 font-bold text-sm">✅ O que FAZER sempre:</div>
+            <ul class="text-slate-300 space-y-1.5 list-disc list-inside">
+              <li>Usar códigos de status HTTP semânticos (ex: 201 para POST bem sucedido)</li>
+              <li>Manter os Controllers "magros", transferindo lógica para os Services</li>
+              <li>Utilizar <code>async / await</code> para lidar com operações assíncronas</li>
+              <li>Guardar senhas e configurações em variáveis de ambiente (<code>.env</code>)</li>
+            </ul>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-dark-card border border-slate-800 space-y-2">
+            <div class="text-rose-400 font-bold text-sm">❌ O que NUNCA fazer:</div>
+            <ul class="text-slate-300 space-y-1.5 list-disc list-inside">
+              <li>Colocar regras de negócio ou SQL direto nos arquivos de rotas</li>
+              <li>Subir a pasta <code>node_modules/</code> ou credenciais de banco no GitHub</li>
+              <li>Retornar <code>200 OK</code> quando a requisição na verdade falhou</li>
+              <li>Deixar erros estourarem sem capturar com <code>try / catch</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 23: MÓDULO 21 — PROJETO PRÁTICO GUIADO
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 21" data-title="Atividade Prática">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 21 • Mãos na Massa</span>
+          <h2 class="text-3xl font-bold text-white mt-1">Desafio Prático: Construindo a API de Usuários</h2>
+          <p class="text-slate-400 text-sm mt-1">Roteiro passo a passo para você construir e testar a aplicação agora mesmo no seu computador.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono mb-4">
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800 space-y-2">
+            <div class="text-node-400 font-bold">Etapa 1: Setup do Projeto</div>
+            <div class="bg-black/40 p-2.5 rounded text-[11px] space-y-1 text-slate-300">
+              <p>$ mkdir api-users &amp;&amp; cd api-users</p>
+              <p>$ npm init -y</p>
+              <p>$ npm install express</p>
+            </div>
+            <p class="text-slate-400 font-sans text-[11px]">Crie a pasta <code>src/</code> com subpastas <code>routes</code>, <code>controllers</code>, <code>services</code> e <code>models</code>.</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-dark-card border border-slate-800 space-y-2">
+            <div class="text-sky-400 font-bold">Etapa 2: Implementar as Camadas</div>
+            <p class="text-slate-400 font-sans text-[11px]">
+              1. <strong>Model:</strong> Crie o array <code>users</code> com métodos <code>findAll</code> e <code>create</code>.<br>
+              2. <strong>Service:</strong> Valide se o email já existe antes de salvar.<br>
+              3. <strong>Controller:</strong> Receba <code>req.body</code> e retorne <code>res.status(201)</code>.<br>
+              4. <strong>Routes:</strong> Ligue <code>router.post("/users", userController.store)</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-lg bg-node-950/40 border border-node-500/30 text-xs text-node-300 flex items-center justify-between">
+          <span>🚀 <strong>Desafio Extra:</strong> Adicione o método <code>DELETE /users/:id</code> para permitir a remoção de usuários cadastrados!</span>
+          <span class="font-mono text-slate-400">Tempo estimado: 15 min</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 24: MÓDULO 22 — ARQUITETURA FINAL & ANALOGIA
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 22" data-title="Arquitetura & Analogia">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-5">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 22 • Metáfora Mental</span>
+          <h2 class="text-3xl font-bold text-white mt-1">A Analogia do Restaurante 🍽️</h2>
+          <p class="text-slate-400 text-sm mt-1">Para fixar para sempre na memória o papel exato de cada camada da aplicação.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-center text-xs mb-5">
+          <div class="p-3.5 rounded-xl bg-dark-card border border-slate-800 hover:border-node-500/40 transition">
+            <div class="text-2xl mb-1">🚪</div>
+            <div class="font-bold text-node-400 font-mono">Route</div>
+            <div class="text-white font-semibold mt-1">Recepcionista</div>
+            <p class="text-[11px] text-slate-400 mt-1">Verifica qual mesa o cliente pediu e indica para onde ele deve ir.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-dark-card border border-slate-800 hover:border-sky-500/40 transition">
+            <div class="text-2xl mb-1">🤵</div>
+            <div class="font-bold text-sky-400 font-mono">Controller</div>
+            <div class="text-white font-semibold mt-1">Garçom</div>
+            <p class="text-[11px] text-slate-400 mt-1">Anota o pedido do cliente, leva até a cozinha e depois serve o prato pronto.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-dark-card border border-slate-800 hover:border-amber-500/40 transition">
+            <div class="text-2xl mb-1">👨‍🍳</div>
+            <div class="font-bold text-amber-400 font-mono">Service</div>
+            <div class="text-white font-semibold mt-1">Chef de Cozinha</div>
+            <p class="text-[11px] text-slate-400 mt-1">Executa a receita, valida se há ingredientes e prepara a refeição.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-dark-card border border-slate-800 hover:border-purple-500/40 transition">
+            <div class="text-2xl mb-1">📦</div>
+            <div class="font-bold text-purple-400 font-mono">Model</div>
+            <div class="text-white font-semibold mt-1">Despenseiro</div>
+            <p class="text-[11px] text-slate-400 mt-1">Vai até a despensa buscar os ingredientes solicitados pelo Chef.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-dark-card border border-slate-800 hover:border-emerald-500/40 transition">
+            <div class="text-2xl mb-1">🗄️</div>
+            <div class="font-bold text-emerald-400 font-mono">Database</div>
+            <div class="text-white font-semibold mt-1">A Despensa</div>
+            <p class="text-[11px] text-slate-400 mt-1">O local seguro e refrigerado onde os alimentos ficam armazenados.</p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 text-center font-mono">
+          O cliente NUNCA entra na cozinha! Ele fala apenas com o garçom (Controller).
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 25: MÓDULO 23 — PERGUNTAS DE FIXAÇÃO
+         ========================================== -->
+    <div class="slide-page" data-module="Módulo 23" data-title="Revisão">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-4">
+          <span class="text-xs font-mono font-semibold text-node-400 uppercase tracking-widest">Módulo 23 • Fixação</span>
+          <h2 class="text-2xl font-bold text-white mt-1">Perguntas de Fixação de Conteúdo</h2>
+          <p class="text-slate-400 text-xs mt-1">Responda mentalmente ou anote suas respostas antes de conferir o gabarito.</p>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <span class="text-node-400 font-bold font-mono">1.</span>
+            <span class="text-white font-semibold ml-1">O que é Node.js e por que ele revolucionou o desenvolvimento web?</span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <span class="text-node-400 font-bold font-mono">2.</span>
+            <span class="text-white font-semibold ml-1">Qual é a diferença fundamental entre as responsabilidades do Controller e do Service?</span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <span class="text-node-400 font-bold font-mono">3.</span>
+            <span class="text-white font-semibold ml-1">Quando devemos utilizar a camada de Model em vez de acessar dados diretamente no Controller?</span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <span class="text-node-400 font-bold font-mono">4.</span>
+            <span class="text-white font-semibold ml-1">O que acontece caso você crie um middleware e esqueça de invocar a função <code>next()</code>?</span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <span class="text-node-400 font-bold font-mono">5.</span>
+            <span class="text-white font-semibold ml-1">Qual é a principal vantagem de seguir o padrão arquitetural Routes ➔ Controllers ➔ Services ➔ Models?</span>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+          <span class="text-slate-400">🔒 Gabarito protegido no slide seguinte para o instrutor.</span>
+          <button onclick="goToSlide(totalSlides - 1)" class="px-3 py-1 bg-node-500 hover:bg-node-400 text-black font-bold rounded text-xs transition">
+            Avançar para o Gabarito ➔
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SLIDE 26: MÓDULO 24 — GABARITO & ENCERRAMENTO
+         ========================================== -->
+    <div class="slide-page" id="slide-teacher-key" data-module="Módulo 24" data-title="Gabarito do Professor">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-mono font-semibold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+              <span>👨‍🏫</span> MATERIAL EXCLUSIVO DO PROFESSOR • GABARITO
+            </span>
+            <h2 class="text-2xl font-bold text-white mt-1">Respostas Explicativas das Questões</h2>
+          </div>
+          <span class="badge-pill bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px]">
+            Gabarito Oficial
+          </span>
+        </div>
+
+        <div class="space-y-2.5 text-xs overflow-y-auto max-h-[55vh] pr-2">
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <div class="font-bold text-node-400">1. O que é Node.js?</div>
+            <p class="text-slate-300 mt-1">
+              É um ambiente de execução (runtime) baseado no motor V8 do Chrome que permite executar JavaScript no lado do servidor com I/O assíncrono e não-bloqueante, unificando a linguagem no ecossistema web completo.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <div class="font-bold text-sky-400">2. Controller vs. Service</div>
+            <p class="text-slate-300 mt-1">
+              O <strong>Controller</strong> lida com o protocolo HTTP (extrair <code>req.body</code>, <code>params</code> e enviar <code>res.status().json()</code>). O <strong>Service</strong> contém a lógica de negócio pura (regras, cálculos e validações), sendo 100% independente do framework web.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <div class="font-bold text-purple-400">3. Papel do Model</div>
+            <p class="text-slate-300 mt-1">
+              O <strong>Model</strong> encapsula o acesso e a manipulação dos dados. Isso isola a aplicação do banco de dados específico, permitindo trocar o banco ou ORM no futuro sem quebrar o restante da API.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <div class="font-bold text-amber-400">4. Esquecer de invocar next()</div>
+            <p class="text-slate-300 mt-1">
+              A requisição fica suspensa em espera infinita (hanging request), resultando em travamento do cliente ou erro de Timeout (504 Gateway Timeout), pois o fluxo do Express não sabe para onde continuar.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-lg bg-dark-card border border-slate-800">
+            <div class="font-bold text-emerald-400">5. Vantagem da Arquitetura em Camadas</div>
+            <p class="text-slate-300 mt-1">
+              Separação de responsabilidades (SoC), facilidade de manutenção, facilidade para escrever testes unitários e capacidade da aplicação escalar organizadamente com grandes equipes.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 rounded-lg bg-node-950/60 border border-node-500/30 text-center text-xs text-node-300">
+          🎉 <strong>Parabéns pela conclusão da aula!</strong> Você agora domina os alicerces fundamentais da construção de APIs com Node.js e Express.
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <footer class="fixed bottom-0 left-0 right-0 z-50 bg-[#0B1120]/95 backdrop-blur-md border-t border-slate-800/80 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2 text-xs text-slate-400">
+      <span class="hidden sm:inline">Use as setas</span>
+      <kbd class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 font-mono text-[11px]">◀ Anterior</kbd>
+      <kbd class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 font-mono text-[11px]">Próximo ▶</kbd>
+    </div>
+
+    <!-- Quick Navigation Buttons -->
+    <div class="flex items-center gap-2">
+      <button onclick="prevSlide()" id="btn-prev" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1 border border-slate-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        Anterior
+      </button>
+
+      <button onclick="nextSlide()" id="btn-next" class="px-4 py-1.5 rounded-lg bg-node-600 hover:bg-node-500 text-black text-xs font-bold transition flex items-center gap-1 shadow-lg shadow-node-600/20">
+        Próximo
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- Slide Engine JavaScript Logic -->
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide-page');
+    const totalSlides = slides.length;
+    let teacherModeUnlocked = false;
+
+    // Elements
+    const progressBar = document.getElementById('progress-bar');
+    const currentNumDisplay = document.getElementById('current-slide-num');
+    const totalNumDisplay = document.getElementById('total-slides-num');
+    const moduleBadge = document.getElementById('module-badge');
+    const moduleTitleHeader = document.getElementById('module-title-header');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const teacherStatusText = document.getElementById('teacher-status-text');
+
+    // Total display init
+    totalNumDisplay.textContent = totalSlides;
+
+    function updatePresentation() {
+      slides.forEach((slide, idx) => {
+        if (idx === currentSlide) {
+          slide.classList.add('active');
+          slide.scrollTop = 0;
+          
+          // Update header info
+          const mod = slide.getAttribute('data-module') || 'Geral';
+          const title = slide.getAttribute('data-title') || '';
+          moduleBadge.textContent = mod;
+          moduleTitleHeader.textContent = title;
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      // Update Slide Counter
+      currentNumDisplay.textContent = currentSlide + 1;
+
+      // Update Progress Bar
+      const percentage = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = percentage + '%';
+
+      // Update navigation button states
+      btnPrev.disabled = currentSlide === 0;
+      btnPrev.style.opacity = currentSlide === 0 ? '0.4' : '1';
+
+      if (currentSlide === totalSlides - 1) {
+        btnNext.textContent = 'Início ↺';
+      } else {
+        btnNext.innerHTML = 'Próximo <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>';
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updatePresentation();
+      } else {
+        currentSlide = 0;
+        updatePresentation();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updatePresentation();
+      }
+    }
+
+    function goToSlide(index) {
+      if (index >= 0 && index < totalSlides) {
+        currentSlide = index;
+        updatePresentation();
+      }
+    }
+
+    function toggleTeacherMode() {
+      teacherModeUnlocked = !teacherModeUnlocked;
+      if (teacherModeUnlocked) {
+        teacherStatusText.textContent = "Gabarito Ativo";
+        teacherStatusText.classList.add("text-node-400");
+        goToSlide(totalSlides - 1);
+      } else {
+        teacherStatusText.textContent = "Gabarito";
+        teacherStatusText.classList.remove("text-node-400");
+        goToSlide(0);
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.warn(`Erro ao ativar modo tela cheia: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Keyboard Navigation Listener
+    document.addEventListener('keydown', (e) => {
+      // Space or Right Arrow: Next
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } 
+      // Left Arrow: Previous
+      else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevSlide();
+      }
+      // F key: Fullscreen
+      else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      }
+      // Home: First Slide
+      else if (e.key === 'Home') {
+        e.preventDefault();
+        goToSlide(0);
+      }
+      // End: Last Slide
+      else if (e.key === 'End') {
+        e.preventDefault();
+        goToSlide(totalSlides - 1);
+      }
+      // Shift + G: Toggle Teacher Mode / Gabarito
+      else if (e.shiftKey && (e.key === 'G' || e.key === 'g')) {
+        toggleTeacherMode();
+      }
+    });
+
+    // Touch Swipe Support for Tablets / Mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+
+    document.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 50) {
+        nextSlide();
+      }
+      if (touchEndX > touchStartX + 50) {
+        prevSlide();
+      }
+    }, false);
+
+    // Initial render
+    updatePresentation();
+  </script>
+</body>
+</html>

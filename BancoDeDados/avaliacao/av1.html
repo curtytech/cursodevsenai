@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div style="display: flex; justify-content: center; align-items: center; ">
+        <iframe
+        src="https://docs.google.com/forms/d/e/1FAIpQLSeKOa2WjvqusO-yS5pgug1DFVMRUOSbXc4MD3Pif5VIaLJ14w/viewform?embedded=true"
+        width="720" height="4795" frameborder="0" marginheight="0" marginwidth="0">Carregando…</iframe>
+    </div>
+
+    <script>
+        document.addEventListener('visibilitychange', () => {
+            let audio = new Audio('../../assets/audioSaiuDaTela.ogg');
+            // audio.volume = 1;
+            if (document.hidden) {
+                alert('Usuário saiu da aba');
+                audio.play("");
+            } else {
+                audio.play("");
+                alert('Usuário voltou para a aba');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Requisitos de Sistemas & Regras de Negócio</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              dark:    '#1E3A5F',  /* Azul Marinho Profundo */
+              primary: '#2563EB',  /* Azul Real */
+              mid:     '#3B82F6',  /* Azul Médio */
+              light:   '#DBEAFE',  /* Azul Céu Suave */
+              subtle:  '#EFF6FF',  /* Fundo Azul Sutil */
+              border:  '#BFDBFE',  /* Borda Azul Suave */
+              text:    '#1F2937',  /* Texto Principal Carvão */
+              muted:   '#6B7280',  /* Cinza Muted */
+              bg:      '#F8FAFC',  /* Fundo Off-White */
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F1F5F9;
+      color: #1F2937;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .slide-container {
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 5rem);
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .mono-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72em;
+      background: #DBEAFE;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+      border-radius: 4px;
+      padding: 1px 6px;
+    }
+
+    #progress-bar {
+      transition: width 0.35s ease;
+    }
+
+    /* Modal TOC */
+    #toc-modal {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(15,23,42,0.6);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+    }
+    #toc-modal.open { display: flex; }
+
+    /* Notes drawer */
+    #notes-drawer {
+      position: fixed;
+      top: 0; right: -420px;
+      width: 400px; height: 100vh;
+      background: #1E3A5F;
+      color: #E2E8F0;
+      z-index: 60;
+      transition: right 0.3s ease;
+      overflow-y: auto;
+      padding: 1.5rem;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+    }
+    #notes-drawer.open { right: 0; }
+    #notes-drawer::-webkit-scrollbar { width: 6px; }
+    #notes-drawer::-webkit-scrollbar-thumb { background: #3B82F6; border-radius: 3px; }
+
+    /* Quiz */
+    .quiz-opt {
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid #BFDBFE;
+    }
+    .quiz-opt:hover { border-color: #2563EB; background: #EFF6FF; }
+    .quiz-opt.correct { border-color: #16A34A; background: #DCFCE7; color: #15803D; font-weight: 600; }
+    .quiz-opt.wrong   { border-color: #DC2626; background: #FEE2E2; color: #B91C1C; }
+
+    /* Cards e checklists */
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #EFF6FF;
+      border-left: 3px solid #2563EB;
+    }
+
+    /* Tabela estilizada */
+    .custom-table th {
+      background: #1E3A5F;
+      color: #FFFFFF;
+      font-size: 0.7rem;
+      padding: 6px 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .custom-table td {
+      font-size: 0.72rem;
+      padding: 6px 10px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    @media print {
+      header, footer, #toc-modal, #notes-drawer { display: none !important; }
+      .slide { display: flex !important; page-break-after: always; height: 100vh; }
+      .slide-container { max-height: none; aspect-ratio: auto; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <header class="sticky top-0 z-40 bg-brand-dark shadow-md flex items-center justify-between px-4 py-2 gap-4" style="min-height:3rem">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-primary flex-shrink-0">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+        </svg>
+      </div>
+      <span class="text-white font-semibold text-sm truncate">Engenharia de Software: Requisitos de Sistemas &amp; Regras de Negócio</span>
+    </div>
+    <div class="flex items-center gap-3 flex-shrink-0">
+      <span class="text-blue-200 text-xs font-mono">
+        Slide <span id="cur-slide-num" class="text-white font-bold">1</span> / <span id="total-slide-num" class="text-white font-bold">14</span>
+      </span>
+      <button onclick="toggleTOC()" class="text-blue-200 hover:text-white transition-colors text-xs border border-blue-700 rounded px-2 py-1 hover:bg-blue-700">☰ Sumário</button>
+      <button onclick="toggleNotes()" class="text-blue-200 hover:text-white transition-colors text-xs border border-blue-700 rounded px-2 py-1 hover:bg-blue-700">📝 Notas</button>
+    </div>
+  </header>
+
+  <!-- Barra de progresso -->
+  <div class="h-1 bg-blue-900">
+    <div id="progress-bar" class="h-1 bg-brand-primary" style="width:7.14%"></div>
+  </div>
+
+  <!-- ═══════════════ MAIN CONTAINER ═══════════════ -->
+  <main class="flex-1 flex items-center justify-center p-4">
+    <div class="slide-container w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-blue-100">
+
+      <!-- ══════ SLIDE 1 — CAPA ══════ -->
+      <section class="slide active" style="background: linear-gradient(135deg, #1E3A5F 0%, #1D4ED8 60%, #2563EB 100%);">
+        <div class="flex flex-col items-center justify-center h-full px-12 text-center relative">
+          <!-- Círculos decorativos -->
+          <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10" style="background:radial-gradient(circle,#60A5FA,transparent);transform:translate(30%,-30%)"></div>
+          <div class="absolute bottom-0 left-0 w-48 h-48 rounded-full opacity-10" style="background:radial-gradient(circle,#93C5FD,transparent);transform:translate(-30%,30%)"></div>
+
+          <div class="inline-flex items-center gap-2 bg-white bg-opacity-15 rounded-full px-4 py-1 mb-5">
+            <span class="text-blue-200 text-xs font-semibold tracking-widest uppercase">Análise &amp; Projeto de Sistemas</span>
+          </div>
+          <h1 class="text-4xl font-black text-white leading-tight mb-3">
+            Requisitos de Sistemas<br>
+            <span class="text-blue-300">Funcionais &amp; Não Funcionais</span><br>
+            <span class="text-blue-200 text-3xl">&amp; Regras de Negócio</span>
+          </h1>
+          <p class="text-blue-100 text-sm mt-3 max-w-xl">
+            Aprenda a traduzir necessidades reais em especificações técnicas precisas: o que o sistema deve fazer, como deve se comportar e quais normas organizacionais deve respeitar.
+          </p>
+          <div class="mt-8 flex gap-6 text-blue-200 text-xs">
+            <span>⏱ 50–60 min</span>
+            <span>📊 14 slides</span>
+            <span>🎯 Fundamentos de TI</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 2 — O QUE SÃO REQUISITOS DE SISTEMAS ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">📋</span>
+            <h2 class="text-white font-bold text-lg">O que são Requisitos de Sistemas?</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 10</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5 overflow-hidden">
+            <div class="flex-1 flex flex-col gap-4">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-1">📌 Conceito Essencial</p>
+                <p class="text-sm text-brand-text leading-relaxed">
+                  Um <strong>requisito</strong> é uma condição ou capacidade que um software deve possuir para satisfazer a um objetivo do usuário, contrato, padrão ou regulamento. É o contrato invisível entre o cliente e o desenvolvedor.
+                </p>
+              </div>
+              <div class="grid grid-cols-3 gap-3">
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm text-center">
+                  <div class="text-2xl mb-1">🗣️</div>
+                  <p class="text-brand-dark font-bold text-xs">Necessidade Real</p>
+                  <p class="text-brand-muted text-xs mt-1">O problema que o usuário quer resolver no seu dia a dia.</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm text-center">
+                  <div class="text-2xl mb-1">📐</div>
+                  <p class="text-brand-dark font-bold text-xs">Especificação</p>
+                  <p class="text-brand-muted text-xs mt-1">A descrição detalhada de como o software atenderá essa demanda.</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm text-center">
+                  <div class="text-2xl mb-1">✅</div>
+                  <p class="text-brand-dark font-bold text-xs">Critério de Aceite</p>
+                  <p class="text-brand-muted text-xs mt-1">Como provar e testar que o software faz o que foi pedido.</p>
+                </div>
+              </div>
+              <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 text-xs text-yellow-800">
+                ⚠️ <strong>Atenção:</strong> Mais de 60% dos erros em projetos de software nascem na fase de levantamento de requisitos — corrigir um requisito errado durante o código custa até 10x mais; após a entrega, até 100x mais!
+              </div>
+            </div>
+            <!-- Coluna direita: fluxo de transformação -->
+            <div class="w-72 flex flex-col gap-3 justify-center">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider text-center">Do Problema ao Código</p>
+              <div class="flex flex-col gap-1 text-xs">
+                <div class="bg-blue-100 border border-brand-border rounded-lg p-2.5 text-center text-brand-dark">
+                  <strong>1. Desejo do Usuário</strong><br>
+                  <span class="text-brand-muted text-[11px]">"Preciso achar produtos mais rápido na loja"</span>
+                </div>
+                <div class="text-center text-brand-primary font-bold">↓</div>
+                <div class="bg-brand-primary text-white rounded-lg p-2.5 text-center">
+                  <strong>2. Requisito de Sistema</strong><br>
+                  <span class="text-blue-100 text-[11px]">"O sistema deve permitir busca por nome, categoria e faixa de preço com autocompletar em até 1s"</span>
+                </div>
+                <div class="text-center text-brand-primary font-bold">↓</div>
+                <div class="bg-brand-dark text-white rounded-lg p-2.5 text-center">
+                  <strong>3. Software Construído</strong><br>
+                  <span class="text-blue-200 text-[11px]">Banco indexado + API de busca + Interface responsiva</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 3 — O GRANDE TRIO (RN vs RF vs RNF) ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">⚖️</span>
+            <h2 class="text-white font-bold text-lg">O Grande Trio da Engenharia de Requisitos</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Diferença Visual</span>
+          </div>
+          <div class="flex flex-1 gap-5 px-8 py-5">
+            <!-- Card 1: RN -->
+            <div class="flex-1 bg-white rounded-xl border-2 border-amber-300 shadow-sm p-4 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">RN — Regra de Negócio</span>
+                  <span class="text-xl">🏢</span>
+                </div>
+                <h3 class="text-brand-dark font-black text-sm mb-1">A Regra da Organização</h3>
+                <p class="text-brand-muted text-xs mb-3">Define <strong>o que é permitido ou proibido</strong> segundo a lei, política ou diretriz da empresa (existe mesmo sem computador).</p>
+                <div class="bg-amber-50 rounded-lg p-3 border border-amber-200 text-xs text-amber-900">
+                  <strong>Exemplo Clássico:</strong><br>
+                  "Cliente inadimplente <u>não pode</u> realizar compras a prazo."
+                </div>
+              </div>
+              <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                👤 <strong>Origem:</strong> Diretoria, Jurídico, Financeiro.
+              </div>
+            </div>
+
+            <!-- Card 2: RF -->
+            <div class="flex-1 bg-white rounded-xl border-2 border-blue-400 shadow-sm p-4 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full">RF — Requisito Funcional</span>
+                  <span class="text-xl">⚙️</span>
+                </div>
+                <h3 class="text-brand-dark font-black text-sm mb-1">O QUE o Sistema Faz</h3>
+                <p class="text-brand-muted text-xs mb-3">Descreve uma <strong>ação, funcionalidade ou serviço</strong> que o sistema deve fornecer diretamente ao usuário.</p>
+                <div class="bg-blue-50 rounded-lg p-3 border border-blue-200 text-xs text-blue-900">
+                  <strong>Exemplo Clássico:</strong><br>
+                  "O sistema deve <u>consultar a situação cadastral</u> do cliente antes de confirmar o pagamento parcelado."
+                </div>
+              </div>
+              <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                💻 <strong>Origem:</strong> Usuários finais, Analistas de Sistemas.
+              </div>
+            </div>
+
+            <!-- Card 3: RNF -->
+            <div class="flex-1 bg-white rounded-xl border-2 border-indigo-400 shadow-sm p-4 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100 px-2.5 py-1 rounded-full">RNF — Requisito Não Funcional</span>
+                  <span class="text-xl">🛡️</span>
+                </div>
+                <h3 class="text-brand-dark font-black text-sm mb-1">COMO o Sistema Deve Ser</h3>
+                <p class="text-brand-muted text-xs mb-3">Define <strong>qualidade, restrições e desempenho</strong> com que a funcionalidade deve ser executada.</p>
+                <div class="bg-indigo-50 rounded-lg p-3 border border-indigo-200 text-xs text-indigo-900">
+                  <strong>Exemplo Clássico:</strong><br>
+                  "A validação de crédito deve ser concluída em <u>até 2 segundos</u> e trafegar via protocolo seguro HTTPS/TLS."
+                </div>
+              </div>
+              <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                🛠️ <strong>Origem:</strong> Arquitetos, DevOps, Segurança, LGPD.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 4 — REGRAS DE NEGÓCIO ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🏢</span>
+            <h2 class="text-white font-bold text-lg">Regras de Negócio (RN) — As Normas da Empresa</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulos 10.1 e 11</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-4">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-1">O que é uma Regra de Negócio?</p>
+                <p class="text-sm text-brand-text leading-relaxed">
+                  É uma declaração que define ou restringe algum aspecto do negócio. Representa o <strong>conhecimento corporativo</strong>: diretrizes comerciais, políticas de segurança, leis governamentais e fórmulas de cálculo.
+                </p>
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">3 Exemplos Fundamentais do Mercado:</p>
+
+                <div class="check-item text-xs border-l-4 border-l-red-500">
+                  <span class="text-lg">🚫</span>
+                  <div>
+                    <strong class="text-red-700">RN01 — Bloqueio de Inadimplência:</strong><br>
+                    <span class="text-brand-text">"Cliente inadimplente não pode realizar compras a prazo."</span>
+                  </div>
+                </div>
+
+                <div class="check-item text-xs border-l-4 border-l-amber-500">
+                  <span class="text-lg">📦</span>
+                  <div>
+                    <strong class="text-amber-800">RN02 — Trava de Estoque:</strong><br>
+                    <span class="text-brand-text">"Produtos sem estoque disponível não podem ser vendidos."</span>
+                  </div>
+                </div>
+
+                <div class="check-item text-xs border-l-4 border-l-blue-600">
+                  <span class="text-lg">🔐</span>
+                  <div>
+                    <strong class="text-brand-primary">RN03 — Nível de Alçada / Permissão:</strong><br>
+                    <span class="text-brand-text">"Somente usuários com perfil 'Administrador' podem cancelar uma venda concluída."</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna direita: Por que existem? -->
+            <div class="w-72 flex flex-col gap-3 justify-center">
+              <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
+                <p class="font-bold text-brand-dark text-xs mb-2">🎯 Por que o sistema deve seguir as RNs?</p>
+                <ul class="text-xs text-brand-muted space-y-2">
+                  <li>🔹 <strong>Evita prejuízos financeiros:</strong> impede vender fiado para quem já deve.</li>
+                  <li>🔹 <strong>Padroniza o atendimento:</strong> as regras valem igual para todos os caixas e lojas.</li>
+                  <li>🔹 <strong>Garante conformidade legal:</strong> respeita o Código de Defesa do Consumidor e impostos.</li>
+                  <li>🔹 <strong>Segurança operacional:</strong> operadores não cancelam vendas sem autorização do gerente.</li>
+                </ul>
+              </div>
+              <div class="bg-blue-900 rounded-xl p-3 text-white text-xs">
+                💡 <strong>Dica Prática:</strong> Se a empresa fechar os computadores e voltar a usar papel e caneta, a <em>Regra de Negócio continua valendo</em>!
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 5 — ESTRUTURA DAS REGRAS DE NEGÓCIO ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🧱</span>
+            <h2 class="text-white font-bold text-lg">Estrutura de uma Regra de Negócio</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 11.3</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-4">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-1">A Fórmula da Regra: Condição → Regra → Consequência</p>
+                <p class="text-xs text-brand-text">
+                  Para que uma regra possa ser programada sem erros, ela deve ser decomposta em 3 partes claras e inequívocas:
+                </p>
+              </div>
+
+              <!-- Blocos da estrutura -->
+              <div class="grid grid-cols-3 gap-3">
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">PASSO 1</span>
+                    <h4 class="font-bold text-brand-dark text-sm mt-2">1. Condição (SE)</h4>
+                    <p class="text-brand-muted text-xs mt-1">O evento ou estado que dispara a verificação.</p>
+                  </div>
+                  <div class="bg-slate-50 p-2 rounded text-xs text-brand-dark font-mono mt-3">
+                    Ex: "SE o cliente possuir parcelas vencidas > 30 dias..."
+                  </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">PASSO 2</span>
+                    <h4 class="font-bold text-brand-dark text-sm mt-2">2. Regra / Critério</h4>
+                    <p class="text-brand-muted text-xs mt-1">A restrição ou cálculo que deve ser aplicado.</p>
+                  </div>
+                  <div class="bg-slate-50 p-2 rounded text-xs text-brand-dark font-mono mt-3">
+                    Ex: "...o limite de crédito para crediário é BLOQUEADO..."
+                  </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">PASSO 3</span>
+                    <h4 class="font-bold text-brand-dark text-sm mt-2">3. Consequência / Ação</h4>
+                    <p class="text-brand-muted text-xs mt-1">A resposta que o sistema deve executar.</p>
+                  </div>
+                  <div class="bg-slate-50 p-2 rounded text-xs text-brand-dark font-mono mt-3">
+                    Ex: "...o sistema recusa a venda a prazo e exige pagamento à vista."
+                  </div>
+                </div>
+              </div>
+
+              <!-- Exemplo visual completo em barra horizontal -->
+              <div class="bg-white rounded-xl p-3 border border-blue-200 shadow-sm">
+                <p class="text-xs font-bold text-brand-dark uppercase tracking-wider mb-2">Exemplo Aplicado: Desconto de Aniversário</p>
+                <div class="flex items-center gap-2 text-xs flex-wrap">
+                  <span class="bg-blue-100 text-blue-800 font-semibold px-2.5 py-1 rounded">SE mês do cliente = mês atual</span>
+                  <span class="text-brand-primary font-bold">E</span>
+                  <span class="bg-amber-100 text-amber-800 font-semibold px-2.5 py-1 rounded">compra &gt;= R$ 100,00</span>
+                  <span class="text-brand-primary font-bold">ENTÃO</span>
+                  <span class="bg-green-100 text-green-800 font-semibold px-2.5 py-1 rounded">aplicar 15% de desconto automaticamente no carrinho</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna lateral: Como identificar uma regra -->
+            <div class="w-64 flex flex-col gap-3 justify-center">
+              <div class="bg-brand-dark text-white rounded-xl p-4 text-xs">
+                <p class="text-blue-300 font-bold mb-2">🔍 Palavras-chave de Regras:</p>
+                <ul class="space-y-1.5 text-blue-100">
+                  <li>• "Deve conter..."</li>
+                  <li>• "Não pode..."</li>
+                  <li>• "Somente se..."</li>
+                  <li>• "Obrigatório..."</li>
+                  <li>• "O cálculo é feito por..."</li>
+                  <li>• "Apenas o perfil X..."</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 6 — REQUISITOS FUNCIONAIS (RF) ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">⚙️</span>
+            <h2 class="text-white font-bold text-lg">Requisitos Funcionais (RF) — O Que o Sistema Faz</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 10.2</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-4">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-1">O que é um Requisito Funcional?</p>
+                <p class="text-sm text-brand-text leading-relaxed">
+                  São os <strong>serviços, ações e comportamentos</strong> que o software deve executar em resposta às entradas do usuário. Se você perguntar: <em>"O que esse botão faz?"</em> ou <em>"O que o sistema faz quando eu clico aqui?"</em>, a resposta é um Requisito Funcional!
+                </p>
+              </div>
+
+              <!-- Operações CRUD + Relatórios -->
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">As 5 Grandes Ações de um Requisito Funcional:</p>
+              <div class="grid grid-cols-5 gap-2">
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm text-center">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 text-brand-primary flex items-center justify-center font-bold text-xs mx-auto mb-1">➕</div>
+                  <strong class="text-brand-dark text-xs">Cadastrar</strong>
+                  <p class="text-brand-muted text-[10px] mt-1">Inserir novos registros (Create)</p>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm text-center">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 text-brand-primary flex items-center justify-center font-bold text-xs mx-auto mb-1">🔍</div>
+                  <strong class="text-brand-dark text-xs">Consultar</strong>
+                  <p class="text-brand-muted text-[10px] mt-1">Pesquisar e listar dados (Read)</p>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm text-center">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 text-brand-primary flex items-center justify-center font-bold text-xs mx-auto mb-1">✏️</div>
+                  <strong class="text-brand-dark text-xs">Alterar</strong>
+                  <p class="text-brand-muted text-[10px] mt-1">Atualizar registros existentes (Update)</p>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm text-center">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 text-brand-primary flex items-center justify-center font-bold text-xs mx-auto mb-1">🗑️</div>
+                  <strong class="text-brand-dark text-xs">Excluir</strong>
+                  <p class="text-brand-muted text-[10px] mt-1">Remover ou inativar dados (Delete)</p>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm text-center">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 text-brand-primary flex items-center justify-center font-bold text-xs mx-auto mb-1">📊</div>
+                  <strong class="text-brand-dark text-xs">Relatórios</strong>
+                  <p class="text-brand-muted text-[10px] mt-1">Exportar PDFs, gráficos e métricas</p>
+                </div>
+              </div>
+
+              <div class="bg-blue-50 border border-brand-border rounded-xl p-3 text-xs text-brand-dark flex items-center gap-3">
+                <span class="text-2xl">💡</span>
+                <div>
+                  <strong>Formato Padrão de Escrita:</strong><br>
+                  <em>"O sistema deve [verbo de ação] [objeto da ação] [condições / parâmetros]."</em>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna direita: Exemplos Reais -->
+            <div class="w-72 flex flex-col gap-2 justify-center">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Exemplos de RF no Mundo Real</p>
+              <div class="space-y-2 text-xs">
+                <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                  <span class="font-mono text-[10px] text-blue-600 font-bold">RF01</span>
+                  <p class="font-semibold text-brand-dark mt-0.5">Cadastrar Cliente</p>
+                  <p class="text-brand-muted text-[11px]">O sistema deve registrar nome, CPF, e-mail e telefone do cliente com validação de CPF.</p>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                  <span class="font-mono text-[10px] text-blue-600 font-bold">RF02</span>
+                  <p class="font-semibold text-brand-dark mt-0.5">Emitir Cupom Fiscal</p>
+                  <p class="text-brand-muted text-[11px]">O sistema deve gerar o arquivo XML e imprimir o DANFE após o fechamento do pedido.</p>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                  <span class="font-mono text-[10px] text-blue-600 font-bold">RF03</span>
+                  <p class="font-semibold text-brand-dark mt-0.5">Recuperar Senha</p>
+                  <p class="text-brand-muted text-[11px]">O sistema deve enviar um link de redefinição para o e-mail do usuário quando solicitado.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 7 — REQUISITOS NÃO FUNCIONAIS (RNF) ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🛡️</span>
+            <h2 class="text-white font-bold text-lg">Requisitos Não Funcionais (RNF) — Qualidade &amp; Restrições</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 10.3</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-3">
+              <div class="bg-brand-subtle rounded-xl p-4 border border-brand-border">
+                <p class="text-brand-primary font-bold text-sm mb-1">O que é um Requisito Não Funcional?</p>
+                <p class="text-sm text-brand-text leading-relaxed">
+                  Não diz respeito a <em>o que</em> o sistema faz, mas sim a <strong>como</strong> ele se comporta enquanto executa suas funções. Tratam de desempenho, segurança, robustez, conformidade com a LGPD e experiência do usuário.
+                </p>
+              </div>
+
+              <!-- Analogia do Carro -->
+              <div class="bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
+                <p class="text-brand-dark font-bold text-xs uppercase tracking-wider mb-2">🚗 A Clássica Analogia Automotiva:</p>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                  <div class="bg-blue-50 p-2.5 rounded-lg border border-blue-200">
+                    <p class="font-bold text-blue-700">Requisito Funcional (Ação):</p>
+                    <p class="text-brand-text mt-1">O carro deve acelerar, frear, ligar o farol e tocar música.</p>
+                  </div>
+                  <div class="bg-indigo-50 p-2.5 rounded-lg border border-indigo-200">
+                    <p class="font-bold text-indigo-700">Requisito Não Funcional (Qualidade):</p>
+                    <p class="text-brand-text mt-1">O carro deve acelerar de 0 a 100 km/h em 7s, ter airbag lateral e consumir 15 km/l.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-2.5 text-xs text-yellow-800">
+                💬 <strong>Regra de Ouro:</strong> Um RNF sem métrica numérica é apenas um "desejo". Em vez de dizer <em>"o sistema deve ser rápido"</em>, especifique: <em>"o tempo de resposta não deve passar de 2 segundos"</em>.
+              </div>
+            </div>
+
+            <!-- Coluna direita: Importância -->
+            <div class="w-72 flex flex-col gap-3 justify-center">
+              <div class="bg-brand-dark text-white rounded-xl p-4 text-xs">
+                <p class="text-blue-300 font-bold mb-2">⚠️ O que acontece quando o RNF é ignorado?</p>
+                <ul class="space-y-2 text-blue-100">
+                  <li>❌ O sistema calcula a venda perfeitamente, mas <strong>trava na Black Friday</strong> por falta de escalabilidade.</li>
+                  <li>❌ O cadastro funciona, mas <strong>vaza senhas em texto puro</strong> por falta de criptografia.</li>
+                  <li>❌ O botão existe, mas <strong>o usuário não consegue usar no celular</strong> porque não é responsivo.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 8 — OS 5 PILARES DOS RNF ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🏛️</span>
+            <h2 class="text-white font-bold text-lg">Os 5 Pilares dos Requisitos Não Funcionais</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 10.3</span>
+          </div>
+          <div class="flex flex-1 gap-4 px-8 py-5">
+            <!-- 5 cards verticais/grid -->
+            <div class="grid grid-cols-5 gap-3 w-full">
+              <!-- Pilar 1 -->
+              <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-3.5 flex flex-col justify-between">
+                <div>
+                  <div class="w-10 h-10 rounded-lg bg-blue-100 text-brand-primary flex items-center justify-center text-xl mb-2">⚡</div>
+                  <h3 class="font-bold text-brand-dark text-xs mb-1">1. Desempenho</h3>
+                  <p class="text-brand-muted text-[11px] leading-relaxed">Velocidade de processamento, tempo de resposta e consumo de memória.</p>
+                </div>
+                <div class="bg-brand-subtle p-2 rounded text-[10px] text-brand-primary font-mono mt-3">
+                  Meta: "Consultas de saldo respondidas em &lt; 500ms sob 5.000 usuários simultâneos."
+                </div>
+              </div>
+
+              <!-- Pilar 2 -->
+              <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-3.5 flex flex-col justify-between">
+                <div>
+                  <div class="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-xl mb-2">🔒</div>
+                  <h3 class="font-bold text-brand-dark text-xs mb-1">2. Segurança</h3>
+                  <p class="text-brand-muted text-[11px] leading-relaxed">Proteção contra ataques, controle de acesso e conformidade com a LGPD.</p>
+                </div>
+                <div class="bg-red-50 p-2 rounded text-[10px] text-red-700 font-mono mt-3">
+                  Meta: "Senhas com hash bcrypt + sal; dados trafegados exclusivamente com TLS 1.3."
+                </div>
+              </div>
+
+              <!-- Pilar 3 -->
+              <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-3.5 flex flex-col justify-between">
+                <div>
+                  <div class="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center text-xl mb-2">🟢</div>
+                  <h3 class="font-bold text-brand-dark text-xs mb-1">3. Disponibilidade</h3>
+                  <p class="text-brand-muted text-[11px] leading-relaxed">Tempo em que o sistema permanece no ar sem interrupção de serviço.</p>
+                </div>
+                <div class="bg-green-50 p-2 rounded text-[10px] text-green-700 font-mono mt-3">
+                  Meta: "Disponibilidade de 99,9% (máximo de 8,7 horas fora do ar por ano)."
+                </div>
+              </div>
+
+              <!-- Pilar 4 -->
+              <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-3.5 flex flex-col justify-between">
+                <div>
+                  <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-xl mb-2">📱</div>
+                  <h3 class="font-bold text-brand-dark text-xs mb-1">4. Usabilidade</h3>
+                  <p class="text-brand-muted text-[11px] leading-relaxed">Facilidade de aprendizado, ergonomia e acessibilidade a deficientes visuais.</p>
+                </div>
+                <div class="bg-purple-50 p-2 rounded text-[10px] text-purple-700 font-mono mt-3">
+                  Meta: "Operador novato deve emitir um pedido em até 3 minutos sem ajuda externa."
+                </div>
+              </div>
+
+              <!-- Pilar 5 -->
+              <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-3.5 flex flex-col justify-between">
+                <div>
+                  <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xl mb-2">🛡️</div>
+                  <h3 class="font-bold text-brand-dark text-xs mb-1">5. Integridade</h3>
+                  <p class="text-brand-muted text-[11px] leading-relaxed">Garantia de que os dados não serão corrompidos ou perdidos em falhas.</p>
+                </div>
+                <div class="bg-amber-50 p-2 rounded text-[10px] text-amber-800 font-mono mt-3">
+                  Meta: "Transações bancárias com propriedades ACID e backup a cada 1 hora."
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 9 — TABELA COMPARATIVA MASTER ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">📊</span>
+            <h2 class="text-white font-bold text-lg">Quadro Comparativo: RN vs. RF vs. RNF</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Síntese Prática</span>
+          </div>
+          <div class="flex flex-1 flex-col px-8 py-5 justify-between">
+            <div class="bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden">
+              <table class="w-full custom-table text-left border-collapse">
+                <thead>
+                  <tr>
+                    <th style="width: 18%">Critério</th>
+                    <th style="width: 27%">Regra de Negócio (RN)</th>
+                    <th style="width: 27%">Requisito Funcional (RF)</th>
+                    <th style="width: 28%">Requisito Não Funcional (RNF)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="font-bold text-brand-dark">Pergunta Central</td>
+                    <td class="text-amber-800 font-medium">"Qual é a norma da empresa?"</td>
+                    <td class="text-blue-800 font-medium">"O que o sistema deve fazer?"</td>
+                    <td class="text-indigo-800 font-medium">"Com que qualidade deve operar?"</td>
+                  </tr>
+                  <tr class="bg-slate-50">
+                    <td class="font-bold text-brand-dark">Depende de TI?</td>
+                    <td><strong>Não.</strong> Existe mesmo se a loja for 100% manual no papel.</td>
+                    <td><strong>Sim.</strong> É uma funcionalidade construída no software.</td>
+                    <td><strong>Sim.</strong> É uma característica da arquitetura do software.</td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold text-brand-dark">Exemplo no Varejo</td>
+                    <td class="text-xs">"Produtos sem estoque não podem ser faturados."</td>
+                    <td class="text-xs">"O sistema deve verificar o saldo em estoque antes de finalizar a venda."</td>
+                    <td class="text-xs">"A verificação do estoque deve ser em tempo real e durar menos de 300ms."</td>
+                  </tr>
+                  <tr class="bg-slate-50">
+                    <td class="font-bold text-brand-dark">Exemplo de Acesso</td>
+                    <td class="text-xs">"Somente gerentes podem autorizar descontos > 15%."</td>
+                    <td class="text-xs">"O sistema deve solicitar login e senha do gerente para aprovar desconto especial."</td>
+                    <td class="text-xs">"A autenticação deve bloquear após 3 tentativas inválidas consecutivas."</td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold text-brand-dark">Quem Especifica?</td>
+                    <td>Diretores, gerentes, contadores, advogados.</td>
+                    <td>Analistas de requisitos e usuários finais.</td>
+                    <td>Arquitetos de software, segurança e infraestrutura.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="bg-brand-subtle border border-brand-border rounded-xl p-3 text-xs text-brand-dark flex items-center justify-between">
+              <span>🎯 <strong>Resumo memorável:</strong> A <u>RN</u> diz o que a empresa exige; o <u>RF</u> cria a ferramenta para cumprir; o <u>RNF</u> garante que funcione com excelência.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 10 — TÉCNICAS DE ANÁLISE DE REQUISITOS ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🔍</span>
+            <h2 class="text-white font-bold text-lg">Técnicas de Levantamento e Análise de Requisitos</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Módulo 10.4</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-3">
+              <div class="bg-brand-subtle rounded-xl p-3 border border-brand-border">
+                <p class="text-brand-primary font-bold text-xs mb-1">Como descobrir o que o cliente realmente precisa?</p>
+                <p class="text-xs text-brand-text">
+                  Raramente o cliente sabe descrever os requisitos de forma técnica. O analista de sistemas utiliza técnicas investigativas para extrair as necessidades reais:
+                </p>
+              </div>
+
+              <!-- Grade de 6 técnicas -->
+              <div class="grid grid-cols-3 gap-2.5">
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-lg">🎙️</span>
+                    <strong class="text-brand-dark text-xs">Entrevistas</strong>
+                  </div>
+                  <p class="text-brand-muted text-[11px]">Conversas diretas (abertas ou estruturadas) com usuários e gestores-chave.</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-lg">📝</span>
+                    <strong class="text-brand-dark text-xs">Questionários</strong>
+                  </div>
+                  <p class="text-brand-muted text-[11px]">Formulários para coletar opiniões de muitos usuários dispersos geograficamente.</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-lg">👀</span>
+                    <strong class="text-brand-dark text-xs">Observação (Shadowing)</strong>
+                  </div>
+                  <p class="text-brand-muted text-[11px]">Acompanhar o operador trabalhando na prática para ver o que ele esquece de contar.</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-lg">👥</span>
+                    <strong class="text-brand-dark text-xs">Workshops (JAD)</strong>
+                  </div>
+                  <p class="text-brand-muted text-[11px]">Reuniões com todos os setores juntos para alinhar conflitos de interesses.</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-lg">📑</span>
+                    <strong class="text-brand-dark text-xs">Análise Documental</strong>
+                  </div>
+                  <p class="text-brand-muted text-[11px]">Examinar planilhas atuais, relatórios fiscais, manuais e sistemas legados.</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-lg">🎨</span>
+                    <strong class="text-brand-dark text-xs">Prototipação</strong>
+                  </div>
+                  <p class="text-brand-muted text-[11px]">Criar telas simuladas (wireframes no Figma) para o cliente testar e validar.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna lateral: A armadilha do "Eu achei que..." -->
+            <div class="w-64 flex flex-col gap-3 justify-center">
+              <div class="bg-brand-primary text-white rounded-xl p-4 text-xs">
+                <p class="font-bold text-sm mb-2">💡 Dica de Ouro</p>
+                <p class="text-blue-100 leading-relaxed">
+                  "O usuário não sabe o que quer até ver o protótipo na frente dele."
+                </p>
+                <p class="mt-2 text-blue-200 text-[11px]">
+                  Use protótipos visuais antes de escrever código no backend!
+                </p>
+              </div>
+              <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-xs text-yellow-800">
+                ⚠️ <strong>Atenção:</strong> Sempre combine ao menos <strong>duas técnicas</strong> (ex: entrevista + observação de documentos) para não ter visão enviesada.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 11 — VALIDAÇÃO DE REQUISITOS ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">✅</span>
+            <h2 class="text-white font-bold text-lg">Validação de Requisitos — Evitando Desastres</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Qualidade do Projeto</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-5">
+            <div class="flex-1 flex flex-col gap-3">
+              <div class="bg-brand-subtle rounded-xl p-3.5 border border-brand-border">
+                <p class="text-brand-primary font-bold text-xs mb-1">O que é Validar um Requisito?</p>
+                <p class="text-xs text-brand-text">
+                  É a confirmação formal com o cliente de que os requisitos documentados representam exatamente a solução esperada, sem ambiguidades ou conflitos.
+                </p>
+              </div>
+
+              <!-- Checklist dos 5 critérios SMART para requisitos -->
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Critérios para um Requisito Válido:</p>
+              <div class="space-y-1.5 text-xs">
+                <div class="check-item"><span class="text-brand-primary font-bold">1. Claro &amp; Inequívoco:</span> Não dá margem para duas interpretações diferentes.</div>
+                <div class="check-item"><span class="text-brand-primary font-bold">2. Completo:</span> Descreve todas as entradas necessárias e o que acontece quando dá erro.</div>
+                <div class="check-item"><span class="text-brand-primary font-bold">3. Consistente:</span> Não contradiz nenhum outro requisito nem nenhuma regra de negócio.</div>
+                <div class="check-item"><span class="text-brand-primary font-bold">4. Testável / Verificável:</span> A equipe de testes consegue criar um teste objetivo para provar que funciona.</div>
+                <div class="check-item"><span class="text-brand-primary font-bold">5. Viável:</span> É possível ser desenvolvido dentro do prazo, orçamento e tecnologia disponíveis.</div>
+              </div>
+            </div>
+
+            <!-- Gráfico Curva de Boehm em SVG -->
+            <div class="w-72 flex flex-col gap-2 justify-center">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider text-center">Custo Relativo da Correção de Erros</p>
+              <div class="bg-white rounded-xl p-3 border border-blue-100 shadow-sm flex flex-col items-center">
+                <svg viewBox="0 0 240 130" class="w-full" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+                  <!-- Eixos -->
+                  <line x1="30" y1="10" x2="30" y2="105" stroke="#94A3B8" stroke-width="1.5"/>
+                  <line x1="30" y1="105" x2="230" y2="105" stroke="#94A3B8" stroke-width="1.5"/>
+                  <!-- Rótulos Y -->
+                  <text x="25" y="15" text-anchor="end" font-size="7" fill="#64748B">100x</text>
+                  <text x="25" y="55" text-anchor="end" font-size="7" fill="#64748B">20x</text>
+                  <text x="25" y="85" text-anchor="end" font-size="7" fill="#64748B">5x</text>
+                  <text x="25" y="105" text-anchor="end" font-size="7" fill="#64748B">1x</text>
+                  <!-- Curva Exponencial -->
+                  <path d="M 30,103 Q 120,95 160,60 T 220,15" fill="none" stroke="#DC2626" stroke-width="2.5"/>
+                  <!-- Pontos -->
+                  <circle cx="30" cy="103" r="3" fill="#2563EB"/>
+                  <text x="35" y="117" font-size="6.5" fill="#1E3A5F">Requisitos</text>
+
+                  <circle cx="95" cy="98" r="3" fill="#2563EB"/>
+                  <text x="95" y="117" text-anchor="middle" font-size="6.5" fill="#1E3A5F">Design</text>
+
+                  <circle cx="150" cy="75" r="3" fill="#2563EB"/>
+                  <text x="150" y="117" text-anchor="middle" font-size="6.5" fill="#1E3A5F">Código</text>
+
+                  <circle cx="220" cy="15" r="4" fill="#DC2626"/>
+                  <text x="215" y="30" text-anchor="end" font-size="7" font-weight="bold" fill="#DC2626">Produção (100x)</text>
+                </svg>
+                <p class="text-[10px] text-slate-500 text-center mt-1">Descobrir um erro em produção custa até <strong>100 vezes mais</strong> do que corrigi-lo na fase de requisitos!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 12 — DO CONCEITO AO SISTEMA REAL ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🛒</span>
+            <h2 class="text-white font-bold text-lg">Estudo de Caso Prático: O E-commerce Completo</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Aplicação Real</span>
+          </div>
+          <div class="flex flex-1 flex-col px-8 py-5 gap-3 justify-between">
+            <div class="bg-brand-subtle rounded-xl p-3 border border-brand-border">
+              <p class="text-brand-primary font-bold text-xs">Cenário: Loja Virtual "TechExpress"</p>
+              <p class="text-xs text-brand-text">
+                Veja como o levantamento de requisitos de uma mesma tela (o Carrinho de Compras) conecta as três esferas:
+              </p>
+            </div>
+
+            <!-- 3 Colunas de Especificação -->
+            <div class="grid grid-cols-3 gap-4 flex-1">
+              <div class="bg-white rounded-xl border-t-4 border-t-amber-500 border border-slate-200 shadow-sm p-3.5 flex flex-col justify-between">
+                <div>
+                  <span class="text-xs font-bold text-amber-700 uppercase">1. As Regras de Negócio</span>
+                  <div class="mt-2 space-y-2 text-xs text-brand-text">
+                    <p class="bg-amber-50 p-2 rounded border border-amber-200">
+                      <strong>RN01:</strong> Produtos sem estoque físico disponível <u>não podem</u> ser adicionados ao carrinho.
+                    </p>
+                    <p class="bg-amber-50 p-2 rounded border border-amber-200">
+                      <strong>RN02:</strong> Compras acima de R$ 250,00 possuem <u>frete grátis</u> para a região Sudeste.
+                    </p>
+                  </div>
+                </div>
+                <span class="text-[10px] text-amber-800 font-semibold">Normas Comerciais da TechExpress</span>
+              </div>
+
+              <div class="bg-white rounded-xl border-t-4 border-t-blue-600 border border-slate-200 shadow-sm p-3.5 flex flex-col justify-between">
+                <div>
+                  <span class="text-xs font-bold text-blue-700 uppercase">2. Os Requisitos Funcionais</span>
+                  <div class="mt-2 space-y-2 text-xs text-brand-text">
+                    <p class="bg-blue-50 p-2 rounded border border-blue-200">
+                      <strong>RF01:</strong> O sistema deve calcular o frete com base no CEP digitado e aplicar desconto automático se atingir a meta.
+                    </p>
+                    <p class="bg-blue-50 p-2 rounded border border-blue-200">
+                      <strong>RF02:</strong> O sistema deve permitir alterar a quantidade de itens ou excluir produtos diretamente na tela do carrinho.
+                    </p>
+                  </div>
+                </div>
+                <span class="text-[10px] text-blue-800 font-semibold">O que o sistema executa</span>
+              </div>
+
+              <div class="bg-white rounded-xl border-t-4 border-t-indigo-600 border border-slate-200 shadow-sm p-3.5 flex flex-col justify-between">
+                <div>
+                  <span class="text-xs font-bold text-indigo-700 uppercase">3. Os Requisitos Não Funcionais</span>
+                  <div class="mt-2 space-y-2 text-xs text-brand-text">
+                    <p class="bg-indigo-50 p-2 rounded border border-indigo-200">
+                      <strong>RNF01:</strong> O recálculo dos valores após alteração de quantidade deve ocorrer em <u>menos de 500ms</u>.
+                    </p>
+                    <p class="bg-indigo-50 p-2 rounded border border-indigo-200">
+                      <strong>RNF02:</strong> A página do carrinho deve ser <u>100% responsiva</u> e acessível para leitores de tela (WCAG 2.1).
+                    </p>
+                  </div>
+                </div>
+                <span class="text-[10px] text-indigo-800 font-semibold">Qualidade da experiência</span>
+              </div>
+            </div>
+
+            <div class="text-center text-xs text-slate-500">
+              💡 Repare na harmonia: <strong>nenhum dos três substitui o outro</strong>. Um software só tem sucesso quando atende aos três plenamente!
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 13 — ATIVIDADE PRÁTICA + QUIZ ══════ -->
+      <section class="slide bg-brand-bg">
+        <div class="flex flex-col h-full">
+          <div class="bg-brand-dark px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">🧪</span>
+            <h2 class="text-white font-bold text-lg">Atividade Prática &amp; Quiz de Fixação</h2>
+            <span class="ml-auto mono-pill" style="background:#1E3A5F;color:#93C5FD;border-color:#1D4ED8">Fixação</span>
+          </div>
+          <div class="flex flex-1 gap-6 px-8 py-4 overflow-hidden">
+            <!-- Caso de Estudo da Atividade em Grupo -->
+            <div class="flex-1 flex flex-col gap-3 overflow-hidden">
+              <div class="bg-brand-subtle rounded-xl p-3.5 border border-brand-border">
+                <p class="text-brand-primary font-bold text-xs mb-1">Situação-Problema: Sistema Hospitalar "VidaSaúde"</p>
+                <p class="text-xs text-brand-text leading-relaxed">
+                  O hospital precisa de um novo sistema de prescrição médica digital. Os médicos prescrevem remédios pelo tablet, a farmácia interna separa os remédios e os enfermeiros ministram aos pacientes internados.
+                </p>
+              </div>
+
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Desafio em Equipe (10 min):</p>
+              <div class="flex flex-col gap-1.5 overflow-y-auto pr-1 text-xs">
+                <div class="check-item">
+                  <span class="font-bold text-brand-primary">1.</span>
+                  <div>Classifique: <em>"O sistema deve avisar se o paciente for alérgico ao remédio prescrito."</em> — É RN, RF ou RNF?</div>
+                </div>
+                <div class="check-item">
+                  <span class="font-bold text-brand-primary">2.</span>
+                  <div>Formule uma <strong>Regra de Negócio</strong> para liberação de medicamentos controlados (tarja preta).</div>
+                </div>
+                <div class="check-item">
+                  <span class="font-bold text-brand-primary">3.</span>
+                  <div>Escreva um <strong>Requisito Funcional</strong> de busca de histórico médico do paciente.</div>
+                </div>
+                <div class="check-item">
+                  <span class="font-bold text-brand-primary">4.</span>
+                  <div>Defina um <strong>Requisito Não Funcional</strong> crítico de segurança e outro de disponibilidade para a UTI.</div>
+                </div>
+                <div class="check-item">
+                  <span class="font-bold text-brand-primary">5.</span>
+                  <div>Qual técnica de análise de requisitos você usaria para entender a rotina dos enfermeiros no leito? Justifique.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quiz Interativo -->
+            <div class="w-72 flex flex-col gap-2">
+              <p class="text-brand-muted text-xs font-semibold uppercase tracking-wider">Quiz Rápido</p>
+              <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-4 flex flex-col gap-2.5 text-xs flex-1 overflow-y-auto">
+                <div id="quiz-content">
+                  <p id="quiz-q-num" class="text-brand-primary font-bold text-xs mb-1">Questão 1 de 5</p>
+                  <p id="quiz-question" class="text-brand-dark font-semibold text-xs mb-2.5 leading-snug"></p>
+                  <div id="quiz-options" class="flex flex-col gap-1.5"></div>
+                  <div id="quiz-feedback" class="hidden mt-2 p-2 rounded-lg text-xs"></div>
+                  <button id="quiz-next" onclick="nextQuestion()" class="hidden mt-2.5 w-full bg-brand-primary text-white rounded-lg py-1.5 font-bold hover:bg-blue-700 transition-colors text-xs">Próxima →</button>
+                </div>
+                <div id="quiz-score" class="hidden text-center py-4">
+                  <div class="text-4xl mb-2" id="quiz-emoji">🏆</div>
+                  <p class="font-bold text-brand-dark text-sm" id="quiz-score-text"></p>
+                  <button onclick="resetQuiz()" class="mt-3 bg-brand-primary text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-blue-700 transition-colors">Tentar Novamente</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════ SLIDE 14 — ENCERRAMENTO (7 LIÇÕES) ══════ -->
+      <section class="slide" style="background: linear-gradient(135deg, #1E3A5F 0%, #1D4ED8 60%, #2563EB 100%);">
+        <div class="flex flex-col items-center justify-center h-full px-12 text-center relative">
+          <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-8 left-8 w-32 h-32 rounded-full bg-blue-400 blur-2xl"></div>
+            <div class="absolute bottom-8 right-8 w-40 h-40 rounded-full bg-indigo-400 blur-2xl"></div>
+          </div>
+
+          <div class="relative z-10 w-full max-w-3xl">
+            <h2 class="text-3xl font-black text-white mb-6">7 Leis da Engenharia de Requisitos</h2>
+            <div class="grid grid-cols-7 gap-2 mb-8">
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20 flex flex-col justify-between">
+                <div class="text-xl mb-1">🏢</div>
+                <p class="text-blue-200 text-xs font-bold">A Regra de Negócio existe antes do sistema</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20 flex flex-col justify-between">
+                <div class="text-xl mb-1">⚙️</div>
+                <p class="text-blue-200 text-xs font-bold">RF define o que o sistema realiza</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20 flex flex-col justify-between">
+                <div class="text-xl mb-1">🛡️</div>
+                <p class="text-blue-200 text-xs font-bold">RNF estabelece as metas de qualidade</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20 flex flex-col justify-between">
+                <div class="text-xl mb-1">📏</div>
+                <p class="text-blue-200 text-xs font-bold">Todo RNF precisa ser mensurável</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20 flex flex-col justify-between">
+                <div class="text-xl mb-1">🔍</div>
+                <p class="text-blue-200 text-xs font-bold">Combine técnicas para levantar dados</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20 flex flex-col justify-between">
+                <div class="text-xl mb-1">🎨</div>
+                <p class="text-blue-200 text-xs font-bold">Prototipar evita mal-entendidos caros</p>
+              </div>
+              <div class="bg-white bg-opacity-10 rounded-xl p-3 border border-white border-opacity-20 flex flex-col justify-between">
+                <div class="text-xl mb-1">💰</div>
+                <p class="text-blue-200 text-xs font-bold">Corrigir antes custa 100x mais barato</p>
+              </div>
+            </div>
+            <div class="inline-flex items-center gap-2 bg-white bg-opacity-20 rounded-full px-6 py-2">
+              <span class="text-white font-semibold text-sm">Obrigado pela dedicação! Parabéns pela aula!</span>
+              <span class="text-blue-300">🎓</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- fim slide-container -->
+  </main>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="sticky bottom-0 z-40 bg-white border-t border-blue-100 shadow-md flex items-center justify-between px-6 py-2">
+    <button onclick="prevSlide()" id="btn-prev"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 text-brand-dark text-sm font-semibold hover:bg-brand-subtle hover:border-brand-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+      ← Anterior
+    </button>
+    <div id="dot-indicators" class="flex gap-1.5 flex-wrap justify-center max-w-lg"></div>
+    <button onclick="nextSlide()" id="btn-next"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-blue-700 transition-all">
+      Próximo →
+    </button>
+  </footer>
+
+  <!-- ═══════════════ MODAL SUMÁRIO (TOC) ═══════════════ -->
+  <div id="toc-modal" onclick="closeTOCOutside(event)">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 mx-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-brand-dark text-lg">📑 Sumário da Aula</h3>
+        <button onclick="toggleTOC()" class="text-brand-muted hover:text-brand-dark transition-colors text-xl">✕</button>
+      </div>
+      <div id="toc-list" class="flex flex-col gap-1 max-h-80 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ GAVETA NOTAS DO PROFESSOR ═══════════════ -->
+  <div id="notes-drawer">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-blue-200 text-sm">📝 Notas do Professor</h3>
+      <button onclick="toggleNotes()" class="text-blue-400 hover:text-white text-xl transition-colors">✕</button>
+    </div>
+    <div id="notes-content" class="text-sm leading-relaxed"></div>
+  </div>
+
+  <!-- ═══════════════ AVISO DE ATALHOS ═══════════════ -->
+  <div id="key-hint" class="fixed bottom-16 left-4 bg-brand-dark bg-opacity-90 text-white text-xs rounded-xl px-4 py-2 z-50">
+    ⌨️ Teclas: <strong>→/Space</strong> avançar &nbsp;|&nbsp; <strong>←</strong> voltar &nbsp;|&nbsp; <strong>F</strong> tela cheia &nbsp;|&nbsp; <strong>M</strong> sumário &nbsp;|&nbsp; <strong>P</strong> notas
+  </div>
+
+  <script>
+  // ─── METADADOS DOS SLIDES ──────────────────────────────────
+  const slidesMeta = [
+    { title: "Capa", module: "Apresentação" },
+    { title: "O que são Requisitos de Sistemas?", module: "Módulo 10" },
+    { title: "O Grande Trio: RN vs. RF vs. RNF", module: "Diferença Visual" },
+    { title: "Regras de Negócio (RN)", module: "Módulo 10.1 & 11" },
+    { title: "Estrutura das Regras de Negócio", module: "Módulo 11.3" },
+    { title: "Requisitos Funcionais (RF)", module: "Módulo 10.2" },
+    { title: "Requisitos Não Funcionais (RNF)", module: "Módulo 10.3" },
+    { title: "Os 5 Pilares dos RNF", module: "Módulo 10.3" },
+    { title: "Quadro Comparativo Master", module: "Síntese Prática" },
+    { title: "Técnicas de Análise de Requisitos", module: "Módulo 10.4" },
+    { title: "Validação de Requisitos", module: "Qualidade do Projeto" },
+    { title: "Estudo de Caso Prático: E-commerce", module: "Aplicação Real" },
+    { title: "Atividade Prática & Quiz", module: "Fixação" },
+    { title: "Encerramento: 7 Leis", module: "Fechamento" },
+  ];
+
+  // ─── NOTAS PEDAGÓGICAS DO PROFESSOR ────────────────────────
+  const teacherNotes = [
+    {
+      note: "Apresente o objetivo da aula: desmistificar a diferença entre o que a empresa manda (Regra de Negócio), o que o sistema faz (Requisito Funcional) e como ele performa (Requisito Não Funcional).",
+      prompt: "💬 Pergunta de abertura: 'Vocês já usaram um app que tinha tudo o que vocês queriam, mas era tão lento ou confuso que vocês desistiram de usar? O que faltou nele?'"
+    },
+    {
+      note: "Enfatize que um requisito mal compreendido gera retrabalho destrutivo. Use o exemplo clássico da construção civil: mudar a cor da parede é fácil; mudar o pilar de sustentação depois do prédio pronto derruba a obra.",
+      prompt: "💬 Pergunta: 'Se o cliente pedir um sistema simples de cadastro de clientes, que perguntas vocês fariam antes de começar a programar?'"
+    },
+    {
+      note: "Este é o slide central da aula! Mostre como a mesma situação de inadimplência se desdobra em 3 perspectivas totalmente distintas. Passe tempo aqui até ter certeza que todos entenderam.",
+      prompt: "💬 Desafio rápido: 'Se eu disser que o sistema deve gerar nota fiscal eletrônica, isso é RN, RF ou RNF?' (Resposta: RF que atende a uma RN legal)."
+    },
+    {
+      note: "Trabalhe os 3 exemplos obrigatórios da ementa (inadimplência, estoque zerado e alçada de cancelamento). Mostre que as regras protegem a empresa contra fraude, erro humano e prejuízo financeiro.",
+      prompt: "💬 Debate: 'O que aconteceria com uma loja online que permitisse vender produtos sem estoque durante a Black Friday?'"
+    },
+    {
+      note: "Mostre a estrutura SE... E... ENTÃO... como a ponte natural entre a conversa de negócios e a lógica de programação (if/else). Explique que o programador precisa dessa clareza.",
+      prompt: "💬 Atividade relâmpago: 'Quem consegue estruturar em Condição → Regra → Ação a regra: Alunos com média menor que 7 fazem recuperação?'"
+    },
+    {
+      note: "Apresente as 5 grandes ações típicas (CRUD + Relatórios). Explique que quase todo sistema corporativo gira em torno dessas operações sobre entidades de dados.",
+      prompt: "💬 Pergunta: 'No Instagram ou TikTok, quais são os requisitos funcionais básicos ao redor de uma postagem?'"
+    },
+    {
+      note: "A analogia do carro ajuda a fixar que o RNF não é opcional nem decorativo: ele define se o sistema é seguro, viável e agradável. Enfatize a necessidade de números e metas.",
+      prompt: "💬 Pergunta: 'Dizer que um app é fácil de usar é um bom requisito não funcional? Por que não? Como transformar isso em algo mensurável?'"
+    },
+    {
+      note: "Percorra os 5 pilares com calma. Explique termos como LGPD (segurança), SLA e 99.9% (disponibilidade) e tempo de resposta em milissegundos (desempenho).",
+      prompt: "💬 Pergunta: 'Para um app bancário de PIX, qual pilar é mais crítico: Usabilidade ou Segurança/Disponibilidade?'"
+    },
+    {
+      note: "Use a tabela para fazer os alunos responderem em coro. Cubra uma das colunas mentalmente e pergunte: 'Se uma regra existe sem computador, ela é o quê?'",
+      prompt: "💬 Verificação de fixação: 'Se o cliente diz que o sistema deve rodar no Android e iOS, isso é RF ou RNF?' (Resposta: RNF de portabilidade/plataforma)."
+    },
+    {
+      note: "Destaque que o analista de TI é como um detetive. Se ele só fizer perguntas diretas, o cliente vai omitir problemas cruciais. É preciso observar e prototipar.",
+      prompt: "💬 Situação: 'Se você entrevistar um estoquista, por que também é importante olhar as anotações que ele cola com fita crepe no monitor?'"
+    },
+    {
+      note: "Apresente a Curva de Boehm: o custo de corrigir erros cresce exponencialmente. Validar com protótipo antes de codificar economiza milhares de reais.",
+      prompt: "💬 Reflexão: 'Por que muitos clientes aprovam documentos de texto sem ler, mas quando vêem a tela no Figma apontam 10 mudanças na hora?'"
+    },
+    {
+      note: "O estudo de caso reúne tudo em um único carrinho de compras. Mostre como as 3 caixas conversam entre si para formar uma experiência impecável.",
+      prompt: "💬 Pergunta: 'Se a TechExpress remover a RN01 de estoque, que caos acontece no depósito no dia seguinte?'"
+    },
+    {
+      note: "Oriente os grupos de 3 a 4 alunos na atividade prática do hospital. No quiz interativo, faça os alunos votarem nas alternativas antes de clicar.",
+      prompt: "💬 Condução: 'Equipe 1, como vocês resolveram a regra dos medicamentos controlados?'"
+    },
+    {
+      note: "Conclua revisando as 7 Leis. Peça para cada aluno escolher uma lei que ele considerou mais marcante para seu futuro como profissional de TI.",
+      prompt: "💬 Fechamento: 'Qual dessas 7 leis vocês vão lembrar no primeiro projeto de software que forem desenvolver?'"
+    }
+  ];
+
+  // ─── DADOS DO QUIZ INTERATIVO ──────────────────────────────
+  const quizData = [
+    {
+      q: "Qual das seguintes frases representa uma REGRA DE NEGÓCIO legítima?",
+      opts: [
+        "O sistema deve carregar a tela de login em menos de 1 segundo.",
+        "Produtos sem estoque disponível não podem ser vendidos.",
+        "O sistema deve permitir exportar relatórios em formato PDF.",
+        "O banco de dados deve realizar backups a cada 24 horas."
+      ],
+      correct: 1,
+      explanation: "'Produtos sem estoque não podem ser vendidos' é uma norma da organização comercial que independe de computadores. As outras são RFs ou RNFs."
+    },
+    {
+      q: "O que caracteriza fundamentalmente um REQUISITO FUNCIONAL?",
+      opts: [
+        "Descrever a velocidade máxima de conexão com o banco de dados.",
+        "Definir a cor de fundo e a tipografia das páginas do sistema.",
+        "Descrever uma ação, funcionalidade ou serviço que o sistema executa para o usuário.",
+        "Garantir conformidade com a LGPD e criptografia de senhas."
+      ],
+      correct: 2,
+      explanation: "Requisitos Funcionais tratam de O QUE o software faz (ações como cadastrar, consultar, calcular, emitir documentos)."
+    },
+    {
+      q: "A exigência 'O sistema deve estar disponível 99,9% do tempo e suportar 10.000 usuários simultâneos' é classificada como:",
+      opts: [
+        "Regra de Negócio Comercial.",
+        "Requisito Funcional de Consulta.",
+        "Requisito Não Funcional (Disponibilidade e Desempenho).",
+        "Técnica de Prototipação."
+      ],
+      correct: 2,
+      explanation: "Disponibilidade e capacidade de carga são critérios de qualidade e infraestrutura do sistema, portanto Requisitos Não Funcionais."
+    },
+    {
+      q: "Por que a prototipação de interfaces é uma das técnicas mais eficazes de análise de requisitos?",
+      opts: [
+        "Porque elimina totalmente a necessidade de escrever código no backend.",
+        "Porque permite ao cliente visualizar e testar o fluxo antes do desenvolvimento, reduzindo retrabalho.",
+        "Porque substitui todas as regras de negócio por gráficos bonitos.",
+        "Porque é a única técnica aceita por normas internacionais de qualidade."
+      ],
+      correct: 1,
+      explanation: "O protótipo torna tangível o sistema. O cliente consegue ver o fluxo e corrigir mal-entendidos antes de gastar tempo com codificação."
+    },
+    {
+      q: "'Somente administradores podem cancelar uma venda concluída'. Qual a relação correta desta declaração com o sistema?",
+      opts: [
+        "É um Requisito Não Funcional de Usabilidade.",
+        "É uma Regra de Negócio que dá origem a um Requisito Funcional de controle de permissão de acesso.",
+        "É apenas uma sugestão opcional que o desenvolvedor decide se implementa.",
+        "É um Requisito Funcional que substitui o banco de dados."
+      ],
+      correct: 1,
+      explanation: "A restrição é uma Regra de Negócio de segurança/alçada corporativa que exige do sistema a funcionalidade de validação de nível de permissão (RF)."
+    }
+  ];
+
+  // ─── ESTADO E CONTROLES ────────────────────────────────────
+  let currentSlide = 0;
+  let notesOpen = false;
+  let tocOpen = false;
+  let quizCurrent = 0;
+  let quizScore = 0;
+  let quizAnswered = {};
+
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  const curNum = document.getElementById('cur-slide-num');
+  const totNum = document.getElementById('total-slide-num');
+  const progressBar = document.getElementById('progress-bar');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const dotContainer = document.getElementById('dot-indicators');
+  const tocList = document.getElementById('toc-list');
+
+  totNum.textContent = totalSlides;
+
+  // Gerar Dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'h-2 rounded-full transition-all duration-300 ' + (i === 0 ? 'bg-brand-primary w-5' : 'bg-blue-200 w-2');
+    dot.onclick = () => goToSlide(i);
+    dot.title = slidesMeta[i]?.title || `Slide ${i+1}`;
+    dotContainer.appendChild(dot);
+  });
+
+  // Gerar Lista do Sumário
+  slidesMeta.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.id = `toc-item-${i}`;
+    btn.className = 'flex items-center gap-3 w-full text-left px-3 py-2 rounded-lg hover:bg-brand-subtle transition-colors';
+    btn.innerHTML = `
+      <span class="w-6 h-6 rounded-full bg-brand-primary text-white text-xs flex items-center justify-center font-bold flex-shrink-0">${i+1}</span>
+      <div>
+        <p class="text-brand-dark text-sm font-medium">${s.title}</p>
+        <p class="text-brand-muted text-xs">${s.module}</p>
+      </div>`;
+    btn.onclick = () => { goToSlide(i); closeTOC(); };
+    tocList.appendChild(btn);
+  });
+
+  function updateSlide() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+    const dots = dotContainer.children;
+    for (let i = 0; i < dots.length; i++) {
+      dots[i].className = 'h-2 rounded-full transition-all duration-300 ' + (i === currentSlide ? 'bg-brand-primary w-5' : 'bg-blue-200 w-2');
+    }
+    curNum.textContent = currentSlide + 1;
+    progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+    btnPrev.disabled = currentSlide === 0;
+    btnNext.textContent = currentSlide === totalSlides - 1 ? '✓ Fim' : 'Próximo →';
+
+    document.querySelectorAll('[id^="toc-item-"]').forEach((el, i) => {
+      el.classList.toggle('bg-brand-subtle', i === currentSlide);
+    });
+
+    if (teacherNotes[currentSlide]) {
+      const n = teacherNotes[currentSlide];
+      document.getElementById('notes-content').innerHTML = `
+        <div class="bg-blue-900 rounded-xl p-4 mb-4">
+          <p class="text-blue-300 font-bold text-xs uppercase tracking-wider mb-2">Slide ${currentSlide + 1} — ${slidesMeta[currentSlide]?.title}</p>
+          <p class="text-blue-100 text-sm leading-relaxed">${n.note}</p>
+        </div>
+        <div class="bg-blue-800 rounded-xl p-4">
+          <p class="text-blue-300 font-bold text-xs uppercase tracking-wider mb-2">Provocação Pedagógica</p>
+          <p class="text-blue-100 text-sm">${n.prompt}</p>
+        </div>`;
+    }
+  }
+
+  function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); } }
+  function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
+  function goToSlide(i) { currentSlide = i; updateSlide(); }
+
+  function toggleTOC() { tocOpen = !tocOpen; document.getElementById('toc-modal').classList.toggle('open', tocOpen); }
+  function closeTOC() { tocOpen = false; document.getElementById('toc-modal').classList.remove('open'); }
+  function closeTOCOutside(e) { if (e.target === document.getElementById('toc-modal')) closeTOC(); }
+  function toggleNotes() { notesOpen = !notesOpen; document.getElementById('notes-drawer').classList.toggle('open', notesOpen); }
+
+  document.addEventListener('keydown', e => {
+    if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+    else if (e.key === 'f' || e.key === 'F') { document.documentElement.requestFullscreen?.().catch(()=>{}); }
+    else if (e.key === 'm' || e.key === 'M' || e.key === 'i' || e.key === 'I') toggleTOC();
+    else if (e.key === 'p' || e.key === 'P' || e.key === 'n' || e.key === 'N') toggleNotes();
+  });
+
+  // Quiz
+  function renderQuiz() {
+    if (quizCurrent >= quizData.length) {
+      document.getElementById('quiz-content').classList.add('hidden');
+      document.getElementById('quiz-score').classList.remove('hidden');
+      const pct = Math.round((quizScore / quizData.length) * 100);
+      document.getElementById('quiz-score-text').textContent = `Pontuação: ${quizScore}/${quizData.length} (${pct}%)`;
+      document.getElementById('quiz-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '👏' : '📚';
+      return;
+    }
+    const q = quizData[quizCurrent];
+    document.getElementById('quiz-q-num').textContent = `Questão ${quizCurrent + 1} de ${quizData.length}`;
+    document.getElementById('quiz-question').textContent = q.q;
+    const optEl = document.getElementById('quiz-options');
+    optEl.innerHTML = '';
+    q.opts.forEach((o, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt w-full text-left px-3 py-2 rounded-lg bg-blue-50 text-xs text-brand-text leading-snug';
+      btn.textContent = `${String.fromCharCode(65+i)}) ${o}`;
+      btn.onclick = () => answerQuiz(i, btn);
+      optEl.appendChild(btn);
+    });
+    document.getElementById('quiz-feedback').classList.add('hidden');
+    document.getElementById('quiz-next').classList.add('hidden');
+  }
+
+  function answerQuiz(i, btn) {
+    if (quizAnswered[quizCurrent]) return;
+    quizAnswered[quizCurrent] = true;
+    const q = quizData[quizCurrent];
+    const opts = document.getElementById('quiz-options').children;
+    const fb = document.getElementById('quiz-feedback');
+    if (i === q.correct) {
+      quizScore++;
+      btn.classList.add('correct');
+      fb.className = 'mt-2 p-2 rounded-lg text-xs bg-green-50 text-green-700 border border-green-200';
+      fb.textContent = '✅ Correto! ' + q.explanation;
+    } else {
+      btn.classList.add('wrong');
+      opts[q.correct].classList.add('correct');
+      fb.className = 'mt-2 p-2 rounded-lg text-xs bg-red-50 text-red-700 border border-red-200';
+      fb.textContent = '❌ Incorreto. ' + q.explanation;
+    }
+    fb.classList.remove('hidden');
+    document.getElementById('quiz-next').classList.remove('hidden');
+  }
+
+  function nextQuestion() { quizCurrent++; renderQuiz(); }
+  function resetQuiz() {
+    quizCurrent = 0; quizScore = 0; quizAnswered = {};
+    document.getElementById('quiz-content').classList.remove('hidden');
+    document.getElementById('quiz-score').classList.add('hidden');
+    renderQuiz();
+  }
+
+  // Auto-hide hint
+  setTimeout(() => {
+    const h = document.getElementById('key-hint');
+    if (h) { h.style.opacity = '0'; h.style.transition = 'opacity .5s'; setTimeout(() => h.remove(), 500); }
+  }, 5000);
+
+  updateSlide();
+  renderQuiz();
+  </script>
+</body>
+</html>
