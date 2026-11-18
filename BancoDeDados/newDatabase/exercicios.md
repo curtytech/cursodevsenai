@@ -1,5 +1,5 @@
 1-Conte todos os hamburgueres da table products
-2-Liste todos os produtos da categoria 3
+2-Liste todos os produtos da categoria 43
 3-Liste todos os produtos do usuario 25
 4-Crie uma restaurant_table
 5-Crie uma Venda
