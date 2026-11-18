@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+backups/
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
