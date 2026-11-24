@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dados do Firestore</title>
 </head>
+
 <body>
     <h1>Dados da colecao temp</h1>
     <form id="form-temperatura">
@@ -15,13 +17,14 @@
     <p id="mensagem" role="status"></p>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+        import {initializeApp} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
         import {
             getFirestore,
             collection,
             getDocs,
             addDoc,
-            serverTimestamp
+            serverTimestamp,
+            onSnapshot
         } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -55,7 +58,7 @@
                     umidade: 44
                 });
 
-                console.log("Temperatura salva:", { id: documento.id, temperatura, created_at: new Date(), umidade: 44 });
+                console.log("Temperatura salva:", {id: documento.id, temperatura, created_at: new Date(), umidade: 44});
                 mensagem.textContent = "Temperatura salva com sucesso.";
                 form.reset();
             } catch (error) {
@@ -64,6 +67,17 @@
             }
         });
 
+
+        const realtime = onSnapshot(
+            collection(db, 'temp'),
+            (snapshot) => {
+                snapshot.forEach(doc => console.log('Realtime', doc.data()));
+            },
+            (erro) => console.error(erro)
+        );
+
+
+
         try {
             const snapshot = await getDocs(collection(db, "temp"));
             const dados = snapshot.docs.map(documento => ({
@@ -71,10 +85,11 @@
                 ...documento.data()
             }));
 
-            console.log("Dados da colecao temp:", dados);
+            // console.log("Dados da colecao temp:", dados);
         } catch (error) {
             console.error("Nao foi possivel carregar os dados:", error);
         }
     </script>
 </body>
+
 </html>
