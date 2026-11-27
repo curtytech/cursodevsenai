@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 3: Aterramento, Riscos Elétricos, Carga & Eletromagnetismo — Curso Técnico</title>
+
+  <!-- Google Fonts: Inter, JetBrains Mono e Orbitron -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            theme: {
+              black: '#0A0A0A',
+              dark: '#1F2937',
+              gray: '#374151',
+              lightGray: '#4B5563',
+              green: '#22C55E',
+              darkGreen: '#166534',
+              brightGreen: '#4ADE80',
+              emerald: '#10B981',
+              white: '#F9FAFB',
+              accentCyan: '#06B6D4'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            tech: ['Orbitron', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background-color: #0A0A0A;
+      color: #F9FAFB;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Grid técnico de circuito impresso (PCB) */
+    .pcb-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(34, 197, 94, 0.05) 1px, transparent 1px);
+    }
+
+    .glow-green {
+      box-shadow: 0 0 20px -3px rgba(34, 197, 94, 0.35);
+    }
+    
+    .glow-green-sm {
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+    }
+
+    .text-glow-green {
+      text-shadow: 0 0 12px rgba(34, 197, 94, 0.55);
+    }
+
+    /* Glassmorphism moderado */
+    .glass-panel {
+      background: rgba(31, 41, 55, 0.72);
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .glass-card {
+      background: rgba(31, 41, 55, 0.85);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(34, 197, 94, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -4px rgba(34, 197, 94, 0.15);
+    }
+
+    /* Animações de trilhas e LEDs */
+    @keyframes pulseTrace {
+      0% { stroke-dashoffset: 200; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .animated-trace {
+      stroke-dasharray: 12, 12;
+      animation: pulseTrace 4s linear infinite;
+    }
+
+    @keyframes ledBlink {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px #22C55E); }
+      50% { opacity: 0.35; filter: none; }
+    }
+
+    .led-pulsing {
+      animation: ledBlink 1.8s ease-in-out infinite;
+    }
+
+    /* Transição suave entre slides */
+    .slide-wrapper {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.98) translateY(8px);
+      transition: opacity 0.35s ease-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-wrapper.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    .slide-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .slide-scroll::-webkit-scrollbar-track {
+      background: rgba(31, 41, 55, 0.4);
+      border-radius: 4px;
+    }
+    .slide-scroll::-webkit-scrollbar-thumb {
+      background: #22C55E;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-[#0A0A0A] text-[#F9FAFB] pcb-grid relative selection:bg-[#22C55E]/30 selection:text-white">
+
+  <!-- TOP BAR -->
+  <header class="h-14 border-b border-[#374151]/70 bg-[#0A0A0A]/90 backdrop-blur-md px-6 flex items-center justify-between z-30 select-none">
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#1F2937] border border-[#374151]">
+        <span class="w-2 h-2 rounded-full bg-[#22C55E] led-pulsing"></span>
+        <span class="font-tech text-xs tracking-wider text-[#22C55E] font-semibold">MÓDULO 3</span>
+      </div>
+      <div class="h-4 w-px bg-[#374151]"></div>
+      <a href="index.html" title="Ir para o Módulo 1" class="text-xs font-mono text-gray-400 hover:text-[#22C55E] transition flex items-center gap-1">
+        <span class="hidden sm:inline">MÓD 1</span>
+      </a>
+      <div class="h-4 w-px bg-[#374151]"></div>
+      <a href="eletronica_2.html" title="Ir para o Módulo 2" class="text-xs font-mono text-gray-400 hover:text-[#22C55E] transition flex items-center gap-1">
+        <span class="hidden sm:inline">MÓD 2</span>
+      </a>
+    </div>
+
+    <!-- Título Centralizado -->
+    <div class="text-center font-tech text-xs md:text-sm tracking-wider text-white font-bold flex items-center gap-2">
+      <i data-lucide="shield" class="w-4 h-4 text-[#22C55E]"></i>
+      <span>ATERRAMENTO, RISCOS, CARGA & ELETROMAGNETISMO</span>
+    </div>
+
+    <!-- Indicador e Botões de Controle Superior -->
+    <div class="flex items-center space-x-3">
+      <div class="font-mono text-xs px-2.5 py-1 bg-[#1F2937] rounded border border-[#374151] flex items-center gap-1.5">
+        <span class="text-[#22C55E] font-bold" id="current-slide-num">01</span>
+        <span class="text-gray-500">/</span>
+        <span class="text-gray-400" id="total-slides-num">22</span>
+      </div>
+
+      <button onclick="toggleOverviewModal()" title="Visão Geral dos Slides (Menu)" class="p-1.5 rounded bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-gray-300 hover:text-white transition">
+        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+      </button>
+
+      <button onclick="toggleFullScreen()" title="Modo Tela Cheia (F)" class="p-1.5 rounded bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-gray-300 hover:text-white transition">
+        <i data-lucide="maximize" class="w-4 h-4" id="fs-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- BARRA DE PROGRESSO SUPERIOR -->
+  <div class="h-1 w-full bg-[#1F2937] relative z-30">
+    <div id="progress-bar" class="h-full bg-gradient-to-r from-[#166534] via-[#22C55E] to-[#4ADE80] transition-all duration-300 shadow-[0_0_8px_#22C55E]" style="width: 4.54%;"></div>
+  </div>
+
+  <!-- CONTAINER PRINCIPAL DOS SLIDES -->
+  <main id="presentation-viewport" class="relative w-full h-[calc(100vh-7rem)] overflow-hidden">
+
+    <!-- ========================================== -->
+    <!-- SLIDE 1 — CAPA MÓDULO 3 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper active" id="slide-1">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F2937] border border-[#22C55E]/40 text-[#22C55E] text-xs font-mono tracking-widest uppercase">
+            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            Módulo 3 • Segurança, Eletrostática & Campos
+          </div>
+          <span class="text-xs font-mono text-gray-400">CURSO TÉCNICO PROFISSIONAL</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto">
+          <div class="lg:col-span-7 space-y-5">
+            <div class="inline-block px-2.5 py-1 rounded bg-[#166534]/50 border border-[#22C55E]/50 text-[#22C55E] font-mono text-xs">
+              4. ATERRAMENTO • 5. RISCOS • 6. CARGA ELÉTRICA • 7. ELETROMAGNETISMO
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black font-tech tracking-tight text-white leading-tight">
+              ATERRAMENTO, RISCOS & <br/>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] via-[#4ADE80] to-white text-glow-green">
+                ELETROMAGNETISMO
+              </span>
+            </h1>
+            <p class="text-base sm:text-lg text-gray-300 font-light max-w-2xl leading-relaxed">
+              Os pilares de proteção à vida humana, equipotencialização de massas metálicas, fenômenos eletrostáticos atômicos e as forças eletromagnéticas que movem a automação industrial.
+            </p>
+            
+            <div class="flex flex-wrap gap-2.5 pt-2">
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                Sistemas TN-S / TT / IT
+              </span>
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                Segurança NR-10 & Choque
+              </span>
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                Cargas & Coulomb
+              </span>
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                Indução de Faraday & Oersted
+              </span>
+            </div>
+          </div>
+
+          <!-- Composição Gráfica -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="relative w-full max-w-md aspect-square rounded-2xl glass-panel p-6 border border-[#22C55E]/30 glow-green relative overflow-hidden flex flex-col justify-between">
+              <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 400 400">
+                <!-- Linhas de Campo Magnético em loop -->
+                <ellipse cx="200" cy="200" rx="140" ry="70" fill="none" stroke="#22C55E" stroke-width="2" class="animated-trace" />
+                <ellipse cx="200" cy="200" rx="180" ry="110" fill="none" stroke="#22C55E" stroke-width="1.5" />
+                <!-- Linha de Terra -->
+                <line x1="200" y1="200" x2="200" y2="340" stroke="#4ADE80" stroke-width="3" />
+                <line x1="170" y1="340" x2="230" y2="340" stroke="#4ADE80" stroke-width="3" />
+                <line x1="180" y1="348" x2="220" y2="348" stroke="#4ADE80" stroke-width="2.5" />
+                <line x1="190" y1="356" x2="210" y2="356" stroke="#4ADE80" stroke-width="2" />
+              </svg>
+
+              <div class="flex justify-between items-center z-10">
+                <span class="font-mono text-xs text-[#22C55E] font-bold">SAFETY & PHYSICS</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#22C55E] led-pulsing"></span>
+              </div>
+
+              <!-- Ícone Central de Segurança & Terra -->
+              <div class="my-auto self-center p-5 rounded-xl bg-[#0A0A0A] border-2 border-[#22C55E] text-center z-10 w-52 shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+                <i data-lucide="shield-check" class="w-10 h-10 mx-auto text-[#22C55E] mb-2"></i>
+                <div class="font-tech text-xs tracking-wider font-bold text-white">GROUND & FIELD</div>
+                <div class="font-mono text-[9px] text-[#22C55E] mt-1">NR-10 & NBR 5410</div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2 text-center z-10 font-mono text-[10px]">
+                <div class="bg-[#0A0A0A]/90 p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">TERRA</span>
+                  <span class="text-[#22C55E] font-bold">BEP / RE ≤ 10Ω</span>
+                </div>
+                <div class="bg-[#0A0A0A]/90 p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">CARGA</span>
+                  <span class="text-white font-bold">Coulomb (e⁻)</span>
+                </div>
+                <div class="bg-[#0A0A0A]/90 p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">CAMPO</span>
+                  <span class="text-[#22C55E] font-bold">Faraday (EM)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-gray-500 font-mono border-t border-[#374151]/50 pt-4">
+          <span>Use [← / →] ou clique em "Próximo" para avançar</span>
+          <span class="text-[#22C55E] flex items-center gap-1 font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span> 22 Slides Técnicos
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 2 — OBJETIVOS DO MÓDULO 3 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-2">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>PROGRAMA DA DISCIPLINA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Objetivos do Módulo 3</h2>
+          <p class="text-sm text-gray-400">Domínio da segurança de instalações, fenômenos atômicos, materiais e campos eletromagnéticos.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 my-auto">
+          <!-- Bloco 1: Aterramento -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="anchor" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-[#22C55E] font-bold block">TEMA 4</span>
+            <h3 class="font-bold text-base text-white">Aterramento Elétrico</h3>
+            <ul class="text-xs text-gray-300 space-y-1.5 font-mono">
+              <li>▸ Aterramento de proteção vs funcional</li>
+              <li>▸ Hastes, malhas e BEP</li>
+              <li>▸ Esquemas TN-S, TN-C, TT e IT</li>
+              <li>▸ Equipotencialização</li>
+            </ul>
+          </div>
+
+          <!-- Bloco 2: Riscos Elétricos -->
+          <div class="glass-card p-5 rounded-2xl border border-red-500/40 bg-red-950/20 space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white">
+              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-red-400 font-bold block">TEMA 5</span>
+            <h3 class="font-bold text-base text-white">Riscos Elétricos & NR-10</h3>
+            <ul class="text-xs text-gray-200 space-y-1.5 font-mono">
+              <li>▸ Efeitos fisiológicos do choque (mA)</li>
+              <li>▸ Fibrilação ventricular e tetanização</li>
+              <li>▸ Queimaduras por arco elétrico</li>
+              <li>▸ EPIs, EPCs e desenergização</li>
+            </ul>
+          </div>
+
+          <!-- Bloco 3: Carga Elétrica -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="atom" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-[#22C55E] font-bold block">TEMA 6</span>
+            <h3 class="font-bold text-base text-white">Carga Elétrica & Materiais</h3>
+            <ul class="text-xs text-gray-300 space-y-1.5 font-mono">
+              <li>▸ Estrutura atômica e elétrons livres</li>
+              <li>▸ Eletrização (Atrito, Contato, Indução)</li>
+              <li>▸ Condutores vs Isolantes/Dielétricos</li>
+              <li>▸ Potencial e DDP (Tensão)</li>
+            </ul>
+          </div>
+
+          <!-- Bloco 4: Eletromagnetismo -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#22C55E] flex items-center justify-center text-[#0A0A0A]">
+              <i data-lucide="magnet" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-[#22C55E] font-bold block">TEMA 7</span>
+            <h3 class="font-bold text-base text-white">Eletromagnetismo</h3>
+            <ul class="text-xs text-gray-200 space-y-1.5 font-mono">
+              <li>▸ Polos magnéticos e linhas de campo</li>
+              <li>▸ Experimento de Oersted</li>
+              <li>▸ Solenoides e eletroímãs</li>
+              <li>▸ Lei de Indução de Faraday-Lenz</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] text-xs text-gray-400 font-mono text-center">
+          Conexão direta: Nenhum sistema automatizado ou eletrônico pode operar sem aterramento robusto e domínio das leis magnéticas.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 3 — VISÃO GERAL INTEGRADA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-3">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>MAPA CONCEITUAL</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Da Estrutura Atômica à Proteção de Vidas</h2>
+          <p class="text-sm text-gray-400">Como a física dos elétrons fundamenta a segurança elétrica e as máquinas industriais.</p>
+        </div>
+
+        <div class="my-auto py-3">
+          <div class="glass-panel p-6 rounded-2xl border border-[#22C55E]/40 space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center font-mono text-xs">
+              <div class="p-4 rounded-xl bg-[#0A0A0A] border border-[#374151] space-y-2">
+                <span class="text-[10px] text-gray-400 block">BASE ATÔMICA</span>
+                <div class="text-[#22C55E] font-bold text-sm">CARGAS ELÉTRICAS</div>
+                <p class="text-[11px] text-gray-300">Prótons e elétrons livres criam o campo elétrico e a DDP necessária ao fluxo de corrente.</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-[#0A0A0A] border border-[#374151] space-y-2">
+                <span class="text-[10px] text-gray-400 block">INTERAÇÃO DE MEIO</span>
+                <div class="text-[#22C55E] font-bold text-sm">CONDUTORES & ISOLANTES</div>
+                <p class="text-[11px] text-gray-300">Metais conduzem a energia; polímeros e cerâmicas contêm o potencial e evitam choques.</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-[#0A0A0A] border border-[#374151] space-y-2">
+                <span class="text-[10px] text-gray-400 block">CONVERSÃO DE ENERGIA</span>
+                <div class="text-white font-bold text-sm">ELETROMAGNETISMO</div>
+                <p class="text-[11px] text-gray-300">Correntes geram magnetismo; campos magnéticos variáveis induzem eletricidade (Motores/Geradores).</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-[#166534]/30 border border-[#22C55E] space-y-2">
+                <span class="text-[10px] text-[#22C55E] block font-bold">SEGURANÇA TOTAL</span>
+                <div class="text-white font-bold text-sm">ATERRAMENTO & NR-10</div>
+                <p class="text-[11px] text-gray-200">Garante o escoamento seguro de falhas à terra, eliminando tensões perigosas em carcaças.</p>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-[#0A0A0A] border border-[#374151] flex items-center justify-between text-xs font-mono">
+              <span class="text-gray-300">Princípio Vital: <strong class="text-white">A corrente elétrica sempre busca o caminho de menor resistência para retornar à sua fonte.</strong></span>
+              <span class="text-[#22C55E] font-bold hidden sm:inline">SAFETY BY DESIGN</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Um bom aterramento não é apenas um "fio verde na terra", é um sistema de equipotencialização projetado milimetricamente.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 4 — 4. ATERRAMENTO ELÉTRICO: CONCEITO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-4">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>4. ATERRAMENTO ELÉTRICO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Aterramento: Conceito, Funções e Importância</h2>
+          <p class="text-sm text-gray-400">Ligação intencional de um sistema ou carcaça à terra para segurança humana e estabilidade eletrônica.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Aterramento de Proteção -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">Aterramento de Proteção (PE)</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Segurança Humana</span>
+            </div>
+            <p class="text-xs text-gray-200">
+              Conecta todas as massas metálicas (carcaças de motores, quadros de distribuição, chassis) à terra.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Objetivo: Se um cabo desencapado tocar a carcaça, a corrente escoa direto para a terra, provocando a queima imediata do fusível ou desarme do disjuntor.
+            </div>
+          </div>
+
+          <!-- Aterramento Funcional -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">Aterramento Funcional</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-cyan-400">Referência / Ruído</span>
+            </div>
+            <p class="text-xs text-gray-300">
+              Ligação do condutor Neutro ou de blindagens de sinais eletrônicos sensíveis à terra.
+            </p>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Objetivo: Fixar o potencial de referência 0V, eliminar ruídos eletromagnéticos (EMI) e estabilizar fontes chaveadas.
+            </div>
+          </div>
+
+          <!-- Proteção contra Descargas (SPDA) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">Aterramento de SPDA (Para-Raios)</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-amber-400">Descargas Atmosféricas</span>
+            </div>
+            <p class="text-xs text-gray-300">
+              Dissipa correntes colossais de raios (dezenas de milhares de amperes) diretamente no solo profundo.
+            </p>
+            <div class="text-[11px] font-mono text-amber-400 bg-[#0A0A0A] p-2 rounded">
+              Regra de Ouro: Todos os aterramentos de uma edificação devem ser equipotencializados no mesmo ponto para evitar DDP destrutiva.
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Sem aterramento de proteção: O primeiro ser humano que tocar no motor energizado por falha vira o "fio terra", sofrendo choque letal!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 5 — 4. COMPONENTES DO ATERRAMENTO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-5">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>4. INFRAESTRUTURA FÍSICA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Componentes do Sistema de Aterramento</h2>
+          <p class="text-sm text-gray-400">A infraestrutura física enterrada que garante resistência de contato baixa com o solo.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-auto">
+          <!-- Haste Copperweld -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <span class="text-[10px] font-mono text-[#22C55E] block font-bold">ELEMENTO 1</span>
+            <h4 class="font-bold text-sm text-white">Haste de Aterramento</h4>
+            <p class="text-xs text-gray-300">Núcleo de aço carbono revestido com espessa camada de cobre eletrolítico (Copperweld). Comprimento padrão de 2,40m.</p>
+            <div class="text-[10px] font-mono text-gray-400 bg-[#0A0A0A] p-1.5 rounded">Cravada verticalmente no solo úmido.</div>
+          </div>
+
+          <!-- BEP -->
+          <div class="glass-card p-4 rounded-xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-2">
+            <span class="text-[10px] font-mono text-[#22C55E] block font-bold">ELEMENTO 2</span>
+            <h4 class="font-bold text-sm text-white">Barramento BEP</h4>
+            <p class="text-xs text-gray-200">Barramento de Equipotencialização Principal. Barra maciça de cobre onde convergem todos os terras da edificação.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-1.5 rounded">Garante DDP = 0V entre todas as massas.</div>
+          </div>
+
+          <!-- Malha de Terra -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <span class="text-[10px] font-mono text-[#22C55E] block font-bold">ELEMENTO 3</span>
+            <h4 class="font-bold text-sm text-white">Malha de Terra / Anel</h4>
+            <p class="text-xs text-gray-300">Cabos de cobre nu de 50mm² enterrados em valas interligando múltiplas hastes em triângulo ou grade de subestação.</p>
+            <div class="text-[10px] font-mono text-gray-400 bg-[#0A0A0A] p-1.5 rounded">Controla tensões de passo e toque.</div>
+          </div>
+
+          <!-- Terrômetro -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <span class="text-[10px] font-mono text-[#22C55E] block font-bold">ELEMENTO 4</span>
+            <h4 class="font-bold text-sm text-white">Terrômetro (Medição)</h4>
+            <p class="text-xs text-gray-300">Instrumento com estacas auxiliares de corrente e potencial pelo método Wenner ou de queda de potencial.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-1.5 rounded">Meta técnica: Resistência R ≤ 10 Ω.</div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] text-xs font-mono text-gray-300 flex items-center justify-between">
+          <span>Solos rochosos ou arenosos exigem tratamentos com sais minerais condutores ou furos profundos com poços artesianos de terra.</span>
+          <span class="text-[#22C55E] font-bold">NBR 5410 / NBR 5419</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 6 — 4. ESQUEMAS DE ATERRAMENTO NBR 5410 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-6">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>4. NORMAS NBR 5410 & IEC 60364</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Esquemas de Aterramento (TN-S, TN-C, TT, IT)</h2>
+          <p class="text-sm text-gray-400">Classificação internacional por letras: 1ª Letra = Fonte | 2ª Letra = Carga | Letras seguintes = Disposição de N e PE.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-auto font-mono text-xs">
+          <!-- TN-S -->
+          <div class="glass-card p-4 rounded-xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-white text-sm">Sistema TN-S</span>
+              <span class="px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold text-[9px]">O Mais Seguro</span>
+            </div>
+            <p class="text-[11px] text-gray-200 font-sans">
+              Neutro (N) e Terra de Proteção (PE) são condutores <strong>totalmente separados</strong> ao longo de toda a instalação após o BEP.
+            </p>
+            <div class="bg-[#0A0A0A] p-2 rounded text-[10px] text-[#22C55E]">
+              Compatível com DR (IDR). Padrão ouro em computadores e hospitais.
+            </div>
+          </div>
+
+          <!-- TN-C -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-white text-sm">Sistema TN-C</span>
+              <span class="px-2 py-0.5 rounded bg-amber-500 text-black font-bold text-[9px]">PEN Unificado</span>
+            </div>
+            <p class="text-[11px] text-gray-300 font-sans">
+              As funções de Neutro e Terra são combinadas em um único condutor chamado <strong>PEN</strong>.
+            </p>
+            <div class="bg-[#0A0A0A] p-2 rounded text-[10px] text-amber-400">
+              Proibido o uso de DR! Se o cabo PEN partir, carcaças ficam sob 220V!
+            </div>
+          </div>
+
+          <!-- TT -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-white text-sm">Sistema TT</span>
+              <span class="px-2 py-0.5 rounded bg-[#1F2937] text-cyan-400 text-[9px]">Terras Distintos</span>
+            </div>
+            <p class="text-[11px] text-gray-300 font-sans">
+              A fonte tem um eletrodo de terra próprio e a massa do consumidor tem <strong>outro eletrodo independente</strong>.
+            </p>
+            <div class="bg-[#0A0A0A] p-2 rounded text-[10px] text-cyan-400">
+              Exige obrigatoriamente o uso de Dispositivo DR para desarmar na fuga.
+            </div>
+          </div>
+
+          <!-- IT -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-white text-sm">Sistema IT</span>
+              <span class="px-2 py-0.5 rounded bg-[#1F2937] text-purple-400 text-[9px]">Isolado / Não Pára</span>
+            </div>
+            <p class="text-[11px] text-gray-300 font-sans">
+              A fonte é isolada da terra ou aterrada por alta impedância. A 1ª falta para a carcaça <strong>não desarma o disjuntor</strong>.
+            </p>
+            <div class="bg-[#0A0A0A] p-2 rounded text-[10px] text-purple-400">
+              Uso: UTIs cirúrgicas, refinarias químicas e navios (continuidade vital).
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Significado: <strong>T</strong> = Terra direta; <strong>N</strong> = Ligado ao neutro da fonte; <strong>I</strong> = Isolado da terra; <strong>S</strong> = Separado; <strong>C</strong> = Combinado.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 7 — 5. RISCOS ELÉTRICOS & EFEITOS DO CHOQUE -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-7">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>5. RISCOS ELÉTRICOS & SEGURANÇA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Efeitos Fisiológicos da Corrente no Corpo</h2>
+          <p class="text-sm text-gray-400">Não é a tensão isolada que mata: é a intensidade da corrente (mA) atravessando órgãos vitais durante o tempo.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-red-500/40 bg-red-950/20 space-y-3">
+              <span class="text-xs font-mono text-red-400 uppercase font-bold">Por que o Corpo Humano Conduz?</span>
+              <p class="text-xs text-gray-200 leading-relaxed font-sans">
+                O corpo humano é composto por ~70% de água rica em íons eletrolíticos (sal, potássio, sódio). A pele seca oferece uma resistência de 1.000 Ω a 100.000 Ω, mas com umidade ou pele rompida, a resistência interna cai para menos de <strong>500 Ω</strong>!
+              </p>
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-red-500/30 text-xs font-mono text-white">
+                Lei de Ohm no Choque: $I = V_{toque} / R_{corpo}$<br/>
+                Sob 127V com pele molhada ($R = 1000\ \Omega$): $I = 127 / 1000 = 127	ext{ mA}$! (LETAL)
+              </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-[#374151] text-xs font-mono space-y-1">
+              <strong class="text-white block">Trajetos Mais Perigosos:</strong>
+              <div class="text-gray-300">Mão Esquerda → Pés: O fluxo passa diretamente pelo músculo cardíaco (coração).</div>
+              <div class="text-gray-400">Mão → Mão: Atravessa a caixa torácica e os pulmões.</div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 space-y-2">
+            <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+              Zonas de Corrente em 60Hz (IEC 60479):
+            </span>
+
+            <div class="space-y-2 text-xs font-mono">
+              <div class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">0,5 mA a 1 mA:</span>
+                <span class="text-[#22C55E] font-bold">Limiar de Percepção (leve formigamento)</span>
+              </div>
+              <div class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">10 mA a 15 mA:</span>
+                <span class="text-amber-400 font-bold">Tetanização muscular ("ficar preso ao fio")</span>
+              </div>
+              <div class="p-2.5 rounded bg-[#0A0A0A] border border-amber-500/50 flex justify-between items-center">
+                <span class="text-gray-300">20 mA a 30 mA:</span>
+                <span class="text-amber-400 font-bold">Asfixia respiratória e perda de consciência</span>
+              </div>
+              <div class="p-2.5 rounded bg-[#0A0A0A] border border-red-500/50 bg-red-950/30 flex justify-between items-center">
+                <span class="text-white">50 mA a 100 mA:</span>
+                <span class="text-red-400 font-bold">Fibrilação Ventricular (Parada Cardíaca)</span>
+              </div>
+              <div class="p-2.5 rounded bg-[#0A0A0A] border border-red-600 flex justify-between items-center">
+                <span class="text-white">> 2.000 mA (2A):</span>
+                <span class="text-red-500 font-bold">Queimaduras internas graves e carbonização</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          É por isso que os dispositivos DR residenciais são calibrados para disparar rigorosamente em 30 mA!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 8 — 5. SIMULADOR DE INTENSIDADE DO CHOQUE -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-8">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>5. LABORATÓRIO DE SEGURANÇA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Simulador: Efeitos da Corrente Elétrica</h2>
+          <p class="text-sm text-gray-400">Arraste a corrente para visualizar o diagnóstico clínico e a resposta biológica instantânea do organismo.</p>
+        </div>
+
+        <div class="my-auto max-w-3xl mx-auto w-full space-y-6">
+          <div class="glass-panel p-6 rounded-2xl border border-[#374151] space-y-5">
+            <div class="flex justify-between items-center font-mono">
+              <span class="text-xs text-[#22C55E] uppercase font-bold">Nível de Corrente de Fuga:</span>
+              <span id="shock-ma-val" class="font-tech text-2xl font-bold text-white">1 mA</span>
+            </div>
+
+            <!-- Slider Interativo -->
+            <input type="range" min="1" max="120" value="1" id="shock-slider" class="w-full accent-[#22C55E] bg-[#1F2937] rounded-lg cursor-pointer" oninput="updateShockSim()">
+
+            <div class="flex justify-between text-[10px] font-mono text-gray-400">
+              <span>1 mA (Inofensivo)</span>
+              <span class="text-amber-400">10 mA (Tetanização)</span>
+              <span class="text-red-400">30 mA (Limite DR)</span>
+              <span class="text-red-500 font-bold">100 mA (Fibrilação Letal)</span>
+            </div>
+
+            <!-- Painel de Diagnóstico Clínico Dinâmico -->
+            <div id="shock-status-panel" class="bg-[#0A0A0A] p-5 rounded-xl border border-[#22C55E]/40 space-y-2">
+              <div class="flex justify-between items-center">
+                <span id="shock-title" class="font-tech text-base font-bold text-[#22C55E]">LIMIAR DE PERCEPÇÃO</span>
+                <span id="shock-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#166534] text-[#22C55E] font-bold">SEGURO</span>
+              </div>
+              <p id="shock-desc" class="text-xs text-gray-300 font-sans leading-relaxed">
+                A corrente é quase imperceptível. Causa apenas um levíssimo formigamento nos dedos sem contração muscular involuntária.
+              </p>
+              <div id="shock-action" class="text-[11px] font-mono text-[#22C55E] pt-2 border-t border-[#374151]">
+                Condição: Não apresenta riscos à saúde humana.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Tetanização: A corrente elétrica sobrepõe os sinais nervosos do cérebro, travando os músculos da mão fechados sobre o condutor.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 9 — 5. ARCO ELÉTRICO & NR-10 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-9">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>5. NORMA REGULAMENTADORA NR-10</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Arco Elétrico (Arc Flash) & Segurança NR-10</h2>
+          <p class="text-sm text-gray-400">Temperaturas superiores a 19.000°C (mais quente que a superfície solar) geradas por curto-circuitos em painéis.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- O Fenômeno do Arc Flash -->
+          <div class="glass-card p-5 rounded-2xl border border-amber-500/40 bg-amber-950/20 space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">O Fenômeno do Arco Elétrico</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500 text-black font-bold">19.000 °C</span>
+            </div>
+            <p class="text-xs text-gray-200 leading-relaxed font-sans">
+              Ocorre quando o ar ambiente é ionizado por curto-circuito de alta potência (queda de chave de fenda em barramentos de 380V/440V). O cobre metálico se vaporiza instantaneamente, expandindo 67.000 vezes de volume em uma explosão ultrassônica.
+            </p>
+            <div class="text-[11px] font-mono text-amber-300 bg-[#0A0A0A] p-2 rounded">
+              Riscos: Queimaduras graves de 3º grau, estilhaços de cobre fundido e perda irreversível da audição/visão.
+            </div>
+          </div>
+
+          <!-- As 5 Etapas de Desenergização NR-10 -->
+          <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3 font-mono text-xs">
+            <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+              As 5 Etapas da Desenergização Segura (NR-10):
+            </span>
+            
+            <div class="space-y-1.5">
+              <div class="p-2 rounded bg-[#0A0A0A] border border-[#374151]">
+                <strong class="text-white">1. Seccionamento:</strong> Desligar o disjuntor principal.
+              </div>
+              <div class="p-2 rounded bg-[#0A0A0A] border border-[#374151]">
+                <strong class="text-white">2. Bloqueio & Travamento:</strong> Colocar cadeado e etiqueta (LOTO - Lockout/Tagout).
+              </div>
+              <div class="p-2 rounded bg-[#0A0A0A] border border-[#374151]">
+                <strong class="text-white">3. Constatação de Ausência de Tensão:</strong> Testar com voltímetro calibrado.
+              </div>
+              <div class="p-2 rounded bg-[#0A0A0A] border border-[#374151]">
+                <strong class="text-white">4. Aterramento Temporário:</strong> Conectar as fases ao terra com garras.
+              </div>
+              <div class="p-2 rounded bg-[#0A0A0A] border border-[#22C55E]">
+                <strong class="text-[#22C55E]">5. Sinalização & Proteção do Entorno:</strong> Fita zebrada e cones.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          "Trabalho em linha viva é exceção absoluta." Circuito só é considerado desenergizado após cumprir as 5 etapas da NR-10!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 10 — 6. CARGA ELÉTRICA & ESTRUTURA ATÔMICA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-10">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>6. CARGA ELÉTRICA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Carga Elétrica & Estrutura Atômica</h2>
+          <p class="text-sm text-gray-400">A propriedade intrínseca da matéria subatômica: prótons, nêutrons e a mobilidade dos elétrons livres.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Estrutura do Átomo -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">O Átomo de Bohr</h3>
+            <p class="text-xs text-gray-300">
+              O núcleo concentra prótons (carga positiva $+e$) e nêutrons (neutros). Na eletrosfera giram os elétrons (carga negativa $-e$).
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Carga Elementar (e):<br/>
+              $e = 1,602 	imes 10^{-19}	ext{ Coulombs [C]}$
+            </div>
+          </div>
+
+          <!-- Quantização da Carga -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Quantização da Carga ($Q = n \cdot e$)</h3>
+            <p class="text-xs text-gray-200">
+              A carga total de um corpo é sempre um múltiplo inteiro da carga elementar de um elétron. Não existe "meio elétron" livre.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              1 Coulomb (1 C) = $6,24 	imes 10^{18}$ elétrons em trânsito!
+            </div>
+          </div>
+
+          <!-- Princípio de Conservação -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Conservação de Cargas</h3>
+            <p class="text-xs text-gray-300">
+              "Em um sistema eletricamente isolado, a soma algébrica das cargas positivas e negativas permanece rigorosamente constante."
+            </p>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Cargas não são criadas nem destruídas: apenas transferidas entre materiais condutores e isolantes.
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Um corpo neutro possui número idêntico de prótons e elétrons. Eletrizar um corpo significa adicionar ou remover elétrons.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 11 — 6. LEI DE COULOMB & CAMPO ELETROSTÁTICO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-11">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>6. LEIS FUNDAMENTAIS DA ELETROSTÁTICA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Lei de Coulomb & Linhas de Campo</h2>
+          <p class="text-sm text-gray-400">Cargas de mesmo sinal se repelem; cargas de sinais opostos se atraem com força proporcional ao inverso do quadrado da distância.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">A Equação de Coulomb</span>
+              <div class="font-tech text-2xl font-bold text-white text-center py-2 bg-[#0A0A0A] rounded-xl border border-[#374151]">
+                F = k₀ · (|q₁ · q₂|) / r²
+              </div>
+              <ul class="text-xs font-mono text-gray-300 space-y-1.5">
+                <li>▸ <strong class="text-white">k₀:</strong> Constante eletrostática do vácuo ($8,99 	imes 10^9	ext{ N}\cdot	ext{m}^2/	ext{C}^2$).</li>
+                <li>▸ <strong class="text-white">q₁, q₂:</strong> Módulos das cargas em Coulombs.</li>
+                <li>▸ <strong class="text-white">r:</strong> Distância entre os centros em metros.</li>
+              </ul>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-[#374151] font-mono text-xs">
+              <span class="text-[#22C55E] font-bold block mb-1">Impacto da Distância ($r^2$):</span>
+              <span class="text-gray-300">Se a distância entre duas cargas for reduzida pela metade, a força de atração ou repulsão quadruplica ($4	imes$)!</span>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 space-y-3 font-mono text-xs">
+            <div class="glass-panel p-5 rounded-2xl border border-[#374151] space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+                Campo Elétrico e Gaiola de Faraday
+              </span>
+              
+              <div class="space-y-2">
+                <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151]">
+                  <strong class="text-white block">Linhas de Campo Elétrico (E):</strong>
+                  <span class="text-gray-400">Nascem nas cargas positivas e morrem nas cargas negativas.</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#22C55E]">
+                  <strong class="text-[#22C55E] block">Gaiola de Faraday (Blindagem Eletrostática):</strong>
+                  <span class="text-gray-200">No interior de qualquer condutor oco em equilíbrio eletrostático, o campo elétrico é rigorosamente zero ($E = 0$).</span>
+                </div>
+              </div>
+
+              <div class="text-[11px] text-gray-400 font-sans">
+                Aplicação prática: Carro atingido por raio protege passageiros; gabinetes metálicos protegem placas eletrônicas contra ruídos externos.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          O campo elétrico é a região invisível ao redor de uma carga capaz de exercer forças mecânicas sobre outras partículas carregadas.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 12 — 6.1 PROCESSOS DE ELETRIZAÇÃO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-12">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>6.1 PROCESSOS DE ELETRIZAÇÃO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Os Três Métodos de Eletrização</h2>
+          <p class="text-sm text-gray-400">Como transferir ou induzir cargas em materiais através de atrito, contato direto ou polarização.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- 1. Atrito -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">1. Eletrização por Atrito</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-[#22C55E]">Sinais Opostos</span>
+            </div>
+            <p class="text-xs text-gray-300">
+              Dois corpos neutros de materiais diferentes são friccionados. Um deles perde elétrons (fica positivo) e o outro ganha (fica negativo).
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Série Triboelétrica: Vidro, lã e nylon cedem elétrons; PVC, teflon e silicone recebem elétrons com facilidade.
+            </div>
+          </div>
+
+          <!-- 2. Contato -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">2. Eletrização por Contato</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-cyan-400">Mesmo Sinal</span>
+            </div>
+            <p class="text-xs text-gray-300">
+              Um corpo previamente carregado toca um corpo neutro condutor. Os elétrons fluem até o equilíbrio de potencial.
+            </p>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Resultado: Ambos os corpos terminam o processo eletrizados com cargas do mesmo sinal (+ e + ou - e -).
+            </div>
+          </div>
+
+          <!-- 3. Indução -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">3. Eletrização por Indução</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Sem Contato Físico</span>
+            </div>
+            <p class="text-xs text-gray-200">
+              Aproxima-se um indutor carregado de um condutor neutro, provocando polarização. Aterra-se o condutor para escoar cargas e corta-se o terra.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Resultado: O corpo induzido adquire carga de sinal <strong>oposto</strong> ao corpo indutor!
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Regra de Prova: No atrito → cargas de sinais contrários. No contato → cargas de mesmo sinal. Na indução com terra → cargas de sinal oposto.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 13 — 6.1 DANOS POR ESD NA INDÚSTRIA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-13">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>6.1 DESCARGA ELETROSTÁTICA INDUSTRIAL (ESD)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Eletricidade Estática & Danos por ESD</h2>
+          <p class="text-sm text-gray-400">Tensões invisíveis de até 35.000V geradas pelo atrito humano capazes de perfurar portas de chips CMOS.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- O Risco Silencioso -->
+          <div class="glass-card p-5 rounded-2xl border border-amber-500/40 bg-amber-950/20 space-y-3">
+            <h3 class="font-bold text-base text-white">O Perigo Invisível nas Bancadas</h3>
+            <p class="text-xs text-gray-200 leading-relaxed font-sans">
+              Um ser humano andando sobre um carpete ou banco de plástico pode se carregar eletrostaticamente com <strong>5.000V a 25.000V</strong>. Como a energia é baixa, sentimos apenas uma leve "faísca" na maçaneta. No entanto, circuitos integrados modernos (MOSFETs, memórias, MCUs) possuem portas de óxido com espessura nanométrica que se rompem com apenas <strong>30V a 100V</strong>!
+            </p>
+            <div class="text-[11px] font-mono text-amber-300 bg-[#0A0A0A] p-2 rounded">
+              Dano Latente: O chip não queima na hora; ele cria microrachaduras internas que falharão semanas depois no cliente final.
+            </div>
+          </div>
+
+          <!-- Medidas de Proteção ESD -->
+          <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3 font-mono text-xs">
+            <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+              Contramedidas Mandatórias na Bancada:
+            </span>
+            
+            <div class="space-y-2">
+              <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151]">
+                <strong class="text-white block">1. Pulseira Antiestática com Resistor de 1 MΩ:</strong>
+                <span class="text-gray-300">Escoa cargas do corpo lentamente para o terra. O resistor de 1MΩ protege o técnico caso encoste na tomada viva!</span>
+              </div>
+              <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151]">
+                <strong class="text-white block">2. Mantas Dissipativas Aterradas:</strong>
+                <span class="text-gray-300">Superfícies de bancada feitas de borracha condutora interligadas ao barramento de terra.</span>
+              </div>
+              <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151]">
+                <strong class="text-white block">3. Embalagens Antiestáticas Metálicas (Faraday Shielding):</strong>
+                <span class="text-gray-300">Sacos prateados que conduzem descargas por fora sem atingir os pinos internos.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Regra de Bancada: Nunca encoste nos pinos metálicos de um chip ou memória sem estar aterrado por pulseira ESD.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 14 — 6.2 MATERIAIS CONDUTORES -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-14">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>6.2 CONDUTORES ELÉTRICOS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Materiais Condutores & Resistividade</h2>
+          <p class="text-sm text-gray-400">A teoria quântica de bandas: por que certos metais conduzem trilhões de elétrons com quase zero resistência.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Modelo do Mar de Elétrons -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">O "Mar de Elétrons"</h3>
+            <p class="text-xs text-gray-300">
+              Nos metais, a banda de valência sobrepõe-se à banda de condução. Os elétrons periféricos estão tão fracamente ligados que se libertam facilmente, vagando livremente pela rede cristalina.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Propriedade: Conduzem eletricidade e calor com excepcional facilidade.
+            </div>
+          </div>
+
+          <!-- Resistividade dos Principais Metais -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3 font-mono text-xs">
+            <h3 class="font-bold text-base text-white">Resistividade ($
+ho$ a 20°C):</h3>
+            <div class="space-y-2 text-gray-200">
+              <div class="bg-[#0A0A0A] p-1.5 rounded flex justify-between">
+                <span>1. Prata (Ag):</span>
+                <span class="text-[#22C55E] font-bold">1,59 × 10⁻⁸ Ω·m</span>
+              </div>
+              <div class="bg-[#0A0A0A] p-1.5 rounded flex justify-between">
+                <span>2. Cobre (Cu):</span>
+                <span class="text-[#22C55E] font-bold">1,72 × 10⁻⁸ Ω·m</span>
+              </div>
+              <div class="bg-[#0A0A0A] p-1.5 rounded flex justify-between">
+                <span>3. Ouro (Au):</span>
+                <span class="text-white font-bold">2,44 × 10⁻⁸ Ω·m</span>
+              </div>
+              <div class="bg-[#0A0A0A] p-1.5 rounded flex justify-between">
+                <span>4. Alumínio (Al):</span>
+                <span class="text-white font-bold">2,82 × 10⁻⁸ Ω·m</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Onde Aplicar Cada Metal -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3 font-mono text-xs">
+            <h3 class="font-bold text-base text-white">Critérios de Engenharia:</h3>
+            <ul class="text-gray-300 space-y-2">
+              <li><strong class="text-[#22C55E]">Cobre:</strong> Padrão mundial em fiação predial e trilhas de PCB (alta condutividade e ductilidade).</li>
+              <li><strong class="text-white">Alumínio:</strong> Linhas de alta tensão aéreas de transmissão (3x mais leve que o cobre).</li>
+              <li><strong class="text-yellow-400">Ouro:</strong> Conectores de áudio, pinos de CPU e contatos de relé (100% imune à oxidação!).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          2ª Lei de Ohm: $R = 
+ho \cdot L / A$ (Cabos mais compridos têm maior resistência; cabos com maior bitola em mm² têm menor resistência).
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 15 — 6.3 MATERIAIS ISOLANTES E DIELÉTRICOS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-15">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>6.3 ISOLANTES & DIELÉTRICOS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Materiais Isolantes & Rigidez Dielétrica</h2>
+          <p class="text-sm text-gray-400">O bloqueio da corrente elétrica e o limiar de ruptura onde o isolante vira condutor sob alta tensão.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Banda Proibida (Bandgap) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">O "Bandgap" Gigante</h3>
+            <p class="text-xs text-gray-300">
+              Nos materiais isolantes, os elétrons estão fortemente aprisionados em ligações covalentes ou iônicas. A banda proibida (gap) é muito larga (> 5 eV), exigindo quantidades astronômicas de energia para liberar elétrons.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Resistividade: $
+ho > 10^{12}\ \Omega\cdot	ext{m}$ (trilhões de vezes maior que o cobre).
+            </div>
+          </div>
+
+          <!-- Rigidez Dielétrica -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3 font-mono text-xs">
+            <h3 class="font-bold text-base text-white">Rigidez Dielétrica:</h3>
+            <p class="text-gray-200 font-sans">
+              É o campo elétrico máximo suportado sem que ocorra a quebra de isolação (arco elétrico interno).
+            </p>
+            <div class="space-y-1.5 text-gray-200">
+              <div class="bg-[#0A0A0A] p-1.5 rounded flex justify-between">
+                <span>Ar seco:</span>
+                <span class="text-white font-bold">~3 kV / mm (3000V/mm)</span>
+              </div>
+              <div class="bg-[#0A0A0A] p-1.5 rounded flex justify-between">
+                <span>Óleo Mineral de Trafo:</span>
+                <span class="text-white font-bold">~15 kV / mm</span>
+              </div>
+              <div class="bg-[#0A0A0A] p-1.5 rounded flex justify-between">
+                <span>Borracha / Silicone:</span>
+                <span class="text-[#22C55E] font-bold">~25 kV / mm</span>
+              </div>
+              <div class="bg-[#0A0A0A] p-1.5 rounded flex justify-between">
+                <span>Vidro / Cerâmica:</span>
+                <span class="text-[#22C55E] font-bold">~30 kV / mm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ruptura Dielétrica -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Ruptura Dielétrica (Quebra)</h3>
+            <p class="text-xs text-gray-300">
+              Se a tensão ultrapassar a rigidez dielétrica, ocorre avalanche de ionização: o isolante fura fisicamente, cria um caminho de plasma condutor e carboniza de forma destrutiva.
+            </p>
+            <div class="text-[11px] font-mono text-red-400 bg-[#0A0A0A] p-2 rounded">
+              Exemplo: O raio no céu nada mais é do que a ruptura dielétrica da camada de ar entre a nuvem e o solo!
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          EPIs de eletricista: Luvas de borracha isolante Classe 0 suportam até 1.000V; Classe 4 suportam até 36.000V de rigidez dielétrica testada.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 16 — 6.4 POTENCIAL ELÉTRICO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-16">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>6.4 POTENCIAL ELÉTRICO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Potencial Elétrico & Tensão de Passo</h2>
+          <p class="text-sm text-gray-400">O conceito de energia potencial acumulada por unidade de carga e como o relevo de tensão no solo pode matar à distância.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- Conceito Físico -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3 font-mono text-xs">
+            <h3 class="font-bold text-base text-white font-sans">Energia Potencial Eletrostática ($V = E_p / q$)</h3>
+            <p class="text-gray-300 font-sans leading-relaxed">
+              Analogamente à altura na gravidade: quanto mais alto você sobe um peso, maior a energia potencial mecânica acumulada. No campo elétrico, empurrar uma carga positiva contra o campo armazena <strong>Potencial Elétrico</strong> (medido em Volts = Joules por Coulomb).
+            </p>
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-[#22C55E]">
+              Superfícies Equipotenciais: Linhas geométricas onde o potencial $V$ tem exatamente o mesmo valor. Mover cargas ao longo delas consome zero trabalho!
+            </div>
+          </div>
+
+          <!-- Tensão de Passo e Toque -->
+          <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3 font-mono text-xs">
+            <h3 class="font-bold text-base text-white font-sans">Tensão de Passo & Tensão de Toque:</h3>
+            <p class="text-gray-200 font-sans">
+              Quando um cabo de alta tensão cai no chão, a corrente se espalha radialmente no solo, criando anéis decrescentes de potencial elétrico.
+            </p>
+            <ul class="text-gray-200 space-y-2">
+              <li>▸ <strong class="text-amber-400">Tensão de Passo ($V_{passo}$):</strong> A diferença de potencial elétrico entre o pé esquerdo e o pé direito de uma pessoa caminhando no solo ($~1	ext{ metro}$). Pode causar choque letal!</li>
+              <li>▸ <strong class="text-white">Procedimento de Emergência:</strong> Junte os pés e saia pulando ou arrastando os pés sem dar passadas se houver cabo rompido por perto!</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Pássaros no fio de alta tensão não levam choque porque ambos os pés estão apoiados no mesmo condutor (DDP = 0V entre os pés!).
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 17 — 6.5 DIFERENÇA DE POTENCIAL (DDP) -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-17">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>6.5 DIFERENÇA DE POTENCIAL (DDP)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Diferença de Potencial & Trabalho Elétrico</h2>
+          <p class="text-sm text-gray-400">A "pressão" elétrica ($U = V_A - V_B$) que move as cargas através dos componentes e realiza trabalho útil.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- A DDP como Motor -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">A Força Eletromotriz (FEM)</h3>
+            <p class="text-xs text-gray-300">
+              Para que os elétrons se movimentem ordenadamente em um condutor, é estritamente obrigatório existir uma <strong>Diferença de Potencial (DDP)</strong> entre duas extremidades ($V_A > V_B$).
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Sem DDP: Os elétrons continuam em agitação térmica caótica, mas a corrente líquida resultante é zero!
+            </div>
+          </div>
+
+          <!-- Trabalho e Energia -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3 font-mono text-xs">
+            <h3 class="font-bold text-base text-white">Trabalho Elétrico ($W = q \cdot U$)</h3>
+            <p class="text-gray-200 font-sans">
+              O trabalho realizado pelo campo elétrico para transportar uma carga $q$ entre dois pontos sob uma DDP $U$.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              1 Volt = 1 Joule por Coulomb<br/>
+              $P = U \cdot I$ (Potência em Watts = Joules por segundo)
+            </div>
+          </div>
+
+          <!-- Efeito Joule e Aquecimento -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Efeito Joule ($Q = R \cdot I^2 \cdot t$)</h3>
+            <p class="text-xs text-gray-300">
+              Ao colidirem contra os átomos da rede condutora, os elétrons transferem energia cinética em forma de calor.
+            </p>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Aplicações: Chuveiros elétricos, fornos de solda e fusíveis de proteção sacrificial.
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Conexão didática: A DDP é a causa motriz primária; a corrente é o efeito dinâmico; a potência e calor são as consequências de trabalho realizado.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 18 — 7. MAGNETISMO FUNDAMENTAL -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-18">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>7. MAGNETISMO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Magnetismo: Polos & Linhas de Campo</h2>
+          <p class="text-sm text-gray-400">Das pedras de magnetita da antiguidade aos superímãs modernos de Neodímio-Ferro-Boro (NdFeB).</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Inseparabilidade dos Polos -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Inseparabilidade dos Polos</h3>
+            <p class="text-xs text-gray-300">
+              Todo ímã possui dois polos inseparáveis: <strong>Polo Norte (N)</strong> e <strong>Polo Sul (S)</strong>. Se você cortar um ímã ao meio, ele não isola o norte: surgem imediatamente dois ímãs completos menores!
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Não existem monopolos magnéticos isolados na natureza!
+            </div>
+          </div>
+
+          <!-- Linhas de Campo Magnético -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Linhas de Indução Magnética (B)</h3>
+            <p class="text-xs text-gray-200">
+              Convenção: No exterior do ímã, as linhas de campo <strong>saem do Polo Norte e entram no Polo Sul</strong>, formando curvas fechadas e contínuas que nunca se cruzam.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Unidade de Campo (B): Tesla [T] (SI) ou Gauss [G] ($1	ext{ T} = 10.000	ext{ G}$).
+            </div>
+          </div>
+
+          <!-- Materiais Ferromagnéticos -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Domínios Magnéticos</h3>
+            <p class="text-xs text-gray-300">
+              Materiais como Ferro, Níquel e Cobalto possuem pequenos dipolos magnéticos internos. Ao serem submetidos a um campo externo, os domínios se alinham, multiplicando a força de atração em centenas de vezes.
+            </p>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Aplicação: Núcleos laminados de transformadores e motores elétricos.
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          O campo magnético da Terra é um gigantesco dínamo de ferro líquido em rotação no manto terrestre, nos protegendo de ventos solares letais.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 19 — 7. ELETROMAGNETISMO: OERSTED -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-19">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>7. ELETROMAGNETISMO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">O Experimento de Oersted (1820)</h2>
+          <p class="text-sm text-gray-400">A descoberta acidental que uniu Eletricidade e Magnetismo: cargas elétricas em movimento criam campo magnético.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">A Revolução de Hans Christian Oersted</span>
+              <p class="text-xs text-gray-300 leading-relaxed font-sans">
+                Ao fechar o circuito de uma pilha próximo a uma bússola de navegação, Oersted notou com espanto que a agulha imantada defletia perpendicularmente ao fio! Pela primeira vez na história comprovou-se que a eletricidade gera magnetismo.
+              </p>
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] font-mono text-xs text-white">
+                Lei de Biot-Savart / Ampère: $B = rac{\mu_0 \cdot I}{2\pi \cdot r}$
+              </div>
+            </div>
+
+            <!-- Regra da Mão Direita -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] font-mono text-xs space-y-1">
+              <strong class="text-white block">Regra da Mão Direita:</strong>
+              <div class="text-gray-300">Aponte o polegar no sentido da corrente elétrica ($I$). Os demais quatro dedos curvados indicam o sentido das linhas concêntricas do campo magnético ($B$).</div>
+            </div>
+          </div>
+
+          <!-- Diagrama Esquemático SVG de Oersted -->
+          <div class="lg:col-span-6">
+            <div class="glass-panel p-6 rounded-2xl border border-[#374151] text-center space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+                Visualização do Fio e Linhas Circulares
+              </span>
+
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#374151] flex justify-center">
+                <svg viewBox="0 0 280 150" class="w-full max-w-xs h-auto">
+                  <!-- Fio vertical condutor -->
+                  <line x1="140" y1="10" x2="140" y2="140" stroke="#22C55E" stroke-width="6" />
+                  <text x="155" y="25" fill="#22C55E" font-size="12" font-family="monospace" font-weight="bold">I ↑</text>
+                  <!-- Elipses concêntricas de B -->
+                  <ellipse cx="140" cy="75" rx="70" ry="25" fill="none" stroke="#06B6D4" stroke-width="2" stroke-dasharray="4,4" />
+                  <ellipse cx="140" cy="75" rx="110" ry="40" fill="none" stroke="#06B6D4" stroke-width="1.5" />
+                  <text x="210" y="70" fill="#06B6D4" font-size="10" font-family="monospace">Campo B</text>
+                </svg>
+              </div>
+
+              <p class="text-[11px] font-mono text-gray-400">
+                Quanto mais próximo do fio condutor ($r$ menor) e quanto maior a corrente ($I$ maior), mais intenso é o campo magnético resultante.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          O alicate amperímetro opera exatamente lendo o campo magnético de Oersted ao redor do fio sem tocá-lo!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 20 — 7. BOBINAS, SOLENOIDES E ELETROÍMÃS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-20">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>7. ATUAÇÃO ELETROMECÂNICA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Bobinas, Solenoides & Eletroímãs</h2>
+          <p class="text-sm text-gray-400">Enrolando o fio condutor em espiras concêntricas, multiplicamos o campo magnético milhares de vezes.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- O Solenoide -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">O Solenoide (Bobina)</h3>
+            <p class="text-xs text-gray-300">
+              Conjunto de $N$ espiras cilíndricas. O campo gerado no interior do solenoide é uniforme e muito potente:
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              $B = \mu \cdot rac{N}{L} \cdot I$<br/>
+              ($\mu$ = permeabilidade magnética do núcleo).
+            </div>
+            <p class="text-xs text-gray-400">Inserindo um núcleo de ferro-silício, o campo magnético é multiplicado em até 5.000 vezes!</p>
+          </div>
+
+          <!-- O Relé Eletromecânico -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Relés & Contatoras</h3>
+            <p class="text-xs text-gray-200">
+              A bobina energizada cria uma força magnética que atrai uma armadura móvel mecânica, fechando ou abrindo contatos elétricos de alta potência com total isolamento elétrico.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Padrão Industrial: Contatores acionam motores trifásicos de centenas de cavalos (CV).
+            </div>
+          </div>
+
+          <!-- Válvulas Solenoides -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Válvulas Pneumáticas</h3>
+            <p class="text-xs text-gray-300">
+              O campo magnético atrai um êmbolo de aço contra a força de uma mola, abrindo ou fechando a passagem de ar comprimido para cilindros pneumáticos e robôs industriais.
+            </p>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Tempo de resposta: Atuação mecânica em menos de 20 milissegundos.
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Desligar uma bobina gera surto indutivo de tensão reversa ($V = -L di/dt$): por isso sempre usamos o Diodo Flyback (Slide 10)!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 21 — 7. INDUÇÃO DE FARADAY-LENZ -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-21">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>7. INDUÇÃO ELETROMAGNÉTICA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Lei de Faraday-Neumann-Lenz</h2>
+          <p class="text-sm text-gray-400">A base de 99% de toda a energia elétrica do planeta: como o movimento relativo gera eletricidade.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">A Lei da Indução de Faraday</span>
+              <div class="font-tech text-2xl font-bold text-white text-center py-2 bg-[#0A0A0A] rounded-xl border border-[#374151]">
+                ε = - N · (dΦ / dt)
+              </div>
+              <p class="text-xs text-gray-300 leading-relaxed font-sans">
+                Uma Força Eletromotriz induzida ($\mathcal{E}$) surge em um circuito sempre que houver <strong>variação do fluxo magnético ($\Delta \Phi$)</strong> através dele no tempo. Campo estático não gera tensão: é preciso haver movimento ou alternância!
+              </p>
+            </div>
+
+            <!-- Lei de Lenz -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] font-mono text-xs space-y-1">
+              <strong class="text-white block">O Sinal Negativo (Lei de Lenz):</strong>
+              <div class="text-gray-300">"A corrente induzida sempre cria um campo magnético que se <strong>opõe</strong> à variação que a originou." É a inércia da natureza mantendo a conservação de energia.</div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 space-y-3 font-mono text-xs">
+            <div class="glass-panel p-5 rounded-2xl border border-[#374151] space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+                As Duas Grandes Máquinas da Humanidade:
+              </span>
+              
+              <div class="space-y-2">
+                <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151]">
+                  <strong class="text-white block">1. Geradores & Alternadores (Usina Hidrelétrica/Eólica):</strong>
+                  <span class="text-gray-400">A turbina gira o ímã dentro das bobinas fixas (estator), gerando a corrente alternada de 60Hz das nossas tomadas.</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#22C55E]">
+                  <strong class="text-[#22C55E] block">2. Transformadores de Potência:</strong>
+                  <span class="text-gray-200">A corrente AC no primário gera fluxo magnético alternado no núcleo, que induz tensão no secundário proporcional ao número de espiras ($V_1/V_2 = N_1/N_2$).</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Sem a Lei de Faraday não existiriam geradores elétricos, transformadores, cartões por aproximação (RFID/NFC) ou carregadores sem fio.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 22 — SÍNTESE FINAL & CONCLUSÃO DO CURSO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-22">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F2937] border border-[#22C55E]/40 text-[#22C55E] text-xs font-mono uppercase">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            Síntese Completa das Disciplinas
+          </div>
+          <span class="text-xs font-mono text-gray-500">MÓDULOS 1, 2 E 3 INTEGRADOS</span>
+        </div>
+
+        <div class="text-center max-w-3xl mx-auto my-auto space-y-6">
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black font-tech text-white leading-tight">
+            DO ELÉTRON AO <br/>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] via-[#4ADE80] to-white text-glow-green">
+              SISTEMA AUTOMATIZADO
+            </span>
+          </h2>
+
+          <!-- Diagrama Global em Pílulas -->
+          <div class="flex flex-wrap items-center justify-center gap-2 font-mono text-xs pt-2">
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">CARGA & FÍSICA</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">ELETROMAGNETISMO</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">CIRCUITOS & SENSORES</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">LÓGICA & PROCESSAMENTO</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#166534] border border-[#22C55E] text-white font-bold glow-green-sm">ATERRAMENTO & PROTEÇÃO</span>
+          </div>
+
+          <!-- Mensagem de Impacto Técnico -->
+          <div class="p-6 rounded-2xl glass-panel border border-[#22C55E]/40 relative glow-green-sm">
+            <i data-lucide="quote" class="w-8 h-8 text-[#22C55E]/40 mx-auto mb-2"></i>
+            <p class="text-base sm:text-lg text-gray-200 italic font-light leading-relaxed">
+              "A engenharia elétrica e a automação são a arte de canalizar as forças invisíveis da matéria para transformar o mundo com precisão, eficiência e absoluta proteção à vida humana."
+            </p>
+          </div>
+
+          <div class="pt-4 flex flex-wrap justify-center gap-3">
+            <button onclick="goToSlide(1)" class="px-5 py-2.5 rounded-xl bg-[#22C55E] hover:bg-[#4ADE80] text-black font-bold font-mono text-xs transition flex items-center gap-2">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+              Reiniciar Módulo 3
+            </button>
+            <a href="index.html" class="px-5 py-2.5 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono text-xs transition flex items-center gap-2">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              Módulo 1
+            </a>
+            <a href="eletronica_2.html" class="px-5 py-2.5 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono text-xs transition flex items-center gap-2">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              Módulo 2
+            </a>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-gray-500 font-mono border-t border-[#374151]/50 pt-4">
+          <span>CURSO TÉCNICO • ELETRÔNICA & AUTOMAÇÃO</span>
+          <span class="text-[#22C55E]">GRADE COMPLETA FINALIZADA!</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="h-14 border-t border-[#374151]/70 bg-[#0A0A0A]/95 backdrop-blur-md px-6 flex items-center justify-between z-30 select-none">
+    <div class="flex items-center space-x-2">
+      <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+      <span class="font-tech text-xs tracking-wider font-bold text-gray-300">
+        ELETRÔNICA • SISTEMAS AUTOMATIZADOS
+      </span>
+    </div>
+
+    <div class="hidden md:flex items-center space-x-3 text-[11px] font-mono text-gray-500">
+      <span>Navegação:</span>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">← Ant</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">Próx →</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">Espaço</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">F Tela Cheia</kbd>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <button id="btn-prev" onclick="prevSlide()" class="px-3.5 py-1.5 rounded-lg bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-xs font-mono text-white transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        <span>Anterior</span>
+      </button>
+
+      <button id="btn-next" onclick="nextSlide()" class="px-4 py-1.5 rounded-lg bg-[#22C55E] hover:bg-[#4ADE80] text-xs font-mono font-bold text-black transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_12px_rgba(34,197,94,0.3)]">
+        <span>Próximo</span>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </footer>
+
+  <!-- MODAL: VISÃO GERAL DE TODOS OS 22 SLIDES -->
+  <div id="overview-modal" class="fixed inset-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-lg hidden flex flex-col p-6 md:p-12 overflow-y-auto">
+    <div class="flex justify-between items-center max-w-7xl w-full mx-auto pb-4 border-b border-[#374151]">
+      <div class="flex items-center gap-2">
+        <i data-lucide="layout-grid" class="w-5 h-5 text-[#22C55E]"></i>
+        <h3 class="font-tech text-lg font-bold text-white">Módulo 3: Mapa de Todos os Slides</h3>
+      </div>
+      <button onclick="toggleOverviewModal()" class="p-2 rounded-lg bg-[#1F2937] hover:bg-[#374151] text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-w-7xl w-full mx-auto my-6" id="overview-grid">
+      <!-- Inserido dinamicamente via JS -->
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT: NAVEGAÇÃO, ATALHOS & SIMULADOR -->
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 22;
+
+    const slideTitles = [
+      "1. Capa: Módulo 3",
+      "2. Objetivos do Módulo 3",
+      "3. Visão Geral Integrada",
+      "4. 4. Aterramento: Conceito & Funções",
+      "5. 4. Componentes do Aterramento",
+      "6. 4. Esquemas TN-S, TN-C, TT, IT",
+      "7. 5. Riscos Elétricos & Efeitos do Choque",
+      "8. 5. Simulador de Choque Elétrico (mA)",
+      "9. 5. Arco Elétrico & Segurança NR-10",
+      "10. 6. Carga Elétrica & Estrutura Atômica",
+      "11. 6. Lei de Coulomb & Linhas de Campo",
+      "12. 6.1 Processos de Eletrização",
+      "13. 6.1 Eletricidade Estática & ESD",
+      "14. 6.2 Materiais Condutores",
+      "15. 6.3 Materiais Isolantes & Rigidez",
+      "16. 6.4 Potencial Elétrico & Tensão de Passo",
+      "17. 6.5 Diferença de Potencial (DDP)",
+      "18. 7. Magnetismo: Polos & Linhas",
+      "19. 7. Eletromagnetismo: Oersted (1820)",
+      "20. 7. Bobinas, Solenoides & Eletroímãs",
+      "21. 7. Lei de Indução de Faraday-Lenz",
+      "22. Síntese Integrada do Curso"
+    ];
+
+    function updateSlideUI() {
+      for (let i = 1; i <= totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        if (slide) {
+          if (i === currentSlide) {
+            slide.classList.add('active');
+          } else {
+            slide.classList.remove('active');
+          }
+        }
+      }
+
+      document.getElementById('current-slide-num').textContent = String(currentSlide).padStart(2, '0');
+      document.getElementById('total-slides-num').textContent = String(totalSlides).padStart(2, '0');
+
+      const progressPercent = (currentSlide / totalSlides) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+      document.getElementById('btn-prev').disabled = (currentSlide === 1);
+      document.getElementById('btn-next').disabled = (currentSlide === totalSlides);
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlideUI();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlideUI();
+      }
+    }
+
+    function goToSlide(n) {
+      if (n >= 1 && n <= totalSlides) {
+        currentSlide = n;
+        updateSlideUI();
+        const modal = document.getElementById('overview-modal');
+        if (!modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToSlide(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToSlide(totalSlides);
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullScreen();
+      } else if (e.key === 'Escape') {
+        const modal = document.getElementById('overview-modal');
+        if (!modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      }
+    });
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+        document.getElementById('fs-icon').setAttribute('data-lucide', 'minimize');
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          document.getElementById('fs-icon').setAttribute('data-lucide', 'maximize');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleOverviewModal() {
+      const modal = document.getElementById('overview-modal');
+      const isHidden = modal.classList.contains('hidden');
+      if (isHidden) {
+        buildOverviewGrid();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function buildOverviewGrid() {
+      const grid = document.getElementById('overview-grid');
+      grid.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const card = document.createElement('button');
+        const isActive = (i === currentSlide);
+        card.className = `p-3 rounded-xl text-left border transition font-mono flex flex-col justify-between h-24 ${
+          isActive 
+            ? 'bg-[#166534] border-[#22C55E] text-white shadow-[0_0_12px_#22C55E]' 
+            : 'bg-[#1F2937] border-[#374151] text-gray-300 hover:border-[#22C55E]/50'
+        }`;
+        card.onclick = () => goToSlide(i);
+        card.innerHTML = `
+          <span class="text-[10px] text-[#22C55E] font-bold">SLIDE ${String(i).padStart(2, '0')}</span>
+          <span class="text-xs font-sans font-bold leading-tight line-clamp-2">${slideTitles[i-1]}</span>
+          <span class="text-[9px] text-gray-400">Clique para abrir</span>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    // ==========================================
+    // SIMULADOR DO CHOQUE ELÉTRICO (Slide 8)
+    // ==========================================
+    function updateShockSim() {
+      const ma = parseInt(document.getElementById('shock-slider').value);
+      document.getElementById('shock-ma-val').textContent = `${ma} mA`;
+
+      const panel = document.getElementById('shock-status-panel');
+      const title = document.getElementById('shock-title');
+      const badge = document.getElementById('shock-badge');
+      const desc = document.getElementById('shock-desc');
+      const action = document.getElementById('shock-action');
+
+      if (ma < 5) {
+        title.textContent = 'LIMIAR DE PERCEPÇÃO';
+        title.className = 'font-tech text-base font-bold text-[#22C55E]';
+        badge.textContent = 'LEVE';
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-[#166534] text-[#22C55E] font-bold';
+        desc.textContent = 'Sensação de formigamento leve. A pessoa é capaz de soltar o condutor voluntariamente sem nenhuma dificuldade.';
+        action.textContent = 'Sem lesões biológicas.';
+        panel.className = 'bg-[#0A0A0A] p-5 rounded-xl border border-[#22C55E]/40 space-y-2';
+      } else if (ma < 15) {
+        title.textContent = 'LIMIAR DE TETANIZAÇÃO ("LARGAR")';
+        title.className = 'font-tech text-base font-bold text-amber-400';
+        badge.textContent = 'ALERTA';
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500 text-black font-bold';
+        desc.textContent = 'Contração muscular involuntária forte. Os músculos flexores superam os extensores e a vítima NÃO consegue mais soltar o fio sozinha.';
+        action.textContent = 'Ação: Desligar disjuntor imediatamente ou puxar a vítima usando material isolante seco!';
+        panel.className = 'bg-[#0A0A0A] p-5 rounded-xl border border-amber-500/50 space-y-2';
+      } else if (ma < 40) {
+        title.textContent = 'ASFIXIA RESPIRATÓRIA & DISPARO DO DR';
+        title.className = 'font-tech text-base font-bold text-red-400';
+        badge.textContent = 'PERIGO SEVERO';
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-red-600 text-white font-bold';
+        desc.textContent = 'Paralisia dos músculos do tórax e diafragma. Dificuldade extrema ou parada respiratória. Queimaduras térmicas locais nos pontos de contato.';
+        action.textContent = 'Proteção: O Interruptor DR de 30mA deve desarmar em menos de 30ms para salvar a vida.';
+        panel.className = 'bg-[#0A0A0A] p-5 rounded-xl border border-red-500/50 space-y-2';
+      } else {
+        title.textContent = 'FIBRILAÇÃO VENTRICULAR LETAL';
+        title.className = 'font-tech text-base font-bold text-red-500 animate-pulse';
+        badge.textContent = 'LETALIDADE IMINENTE';
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-red-700 text-white font-bold animate-pulse';
+        desc.textContent = 'Descoordenação caótica das fibras musculares do coração. O bombeamento de sangue para o cérebro cessa imediatamente. Morte em minutos se não houver desfibrilador (DEA).';
+        action.textContent = 'Emergência Médica: Iniciar massagem cardíaca (RCP) imediatamente e acionar o SAMU (192)!';
+        panel.className = 'bg-red-950/20 p-5 rounded-xl border-2 border-red-600 space-y-2';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSlideUI();
+      updateShockSim();
+    });
+  </script>
+</body>
+</html>

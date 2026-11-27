@@ -1,0 +1,2985 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eletrônica e Sistemas Automatizados — Curso Técnico Profissional</title>
+
+  <!-- Google Fonts: Inter, JetBrains Mono e Orbitron -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            theme: {
+              black: '#0A0A0A',
+              dark: '#1F2937',
+              gray: '#374151',
+              lightGray: '#4B5563',
+              green: '#22C55E',
+              darkGreen: '#166534',
+              brightGreen: '#4ADE80',
+              emerald: '#10B981',
+              white: '#F9FAFB',
+              accentCyan: '#06B6D4'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            tech: ['Orbitron', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background-color: #0A0A0A;
+      color: #F9FAFB;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Grid técnico de circuito impresso (PCB) */
+    .pcb-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(34, 197, 94, 0.05) 1px, transparent 1px);
+    }
+
+    .pcb-grid-dense {
+      background-size: 16px 16px;
+      background-image: 
+        radial-gradient(circle, rgba(34, 197, 94, 0.15) 1px, transparent 1px);
+    }
+
+    /* Brilhos radiais estáticos */
+    .glow-green {
+      box-shadow: 0 0 20px -3px rgba(34, 197, 94, 0.35);
+    }
+    
+    .glow-green-sm {
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+    }
+
+    .text-glow-green {
+      text-shadow: 0 0 12px rgba(34, 197, 94, 0.55);
+    }
+
+    /* Glassmorphism moderado */
+    .glass-panel {
+      background: rgba(31, 41, 55, 0.72);
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .glass-card {
+      background: rgba(31, 41, 55, 0.85);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(34, 197, 94, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -4px rgba(34, 197, 94, 0.15);
+    }
+
+    /* Animações de pulsos em trilhas */
+    @keyframes pulseTrace {
+      0% { stroke-dashoffset: 200; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .animated-trace {
+      stroke-dasharray: 12, 12;
+      animation: pulseTrace 4s linear infinite;
+    }
+
+    @keyframes ledBlink {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px #22C55E); }
+      50% { opacity: 0.35; filter: none; }
+    }
+
+    .led-pulsing {
+      animation: ledBlink 1.8s ease-in-out infinite;
+    }
+
+    @keyframes rotateFan {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .fan-spinning {
+      animation: rotateFan 0.8s linear infinite;
+      transform-origin: center;
+    }
+
+    /* Transição entre slides */
+    .slide-wrapper {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.98) translateY(8px);
+      transition: opacity 0.35s ease-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-wrapper.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    /* Scrollbar estilizada caso necessário em telas menores */
+    .slide-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .slide-scroll::-webkit-scrollbar-track {
+      background: rgba(31, 41, 55, 0.4);
+      border-radius: 4px;
+    }
+    .slide-scroll::-webkit-scrollbar-thumb {
+      background: #22C55E;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-[#0A0A0A] text-[#F9FAFB] pcb-grid relative selection:bg-[#22C55E]/30 selection:text-white">
+
+  <!-- TOP BAR: Status do Sistema, Título da Aula e Ações -->
+  <header class="h-14 border-b border-[#374151]/70 bg-[#0A0A0A]/90 backdrop-blur-md px-6 flex items-center justify-between z-30 select-none">
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#1F2937] border border-[#374151]">
+        <span class="w-2 h-2 rounded-full bg-[#22C55E] led-pulsing"></span>
+        <span class="font-tech text-xs tracking-wider text-[#22C55E] font-semibold">SYS.ONLINE</span>
+      </div>
+      <div class="h-4 w-px bg-[#374151]"></div>
+      <span class="text-xs uppercase tracking-widest text-[#F9FAFB]/70 font-mono hidden sm:inline-block">CURSO TÉCNICO • MÓDULO 1</span>
+    </div>
+
+    <!-- Título Centralizado -->
+    <div class="text-center font-tech text-xs md:text-sm tracking-wider text-white font-bold flex items-center gap-2">
+      <i data-lucide="cpu" class="w-4 h-4 text-[#22C55E]"></i>
+      <span>ELETRÔNICA & SISTEMAS AUTOMATIZADOS</span>
+    </div>
+
+    <!-- Indicador e Botões de Controle Superior -->
+    <div class="flex items-center space-x-3">
+      <div class="font-mono text-xs px-2.5 py-1 bg-[#1F2937] rounded border border-[#374151] flex items-center gap-1.5">
+        <span class="text-[#22C55E] font-bold" id="current-slide-num">01</span>
+        <span class="text-gray-500">/</span>
+        <span class="text-gray-400" id="total-slides-num">22</span>
+      </div>
+
+      <!-- Botão Visão Geral / Menu -->
+      <button onclick="toggleOverviewModal()" title="Visão Geral dos Slides (Menu)" class="p-1.5 rounded bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-gray-300 hover:text-white transition">
+        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Botão Tela Cheia -->
+      <button onclick="toggleFullScreen()" title="Modo Tela Cheia (F)" class="p-1.5 rounded bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-gray-300 hover:text-white transition">
+        <i data-lucide="maximize" class="w-4 h-4" id="fs-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- BARRA DE PROGRESSO SUPERIOR -->
+  <div class="h-1 w-full bg-[#1F2937] relative z-30">
+    <div id="progress-bar" class="h-full bg-gradient-to-r from-[#166534] via-[#22C55E] to-[#4ADE80] transition-all duration-300 shadow-[0_0_8px_#22C55E]" style="width: 4.54%;"></div>
+  </div>
+
+  <!-- CONTAINER PRINCIPAL DOS SLIDES -->
+  <main id="presentation-viewport" class="relative w-full h-[calc(100vh-7rem)] overflow-hidden">
+
+    <!-- ========================================== -->
+    <!-- SLIDE 1 — CAPA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper active" id="slide-1">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F2937] border border-[#22C55E]/40 text-[#22C55E] text-xs font-mono tracking-widest uppercase">
+            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            Fundamentos & Prática Profissional
+          </div>
+          <span class="text-xs font-mono text-gray-400">REV. 2026 • NÍVEL INICIANTE/TÉCNICO</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto">
+          <!-- Textos da Capa -->
+          <div class="lg:col-span-7 space-y-6">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black font-tech tracking-tight text-white leading-tight">
+              ELETRÔNICA E <br/>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] via-[#4ADE80] to-white text-glow-green">
+                SISTEMAS AUTOMATIZADOS
+              </span>
+            </h1>
+            <p class="text-base sm:text-lg md:text-xl text-gray-300 font-light max-w-2xl leading-relaxed">
+              Fundamentos, grandezas físicas, técnicas de medição, sensores e a lógica de controle que conecta o mundo real aos dispositivos eletrônicos inteligentes.
+            </p>
+            
+            <div class="flex flex-wrap gap-3 pt-2">
+              <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300 flex items-center gap-1.5">
+                <i data-lucide="gauge" class="w-3.5 h-3.5 text-[#22C55E]"></i> Instrumentação
+              </span>
+              <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300 flex items-center gap-1.5">
+                <i data-lucide="radio" class="w-3.5 h-3.5 text-[#22C55E]"></i> Sensores
+              </span>
+              <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300 flex items-center gap-1.5">
+                <i data-lucide="binary" class="w-3.5 h-3.5 text-[#22C55E]"></i> Lógica Digital
+              </span>
+              <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300 flex items-center gap-1.5">
+                <i data-lucide="bot" class="w-3.5 h-3.5 text-[#22C55E]"></i> Automação Industrial
+              </span>
+            </div>
+          </div>
+
+          <!-- Composição Gráfica: Placa PCB estilizada -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="relative w-full max-w-md aspect-square rounded-2xl glass-panel p-6 border border-[#22C55E]/30 glow-green relative overflow-hidden flex flex-col justify-between">
+              <!-- Trilhas de Fundo SVG -->
+              <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 400 400">
+                <path d="M 40 40 L 140 40 L 180 80 L 180 180" fill="none" stroke="#22C55E" stroke-width="2" class="animated-trace" />
+                <path d="M 360 40 L 260 40 L 220 80 L 220 180" fill="none" stroke="#22C55E" stroke-width="2" />
+                <path d="M 40 360 L 140 360 L 180 320 L 180 220" fill="none" stroke="#22C55E" stroke-width="2" />
+                <path d="M 360 360 L 260 360 L 220 320 L 220 220" fill="none" stroke="#22C55E" stroke-width="2" class="animated-trace" />
+                <circle cx="40" cy="40" r="4" fill="#22C55E" />
+                <circle cx="360" cy="40" r="4" fill="#22C55E" />
+                <circle cx="40" cy="360" r="4" fill="#22C55E" />
+                <circle cx="360" cy="360" r="4" fill="#22C55E" />
+              </svg>
+
+              <!-- Header do Chip -->
+              <div class="flex justify-between items-center z-10">
+                <div class="flex items-center gap-2">
+                  <div class="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                  <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#22C55E] led-pulsing"></div>
+                </div>
+                <span class="font-mono text-[10px] text-gray-400">CORE-MCU-328P</span>
+              </div>
+
+              <!-- Microcontrolador Central -->
+              <div class="my-auto self-center p-6 rounded-xl bg-[#0A0A0A] border-2 border-[#22C55E] relative shadow-[0_0_25px_rgba(34,197,94,0.3)] z-10 w-44 text-center">
+                <!-- Pinos do CI Superior -->
+                <div class="absolute -top-3 left-3 right-3 flex justify-between">
+                  <span class="w-1.5 h-3 bg-gray-400 rounded-t"></span>
+                  <span class="w-1.5 h-3 bg-gray-400 rounded-t"></span>
+                  <span class="w-1.5 h-3 bg-[#22C55E] rounded-t shadow-[0_0_6px_#22C55E]"></span>
+                  <span class="w-1.5 h-3 bg-gray-400 rounded-t"></span>
+                  <span class="w-1.5 h-3 bg-gray-400 rounded-t"></span>
+                </div>
+                <!-- Pinos do CI Inferior -->
+                <div class="absolute -bottom-3 left-3 right-3 flex justify-between">
+                  <span class="w-1.5 h-3 bg-gray-400 rounded-b"></span>
+                  <span class="w-1.5 h-3 bg-[#22C55E] rounded-b shadow-[0_0_6px_#22C55E]"></span>
+                  <span class="w-1.5 h-3 bg-gray-400 rounded-b"></span>
+                  <span class="w-1.5 h-3 bg-gray-400 rounded-b"></span>
+                  <span class="w-1.5 h-3 bg-gray-400 rounded-b"></span>
+                </div>
+                <i data-lucide="cpu" class="w-10 h-10 mx-auto text-[#22C55E] mb-2"></i>
+                <div class="font-tech text-xs tracking-wider font-bold text-white">MCU CORE</div>
+                <div class="font-mono text-[9px] text-[#22C55E]">EMBEDDED SYSTEM</div>
+              </div>
+
+              <!-- Rodapé da Placa com Sensores & LEDs -->
+              <div class="grid grid-cols-3 gap-2 text-center z-10">
+                <div class="bg-[#0A0A0A]/80 p-2 rounded border border-[#374151]">
+                  <span class="block text-[10px] text-gray-400 font-mono">SENSOR</span>
+                  <span class="font-bold text-xs text-[#22C55E]">INPUT</span>
+                </div>
+                <div class="bg-[#0A0A0A]/80 p-2 rounded border border-[#374151]">
+                  <span class="block text-[10px] text-gray-400 font-mono">PROCESS</span>
+                  <span class="font-bold text-xs text-white">LOGIC</span>
+                </div>
+                <div class="bg-[#0A0A0A]/80 p-2 rounded border border-[#374151]">
+                  <span class="block text-[10px] text-gray-400 font-mono">ACTUATOR</span>
+                  <span class="font-bold text-xs text-[#22C55E]">OUTPUT</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-gray-500 font-mono border-t border-[#374151]/50 pt-4">
+          <span>Use as setas [← / →] ou clique em "Próximo" para iniciar</span>
+          <span class="text-[#22C55E] flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span> Pronto para navegação
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 2 — OBJETIVOS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-2">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>DIRETRIZES PEDAGÓGICAS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">O que vamos aprender?</h2>
+          <p class="text-sm text-gray-400">Competências e habilidades desenvolvidas ao longo desta aula técnica.</p>
+        </div>
+
+        <!-- Grid de 8 objetivos em cards técnicos -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-auto">
+          <!-- Card 1 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-9 h-9 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="radio" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-mono text-[#22C55E] block">OBJETIVO 01</span>
+            <h3 class="font-bold text-sm text-white">Fenômenos Físicos</h3>
+            <p class="text-xs text-gray-400 leading-snug">Compreender a natureza física e a transmissão de sinais elétricos e eletromagnéticos.</p>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-9 h-9 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="gauge" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-mono text-[#22C55E] block">OBJETIVO 02</span>
+            <h3 class="font-bold text-sm text-white">Realizar Medições</h3>
+            <p class="text-xs text-gray-400 leading-snug">Executar práticas seguras de medição de grandezas em circuitos com instrumentos de bancada.</p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-9 h-9 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="activity" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-mono text-[#22C55E] block">OBJETIVO 03</span>
+            <h3 class="font-bold text-sm text-white">Interpretar Grandezas</h3>
+            <p class="text-xs text-gray-400 leading-snug">Dominar as relações entre Tensão, Corrente, Resistência, Potência e Frequência.</p>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-9 h-9 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="sliders" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-mono text-[#22C55E] block">OBJETIVO 04</span>
+            <h3 class="font-bold text-sm text-white">Instrumentos de Teste</h3>
+            <p class="text-xs text-gray-400 leading-snug">Operar multímetros analógicos e digitais, osciloscópios e medidores de grandezas ambientais.</p>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-9 h-9 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="activity" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-mono text-[#22C55E] block">OBJETIVO 05</span>
+            <h3 class="font-bold text-sm text-white">Eletrônica Analógica</h3>
+            <p class="text-xs text-gray-400 leading-snug">Analisar circuitos contínuos com resistores, capacitores, diodos, transistores e Amp-Ops.</p>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-9 h-9 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="binary" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-mono text-[#22C55E] block">OBJETIVO 06</span>
+            <h3 class="font-bold text-sm text-white">Eletrônica Digital</h3>
+            <p class="text-xs text-gray-400 leading-snug">Compreender níveis lógicos (0 e 1), portas lógicas booleanas e lógica programável em microcontroladores.</p>
+          </div>
+
+          <!-- Card 7 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-9 h-9 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="scan" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-mono text-[#22C55E] block">OBJETIVO 07</span>
+            <h3 class="font-bold text-sm text-white">Sensores & Transdutores</h3>
+            <p class="text-xs text-gray-400 leading-snug">Identificar transdutores de temperatura, umidade, presença, luz e pressão industrial.</p>
+          </div>
+
+          <!-- Card 8 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-9 h-9 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="cpu" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-mono text-[#22C55E] block">OBJETIVO 08</span>
+            <h3 class="font-bold text-sm text-white">Automação Completa</h3>
+            <p class="text-xs text-gray-400 leading-snug">Integrar sensores, microcontroladores e atuadores em malhas de controle inteligentes.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 p-3 rounded-lg bg-[#1F2937]/60 border border-[#374151] text-xs text-gray-300">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-[#22C55E]"></i>
+          <span>Metodologia orientada à prática de laboratório, manutenção preventiva e raciocínio investigativo de engenharia.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 3 — VISÃO GERAL -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-3">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>ARQUITETURA CONCEITUAL</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Visão Geral: Da Natureza ao Controle</h2>
+          <p class="text-sm text-gray-400">Como fenômenos físicos são captados, convertidos e processados em sistemas inteligentes.</p>
+        </div>
+
+        <!-- Fluxograma Conectado com Linhas Verdes -->
+        <div class="my-auto py-4">
+          <div class="grid grid-cols-1 md:grid-cols-7 gap-3 relative">
+            <!-- Etapa 1 -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] text-center flex flex-col justify-between relative group hover:border-[#22C55E]">
+              <div class="w-10 h-10 mx-auto rounded-lg bg-[#1F2937] border border-[#374151] flex items-center justify-center text-[#22C55E] mb-2 group-hover:glow-green-sm">
+                <i data-lucide="sun" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 01</span>
+              <h4 class="font-bold text-sm text-white mt-1">FENÔMENOS FÍSICOS</h4>
+              <p class="text-[11px] text-gray-400 mt-1">Calor, luz, movimento, força e pressão no ambiente real.</p>
+            </div>
+
+            <!-- Etapa 2 -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] text-center flex flex-col justify-between relative group hover:border-[#22C55E]">
+              <div class="w-10 h-10 mx-auto rounded-lg bg-[#1F2937] border border-[#374151] flex items-center justify-center text-[#22C55E] mb-2 group-hover:glow-green-sm">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 02</span>
+              <h4 class="font-bold text-sm text-white mt-1">GRANDEZAS</h4>
+              <p class="text-[11px] text-gray-400 mt-1">Tensão, corrente, resistência e diferença de potencial.</p>
+            </div>
+
+            <!-- Etapa 3 -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] text-center flex flex-col justify-between relative group hover:border-[#22C55E]">
+              <div class="w-10 h-10 mx-auto rounded-lg bg-[#1F2937] border border-[#374151] flex items-center justify-center text-[#22C55E] mb-2 group-hover:glow-green-sm">
+                <i data-lucide="gauge" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 03</span>
+              <h4 class="font-bold text-sm text-white mt-1">MEDIÇÃO</h4>
+              <p class="text-[11px] text-gray-400 mt-1">Quantificação exata através de instrumentos técnicos.</p>
+            </div>
+
+            <!-- Etapa 4 -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] text-center flex flex-col justify-between relative group hover:border-[#22C55E]">
+              <div class="w-10 h-10 mx-auto rounded-lg bg-[#1F2937] border border-[#374151] flex items-center justify-center text-[#22C55E] mb-2 group-hover:glow-green-sm">
+                <i data-lucide="circuit-board" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 04</span>
+              <h4 class="font-bold text-sm text-white mt-1">ELETRÔNICA</h4>
+              <p class="text-[11px] text-gray-400 mt-1">Condicionamento analógico, filtragem e amplificação.</p>
+            </div>
+
+            <!-- Etapa 5 -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] text-center flex flex-col justify-between relative group hover:border-[#22C55E]">
+              <div class="w-10 h-10 mx-auto rounded-lg bg-[#1F2937] border border-[#374151] flex items-center justify-center text-[#22C55E] mb-2 group-hover:glow-green-sm">
+                <i data-lucide="radio" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 05</span>
+              <h4 class="font-bold text-sm text-white mt-1">SENSORES</h4>
+              <p class="text-[11px] text-gray-400 mt-1">Transdução dos sinais para leitura por controladores.</p>
+            </div>
+
+            <!-- Etapa 6 -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] text-center flex flex-col justify-between relative group hover:border-[#22C55E]">
+              <div class="w-10 h-10 mx-auto rounded-lg bg-[#1F2937] border border-[#374151] flex items-center justify-center text-[#22C55E] mb-2 group-hover:glow-green-sm">
+                <i data-lucide="cpu" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 06</span>
+              <h4 class="font-bold text-sm text-white mt-1">AUTOMAÇÃO</h4>
+              <p class="text-[11px] text-gray-400 mt-1">Microcontrolador / CLP executando a lógica de decisão.</p>
+            </div>
+
+            <!-- Etapa 7 -->
+            <div class="glass-card p-4 rounded-xl border border-[#22C55E]/50 bg-[#166534]/20 text-center flex flex-col justify-between relative group hover:glow-green-sm">
+              <div class="w-10 h-10 mx-auto rounded-lg bg-[#22C55E] flex items-center justify-center text-[#0A0A0A] mb-2 font-bold">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 07</span>
+              <h4 class="font-bold text-sm text-white mt-1">SISTEMA INTELIGENTE</h4>
+              <p class="text-[11px] text-gray-300 mt-1">Ação precisa em atuadores com realimentação contínua.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[#1F2937]/70 border border-[#374151] flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-[#22C55E] led-pulsing shrink-0"></span>
+            <p class="text-xs text-gray-300">
+              <strong class="text-white font-mono uppercase">Princípio da Engenharia:</strong> "Não se pode controlar aquilo que não se pode medir." A eletrônica é a ponte que transforma matéria e energia em dados computáveis.
+            </p>
+          </div>
+          <span class="text-[11px] font-mono text-[#22C55E] px-3 py-1 bg-[#0A0A0A] rounded border border-[#22C55E]/40 shrink-0">
+            FLUXO CLOSED-LOOP
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 4 — MEIOS DE TRANSMISSÃO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-4">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>COMUNICAÇÃO E PROPAGAÇÃO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Meios de Transmissão de Sinais</h2>
+          <p class="text-sm text-gray-400">Como a informação viaja entre sensores, controladores e atuadores industriais.</p>
+        </div>
+
+        <!-- 3 Colunas Técnicas: Metálico, Fibra Óptica, Sem Fio -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-auto">
+          <!-- Meio Metálico -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="w-12 h-12 rounded-xl bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+                <i data-lucide="cable" class="w-6 h-6"></i>
+              </div>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#166534]/50 text-[#22C55E] border border-[#22C55E]/30">SINAIS ELÉTRICOS</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-white">Cabos Metálicos (Cobre)</h3>
+              <p class="text-xs text-gray-400 mt-1">Par trançado (UTP/STP), cabo coaxial e fios singelos de cobre.</p>
+            </div>
+            <ul class="text-xs text-gray-300 space-y-2 font-mono">
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> Propagação via fluxo ordenado de elétrons livres.
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> Custo acessível e fácil conectorização.
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400">⚠</span> Suscetível a EMI (Interferência Eletromagnética).
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> Aplicações: Ethernet industrial, RS-485, barramentos I2C e SPI.
+              </li>
+            </ul>
+          </div>
+
+          <!-- Fibra Óptica -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="w-12 h-12 rounded-xl bg-[#1F2937] border border-[#22C55E] flex items-center justify-center text-[#22C55E] shadow-[0_0_12px_#22C55E]">
+                <i data-lucide="sparkle" class="w-6 h-6"></i>
+              </div>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#22C55E] text-[#0A0A0A] font-bold">SINAIS ÓPTICOS</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-white">Fibra Óptica</h3>
+              <p class="text-xs text-gray-300 mt-1">Filamentos de vidro puríssimo ou polímero de alta refração.</p>
+            </div>
+            <ul class="text-xs text-gray-200 space-y-2 font-mono">
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> Pulsos de luz modulados (fotônica e lasers/LEDs).
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> 100% imune a ruídos elétricos, motores e raios.
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> Largura de banda gigantesca em longas distâncias.
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> Aplicações: Backbones industriais, subestações de alta tensão.
+              </li>
+            </ul>
+          </div>
+
+          <!-- Sem Fio / Wireless -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="w-12 h-12 rounded-xl bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+                <i data-lucide="wifi" class="w-6 h-6"></i>
+              </div>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#166534]/50 text-[#22C55E] border border-[#22C55E]/30">ONDAS ELETROMAGNÉTICAS</span>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-white">Transmissão Sem Fio (RF)</h3>
+              <p class="text-xs text-gray-400 mt-1">Propagação no espaço livre através de radiofrequência.</p>
+            </div>
+            <ul class="text-xs text-gray-300 space-y-2 font-mono">
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> Campos elétricos e magnéticos oscilantes acoplados.
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> Total flexibilidade física sem infraestrutura de cabeamento.
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400">⚠</span> Atenuação por obstáculos físicos e interferência de canais.
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#22C55E]">▸</span> Aplicações: Wi-Fi, Bluetooth BLE, Zigbee, LoRaWAN e sensores IoT.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tabela Comparativa Resumida -->
+        <div class="overflow-x-auto rounded-xl border border-[#374151] bg-[#0A0A0A]/60">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-[#1F2937] text-[#22C55E] uppercase border-b border-[#374151]">
+              <tr>
+                <th class="p-3">Meio de Transmissão</th>
+                <th class="p-3">Portador Físico</th>
+                <th class="p-3">Imunidade a Ruído (EMI)</th>
+                <th class="p-3">Velocidade / Distância</th>
+                <th class="p-3">Cenário Ideal</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#374151]/50 text-gray-300">
+              <tr>
+                <td class="p-3 font-bold text-white">Cabo Metálico (Cobre)</td>
+                <td class="p-3">Elétrons livres (Tensão/Corrente)</td>
+                <td class="p-3 text-amber-400">Média (Requer blindagem)</td>
+                <td class="p-3">Até 100m (Ethernet padrão)</td>
+                <td class="p-3">Bancada, painéis de controle, sensores locais</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Fibra Óptica</td>
+                <td class="p-3">Fótons (Luz infravermelha / Laser)</td>
+                <td class="p-3 text-[#22C55E] font-bold">Total (100% Imune)</td>
+                <td class="p-3">Dezenas de quilômetros sem repetidor</td>
+                <td class="p-3">Fábricas ruidosas, cabines primárias de energia</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Sem Fio (RF / Wireless)</td>
+                <td class="p-3">Ondas Eletromagnéticas livres</td>
+                <td class="p-3 text-amber-400">Moderada (Requer criptografia)</td>
+                <td class="p-3">10m (Bluetooth) a 15km (LoRa)</td>
+                <td class="p-3">Sensores remotos, agroindústria, peças móveis</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 5 — FENÔMENOS FÍSICOS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-5">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>FUNDAMENTOS DA FÍSICA APLICADA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Fenômenos Físicos na Eletrônica</h2>
+          <p class="text-sm text-gray-400">Os princípios fundamentais que regem o comportamento da matéria e dos sinais elétricos.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-auto">
+          <!-- Card Corrente -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+                <i data-lucide="zap" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-bold text-white">Corrente Elétrica (I)</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Fluxo ordenado de portadores de carga (elétrons) através de um condutor quando submetido a uma diferença de potencial.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+              Unidade: Ampere [A] = 1 Coulomb / segundo
+            </div>
+          </div>
+
+          <!-- Card Tensão -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+                <i data-lucide="gauge" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-bold text-white">Tensão Elétrica (V / U)</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Diferença de potencial elétrico (DDP) entre dois pontos. Representa a "força motriz" que empurra os elétrons no circuito.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+              Unidade: Volt [V] = 1 Joule / Coulomb
+            </div>
+          </div>
+
+          <!-- Card Resistência -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+                <i data-lucide="shield" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-bold text-white">Resistência Elétrica (R)</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Oposição natural do material ao movimento dos elétrons, convertendo energia elétrica em calor (Efeito Joule).
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+              Unidade: Ohm [Ω] = Volt / Ampere
+            </div>
+          </div>
+
+          <!-- Card Campo Elétrico -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-bold text-white">Campo Elétrico (E)</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Região do espaço modificada pela presença de cargas elétricas, que exerce forças de atração ou repulsão sobre outras cargas.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+              Base para: Capacitores e Sensores Capacitivos
+            </div>
+          </div>
+
+          <!-- Card Campo Magnético -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+                <i data-lucide="magnet" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-bold text-white">Campo Magnético (B)</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Gerado por cargas elétricas em movimento (corrente). Produz indução eletromagnética fundamental para transformadores e motores.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+              Base para: Relés, Indutores e Solenoides
+            </div>
+          </div>
+
+          <!-- Card Ondas Eletromagnéticas -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+                <i data-lucide="radio-tower" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-bold text-white">Ondas Eletromagnéticas</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Perturbação oscilante perpendicular de campos elétricos e magnéticos que se propaga no vácuo e na matéria na velocidade da luz.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+              Base para: RF, Wi-Fi, Bluetooth, Micro-ondas
+            </div>
+          </div>
+        </div>
+
+        <!-- Analogia Didática de Engenharia -->
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] flex items-center gap-3 text-xs text-gray-300 font-mono">
+          <i data-lucide="lightbulb" class="w-5 h-5 text-[#22C55E] shrink-0"></i>
+          <span>
+            <strong class="text-white">Analogia Hidráulica:</strong> A <span class="text-[#22C55E] font-bold">Tensão</span> é a pressão da caixa d'água; a <span class="text-[#22C55E] font-bold">Corrente</span> é a vazão de água nos canos; a <span class="text-[#22C55E] font-bold">Resistência</span> é um registro semiaberto que dificulta o fluxo.
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 6 — TEMPERATURA E UMIDADE -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-6">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>GRANDEZAS AMBIENTAIS INDUSTRIAIS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Temperatura e Umidade</h2>
+          <p class="text-sm text-gray-400">Conceitos físicos, transdução e instrumentos essenciais em processos climatizados e automação.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: Conceito Físico e Instrumentos -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="glass-card p-4 rounded-xl border border-[#374151]">
+                <div class="flex items-center gap-2 text-[#22C55E] mb-1">
+                  <i data-lucide="thermometer" class="w-4 h-4"></i>
+                  <span class="font-bold text-sm text-white">Temperatura</span>
+                </div>
+                <p class="text-xs text-gray-400">Grau de agitação térmica molecular de um corpo ou gás.</p>
+                <div class="mt-2 text-[10px] font-mono text-gray-300">Unidades: °C, K, °F</div>
+              </div>
+
+              <div class="glass-card p-4 rounded-xl border border-[#374151]">
+                <div class="flex items-center gap-2 text-[#22C55E] mb-1">
+                  <i data-lucide="droplets" class="w-4 h-4"></i>
+                  <span class="font-bold text-sm text-white">Umidade</span>
+                </div>
+                <p class="text-xs text-gray-400">Quantidade de vapor d'água presente na atmosfera.</p>
+                <div class="mt-2 text-[10px] font-mono text-gray-300">Unidades: % UR, g/m³</div>
+              </div>
+            </div>
+
+            <!-- Instrumentos Utilizados -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+              <h4 class="text-xs font-mono text-[#22C55E] uppercase tracking-wider font-bold">Instrumentos & Sensores Clássicos</h4>
+              <div class="grid grid-cols-2 gap-2 text-xs text-gray-300 font-mono">
+                <div class="flex items-center gap-2 bg-[#0A0A0A]/60 p-2 rounded border border-[#374151]">
+                  <span class="text-[#22C55E]">●</span> Termômetro Digital / Infravermelho
+                </div>
+                <div class="flex items-center gap-2 bg-[#0A0A0A]/60 p-2 rounded border border-[#374151]">
+                  <span class="text-[#22C55E]">●</span> Termopar Tipo K (Efeito Seebeck)
+                </div>
+                <div class="flex items-center gap-2 bg-[#0A0A0A]/60 p-2 rounded border border-[#374151]">
+                  <span class="text-[#22C55E]">●</span> Sensor DHT11 / DHT22 (Digital)
+                </div>
+                <div class="flex items-center gap-2 bg-[#0A0A0A]/60 p-2 rounded border border-[#374151]">
+                  <span class="text-[#22C55E]">●</span> Estação Meteorológica Industrial
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: O Fluxo de Controle Térmico -->
+          <div class="lg:col-span-6">
+            <div class="glass-panel p-6 rounded-2xl border border-[#22C55E]/40 space-y-4">
+              <span class="text-xs font-mono text-[#22C55E] uppercase tracking-wider block font-bold">
+                Arquitetura do Fluxo de Controle
+              </span>
+
+              <!-- Diagrama SVG Vertical/Horizontal -->
+              <div class="flex flex-col gap-3 font-mono text-xs">
+                <!-- Passo 1 -->
+                <div class="flex items-center gap-3 p-3 rounded-lg bg-[#0A0A0A] border border-[#374151]">
+                  <div class="w-8 h-8 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-bold">1</div>
+                  <div>
+                    <div class="font-bold text-white">TEMPERATURA AMBIENTE</div>
+                    <div class="text-[11px] text-gray-400">Grandeza física primária medida (Ex: 35°C no galpão)</div>
+                  </div>
+                </div>
+
+                <div class="text-center text-[#22C55E] font-bold">↓</div>
+
+                <!-- Passo 2 -->
+                <div class="flex items-center gap-3 p-3 rounded-lg bg-[#0A0A0A] border border-[#22C55E]/40">
+                  <div class="w-8 h-8 rounded bg-[#166534] text-white flex items-center justify-center font-bold">2</div>
+                  <div>
+                    <div class="font-bold text-[#22C55E]">SENSOR (DHT22 / NTC)</div>
+                    <div class="text-[11px] text-gray-300">Converte calor em variação de resistência e sinal digital</div>
+                  </div>
+                </div>
+
+                <div class="text-center text-[#22C55E] font-bold">↓</div>
+
+                <!-- Passo 3 -->
+                <div class="flex items-center gap-3 p-3 rounded-lg bg-[#0A0A0A] border border-[#374151]">
+                  <div class="w-8 h-8 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-bold">3</div>
+                  <div>
+                    <div class="font-bold text-white">CONTROLADOR (Arduino / CLP)</div>
+                    <div class="text-[11px] text-gray-400">Processa o algoritmo: <code class="text-[#22C55E]">if (temp > 30) acionar()</code></div>
+                  </div>
+                </div>
+
+                <div class="text-center text-[#22C55E] font-bold">↓</div>
+
+                <!-- Passo 4 -->
+                <div class="flex items-center gap-3 p-3 rounded-lg bg-[#166534]/40 border border-[#22C55E]">
+                  <div class="w-8 h-8 rounded bg-[#22C55E] text-[#0A0A0A] flex items-center justify-center font-bold">4</div>
+                  <div>
+                    <div class="font-bold text-white">SISTEMA ATUADOR (Climatização)</div>
+                    <div class="text-[11px] text-gray-200">Relé aciona exaustores e bombas de resfriamento</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-400 font-mono text-center">
+          A calibração do sensor é crucial: erros de 1°C podem alterar o consumo energético de grandes data centers em megawatts.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 7 — GRANDEZAS ELÉTRICAS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-7">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>PADRONIZAÇÃO INTERNACIONAL (SI)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Grandezas Elétricas Fundamentais</h2>
+          <p class="text-sm text-gray-400">As cinco medidas essenciais que definem o estado elétrico de qualquer circuito.</p>
+        </div>
+
+        <!-- 5 Cards Principais com Destaque nas Unidades -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 my-auto">
+          <!-- Tensão -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] flex flex-col justify-between hover:border-[#22C55E] space-y-3">
+            <div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-mono text-gray-400">GRANDEZA</span>
+                <span class="font-tech text-xl font-bold text-[#22C55E]">V</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mt-1">Tensão Elétrica</h3>
+              <p class="text-xs text-gray-400 mt-1">Diferença de potencial entre dois nós.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0A0A0A] border border-[#374151] text-center">
+              <span class="text-[10px] text-gray-400 font-mono block">UNIDADE</span>
+              <span class="text-xl font-bold text-white font-tech">Volt</span>
+              <span class="block text-xs font-mono text-[#22C55E]">[ V ]</span>
+            </div>
+          </div>
+
+          <!-- Corrente -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] flex flex-col justify-between hover:border-[#22C55E] space-y-3">
+            <div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-mono text-gray-400">GRANDEZA</span>
+                <span class="font-tech text-xl font-bold text-[#22C55E]">I</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mt-1">Corrente Elétrica</h3>
+              <p class="text-xs text-gray-400 mt-1">Taxa de transferência de cargas no tempo.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0A0A0A] border border-[#374151] text-center">
+              <span class="text-[10px] text-gray-400 font-mono block">UNIDADE</span>
+              <span class="text-xl font-bold text-white font-tech">Ampere</span>
+              <span class="block text-xs font-mono text-[#22C55E]">[ A ]</span>
+            </div>
+          </div>
+
+          <!-- Resistência -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] flex flex-col justify-between hover:border-[#22C55E] space-y-3">
+            <div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-mono text-gray-400">GRANDEZA</span>
+                <span class="font-tech text-xl font-bold text-[#22C55E]">R</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mt-1">Resistência</h3>
+              <p class="text-xs text-gray-400 mt-1">Oposição física à circulação de corrente.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0A0A0A] border border-[#374151] text-center">
+              <span class="text-[10px] text-gray-400 font-mono block">UNIDADE</span>
+              <span class="text-xl font-bold text-white font-tech">Ohm</span>
+              <span class="block text-xs font-mono text-[#22C55E]">[ Ω ]</span>
+            </div>
+          </div>
+
+          <!-- Potência -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] flex flex-col justify-between hover:border-[#22C55E] space-y-3">
+            <div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-mono text-gray-400">GRANDEZA</span>
+                <span class="font-tech text-xl font-bold text-[#22C55E]">P</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mt-1">Potência</h3>
+              <p class="text-xs text-gray-400 mt-1">Taxa de consumo ou conversão de energia.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0A0A0A] border border-[#374151] text-center">
+              <span class="text-[10px] text-gray-400 font-mono block">UNIDADE</span>
+              <span class="text-xl font-bold text-white font-tech">Watt</span>
+              <span class="block text-xs font-mono text-[#22C55E]">[ W ] (P = V · I)</span>
+            </div>
+          </div>
+
+          <!-- Frequência -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] flex flex-col justify-between hover:border-[#22C55E] space-y-3">
+            <div>
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-mono text-gray-400">GRANDEZA</span>
+                <span class="font-tech text-xl font-bold text-[#22C55E]">f</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mt-1">Frequência</h3>
+              <p class="text-xs text-gray-400 mt-1">Número de ciclos periódicos por segundo.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0A0A0A] border border-[#374151] text-center">
+              <span class="text-[10px] text-gray-400 font-mono block">UNIDADE</span>
+              <span class="text-xl font-bold text-white font-tech">Hertz</span>
+              <span class="block text-xs font-mono text-[#22C55E]">[ Hz ] (f = 1 / T)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela de Prefixos Técnicos -->
+        <div class="p-4 rounded-xl bg-[#1F2937]/60 border border-[#374151]">
+          <span class="text-xs font-mono text-gray-400 block mb-2 font-bold uppercase">Prefixos do Sistema Internacional mais comuns em Eletrônica:</span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+            <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151] flex justify-between">
+              <span class="text-gray-400">Mega (M)</span>
+              <span class="text-[#22C55E] font-bold">10⁶ (1.000.000)</span>
+            </div>
+            <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151] flex justify-between">
+              <span class="text-gray-400">Quilo (k)</span>
+              <span class="text-[#22C55E] font-bold">10³ (1.000)</span>
+            </div>
+            <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151] flex justify-between">
+              <span class="text-gray-400">Mili (m)</span>
+              <span class="text-[#22C55E] font-bold">10⁻³ (0,001)</span>
+            </div>
+            <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151] flex justify-between">
+              <span class="text-gray-400">Micro (µ)</span>
+              <span class="text-[#22C55E] font-bold">10⁻⁶ (0,000001)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 8 — LEI DE OHM -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-8">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>LEGISLAÇÃO ELÉTRICA FUNDAMENTAL</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Primeira Lei de Ohm: V = R × I</h2>
+          <p class="text-sm text-gray-400">A relação matemática direta entre Tensão, Corrente e Resistência em condutores ôhmicos.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: Triângulo da Lei de Ohm e Fórmulas -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 text-center space-y-3">
+              <div class="font-tech text-3xl font-black text-white text-glow-green tracking-wider">
+                V = R × I
+              </div>
+              <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[#374151] text-xs font-mono">
+                <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+                  <span class="block text-gray-400 text-[10px]">TENSÃO</span>
+                  <span class="text-[#22C55E] font-bold">V = R × I</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+                  <span class="block text-gray-400 text-[10px]">CORRENTE</span>
+                  <span class="text-[#22C55E] font-bold">I = V / R</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+                  <span class="block text-gray-400 text-[10px]">RESISTÊNCIA</span>
+                  <span class="text-[#22C55E] font-bold">R = V / I</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exemplo Numérico Resolvido -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2 font-mono text-xs">
+              <div class="text-[#22C55E] font-bold uppercase tracking-wider">Exemplo de Bancada:</div>
+              <div class="bg-[#0A0A0A] p-3 rounded-lg border border-[#374151] space-y-1">
+                <div>Dados do Circuito:</div>
+                <div class="text-gray-300">Resistência (<strong class="text-white">R</strong>) = 100 Ω</div>
+                <div class="text-gray-300">Corrente Medida (<strong class="text-white">I</strong>) = 0,1 A (100 mA)</div>
+                <div class="pt-2 border-t border-[#374151]/70 text-[#22C55E] font-bold">
+                  V = R × I  →  V = 100 × 0,1  →  <span class="text-white text-sm">V = 10 V</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Simulador Interativo de Circuito da Lei de Ohm -->
+          <div class="lg:col-span-7">
+            <div class="glass-panel p-6 rounded-2xl border border-[#374151] space-y-5">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono text-[#22C55E] uppercase font-bold flex items-center gap-1.5">
+                  <i data-lucide="play-circle" class="w-4 h-4"></i> Simulador Interativo de Carga
+                </span>
+                <span class="text-[10px] font-mono text-gray-400">AJUSTE OS CONTROLES ABAIXO</span>
+              </div>
+
+              <!-- Circuito Esquemático Visual SVG -->
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#374151] relative flex flex-col items-center justify-center">
+                <svg viewBox="0 0 460 140" class="w-full max-w-md h-auto">
+                  <!-- Linha condutora retangular -->
+                  <rect x="50" y="30" width="360" height="80" fill="none" stroke="#22C55E" stroke-width="3" rx="8" />
+                  
+                  <!-- Fonte DC à Esquerda -->
+                  <circle cx="50" cy="70" r="18" fill="#1F2937" stroke="#22C55E" stroke-width="2" />
+                  <text x="50" y="74" text-anchor="middle" fill="#FFFFFF" font-size="12" font-family="monospace" font-weight="bold">DC</text>
+                  <text x="25" y="74" text-anchor="middle" fill="#22C55E" font-size="14" font-weight="bold">+</text>
+                  
+                  <!-- Resistor no Topo -->
+                  <rect x="180" y="20" width="100" height="20" fill="#1F2937" stroke="#4ADE80" stroke-width="2" rx="4" />
+                  <text x="230" y="34" text-anchor="middle" fill="#FFFFFF" font-size="10" font-family="monospace">RESISTOR R</text>
+                  
+                  <!-- Amperímetro à Direita -->
+                  <circle cx="410" cy="70" r="16" fill="#1F2937" stroke="#06B6D4" stroke-width="2" />
+                  <text x="410" y="74" text-anchor="middle" fill="#06B6D4" font-size="12" font-family="monospace" font-weight="bold">A</text>
+                  
+                  <!-- Voltímetro em Paralelo com o Resistor -->
+                  <path d="M 160 30 L 160 -5 L 300 -5 L 300 30" fill="none" stroke="#EAB308" stroke-dasharray="3,3" stroke-width="1.5" />
+                  <circle cx="230" cy="-5" r="12" fill="#1F2937" stroke="#EAB308" stroke-width="2" />
+                  <text x="230" y="-1" text-anchor="middle" fill="#EAB308" font-size="10" font-family="monospace" font-weight="bold">V</text>
+                  
+                  <!-- Seta do Fluxo de Corrente -->
+                  <text x="340" y="25" fill="#22C55E" font-size="11" font-family="monospace">I →</text>
+                </svg>
+
+                <div class="mt-3 flex justify-around w-full text-xs font-mono border-t border-[#374151]/60 pt-2">
+                  <div>Tensão (<strong class="text-yellow-400">V</strong>): <span id="sim-v-val" class="text-white font-bold">12 V</span></div>
+                  <div>Resistência (<strong class="text-green-400">R</strong>): <span id="sim-r-val" class="text-white font-bold">100 Ω</span></div>
+                  <div>Corrente Calculada (<strong class="text-cyan-400">I</strong>): <span id="sim-i-val" class="text-[#22C55E] font-bold">0.12 A</span></div>
+                </div>
+              </div>
+
+              <!-- Sliders Interativos -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <label class="text-xs font-mono text-gray-300 flex justify-between">
+                    <span>Ajustar Tensão (Fonte DC)</span>
+                    <span id="slider-v-display" class="text-[#22C55E] font-bold">12 V</span>
+                  </label>
+                  <input type="range" min="1" max="48" value="12" id="slider-voltage" class="w-full accent-[#22C55E] bg-[#1F2937] rounded-lg cursor-pointer" oninput="updateOhmSim()">
+                </div>
+
+                <div class="space-y-1">
+                  <label class="text-xs font-mono text-gray-300 flex justify-between">
+                    <span>Ajustar Resistência (Carga)</span>
+                    <span id="slider-r-display" class="text-[#22C55E] font-bold">100 Ω</span>
+                  </label>
+                  <input type="range" min="10" max="500" step="5" value="100" id="slider-resistance" class="w-full accent-[#22C55E] bg-[#1F2937] rounded-lg cursor-pointer" oninput="updateOhmSim()">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Conclusão prática: Se aumentarmos a tensão mantendo a resistência fixa, a corrente sobe proporcionalmente. Se aumentarmos a resistência, a corrente cai.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 9 — INSTRUMENTOS DE MEDIÇÃO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-9">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>INSTRUMENTAÇÃO DE BANCADA E CAMPO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Instrumentos de Medição</h2>
+          <p class="text-sm text-gray-400">O arsenal do técnico para diagnosticar, validar e calibrar circuitos eletrônicos.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-auto">
+          <!-- 1. Multímetro -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-10 h-10 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="calculator" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-base text-white">Multímetro Digital</h3>
+            <p class="text-xs text-gray-300">Instrumento multifuncional essencial. Mede Tensão (AC/DC), Corrente, Resistência e testa Continuidade com alerta sonoro.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-1.5 rounded">Uso: Bancada diária e inspeção rápida</div>
+          </div>
+
+          <!-- 2. Amperímetro / Alicate -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-10 h-10 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="disc" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-base text-white">Alicate Amperímetro</h3>
+            <p class="text-xs text-gray-300">Mede corrente alternada e contínua por indução magnética no condutor, sem a necessidade de interromper ou abrir o circuito físico.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-1.5 rounded">Uso: Painéis de potência e motores</div>
+          </div>
+
+          <!-- 3. Voltímetro -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-10 h-10 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="gauge" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-base text-white">Voltímetro de Painel</h3>
+            <p class="text-xs text-gray-300">Conectado em paralelo permanente aos barramentos de alimentação para monitoramento contínuo da estabilidade da fonte.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-1.5 rounded">Uso: Monitoramento de fontes e no-breaks</div>
+          </div>
+
+          <!-- 4. Osciloscópio -->
+          <div class="glass-card p-4 rounded-xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-2">
+            <div class="w-10 h-10 rounded-lg bg-[#22C55E] flex items-center justify-center text-[#0A0A0A]">
+              <i data-lucide="activity" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-base text-white">Osciloscópio Digital</h3>
+            <p class="text-xs text-gray-200">Permite "enxergar" a eletricidade: plota gráficos da tensão em função do tempo, exibindo frequência, ruído, transientes e largura de pulso (PWM).</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-1.5 rounded">Uso: Sinais rápidos, barramentos e áudio</div>
+          </div>
+
+          <!-- 5. Termômetro Industrial -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-10 h-10 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="thermometer-snowflake" class="w-4 h-4"></i>
+            </div>
+            <h3 class="font-bold text-base text-white">Termômetro / Termografia</h3>
+            <p class="text-xs text-gray-300">Termômetros de mira laser ou câmeras termográficas infravermelhas para detectar pontos quentes (hotspots) e sobrecarga em componentes.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-1.5 rounded">Uso: Manutenção preditiva de placas</div>
+          </div>
+
+          <!-- 6. Higrômetro Técnico -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="w-10 h-10 rounded-lg bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="droplet" class="w-4 h-4"></i>
+            </div>
+            <h3 class="font-bold text-base text-white">Higrômetro Digital</h3>
+            <p class="text-xs text-gray-300">Medição da umidade relativa do ar em salas limpas, armários elétricos e estufas industriais para prevenir condensação destrutiva.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-1.5 rounded">Uso: Controle ambiental de data centers</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] text-xs text-gray-400 font-mono">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 shrink-0"></i>
+          <span>Regra de Ouro da Bancada: Escolha sempre a escala correta antes de conectar as pontas de prova para evitar queima do fusível interno do instrumento.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 10 — MULTÍMETRO NA PRÁTICA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-10">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>MANUAL OPERACIONAL DE BANCADA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Como Utilizar o Multímetro</h2>
+          <p class="text-sm text-gray-400">Guia visual das partes do instrumento, posições das pontas de prova e procedimentos de segurança.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Diagrama Ilustrado do Multímetro -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="w-full max-w-xs bg-[#1F2937] p-5 rounded-3xl border-2 border-[#374151] shadow-2xl relative">
+              <!-- Visor Digital LCD -->
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] mb-4 text-right">
+                <span class="text-[9px] font-mono text-gray-500 block text-left">AUTO RANGE • DC</span>
+                <span id="multimeter-lcd" class="font-tech text-3xl font-bold text-[#22C55E] tracking-wider">12.04 V</span>
+              </div>
+
+              <!-- Seletor Rotativo Central -->
+              <div class="relative w-36 h-36 mx-auto rounded-full bg-[#0A0A0A] border-4 border-[#374151] flex items-center justify-center my-3">
+                <div id="multimeter-dial" class="w-8 h-24 bg-[#374151] rounded-full border border-gray-400 relative transition-transform duration-300" style="transform: rotate(0deg);">
+                  <div class="w-2 h-4 bg-[#22C55E] mx-auto rounded-t"></div>
+                </div>
+                <!-- Legendas ao redor do dial -->
+                <span class="absolute top-1 text-[9px] font-mono font-bold text-[#22C55E]">V=</span>
+                <span class="absolute right-1 text-[9px] font-mono text-gray-400">Ω</span>
+                <span class="absolute bottom-1 text-[9px] font-mono text-gray-400">A=</span>
+                <span class="absolute left-1 text-[9px] font-mono text-gray-400">V~</span>
+              </div>
+
+              <!-- Bornes / Conectores das Pontas de Prova -->
+              <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-[#374151] text-center">
+                <!-- 10A -->
+                <div class="bg-[#0A0A0A] p-1.5 rounded border border-[#374151]">
+                  <span class="block text-[8px] font-mono text-gray-400">10A MAX</span>
+                  <div class="w-4 h-4 mx-auto rounded-full bg-red-900 border border-red-500 mt-1"></div>
+                </div>
+                <!-- COM (Comum) -->
+                <div class="bg-[#0A0A0A] p-1.5 rounded border border-gray-600">
+                  <span class="block text-[8px] font-mono text-white font-bold">COM</span>
+                  <div class="w-4 h-4 mx-auto rounded-full bg-black border-2 border-gray-400 mt-1"></div>
+                  <span class="text-[7px] text-gray-400 block mt-0.5">Ponta Preta</span>
+                </div>
+                <!-- V/Ω/mA -->
+                <div class="bg-[#0A0A0A] p-1.5 rounded border border-red-500/50">
+                  <span class="block text-[8px] font-mono text-red-400 font-bold">V-Ω-mA</span>
+                  <div class="w-4 h-4 mx-auto rounded-full bg-red-600 border border-red-400 mt-1"></div>
+                  <span class="text-[7px] text-gray-400 block mt-0.5">Ponta Vermelha</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: As 4 Medições Essenciais com Seletor Interativo -->
+          <div class="lg:col-span-7 space-y-3">
+            <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+              Selecione o modo para visualizar o procedimento:
+            </span>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="setMultimeterMode('voltage')" class="p-3 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#22C55E] text-left transition flex items-center justify-between">
+                <div>
+                  <span class="block font-bold text-xs text-white">1. Tensão (V)</span>
+                  <span class="text-[10px] text-gray-400 font-mono">Em Paralelo com a carga</span>
+                </div>
+                <i data-lucide="zap" class="w-4 h-4 text-[#22C55E]"></i>
+              </button>
+
+              <button onclick="setMultimeterMode('resistance')" class="p-3 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-left transition flex items-center justify-between">
+                <div>
+                  <span class="block font-bold text-xs text-white">2. Resistência (Ω)</span>
+                  <span class="text-[10px] text-gray-400 font-mono">Circuito DESLIGADO</span>
+                </div>
+                <i data-lucide="shield" class="w-4 h-4 text-cyan-400"></i>
+              </button>
+
+              <button onclick="setMultimeterMode('continuity')" class="p-3 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-left transition flex items-center justify-between">
+                <div>
+                  <span class="block font-bold text-xs text-white">3. Continuidade (Beep)</span>
+                  <span class="text-[10px] text-gray-400 font-mono">Testar trilhas e fusíveis</span>
+                </div>
+                <i data-lucide="volume-2" class="w-4 h-4 text-yellow-400"></i>
+              </button>
+
+              <button onclick="setMultimeterMode('current')" class="p-3 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-left transition flex items-center justify-between">
+                <div>
+                  <span class="block font-bold text-xs text-white">4. Corrente (A)</span>
+                  <span class="text-[10px] text-gray-400 font-mono">EM SÉRIE (Abra o circuito)</span>
+                </div>
+                <i data-lucide="disc" class="w-4 h-4 text-red-400"></i>
+              </button>
+            </div>
+
+            <!-- Painel Informativo Dinâmico da Medição Selecionada -->
+            <div id="multimeter-guide-box" class="glass-panel p-4 rounded-xl border border-[#22C55E]/40 space-y-2">
+              <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+                Medição de Tensão Contínua (DCV)
+              </h4>
+              <p class="text-xs text-gray-300">
+                Ligue a ponta preta no <strong>COM</strong> e a vermelha no borne <strong>V/Ω</strong>. Encoste as duas pontas em paralelo com o componente ou borne da bateria sem desligar o circuito. O valor exibido é a DDP direta.
+              </p>
+              <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+                Dica de Segurança: Nunca tente medir corrente ou resistência com as pontas configuradas em uma tomada energizada.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Ponta preta: SEMPRE conectada ao borne COM (Comum/Terra). Ponta vermelha: varia de acordo com a grandeza desejada.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 11 — COMO INTERPRETAR UMA MEDIÇÃO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-11">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>METODOLOGIA DE DIAGNÓSTICO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Como Interpretar uma Medição</h2>
+          <p class="text-sm text-gray-400">O processo analítico para transformar números no display em conclusões de engenharia.</p>
+        </div>
+
+        <!-- O Ciclo de 5 Passos -->
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 my-auto">
+          <div class="glass-card p-3 rounded-xl border border-[#374151] text-center space-y-1">
+            <span class="text-[10px] font-mono text-[#22C55E] font-bold">PASSO 1</span>
+            <div class="font-bold text-sm text-white">MEDIR</div>
+            <p class="text-[11px] text-gray-400">Colocar as pontas com firmeza no ponto de teste (TP).</p>
+          </div>
+          <div class="glass-card p-3 rounded-xl border border-[#374151] text-center space-y-1">
+            <span class="text-[10px] font-mono text-[#22C55E] font-bold">PASSO 2</span>
+            <div class="font-bold text-sm text-white">REGISTRAR</div>
+            <p class="text-[11px] text-gray-400">Anotar valor numérico com unidade correta (ex: 12,04 V).</p>
+          </div>
+          <div class="glass-card p-3 rounded-xl border border-[#374151] text-center space-y-1">
+            <span class="text-[10px] font-mono text-[#22C55E] font-bold">PASSO 3</span>
+            <div class="font-bold text-sm text-white">COMPARAR</div>
+            <p class="text-[11px] text-gray-400">Confrontar com o esquemático elétrico e datasheets.</p>
+          </div>
+          <div class="glass-card p-3 rounded-xl border border-[#374151] text-center space-y-1">
+            <span class="text-[10px] font-mono text-[#22C55E] font-bold">PASSO 4</span>
+            <div class="font-bold text-sm text-white">INTERPRETAR</div>
+            <p class="text-[11px] text-gray-400">Avaliar se a variação está dentro da tolerância (ex: ±5%).</p>
+          </div>
+          <div class="glass-card p-3 rounded-xl border border-[#22C55E] bg-[#166534]/20 text-center space-y-1">
+            <span class="text-[10px] font-mono text-[#22C55E] font-bold">PASSO 5</span>
+            <div class="font-bold text-sm text-white">IDENTIFICAR</div>
+            <p class="text-[11px] text-gray-300">Apontar anomalias, quedas de tensão ou curto-circuitos.</p>
+          </div>
+        </div>
+
+        <!-- 3 Casos Reais em Barramento 12V -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Caso 1 -->
+          <div class="glass-card p-4 rounded-xl border border-[#22C55E]/50 bg-[#166534]/15 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-mono text-xl font-bold text-[#22C55E]">12,0 V</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#22C55E] text-black font-bold">NORMAL</span>
+            </div>
+            <div class="text-xs text-white font-bold">Operação Nominal Esperada</div>
+            <p class="text-xs text-gray-300">
+              A fonte está regulada, o cabeamento apresenta baixa resistência ôhmica e todos os circuitos operam sob condições ideais.
+            </p>
+          </div>
+
+          <!-- Caso 2 -->
+          <div class="glass-card p-4 rounded-xl border border-amber-500/50 bg-amber-950/20 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-mono text-xl font-bold text-amber-400">8,2 V</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500 text-black font-bold">ALERTA / ANOMALIA</span>
+            </div>
+            <div class="text-xs text-white font-bold">Possível Problema ou Sobrecarga</div>
+            <p class="text-xs text-gray-300">
+              Queda de tensão excessiva causada por mau contato, fios oxidados, fonte subdimensionada ou componente em fuga drenando corrente além do limite.
+            </p>
+          </div>
+
+          <!-- Caso 3 -->
+          <div class="glass-card p-4 rounded-xl border border-red-500/50 bg-red-950/20 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-mono text-xl font-bold text-red-400">0,0 V</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-red-600 text-white font-bold">FALHA CRÍTICA</span>
+            </div>
+            <div class="text-xs text-white font-bold">Circuito Interrompido</div>
+            <p class="text-xs text-gray-300">
+              Fusível de proteção queimado, chave aberta, fio partido ou desarme da proteção contra curto-circuito interno.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0A0A0A] border border-[#374151] text-xs text-gray-400 font-mono text-center">
+          <strong class="text-white">Atenção Técnica:</strong> Não existe valor "universal" de defeito. A interpretação sempre depende da especificação do esquemático (ex: 3.3V, 5V, 12V ou 24V).
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 12 — ELETRÔNICA ANALÓGICA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-12">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>CIRCUITOS DE SINAIS CONTÍNUOS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Eletrônica Analógica</h2>
+          <p class="text-sm text-gray-400">O universo dos sinais contínuos no tempo e os componentes discretos fundamentais.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: Gráfico da Onda Analógica e Definição -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Forma de Onda Analógica Contínua</span>
+              <!-- Gráfico Senoidal SVG -->
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] relative">
+                <svg viewBox="0 0 300 100" class="w-full h-auto">
+                  <!-- Eixos -->
+                  <line x1="10" y1="50" x2="290" y2="50" stroke="#374151" stroke-width="1.5" />
+                  <line x1="20" y1="10" x2="20" y2="90" stroke="#374151" stroke-width="1.5" />
+                  <!-- Onda Senoidal Suave -->
+                  <path d="M 20 50 Q 55 10 90 50 T 160 50 T 230 50 T 290 50" fill="none" stroke="#22C55E" stroke-width="3" />
+                  <text x="280" y="45" fill="#9CA3AF" font-size="9" font-family="monospace">t</text>
+                  <text x="25" y="20" fill="#22C55E" font-size="9" font-family="monospace">+V</text>
+                  <text x="25" y="85" fill="#9CA3AF" font-size="9" font-family="monospace">-V</text>
+                </svg>
+                <div class="text-[10px] text-gray-400 font-mono mt-2 text-center">
+                  Variação suave e contínua: assume infinitos valores de amplitude ao longo do tempo.
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-[#374151] text-xs text-gray-300 font-mono">
+              <strong class="text-white">Papel na Automação:</strong> Sensores físicos (microfones, sensores de temperatura NTC, células de carga) geram sinais analógicos que precisam ser filtrados e amplificados antes do computador.
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Os 6 Componentes Essenciais -->
+          <div class="lg:col-span-7">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <!-- Resistor -->
+              <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+                <span class="text-[10px] font-mono text-[#22C55E]">COMPONENTE</span>
+                <h4 class="font-bold text-sm text-white">Resistor</h4>
+                <p class="text-[11px] text-gray-400">Limita corrente e forma divisores de tensão.</p>
+              </div>
+
+              <!-- Capacitor -->
+              <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+                <span class="text-[10px] font-mono text-[#22C55E]">COMPONENTE</span>
+                <h4 class="font-bold text-sm text-white">Capacitor</h4>
+                <p class="text-[11px] text-gray-400">Armazena energia em campo elétrico e filtra ruídos.</p>
+              </div>
+
+              <!-- Diodo -->
+              <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+                <span class="text-[10px] font-mono text-[#22C55E]">COMPONENTE</span>
+                <h4 class="font-bold text-sm text-white">Diodo Semicondutor</h4>
+                <p class="text-[11px] text-gray-400">Permite fluxo de corrente em apenas um sentido.</p>
+              </div>
+
+              <!-- Transistor -->
+              <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+                <span class="text-[10px] font-mono text-[#22C55E]">COMPONENTE</span>
+                <h4 class="font-bold text-sm text-white">Transistor (BJT/MOSFET)</h4>
+                <p class="text-[11px] text-gray-400">Chaveamento de potência e amplificação de sinal.</p>
+              </div>
+
+              <!-- Potenciômetro -->
+              <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+                <span class="text-[10px] font-mono text-[#22C55E]">COMPONENTE</span>
+                <h4 class="font-bold text-sm text-white">Potenciômetro</h4>
+                <p class="text-[11px] text-gray-400">Resistência variável para ajuste fino e calibração.</p>
+              </div>
+
+              <!-- Op-Amp -->
+              <div class="glass-card p-3 rounded-xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-1">
+                <span class="text-[10px] font-mono text-[#22C55E]">COMPONENTE</span>
+                <h4 class="font-bold text-sm text-white">Amp-Op (Op-Amp)</h4>
+                <p class="text-[11px] text-gray-300">Amplificador operacional para ganho e filtros ativos.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          A bancada analógica lida com componentes passivos e semicondutores que moldam a energia bruta.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 13 — ELETRÔNICA DIGITAL -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-13">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>LÓGICA BOOLEANA E PROCESSAMENTO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Eletrônica Digital & Portas Lógicas</h2>
+          <p class="text-sm text-gray-400">A linguagem dos computadores: dois estados definidos (0 e 1) e tomadas de decisão lógicas.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: Sinais Discretos e Níveis Lógicos -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Ondas Quadradas (Bits)</span>
+              <!-- Gráfico de Trem de Pulsos SVG -->
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151]">
+                <svg viewBox="0 0 300 90" class="w-full h-auto">
+                  <path d="M 10 70 L 60 70 L 60 20 L 120 20 L 120 70 L 180 70 L 180 20 L 240 20 L 240 70 L 290 70" fill="none" stroke="#22C55E" stroke-width="2.5" />
+                  <text x="35" y="85" fill="#9CA3AF" font-size="10" font-family="monospace">0 (0V)</text>
+                  <text x="80" y="15" fill="#22C55E" font-size="10" font-family="monospace">1 (5V)</text>
+                  <text x="145" y="85" fill="#9CA3AF" font-size="10" font-family="monospace">0 (LOW)</text>
+                  <text x="200" y="15" fill="#22C55E" font-size="10" font-family="monospace">1 (HIGH)</text>
+                </svg>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 text-[10px] block">NÍVEL BAIXO (0)</span>
+                  <span class="text-white font-bold">0V (GND) / LOW</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 text-[10px] block">NÍVEL ALTO (1)</span>
+                  <span class="text-[#22C55E] font-bold">+5V / +3.3V / HIGH</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: As 3 Portas Fundamentais (AND, OR, NOT) com Testador Interativo -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#374151] space-y-4">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold flex items-center justify-between">
+                <span>Laboratório de Portas Lógicas</span>
+                <span class="text-[10px] text-gray-400 font-normal">CLIQUE NAS ENTRADAS A E B</span>
+              </span>
+
+              <!-- Seletor de Porta -->
+              <div class="flex gap-2 font-mono text-xs">
+                <button onclick="selectGate('AND')" id="gate-btn-and" class="flex-1 py-1.5 rounded bg-[#22C55E] text-black font-bold">AND (E)</button>
+                <button onclick="selectGate('OR')" id="gate-btn-or" class="flex-1 py-1.5 rounded bg-[#1F2937] text-white border border-[#374151]">OR (OU)</button>
+                <button onclick="selectGate('NOT')" id="gate-btn-not" class="flex-1 py-1.5 rounded bg-[#1F2937] text-white border border-[#374151]">NOT (NÃO)</button>
+              </div>
+
+              <!-- Painel do Circuito Lógico Interativo -->
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#374151] flex items-center justify-around">
+                <!-- Entradas Interativas -->
+                <div class="space-y-3 font-mono text-xs">
+                  <button onclick="toggleGateInput('A')" class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#1F2937] border border-[#374151] hover:border-[#22C55E]">
+                    <span class="text-gray-400">Entrada A:</span>
+                    <span id="gate-in-a" class="font-bold text-[#22C55E]">0</span>
+                  </button>
+
+                  <button id="gate-in-b-btn" onclick="toggleGateInput('B')" class="flex items-center gap-2 px-3 py-1.5 rounded bg-[#1F2937] border border-[#374151] hover:border-[#22C55E]">
+                    <span class="text-gray-400">Entrada B:</span>
+                    <span id="gate-in-b" class="font-bold text-[#22C55E]">0</span>
+                  </button>
+                </div>
+
+                <!-- Símbolo da Porta Lógica -->
+                <div class="text-center">
+                  <div id="gate-name-display" class="font-tech text-lg font-bold text-white">PORTA AND</div>
+                  <div id="gate-rule-display" class="text-[10px] text-gray-400 font-mono">Saída = 1 se A=1 E B=1</div>
+                </div>
+
+                <!-- Saída LED -->
+                <div class="text-center font-mono">
+                  <div id="gate-led-output" class="w-10 h-10 mx-auto rounded-full bg-[#1F2937] border-2 border-[#374151] flex items-center justify-center transition-all">
+                    <span id="gate-out-text" class="text-xs font-bold text-gray-500">0</span>
+                  </div>
+                  <span class="text-[10px] text-gray-400 block mt-1">SAÍDA (Y)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Os microcontroladores modernos possuem milhões dessas portas integradas em pastilhas de silício, formando processadores completos.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 14 — ANALÓGICO × DIGITAL -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-14">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>QUADRO COMPARATIVO TÉCNICO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Analógico × Digital</h2>
+          <p class="text-sm text-gray-400">O confronto direto das duas metodologias que compõem os sistemas de automação modernos.</p>
+        </div>
+
+        <!-- Duas Colunas Lado a Lado -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- Coluna Analógica -->
+          <div class="glass-card p-6 rounded-2xl border border-[#374151] space-y-4">
+            <div class="flex items-center justify-between border-b border-[#374151] pb-3">
+              <div class="flex items-center gap-2 text-[#22C55E]">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+                <h3 class="font-tech text-lg font-bold text-white">Mundo Analógico</h3>
+              </div>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#1F2937] text-gray-400">SINAL CONTÍNUO</span>
+            </div>
+
+            <ul class="space-y-3 text-xs font-mono text-gray-300">
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Natureza do Sinal:</span>
+                <span class="text-white font-bold">Contínuo no tempo e valor</span>
+              </li>
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Níveis de Tensão:</span>
+                <span class="text-white font-bold">Infinitos valores possíveis</span>
+              </li>
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Imunidade a Ruídos:</span>
+                <span class="text-amber-400 font-bold">Vulnerável a ruído térmico</span>
+              </li>
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Componentes Clássicos:</span>
+                <span class="text-[#22C55E] font-bold">NTC, LDR, Amplificadores, Válvulas</span>
+              </li>
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Aplicação Principal:</span>
+                <span class="text-white font-bold">Interface com o mundo físico real</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Coluna Digital -->
+          <div class="glass-card p-6 rounded-2xl border border-[#22C55E]/50 bg-[#166534]/15 space-y-4 glow-green-sm">
+            <div class="flex items-center justify-between border-b border-[#374151] pb-3">
+              <div class="flex items-center gap-2 text-[#22C55E]">
+                <i data-lucide="binary" class="w-5 h-5"></i>
+                <h3 class="font-tech text-lg font-bold text-white">Mundo Digital</h3>
+              </div>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">SINAL DISCRETO</span>
+            </div>
+
+            <ul class="space-y-3 text-xs font-mono text-gray-200">
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Natureza do Sinal:</span>
+                <span class="text-[#22C55E] font-bold">Discreto (Pulsos no tempo)</span>
+              </li>
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Níveis de Tensão:</span>
+                <span class="text-[#22C55E] font-bold">2 estados lógicos (0 e 1)</span>
+              </li>
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Imunidade a Ruídos:</span>
+                <span class="text-[#22C55E] font-bold">Alta imunidade (Margem lógica)</span>
+              </li>
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Componentes Clássicos:</span>
+                <span class="text-white font-bold">Microcontroladores, FPGAs, Memórias</span>
+              </li>
+              <li class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151] flex justify-between items-center">
+                <span class="text-gray-400">Aplicação Principal:</span>
+                <span class="text-white font-bold">Cálculo, algoritmos e controle de processos</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[#1F2937]/70 border border-[#374151] flex items-center justify-between text-xs font-mono">
+          <div class="flex items-center gap-2 text-gray-300">
+            <i data-lucide="repeat" class="w-4 h-4 text-[#22C55E]"></i>
+            <span>A ponte entre os dois mundos: <strong class="text-white">ADC</strong> (Conversor Analógico-Digital) e <strong class="text-white">DAC</strong> (Conversor Digital-Analógico).</span>
+          </div>
+          <span class="text-[#22C55E] font-bold hidden sm:inline">ADC: Real → Binário</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 15 — SENSORES -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-15">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>TRANSDUTORES INDUSTRIAIS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Sensores: Os Sentidos da Máquina</h2>
+          <p class="text-sm text-gray-400">Definição formal: Dispositivo que detecta uma grandeza física e produz uma informação elétrica mensurável.</p>
+        </div>
+
+        <!-- Matriz Visual de 8 Sensores -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-auto">
+          <!-- 1. Temperatura -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+            <div class="w-7 h-7 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center">
+              <i data-lucide="thermometer" class="w-4 h-4"></i>
+            </div>
+            <h4 class="font-bold text-xs text-white">Temperatura</h4>
+            <p class="text-[10px] text-gray-400">NTC, Termopar, PT100.</p>
+          </div>
+
+          <!-- 2. Umidade -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+            <div class="w-7 h-7 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center">
+              <i data-lucide="droplets" class="w-4 h-4"></i>
+            </div>
+            <h4 class="font-bold text-xs text-white">Umidade</h4>
+            <p class="text-[10px] text-gray-400">DHT22, Sensores capacitivos.</p>
+          </div>
+
+          <!-- 3. Luminosidade -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+            <div class="w-7 h-7 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center">
+              <i data-lucide="sun" class="w-4 h-4"></i>
+            </div>
+            <h4 class="font-bold text-xs text-white">Luminosidade</h4>
+            <p class="text-[10px] text-gray-400">LDR, Fotodiodos e BH1750.</p>
+          </div>
+
+          <!-- 4. Distância -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+            <div class="w-7 h-7 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center">
+              <i data-lucide="radar" class="w-4 h-4"></i>
+            </div>
+            <h4 class="font-bold text-xs text-white">Distância</h4>
+            <p class="text-[10px] text-gray-400">Ultrassônico HC-SR04, Laser ToF.</p>
+          </div>
+
+          <!-- 5. Pressão -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+            <div class="w-7 h-7 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center">
+              <i data-lucide="gauge" class="w-4 h-4"></i>
+            </div>
+            <h4 class="font-bold text-xs text-white">Pressão</h4>
+            <p class="text-[10px] text-gray-400">Piezorresistivos, Células de Carga.</p>
+          </div>
+
+          <!-- 6. Movimento -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+            <div class="w-7 h-7 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center">
+              <i data-lucide="move" class="w-4 h-4"></i>
+            </div>
+            <h4 class="font-bold text-xs text-white">Movimento</h4>
+            <p class="text-[10px] text-gray-400">PIR infravermelho passivo.</p>
+          </div>
+
+          <!-- 7. Presença -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+            <div class="w-7 h-7 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+            </div>
+            <h4 class="font-bold text-xs text-white">Presença</h4>
+            <p class="text-[10px] text-gray-400">Indutivos (metais) e ópticos reflexivos.</p>
+          </div>
+
+          <!-- 8. Gás -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] space-y-1">
+            <div class="w-7 h-7 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center">
+              <i data-lucide="wind" class="w-4 h-4"></i>
+            </div>
+            <h4 class="font-bold text-xs text-white">Gás / Ar</h4>
+            <p class="text-[10px] text-gray-400">MQ-2 (GLP/fumaça), MQ-135 (CO₂).</p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] flex items-center gap-2 text-xs font-mono text-gray-300">
+          <span class="text-[#22C55E] font-bold">Transdutor:</span> Elemento que converte uma forma de energia em outra (ex: pressão mecânica em milivolts elétricos).
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 16 — SENSORES EM SISTEMAS AUTOMATIZADOS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-16">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>FLUXO COMPLETO DE DADOS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Sensores em Sistemas Automatizados</h2>
+          <p class="text-sm text-gray-400">A cadeia contínua de processamento: da percepção do ambiente à tomada de ação física.</p>
+        </div>
+
+        <!-- O Ciclo de Automação em 6 Estágios -->
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-3 my-auto">
+          <!-- 1 -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] text-center space-y-1">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-[#0A0A0A] border border-[#374151] flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="sun" class="w-4 h-4"></i>
+            </div>
+            <span class="text-[9px] font-mono text-gray-400 block">ESTÁGIO 1</span>
+            <div class="font-bold text-xs text-white">AMBIENTE</div>
+            <p class="text-[10px] text-gray-400">Calor gerado pelas máquinas.</p>
+          </div>
+
+          <!-- 2 -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] text-center space-y-1">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-[#0A0A0A] border border-[#374151] flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="thermometer" class="w-4 h-4"></i>
+            </div>
+            <span class="text-[9px] font-mono text-gray-400 block">ESTÁGIO 2</span>
+            <div class="font-bold text-xs text-white">SENSOR</div>
+            <p class="text-[10px] text-gray-400">DHT22 mede 32°C no ar.</p>
+          </div>
+
+          <!-- 3 -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] text-center space-y-1">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-[#0A0A0A] border border-[#374151] flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="cpu" class="w-4 h-4"></i>
+            </div>
+            <span class="text-[9px] font-mono text-gray-400 block">ESTÁGIO 3</span>
+            <div class="font-bold text-xs text-white">CONTROLADOR</div>
+            <p class="text-[10px] text-gray-400">Arduino / CLP recebe os bytes.</p>
+          </div>
+
+          <!-- 4 -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] text-center space-y-1">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-[#0A0A0A] border border-[#374151] flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="code" class="w-4 h-4"></i>
+            </div>
+            <span class="text-[9px] font-mono text-gray-400 block">ESTÁGIO 4</span>
+            <div class="font-bold text-xs text-white">PROCESSAMENTO</div>
+            <p class="text-[10px] text-gray-400">Compara: 32°C > 30°C? SIM!</p>
+          </div>
+
+          <!-- 5 -->
+          <div class="glass-card p-3 rounded-xl border border-[#374151] text-center space-y-1">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-[#0A0A0A] border border-[#374151] flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="toggle-right" class="w-4 h-4"></i>
+            </div>
+            <span class="text-[9px] font-mono text-gray-400 block">ESTÁGIO 5</span>
+            <div class="font-bold text-xs text-white">ATUADOR</div>
+            <p class="text-[10px] text-gray-400">Relé fecha contato de potência.</p>
+          </div>
+
+          <!-- 6 -->
+          <div class="glass-card p-3 rounded-xl border border-[#22C55E] bg-[#166534]/20 text-center space-y-1">
+            <div class="w-8 h-8 mx-auto rounded-lg bg-[#22C55E] text-[#0A0A0A] flex items-center justify-center">
+              <i data-lucide="fan" class="w-4 h-4"></i>
+            </div>
+            <span class="text-[9px] font-mono text-[#22C55E] block font-bold">ESTÁGIO 6</span>
+            <div class="font-bold text-xs text-white">AÇÃO FÍSICA</div>
+            <p class="text-[10px] text-gray-300">Ventilador refrigera o painel.</p>
+          </div>
+        </div>
+
+        <!-- Exemplo em Código & Lógica -->
+        <div class="p-4 rounded-xl bg-[#0A0A0A] border border-[#374151] font-mono text-xs text-gray-300 space-y-2">
+          <div class="text-[#22C55E] font-bold">Lógica de Decisão em C++ / Ladder:</div>
+          <div class="bg-[#1F2937]/50 p-2.5 rounded border border-[#374151]">
+            <code>
+              float temp = lerSensor();<br/>
+              if (temp > 30.0) {<br/>
+              &nbsp;&nbsp;digitalWrite(PINO_RELE_VENTILADOR, HIGH); // Aciona exaustor<br/>
+              } else {<br/>
+              &nbsp;&nbsp;digitalWrite(PINO_RELE_VENTILADOR, LOW);  // Desliga<br/>
+              }
+            </code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 17 — ARQUITETURA DO SISTEMA AUTOMATIZADO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-17">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>MALHA FECHADA & ATUAÇÃO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Arquitetura de um Sistema Automatizado</h2>
+          <p class="text-sm text-gray-400">Diagrama de blocos industrial unindo Sensores, Controlador, Atuadores e o Processo produtivo.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: O Diagrama de Blocos -->
+          <div class="lg:col-span-6 space-y-3">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3 text-center">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block text-left">Diagrama em Malha Fechada</span>
+              
+              <div class="space-y-2 font-mono text-xs">
+                <div class="p-2.5 rounded-lg bg-[#0A0A0A] border border-[#374151] text-[#22C55E] font-bold">
+                  [ SENSOR ] (Medição do estado da planta)
+                </div>
+                <div class="text-[#22C55E]">↓ Sinal Elétrico</div>
+                <div class="p-2.5 rounded-lg bg-[#1F2937] border border-[#22C55E] text-white font-bold shadow-[0_0_10px_rgba(34,197,94,0.3)]">
+                  [ CONTROLADOR ] (CPU, CLP, Microcontrolador)
+                </div>
+                <div class="text-[#22C55E]">↓ Comando de Potência</div>
+                <div class="p-2.5 rounded-lg bg-[#0A0A0A] border border-[#374151] text-[#22C55E] font-bold">
+                  [ ATUADOR ] (Relé, Inversor de Frequência, Solenoide)
+                </div>
+                <div class="text-[#22C55E]">↓ Ação Mecânica/Térmica</div>
+                <div class="p-2.5 rounded-lg bg-[#166534]/30 border border-[#374151] text-gray-200">
+                  [ PROCESSO INDUSTRIAL ] (A esteira, o tanque, o forno)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Os 5 Atuadores Principais -->
+          <div class="lg:col-span-6 space-y-2">
+            <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+              Os 5 Atuadores Mais Usados na Indústria:
+            </span>
+
+            <div class="space-y-2 text-xs font-mono">
+              <div class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-bold">
+                  <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <strong class="text-white block">Motor Elétrico:</strong>
+                  <span class="text-gray-400">Conversão de eletricidade em movimento rotativo contínuo ou de passo.</span>
+                </div>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-bold">
+                  <i data-lucide="toggle-left" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <strong class="text-white block">Relé / Contator:</strong>
+                  <span class="text-gray-400">Chaveamento eletromecânico ou de estado sólido para isolação e cargas pesadas.</span>
+                </div>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-bold">
+                  <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <strong class="text-white block">Lâmpada / Torre Sinalizadora:</strong>
+                  <span class="text-gray-400">Indicação luminosa de estados operacionais (Verde: OK, Vermelho: Falha).</span>
+                </div>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-bold">
+                  <i data-lucide="pipette" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <strong class="text-white block">Válvula Solenoide:</strong>
+                  <span class="text-gray-400">Controle pneumático ou hidráulico de ar comprimido, vapor e fluidos.</span>
+                </div>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-bold">
+                  <i data-lucide="fan" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <strong class="text-white block">Ventilador / Exaustor:</strong>
+                  <span class="text-gray-400">Dissipação térmica forçada de cabines e controle de fluxo gasoso.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Feedback / Realimentação: O sensor mede o resultado da ação para que o controlador ajuste o atuador continuamente.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 18 — EXEMPLO PRÁTICO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-18">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>ESTUDO DE CASO COMPLETO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Exemplo Prático: Controle de Temperatura</h2>
+          <p class="text-sm text-gray-400">DHT22 monitorando a temperatura ambiente para acionamento automatizado de um ventilador via relé.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: O Circuito Esquematizado -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">Esquema de Ligação</span>
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#374151] font-mono text-xs space-y-3">
+                <div class="flex items-center justify-between pb-2 border-b border-[#374151]">
+                  <span class="text-gray-400">1. Sensor DHT22:</span>
+                  <span class="text-white">Pino Dados ligado ao <strong class="text-[#22C55E]">Pino D2</strong> do Arduino</span>
+                </div>
+                <div class="flex items-center justify-between pb-2 border-b border-[#374151]">
+                  <span class="text-gray-400">2. Módulo Relé 5V:</span>
+                  <span class="text-white">Pino IN ligado ao <strong class="text-[#22C55E]">Pino D8</strong> (Saída)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-400">3. Ventilador 12V:</span>
+                  <span class="text-white">Alimentado via contatos COM e NO do Relé</span>
+                </div>
+              </div>
+
+              <!-- Lógica de Controle -->
+              <div class="p-3 rounded-lg bg-[#1F2937]/70 border border-[#374151] text-xs font-mono space-y-1">
+                <div class="text-[#22C55E] font-bold">Algoritmo de Decisão:</div>
+                <div class="text-gray-300">Se <code>temperatura > 30.0 °C</code>:</div>
+                <div class="text-[#22C55E] pl-4">→ Ativa Pino D8 (HIGH) → Fecha Relé → Liga Ventilador!</div>
+                <div class="text-gray-300">Senão:</div>
+                <div class="text-gray-400 pl-4">→ Desativa Pino D8 (LOW) → Abre Relé → Ventilador Desligado.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Simulador Interativo ao Vivo -->
+          <div class="lg:col-span-6">
+            <div class="glass-panel p-6 rounded-2xl border border-[#374151] space-y-5">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono text-[#22C55E] uppercase font-bold flex items-center gap-1.5">
+                  <i data-lucide="play" class="w-4 h-4"></i> Simulador Interativo do Sistema
+                </span>
+                <span id="system-status-pill" class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1F2937] text-gray-400 border border-[#374151]">STANDBY</span>
+              </div>
+
+              <!-- Animação do Ventilador e LEDs -->
+              <div class="bg-[#0A0A0A] p-6 rounded-xl border border-[#374151] flex flex-col items-center justify-center space-y-4">
+                <!-- Ícone do Ventilador -->
+                <div id="fan-icon-container" class="w-24 h-24 rounded-full bg-[#1F2937] border-2 border-[#374151] flex items-center justify-center text-gray-500 transition-all">
+                  <i data-lucide="fan" id="fan-icon" class="w-14 h-14"></i>
+                </div>
+
+                <!-- Status dos Componentes -->
+                <div class="grid grid-cols-2 gap-4 w-full text-center text-xs font-mono pt-2 border-t border-[#374151]/50">
+                  <div class="bg-[#1F2937]/50 p-2 rounded">
+                    <span class="text-gray-400 text-[10px] block">ESTADO DO RELÉ</span>
+                    <span id="relay-status-text" class="text-gray-400 font-bold">DESLIGADO (Aberto)</span>
+                  </div>
+                  <div class="bg-[#1F2937]/50 p-2 rounded">
+                    <span class="text-gray-400 text-[10px] block">ESTADO DO VENTILADOR</span>
+                    <span id="fan-status-text" class="text-gray-400 font-bold">PARADO</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Controle Deslizante de Temperatura -->
+              <div class="space-y-2">
+                <div class="flex justify-between items-center font-mono text-xs">
+                  <span class="text-gray-300">Simular Temperatura do Sensor:</span>
+                  <span id="sim-temp-display" class="font-tech text-base font-bold text-white">25 °C</span>
+                </div>
+                <input type="range" min="15" max="45" value="25" id="slider-temp" class="w-full accent-[#22C55E] bg-[#1F2937] rounded-lg cursor-pointer" oninput="updateTempSim()">
+                <div class="flex justify-between text-[10px] font-mono text-gray-500">
+                  <span>15°C (Frio)</span>
+                  <span class="text-amber-400 font-bold">LIMIAR: 30°C</span>
+                  <span>45°C (Superaquecimento)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Arraste a temperatura para cima de 30°C para ver o acionamento em tempo real do relé e das pás do ventilador.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 19 — DIAGNÓSTICO DE PROBLEMAS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-19">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>MANUTENÇÃO & TROUBLESHOOTING</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Diagnóstico de Problemas em Bancada</h2>
+          <p class="text-sm text-gray-400">Caso prático de manutenção: "O motor da linha não liga após acionamento do sensor."</p>
+        </div>
+
+        <!-- Sequência Estruturada de 6 Passos de Investigação -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-auto">
+          <!-- Passo 1 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-mono text-xs font-bold">1</span>
+              <h3 class="font-bold text-sm text-white">Alimentação Geral</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Verificar se a chave geral está ligada e se os disjuntores de proteção não desarmaram por sobrecarga.
+            </p>
+            <div class="text-[10px] font-mono text-[#22C55E]">Ação: Olhar indicadores LED da fonte de 24V.</div>
+          </div>
+
+          <!-- Passo 2 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-mono text-xs font-bold">2</span>
+              <h3 class="font-bold text-sm text-white">Medir Tensão nos Bornes</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Usar o multímetro em Tensão DC para checar se chegam exatamente 24V na entrada do controlador e relé.
+            </p>
+            <div class="text-[10px] font-mono text-[#22C55E]">Ação: Testar bornes V+ e GND.</div>
+          </div>
+
+          <!-- Passo 3 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-mono text-xs font-bold">3</span>
+              <h3 class="font-bold text-sm text-white">Teste de Continuidade</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Com circuito desenergizado, testar fusíveis e cabos com a escala sonora do multímetro para achar rompimentos.
+            </p>
+            <div class="text-[10px] font-mono text-[#22C55E]">Ação: Buscar beep contínuo nas conexões.</div>
+          </div>
+
+          <!-- Passo 4 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-mono text-xs font-bold">4</span>
+              <h3 class="font-bold text-sm text-white">Verificar o Sensor</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Aproximar o objeto ou estimular o sensor e verificar se o LED de detecção acende e se a saída muda de estado.
+            </p>
+            <div class="text-[10px] font-mono text-[#22C55E]">Ação: Medir variação do pino de sinal (OUT).</div>
+          </div>
+
+          <!-- Passo 5 -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-[#1F2937] text-[#22C55E] flex items-center justify-center font-mono text-xs font-bold">5</span>
+              <h3 class="font-bold text-sm text-white">Inspecionar o Controlador</h3>
+            </div>
+            <p class="text-xs text-gray-300">
+              Checar se o microcontrolador está executando o loop de programa ou se travou por ruído eletromagnético.
+            </p>
+            <div class="text-[10px] font-mono text-[#22C55E]">Ação: Verificar LED de heartbeat / status.</div>
+          </div>
+
+          <!-- Passo 6 -->
+          <div class="glass-card p-4 rounded-xl border border-[#22C55E]/50 bg-[#166534]/15 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-[#22C55E] text-[#0A0A0A] flex items-center justify-center font-mono text-xs font-bold">6</span>
+              <h3 class="font-bold text-sm text-white">Testar o Atuador</h3>
+            </div>
+            <p class="text-xs text-gray-200">
+              Injetar tensão diretamente no motor na bancada para confirmar se o enrolamento ou as escovas não queimaram.
+            </p>
+            <div class="text-[10px] font-mono text-[#22C55E]">Ação: Teste de bancada isolado.</div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] flex items-center gap-2 text-xs font-mono text-gray-300">
+          <i data-lucide="check-square" class="w-4 h-4 text-[#22C55E]"></i>
+          <span>Metodologia do Técnico Eficiente: Nunca substitua peças por tentativa e erro; siga sempre a trilha lógica de medições.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 20 — ATIVIDADE PRÁTICA INTERATIVA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-20">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>DINÂMICA DE SALA DE AULA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Desafio: Encontre o Problema!</h2>
+          <p class="text-sm text-gray-400">Analise o circuito com defeito simulado e aplique o raciocínio investigativo de técnico.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: Cenário e Pontos de Teste Clicáveis -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#374151] space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-mono text-amber-400 uppercase font-bold flex items-center gap-1.5">
+                  <i data-lucide="alert-octagon" class="w-4 h-4"></i> Sintoma Relatado
+                </span>
+                <span class="text-[10px] font-mono text-gray-400">CIRCUITO 12V DC</span>
+              </div>
+              <p class="text-xs text-gray-300 leading-relaxed">
+                "A fonte 12V está plugada na tomada. A chave geral está na posição LIGADA. No entanto, a lâmpada indicadora e a ventoinha continuam completamente apagadas."
+              </p>
+
+              <!-- Seletor de Pontos de Medição -->
+              <div class="space-y-2 pt-2 border-t border-[#374151]">
+                <span class="text-[11px] font-mono text-[#22C55E] block font-bold">Clique em um Ponto de Teste para medir com o multímetro:</span>
+                
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="testPointMeasurement(1)" class="p-2.5 rounded-lg bg-[#0A0A0A] hover:bg-[#1F2937] border border-[#374151] text-xs font-mono text-left transition">
+                    <span class="block text-gray-400 text-[9px]">PONTO 1</span>
+                    <span class="font-bold text-white">Saída Fonte</span>
+                  </button>
+
+                  <button onclick="testPointMeasurement(2)" class="p-2.5 rounded-lg bg-[#0A0A0A] hover:bg-[#1F2937] border border-[#374151] text-xs font-mono text-left transition">
+                    <span class="block text-gray-400 text-[9px]">PONTO 2</span>
+                    <span class="font-bold text-white">Após a Chave</span>
+                  </button>
+
+                  <button onclick="testPointMeasurement(3)" class="p-2.5 rounded-lg bg-[#0A0A0A] hover:bg-[#1F2937] border border-[#374151] text-xs font-mono text-left transition">
+                    <span class="block text-gray-400 text-[9px]">PONTO 3</span>
+                    <span class="font-bold text-white">Sobre a Carga</span>
+                  </button>
+                </div>
+
+                <!-- Visor da Medição Efetuada -->
+                <div id="test-result-box" class="p-3 rounded-lg bg-[#1F2937] border border-[#22C55E]/40 font-mono text-xs flex justify-between items-center">
+                  <span class="text-gray-300">Medição selecionada:</span>
+                  <span id="test-result-val" class="text-lg font-bold text-[#22C55E]">Selecione um Ponto</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: As 5 Perguntas Didáticas e Revelador -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#374151] space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+                Roteiro de Perguntas para os Alunos:
+              </span>
+
+              <ul class="text-xs font-mono text-gray-300 space-y-2">
+                <li class="flex items-start gap-2">
+                  <span class="text-[#22C55E] font-bold">1.</span> Qual grandeza elétrica deve ser medida prioritariamente?
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-[#22C55E] font-bold">2.</span> Qual instrumento e escala devem ser configurados?
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-[#22C55E] font-bold">3.</span> Onde posicionar a ponta vermelha e a preta?
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-[#22C55E] font-bold">4.</span> Qual valor numérico era esperado encontrar no Ponto 2?
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-[#22C55E] font-bold">5.</span> Qual é o componente com defeito e o motivo da falha?
+                </li>
+              </ul>
+
+              <!-- Botão Revelar Diagnóstico -->
+              <div class="pt-3 border-t border-[#374151]">
+                <button onclick="toggleDiagnosisAnswer()" class="w-full py-2.5 rounded-xl bg-[#22C55E] hover:bg-[#4ADE80] text-black font-bold font-mono text-xs transition flex items-center justify-center gap-2">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                  <span id="btn-reveal-text">Revelar Conclusão Técnica</span>
+                </button>
+              </div>
+
+              <!-- Gabarito Revelado -->
+              <div id="diagnosis-reveal-box" class="hidden p-3.5 rounded-xl bg-[#0A0A0A] border border-[#22C55E] text-xs font-mono text-gray-300 space-y-2">
+                <div class="text-[#22C55E] font-bold">DIAGNÓSTICO CONCLUSIVO:</div>
+                <p>
+                  No <strong class="text-white">Ponto 1 (Saída da Fonte)</strong> medimos <strong>12,0 V</strong> (Fonte OK). <br/>
+                  No <strong class="text-white">Ponto 2 (Após a chave)</strong> a medição caiu para <strong>0,0 V</strong>!
+                </p>
+                <div class="text-white bg-[#1F2937] p-2 rounded border border-red-500/50">
+                  <strong class="text-red-400">Causa Raiz:</strong> Contato interno da chave liga/desliga está aberto/oxidado, impedindo que a energia chegue à carga.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Exercite com a turma: por que trocar a ventoinha antes de medir a chave teria sido um erro clássico de novato?
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 21 — CHECKLIST DE APRENDIZAGEM -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-21">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>AUTOAVALIAÇÃO DE COMPETÊNCIAS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Checklist de Aprendizagem</h2>
+          <p class="text-sm text-gray-400">Marque os tópicos dominados para verificar o progresso de absorção do conteúdo.</p>
+        </div>
+
+        <!-- 11 Itens Interativos do Checklist em 2 Colunas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 my-auto font-mono text-xs">
+          <!-- Item 1 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Identificar fenômenos físicos relacionados à transmissão</span>
+          </label>
+
+          <!-- Item 2 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Medir e interpretar temperatura ambiente e industrial</span>
+          </label>
+
+          <!-- Item 3 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Medir e interpretar umidade relativa do ar</span>
+          </label>
+
+          <!-- Item 4 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Interpretar e calcular Tensão Elétrica (Volt)</span>
+          </label>
+
+          <!-- Item 5 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Interpretar e calcular Corrente Elétrica (Ampere)</span>
+          </label>
+
+          <!-- Item 6 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Interpretar e calcular Resistência Elétrica (Ohm)</span>
+          </label>
+
+          <!-- Item 7 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Operar o multímetro digital em diferentes escalas com segurança</span>
+          </label>
+
+          <!-- Item 8 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Compreender circuitos e componentes da eletrônica analógica</span>
+          </label>
+
+          <!-- Item 9 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Compreender lógica digital binária e portas booleanas</span>
+          </label>
+
+          <!-- Item 10 -->
+          <label class="glass-card p-3 rounded-xl border border-[#374151] flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-gray-200">Identificar sensores industriais e princípios de transdução</span>
+          </label>
+
+          <!-- Item 11 -->
+          <label class="glass-card p-3 rounded-xl border border-[#22C55E]/40 md:col-span-2 flex items-center gap-3 cursor-pointer hover:border-[#22C55E] transition">
+            <input type="checkbox" class="w-4 h-4 accent-[#22C55E] rounded cursor-pointer" onchange="updateChecklistCount()">
+            <span class="text-[#22C55E] font-bold">Relacionar sensores e atuadores à inteligência de sistemas automatizados</span>
+          </label>
+        </div>
+
+        <!-- Progresso do Checklist -->
+        <div class="p-4 rounded-xl bg-[#1F2937]/70 border border-[#374151] flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i data-lucide="award" class="w-5 h-5 text-[#22C55E]"></i>
+            <span class="text-xs font-mono text-gray-300">
+              Progresso do Módulo: <strong id="checklist-progress-text" class="text-white">0 de 11 tópicos concluídos</strong>
+            </span>
+          </div>
+          <button onclick="checkAllList()" class="px-3 py-1 rounded bg-[#0A0A0A] hover:bg-[#374151] border border-[#374151] text-xs font-mono text-[#22C55E]">
+            Marcar Todos
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 22 — ENCERRAMENTO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-22">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F2937] border border-[#22C55E]/40 text-[#22C55E] text-xs font-mono uppercase">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            Síntese do Conhecimento
+          </div>
+          <span class="text-xs font-mono text-gray-500">MÓDULO FINALIZADO COM SUCESSO</span>
+        </div>
+
+        <div class="text-center max-w-3xl mx-auto my-auto space-y-6">
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black font-tech text-white leading-tight">
+            DA MEDIÇÃO À <br/>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] via-[#4ADE80] to-white text-glow-green">
+              AUTOMAÇÃO
+            </span>
+          </h2>
+
+          <!-- Diagrama de Síntese em Pílulas -->
+          <div class="flex flex-wrap items-center justify-center gap-2 font-mono text-xs pt-2">
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">FENÔMENO</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">MEDIÇÃO</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">DADOS</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">ELETRÔNICA</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">CONTROLE</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#166534] border border-[#22C55E] text-white font-bold glow-green-sm">AUTOMAÇÃO</span>
+          </div>
+
+          <!-- Frase de Impacto Destacada -->
+          <div class="p-6 rounded-2xl glass-panel border border-[#22C55E]/40 relative glow-green-sm">
+            <i data-lucide="quote" class="w-8 h-8 text-[#22C55E]/40 mx-auto mb-2"></i>
+            <p class="text-base sm:text-lg text-gray-200 italic font-light leading-relaxed">
+              "Medir é transformar fenômenos físicos em informações que podem ser compreendidas, analisadas e utilizadas para tomar decisões."
+            </p>
+          </div>
+
+          <div class="pt-4 flex justify-center gap-4">
+            <button onclick="goToSlide(1)" class="px-6 py-2.5 rounded-xl bg-[#22C55E] hover:bg-[#4ADE80] text-black font-bold font-mono text-xs transition flex items-center gap-2">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+              Reiniciar Apresentação
+            </button>
+            <button onclick="toggleOverviewModal()" class="px-6 py-2.5 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono text-xs transition flex items-center gap-2">
+              <i data-lucide="layout-grid" class="w-4 h-4"></i>
+              Grade de Slides
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-gray-500 font-mono border-t border-[#374151]/50 pt-4">
+          <span>CURSO TÉCNICO EM ELETRÔNICA & AUTOMAÇÃO</span>
+          <span class="text-[#22C55E]">PARABÉNS PELA CONCLUSÃO!</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER / BARRA DE NAVEGAÇÃO INFERIOR -->
+  <footer class="h-14 border-t border-[#374151]/70 bg-[#0A0A0A]/95 backdrop-blur-md px-6 flex items-center justify-between z-30 select-none">
+    <!-- Identificação Fixa Solicitada -->
+    <div class="flex items-center space-x-2">
+      <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+      <span class="font-tech text-xs tracking-wider font-bold text-gray-300">
+        ELETRÔNICA • SISTEMAS AUTOMATIZADOS
+      </span>
+    </div>
+
+    <!-- Indicador de Atalhos de Teclado -->
+    <div class="hidden md:flex items-center space-x-3 text-[11px] font-mono text-gray-500">
+      <span>Navegação:</span>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">← Ant</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">Próx →</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">Espaço</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">F Tela Cheia</kbd>
+    </div>
+
+    <!-- Botões Anterior e Próximo -->
+    <div class="flex items-center space-x-3">
+      <button id="btn-prev" onclick="prevSlide()" class="px-3.5 py-1.5 rounded-lg bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-xs font-mono text-white transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        <span>Anterior</span>
+      </button>
+
+      <button id="btn-next" onclick="nextSlide()" class="px-4 py-1.5 rounded-lg bg-[#22C55E] hover:bg-[#4ADE80] text-xs font-mono font-bold text-black transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_12px_rgba(34,197,94,0.3)]">
+        <span>Próximo</span>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </footer>
+
+  <!-- MODAL: VISÃO GERAL DE TODOS OS 22 SLIDES -->
+  <div id="overview-modal" class="fixed inset-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-lg hidden flex flex-col p-6 md:p-12 overflow-y-auto">
+    <div class="flex justify-between items-center max-w-7xl w-full mx-auto pb-4 border-b border-[#374151]">
+      <div class="flex items-center gap-2">
+        <i data-lucide="layout-grid" class="w-5 h-5 text-[#22C55E]"></i>
+        <h3 class="font-tech text-lg font-bold text-white">Mapa de Todos os Slides (Índice Completo)</h3>
+      </div>
+      <button onclick="toggleOverviewModal()" class="p-2 rounded-lg bg-[#1F2937] hover:bg-[#374151] text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-w-7xl w-full mx-auto my-6" id="overview-grid">
+      <!-- Inserido dinamicamente via JS -->
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT: NAVEGAÇÃO, ATALHOS & SIMULADORES -->
+  <!-- ========================================== -->
+  <script>
+    // Inicialização de Estado da Apresentação
+    let currentSlide = 1;
+    const totalSlides = 22;
+
+    const slideTitles = [
+      "1. Capa: Eletrônica & Sistemas",
+      "2. O que vamos aprender?",
+      "3. Visão Geral: Natureza ao Controle",
+      "4. Meios de Transmissão",
+      "5. Fenômenos Físicos",
+      "6. Temperatura e Umidade",
+      "7. Grandezas Elétricas",
+      "8. Lei de Ohm (V = R × I)",
+      "9. Instrumentos de Medição",
+      "10. Como Utilizar o Multímetro",
+      "11. Como Interpretar uma Medição",
+      "12. Eletrônica Analógica",
+      "13. Eletrônica Digital",
+      "14. Analógico × Digital",
+      "15. Sensores: Sentidos da Máquina",
+      "16. Sensores na Automação",
+      "17. Arquitetura do Sistema",
+      "18. Exemplo Prático (DHT22 + Relé)",
+      "19. Diagnóstico de Problemas",
+      "20. Desafio: Encontre o Problema",
+      "21. Checklist de Aprendizagem",
+      "22. Encerramento: Da Medição à Ação"
+    ];
+
+    function updateSlideUI() {
+      // Atualiza classes ativas
+      for (let i = 1; i <= totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        if (slide) {
+          if (i === currentSlide) {
+            slide.classList.add('active');
+          } else {
+            slide.classList.remove('active');
+          }
+        }
+      }
+
+      // Atualiza Contadores
+      document.getElementById('current-slide-num').textContent = String(currentSlide).padStart(2, '0');
+      document.getElementById('total-slides-num').textContent = String(totalSlides).padStart(2, '0');
+
+      // Atualiza Barra de Progresso
+      const progressPercent = (currentSlide / totalSlides) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+      // Estado dos Botões
+      document.getElementById('btn-prev').disabled = (currentSlide === 1);
+      document.getElementById('btn-next').disabled = (currentSlide === totalSlides);
+
+      // Reinicializa ícones Lucide nos slides
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlideUI();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlideUI();
+      }
+    }
+
+    function goToSlide(n) {
+      if (n >= 1 && n <= totalSlides) {
+        currentSlide = n;
+        updateSlideUI();
+        // Fecha modal se estiver aberto
+        const modal = document.getElementById('overview-modal');
+        if (!modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      }
+    }
+
+    // Navegação via Teclado: Seta Esquerda, Seta Direita, Barra de Espaço, F (fullscreen)
+    window.addEventListener('keydown', (e) => {
+      // Ignora se estiver interagindo em sliders
+      if (e.target.tagName === 'INPUT') return;
+
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToSlide(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToSlide(totalSlides);
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullScreen();
+      } else if (e.key === 'Escape') {
+        const modal = document.getElementById('overview-modal');
+        if (!modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      }
+    });
+
+    // Modo Tela Cheia
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+        document.getElementById('fs-icon').setAttribute('data-lucide', 'minimize');
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          document.getElementById('fs-icon').setAttribute('data-lucide', 'maximize');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Modal de Visão Geral dos Slides
+    function toggleOverviewModal() {
+      const modal = document.getElementById('overview-modal');
+      const isHidden = modal.classList.contains('hidden');
+      if (isHidden) {
+        buildOverviewGrid();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function buildOverviewGrid() {
+      const grid = document.getElementById('overview-grid');
+      grid.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const card = document.createElement('button');
+        const isActive = (i === currentSlide);
+        card.className = `p-3 rounded-xl text-left border transition font-mono flex flex-col justify-between h-24 ${
+          isActive 
+            ? 'bg-[#166534] border-[#22C55E] text-white shadow-[0_0_12px_#22C55E]' 
+            : 'bg-[#1F2937] border-[#374151] text-gray-300 hover:border-[#22C55E]/50'
+        }`;
+        card.onclick = () => goToSlide(i);
+        card.innerHTML = `
+          <span class="text-[10px] text-[#22C55E] font-bold">SLIDE ${String(i).padStart(2, '0')}</span>
+          <span class="text-xs font-sans font-bold leading-tight line-clamp-2">${slideTitles[i-1]}</span>
+          <span class="text-[9px] text-gray-400">Clique para abrir</span>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    // ==========================================
+    // SIMULADOR 1: LEI DE OHM (Slide 8)
+    // ==========================================
+    function updateOhmSim() {
+      const v = parseFloat(document.getElementById('slider-voltage').value);
+      const r = parseFloat(document.getElementById('slider-resistance').value);
+      const i = v / r;
+
+      document.getElementById('slider-v-display').textContent = `${v} V`;
+      document.getElementById('slider-r-display').textContent = `${r} Ω`;
+
+      document.getElementById('sim-v-val').textContent = `${v} V`;
+      document.getElementById('sim-r-val').textContent = `${r} Ω`;
+      document.getElementById('sim-i-val').textContent = `${i.toFixed(3)} A (${(i*1000).toFixed(0)} mA)`;
+    }
+
+    // ==========================================
+    // SIMULADOR 2: MODOS DO MULTÍMETRO (Slide 10)
+    // ==========================================
+    function setMultimeterMode(mode) {
+      const dial = document.getElementById('multimeter-dial');
+      const lcd = document.getElementById('multimeter-lcd');
+      const guide = document.getElementById('multimeter-guide-box');
+
+      if (mode === 'voltage') {
+        dial.style.transform = 'rotate(0deg)';
+        lcd.textContent = '12.04 V';
+        guide.innerHTML = `
+          <h4 class="font-bold text-sm text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            Medição de Tensão Contínua (DCV)
+          </h4>
+          <p class="text-xs text-gray-300">
+            Ponta preta no <strong>COM</strong> e vermelha no <strong>V/Ω</strong>. Pontas colocadas <strong>em paralelo</strong> com o componente sob teste com o circuito energizado.
+          </p>
+          <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+            Aplicação: Medir fontes de alimentação, pilhas, saídas de relé e tensão de barramento.
+          </div>
+        `;
+      } else if (mode === 'resistance') {
+        dial.style.transform = 'rotate(90deg)';
+        lcd.textContent = '99.8 Ω';
+        guide.innerHTML = `
+          <h4 class="font-bold text-sm text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            Medição de Resistência Ôhmica (Ω)
+          </h4>
+          <p class="text-xs text-gray-300">
+            <strong class="text-amber-400">REGRA CRÍTICA:</strong> O circuito deve estar <strong>TOTALMENTE DESENERGIZADO</strong>. O multímetro injeta uma pequena corrente de teste própria.
+          </p>
+          <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+            Aplicação: Testar resistores, bobinas de relé, enrolamento de motores e potenciômetros.
+          </div>
+        `;
+      } else if (mode === 'continuity') {
+        dial.style.transform = 'rotate(180deg)';
+        lcd.textContent = '0.2 Ω • BEEP!';
+        guide.innerHTML = `
+          <h4 class="font-bold text-sm text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+            Teste de Continuidade Sonora (Diodo/Beep)
+          </h4>
+          <p class="text-xs text-gray-300">
+            Circuito desenergizado. Se a resistência entre as duas pontas for menor que ~30Ω, o buzzer interno emite um bip contínuo.
+          </p>
+          <div class="text-[11px] font-mono text-yellow-400 bg-[#0A0A0A] p-2 rounded">
+            Aplicação: Achar trilhas rompidas de PCB, checar cabos partidos e testar fusíveis queimados.
+          </div>
+        `;
+      } else if (mode === 'current') {
+        dial.style.transform = 'rotate(270deg)';
+        lcd.textContent = '0.12 A';
+        guide.innerHTML = `
+          <h4 class="font-bold text-sm text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-red-400"></span>
+            Medição de Corrente Elétrica (Amperímetro)
+          </h4>
+          <p class="text-xs text-gray-300">
+            O multímetro deve ser inserido <strong>EM SÉRIE</strong>. É necessário <strong>ABRIR</strong> o circuito para que toda a corrente passe por dentro do instrumento.
+          </p>
+          <div class="text-[11px] font-mono text-red-400 bg-[#0A0A0A] p-2 rounded">
+            Alerta: Conectar em paralelo causará curto-circuito e queimará o fusível interno do multímetro!
+          </div>
+        `;
+      }
+    }
+
+    // ==========================================
+    // SIMULADOR 3: PORTAS LÓGICAS (Slide 13)
+    // ==========================================
+    let currentGate = 'AND';
+    let gateA = 0;
+    let gateB = 0;
+
+    function selectGate(gate) {
+      currentGate = gate;
+      document.getElementById('gate-btn-and').className = (gate === 'AND') ? 'flex-1 py-1.5 rounded bg-[#22C55E] text-black font-bold' : 'flex-1 py-1.5 rounded bg-[#1F2937] text-white border border-[#374151]';
+      document.getElementById('gate-btn-or').className = (gate === 'OR') ? 'flex-1 py-1.5 rounded bg-[#22C55E] text-black font-bold' : 'flex-1 py-1.5 rounded bg-[#1F2937] text-white border border-[#374151]';
+      document.getElementById('gate-btn-not').className = (gate === 'NOT') ? 'flex-1 py-1.5 rounded bg-[#22C55E] text-black font-bold' : 'flex-1 py-1.5 rounded bg-[#1F2937] text-white border border-[#374151]';
+
+      const btnB = document.getElementById('gate-in-b-btn');
+      if (gate === 'NOT') {
+        btnB.style.display = 'none';
+        document.getElementById('gate-name-display').textContent = 'PORTA NOT (Inversora)';
+        document.getElementById('gate-rule-display').textContent = 'Saída = Oposto da Entrada A';
+      } else if (gate === 'AND') {
+        btnB.style.display = 'flex';
+        document.getElementById('gate-name-display').textContent = 'PORTA AND (E)';
+        document.getElementById('gate-rule-display').textContent = 'Saída = 1 se A=1 E B=1';
+      } else if (gate === 'OR') {
+        btnB.style.display = 'flex';
+        document.getElementById('gate-name-display').textContent = 'PORTA OR (OU)';
+        document.getElementById('gate-rule-display').textContent = 'Saída = 1 se A=1 OU B=1';
+      }
+      calcGateOutput();
+    }
+
+    function toggleGateInput(which) {
+      if (which === 'A') {
+        gateA = gateA === 0 ? 1 : 0;
+        document.getElementById('gate-in-a').textContent = gateA;
+      } else {
+        gateB = gateB === 0 ? 1 : 0;
+        document.getElementById('gate-in-b').textContent = gateB;
+      }
+      calcGateOutput();
+    }
+
+    function calcGateOutput() {
+      let out = 0;
+      if (currentGate === 'AND') {
+        out = (gateA === 1 && gateB === 1) ? 1 : 0;
+      } else if (currentGate === 'OR') {
+        out = (gateA === 1 || gateB === 1) ? 1 : 0;
+      } else if (currentGate === 'NOT') {
+        out = (gateA === 0) ? 1 : 0;
+      }
+
+      const led = document.getElementById('gate-led-output');
+      const text = document.getElementById('gate-out-text');
+      text.textContent = out;
+
+      if (out === 1) {
+        led.className = 'w-10 h-10 mx-auto rounded-full bg-[#22C55E] border-2 border-[#4ADE80] flex items-center justify-center transition-all shadow-[0_0_15px_#22C55E]';
+        text.className = 'text-xs font-bold text-black';
+      } else {
+        led.className = 'w-10 h-10 mx-auto rounded-full bg-[#1F2937] border-2 border-[#374151] flex items-center justify-center transition-all';
+        text.className = 'text-xs font-bold text-gray-500';
+      }
+    }
+
+    // ==========================================
+    // SIMULADOR 4: CONTROLE DE TEMPERATURA (Slide 18)
+    // ==========================================
+    function updateTempSim() {
+      const temp = parseFloat(document.getElementById('slider-temp').value);
+      document.getElementById('sim-temp-display').textContent = `${temp} °C`;
+
+      const fanContainer = document.getElementById('fan-icon-container');
+      const fanIcon = document.getElementById('fan-icon');
+      const pill = document.getElementById('system-status-pill');
+      const relayText = document.getElementById('relay-status-text');
+      const fanText = document.getElementById('fan-status-text');
+
+      if (temp > 30.0) {
+        // Atua Relé e Liga Ventilador
+        pill.textContent = 'REFRIGERAÇÃO ATIVADA';
+        pill.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-[#166534] text-[#22C55E] border border-[#22C55E] font-bold';
+
+        relayText.textContent = 'LIGADO (Contato Fechado)';
+        relayText.className = 'text-[#22C55E] font-bold';
+
+        fanText.textContent = 'GIRANDO EM VELOCIDADE MÁXIMA';
+        fanText.className = 'text-[#22C55E] font-bold';
+
+        fanContainer.className = 'w-24 h-24 rounded-full bg-[#166534]/40 border-2 border-[#22C55E] flex items-center justify-center text-[#22C55E] shadow-[0_0_20px_#22C55E]';
+        fanIcon.classList.add('fan-spinning');
+      } else {
+        // Standby
+        pill.textContent = 'TEMPERATURA ESTÁVEL';
+        pill.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-[#1F2937] text-gray-400 border border-[#374151]';
+
+        relayText.textContent = 'DESLIGADO (Aberto)';
+        relayText.className = 'text-gray-400 font-bold';
+
+        fanText.textContent = 'PARADO';
+        fanText.className = 'text-gray-400 font-bold';
+
+        fanContainer.className = 'w-24 h-24 rounded-full bg-[#1F2937] border-2 border-[#374151] flex items-center justify-center text-gray-500';
+        fanIcon.classList.remove('fan-spinning');
+      }
+    }
+
+    // ==========================================
+    // SIMULADOR 5: ATIVIDADE ENCONTRE O PROBLEMA (Slide 20)
+    // ==========================================
+    function testPointMeasurement(point) {
+      const valDisplay = document.getElementById('test-result-val');
+      if (point === 1) {
+        valDisplay.textContent = '12.0 V (Tensão da Fonte OK)';
+        valDisplay.className = 'text-lg font-bold text-[#22C55E]';
+      } else if (point === 2) {
+        valDisplay.textContent = '0.0 V (ANOMALIA DETECTADA!)';
+        valDisplay.className = 'text-lg font-bold text-red-400';
+      } else if (point === 3) {
+        valDisplay.textContent = '0.0 V (Sem energia na carga)';
+        valDisplay.className = 'text-lg font-bold text-amber-400';
+      }
+    }
+
+    function toggleDiagnosisAnswer() {
+      const box = document.getElementById('diagnosis-reveal-box');
+      const btnText = document.getElementById('btn-reveal-text');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        btnText.textContent = 'Ocultar Conclusão Técnica';
+      } else {
+        box.classList.add('hidden');
+        btnText.textContent = 'Revelar Conclusão Técnica';
+      }
+    }
+
+    // ==========================================
+    // CHECKLIST DE APRENDIZAGEM (Slide 21)
+    // ==========================================
+    function updateChecklistCount() {
+      const checkboxes = document.querySelectorAll('#slide-21 input[type="checkbox"]');
+      let checked = 0;
+      checkboxes.forEach(cb => { if (cb.checked) checked++; });
+      document.getElementById('checklist-progress-text').textContent = `${checked} de ${checkboxes.length} tópicos concluídos (${Math.round((checked/checkboxes.length)*100)}%)`;
+    }
+
+    function checkAllList() {
+      const checkboxes = document.querySelectorAll('#slide-21 input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = true);
+      updateChecklistCount();
+    }
+
+    // Inicia tudo ao carregar
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSlideUI();
+      updateOhmSim();
+      updateTempSim();
+    });
+  </script>
+</body>
+</html>

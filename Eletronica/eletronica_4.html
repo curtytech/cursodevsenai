@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 4: Multímetro, Lei de Ohm & Grandezas Elétricas AC/DC — Curso Técnico</title>
+
+  <!-- Google Fonts: Inter, JetBrains Mono e Orbitron -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            theme: {
+              black: '#0A0A0A',
+              dark: '#1F2937',
+              gray: '#374151',
+              lightGray: '#4B5563',
+              green: '#22C55E',
+              darkGreen: '#166534',
+              brightGreen: '#4ADE80',
+              emerald: '#10B981',
+              white: '#F9FAFB',
+              accentCyan: '#06B6D4'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            tech: ['Orbitron', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background-color: #0A0A0A;
+      color: #F9FAFB;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .pcb-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(34, 197, 94, 0.05) 1px, transparent 1px);
+    }
+
+    .glow-green {
+      box-shadow: 0 0 20px -3px rgba(34, 197, 94, 0.35);
+    }
+    
+    .glow-green-sm {
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+    }
+
+    .text-glow-green {
+      text-shadow: 0 0 12px rgba(34, 197, 94, 0.55);
+    }
+
+    .glass-panel {
+      background: rgba(31, 41, 55, 0.72);
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .glass-card {
+      background: rgba(31, 41, 55, 0.85);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(34, 197, 94, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -4px rgba(34, 197, 94, 0.15);
+    }
+
+    @keyframes pulseTrace {
+      0% { stroke-dashoffset: 200; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .animated-trace {
+      stroke-dasharray: 12, 12;
+      animation: pulseTrace 4s linear infinite;
+    }
+
+    @keyframes ledBlink {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px #22C55E); }
+      50% { opacity: 0.35; filter: none; }
+    }
+
+    .led-pulsing {
+      animation: ledBlink 1.8s ease-in-out infinite;
+    }
+
+    .slide-wrapper {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.98) translateY(8px);
+      transition: opacity 0.35s ease-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-wrapper.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    .slide-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .slide-scroll::-webkit-scrollbar-track {
+      background: rgba(31, 41, 55, 0.4);
+      border-radius: 4px;
+    }
+    .slide-scroll::-webkit-scrollbar-thumb {
+      background: #22C55E;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-[#0A0A0A] text-[#F9FAFB] pcb-grid relative selection:bg-[#22C55E]/30 selection:text-white">
+
+  <!-- TOP BAR COM NAVEGAÇÃO ENTRE OS 4 MÓDULOS -->
+  <header class="h-14 border-b border-[#374151]/70 bg-[#0A0A0A]/90 backdrop-blur-md px-6 flex items-center justify-between z-30 select-none">
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#1F2937] border border-[#374151]">
+        <span class="w-2 h-2 rounded-full bg-[#22C55E] led-pulsing"></span>
+        <span class="font-tech text-xs tracking-wider text-[#22C55E] font-semibold">MÓDULO 4</span>
+      </div>
+      <div class="h-4 w-px bg-[#374151]"></div>
+      
+      <!-- Links rápidos entre os 4 módulos -->
+      <div class="hidden sm:flex items-center space-x-2 text-xs font-mono">
+        <a href="index.html" class="text-gray-400 hover:text-[#22C55E] transition">Mód 1</a>
+        <span class="text-gray-600">•</span>
+        <a href="eletronica_2.html" class="text-gray-400 hover:text-[#22C55E] transition">Mód 2</a>
+        <span class="text-gray-600">•</span>
+        <a href="eletronica_3.html" class="text-gray-400 hover:text-[#22C55E] transition">Mód 3</a>
+        <span class="text-gray-600">•</span>
+        <span class="text-[#22C55E] font-bold">Mód 4</span>
+      </div>
+    </div>
+
+    <!-- Título Centralizado -->
+    <div class="text-center font-tech text-xs md:text-sm tracking-wider text-white font-bold flex items-center gap-2">
+      <i data-lucide="gauge" class="w-4 h-4 text-[#22C55E]"></i>
+      <span>INSTRUMENTAÇÃO, LEIS & IMPEDÂNCIA AC/DC</span>
+    </div>
+
+    <!-- Indicador e Botões de Controle Superior -->
+    <div class="flex items-center space-x-3">
+      <div class="font-mono text-xs px-2.5 py-1 bg-[#1F2937] rounded border border-[#374151] flex items-center gap-1.5">
+        <span class="text-[#22C55E] font-bold" id="current-slide-num">01</span>
+        <span class="text-gray-500">/</span>
+        <span class="text-gray-400" id="total-slides-num">22</span>
+      </div>
+
+      <button onclick="toggleOverviewModal()" title="Visão Geral dos Slides (Menu)" class="p-1.5 rounded bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-gray-300 hover:text-white transition">
+        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+      </button>
+
+      <button onclick="toggleFullScreen()" title="Modo Tela Cheia (F)" class="p-1.5 rounded bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-gray-300 hover:text-white transition">
+        <i data-lucide="maximize" class="w-4 h-4" id="fs-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- BARRA DE PROGRESSO SUPERIOR -->
+  <div class="h-1 w-full bg-[#1F2937] relative z-30">
+    <div id="progress-bar" class="h-full bg-gradient-to-r from-[#166534] via-[#22C55E] to-[#4ADE80] transition-all duration-300 shadow-[0_0_8px_#22C55E]" style="width: 4.54%;"></div>
+  </div>
+
+  <!-- CONTAINER PRINCIPAL DOS SLIDES -->
+  <main id="presentation-viewport" class="relative w-full h-[calc(100vh-7rem)] overflow-hidden">
+
+    <!-- ========================================== -->
+    <!-- SLIDE 1 — CAPA MÓDULO 4 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper active" id="slide-1">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F2937] border border-[#22C55E]/40 text-[#22C55E] text-xs font-mono tracking-widest uppercase">
+            <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+            Módulo 4 • Fundamentos, Medições & Cargas Reativas
+          </div>
+          <span class="text-xs font-mono text-gray-400">CURSO TÉCNICO PROFISSIONAL</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto">
+          <div class="lg:col-span-7 space-y-5">
+            <div class="inline-block px-2.5 py-1 rounded bg-[#166534]/50 border border-[#22C55E]/50 text-[#22C55E] font-mono text-xs">
+              MULTÍMETRO • LEI DE OHM • CC/CA • POTÊNCIA • R • L • C • IMPEDÂNCIA Z
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black font-tech tracking-tight text-white leading-tight">
+              MULTÍMETRO, <br/>
+              LEI DE OHM & <br/>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] via-[#4ADE80] to-white text-glow-green">
+                GRANDEZAS AC/DC
+              </span>
+            </h1>
+            <p class="text-base sm:text-lg text-gray-300 font-light max-w-2xl leading-relaxed">
+              O aprofundamento definitivo nas grandezas elétricas fundamentais: operação técnica de multímetros, a Lei de Ohm e Potência, a distinção matemática e física entre Corrente Contínua e Alternada, e o comportamento de Resistores, Capacitores e Indutores na Impedância ($Z$).
+            </p>
+            
+            <div class="flex flex-wrap gap-2.5 pt-2">
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                8. Multímetro Profissional
+              </span>
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                9. Lei de Ohm & Potência
+              </span>
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                10. Corrente CC e CA
+              </span>
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                10. R, L, C & Impedância Z
+              </span>
+            </div>
+          </div>
+
+          <!-- Composição Gráfica -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="relative w-full max-w-md aspect-square rounded-2xl glass-panel p-6 border border-[#22C55E]/30 glow-green relative overflow-hidden flex flex-col justify-between">
+              <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 400 400">
+                <path d="M 40 200 Q 120 80 200 200 T 360 200" fill="none" stroke="#22C55E" stroke-width="2.5" class="animated-trace" />
+                <line x1="40" y1="200" x2="360" y2="200" stroke="#374151" stroke-dasharray="4 4" />
+                <circle cx="200" cy="200" r="6" fill="#22C55E" />
+                <circle cx="120" cy="140" r="4" fill="#06B6D4" />
+                <circle cx="280" cy="260" r="4" fill="#06B6D4" />
+              </svg>
+
+              <div class="flex justify-between items-center z-10">
+                <span class="font-mono text-xs text-[#22C55E] font-bold">AC/DC ANALYSIS</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#22C55E] led-pulsing"></span>
+              </div>
+
+              <!-- Ícone Central: Impedância & Leis -->
+              <div class="my-auto self-center p-6 rounded-2xl bg-[#0A0A0A] border-2 border-[#22C55E] text-center z-10 w-52 shadow-[0_0_25px_rgba(34,197,94,0.3)]">
+                <i data-lucide="gauge" class="w-10 h-10 mx-auto text-[#22C55E] mb-2"></i>
+                <div class="font-tech text-xs tracking-wider font-bold text-white">IMPEDANCE & OHM</div>
+                <div class="font-mono text-[9px] text-[#22C55E] mt-1">Z = R + j(XL - XC)</div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2 text-center z-10 font-mono text-[10px]">
+                <div class="bg-[#0A0A0A]/90 p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">ESCALA</span>
+                  <span class="text-[#22C55E] font-bold">TRUE RMS</span>
+                </div>
+                <div class="bg-[#0A0A0A]/90 p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">SISTEMA</span>
+                  <span class="text-white font-bold">V = R · I</span>
+                </div>
+                <div class="bg-[#0A0A0A]/90 p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">REATIVO</span>
+                  <span class="text-[#22C55E] font-bold">L & C</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-gray-500 font-mono border-t border-[#374151]/50 pt-4">
+          <span>Navegue com as setas [← / →] ou clique em "Próximo"</span>
+          <span class="text-[#22C55E] flex items-center gap-1 font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span> 22 Slides Técnicos
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 2 — OBJETIVOS DO MÓDULO 4 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-2">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>PROGRAMA DA DISCIPLINA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Objetivos do Módulo 4</h2>
+          <p class="text-sm text-gray-400">Desenvolvimento da proficiência prática com instrumentos de bancada e análise de circuitos lineares em CC e CA.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Bloco 1 -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="calculator" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-[#22C55E] font-bold block">DISCIPLINA 8 & 9</span>
+            <h3 class="font-bold text-base text-white">Instrumentação & Lei de Ohm</h3>
+            <ul class="text-xs text-gray-300 space-y-1.5 font-mono">
+              <li>▸ Anatomia do multímetro analógico e digital</li>
+              <li>▸ Categorias de sobretensão CAT I a CAT IV</li>
+              <li>▸ Técnicas de medição em série e paralelo</li>
+              <li>▸ Primeira e Segunda Lei de Ohm com rigor</li>
+              <li>▸ Fórmulas derivadas de potência elétrica</li>
+            </ul>
+          </div>
+
+          <!-- Bloco 2 -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#22C55E] flex items-center justify-center text-[#0A0A0A]">
+              <i data-lucide="zap" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-[#22C55E] font-bold block">DISCIPLINA 10</span>
+            <h3 class="font-bold text-base text-white">Corrente Contínua & Alternada</h3>
+            <ul class="text-xs text-gray-200 space-y-1.5 font-mono">
+              <li>▸ Diferença física entre fluxo CC e oscilação CA</li>
+              <li>▸ Parâmetros de onda senoidal: Vp, Vpp, Vrms</li>
+              <li>▸ Frequência em Hertz e Período no tempo</li>
+              <li>▸ Potência Ativa (W), Reativa (VAr) e Aparente (VA)</li>
+              <li>▸ Fator de Potência e compensação com bancos</li>
+            </ul>
+          </div>
+
+          <!-- Bloco 3 -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="layers" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-[#22C55E] font-bold block">DISCIPLINA 10 (R, L, C, Z)</span>
+            <h3 class="font-bold text-base text-white">Cargas Reativas & Impedância (Z)</h3>
+            <ul class="text-xs text-gray-300 space-y-1.5 font-mono">
+              <li>▸ Resistência pura e dissipação térmica por Joule</li>
+              <li>▸ Capacitância ($C$), campos eletrostáticos e $\tau = R \cdot C$</li>
+              <li>▸ Indutância ($L$), autoindução e campo magnético</li>
+              <li>▸ Reatâncias $X_L$ e $X_C$ no domínio da frequência</li>
+              <li>▸ Impedância total $Z$ e ressonância RLC</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] text-xs font-mono text-gray-300 text-center">
+          "Em Corrente Contínua a resistência é tudo; em Corrente Alternada capacitores e indutores desafiam o circuito através da Impedância."
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 3 — VISÃO GERAL INTEGRADA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-3">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>MAPA RELACIONAL DAS GRANDEZAS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Visão Geral: Da Lei Básica à Impedância</h2>
+          <p class="text-sm text-gray-400">Como a oposição ao fluxo elétrico evolui do resistor simples aos componentes reativos em frequência.</p>
+        </div>
+
+        <div class="my-auto py-2">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center font-mono text-xs">
+            <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+              <span class="text-[10px] text-[#22C55E] font-bold">1. A MEDIÇÃO</span>
+              <div class="text-white font-bold text-sm">MULTÍMETRO</div>
+              <p class="text-[11px] text-gray-400">Verifica se a tensão existe, mede correntes em miliamperes e certifica a integridade de componentes.</p>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+              <span class="text-[10px] text-[#22C55E] font-bold">2. A LEI FUNDAMENTAL</span>
+              <div class="text-white font-bold text-sm">V = R · I</div>
+              <p class="text-[11px] text-gray-400">A relação linear primária. Tensão impulsiona; Resistência restringe; Corrente flui e Potência dissipa.</p>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+              <span class="text-[10px] text-[#22C55E] font-bold">3. O SINAL NO TEMPO</span>
+              <div class="text-white font-bold text-sm">CC × CA (60 Hz)</div>
+              <p class="text-[11px] text-gray-400">A corrente contínua mantém sentido constante; a alternada inverte periodicamente gerando ondas senoidais.</p>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-[#22C55E] bg-[#166534]/20 space-y-2">
+              <span class="text-[10px] text-[#22C55E] font-bold">4. O EFEITO DINÂMICO</span>
+              <div class="text-white font-bold text-sm">IMPEDÂNCIA (Z)</div>
+              <p class="text-[11px] text-gray-200">Em CA, bobinas atrasam a corrente e capacitores a adiantam, unindo resistência e reatância na Impedância $Z$.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Entender Impedância é a chave para motores elétricos, telecomunicações, fontes chaveadas e proteção de redes industriais.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 4 — 8. O MULTÍMETRO DIGITAL -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-4">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>8. O INSTRUMENTO FUNDAMENTAL</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">O Multímetro Digital: Anatomia & Categorias</h2>
+          <p class="text-sm text-gray-400">Especificações internas, bornes com fusíveis e a classificação de segurança CAT I a CAT IV.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Anatomia e Escalas -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Anatomia do Aparelho</h3>
+            <ul class="text-xs font-mono text-gray-300 space-y-2">
+              <li>▸ <strong class="text-white">Display LCD / True-RMS:</strong> Mede o valor eficaz real mesmo em ondas deformadas por inversores de frequência.</li>
+              <li>▸ <strong class="text-white">Seletor Rotativo:</strong> Escalas de V~ (AC), V= (DC), Ω (Ohms), Continuidade sonoro, Diodo, mA e 10A.</li>
+              <li>▸ <strong class="text-[#22C55E]">Borne COM (Preto):</strong> Referência comum (Ground).</li>
+              <li>▸ <strong class="text-red-400">Borne V-Ω-mA (Vermelho):</strong> Entrada protegida por fusível cerâmico de 500mA.</li>
+              <li>▸ <strong class="text-red-400">Borne 10A (Vermelho):</strong> Sem fusível ou com fusível de alta capacidade (10A a 20A).</li>
+            </ul>
+          </div>
+
+          <!-- Categorias de Sobretensão CAT -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">Categorias CAT (IEC 61010)</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Segurança</span>
+            </div>
+            <ul class="text-xs font-mono text-gray-200 space-y-1.5">
+              <li><strong class="text-white">CAT I:</strong> Eletrônica de bancada alimentada por baterias ou fontes isoladas.</li>
+              <li><strong class="text-white">CAT II:</strong> Eletrodomésticos e tomadas residenciais monofásicas (127V/220V).</li>
+              <li><strong class="text-[#22C55E]">CAT III:</strong> Painéis industriais, alimentadores trifásicos e motores em fábrica.</li>
+              <li><strong class="text-amber-400">CAT IV:</strong> Entrada de serviço de rede aérea, cabine primária e postes concessionária.</li>
+            </ul>
+          </div>
+
+          <!-- Erros Fatais do Novato -->
+          <div class="glass-card p-5 rounded-2xl border border-red-500/40 bg-red-950/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Erros Fatais de Bancada</h3>
+            <p class="text-xs text-gray-300 leading-relaxed font-mono">
+              <strong class="text-red-400">1. O Curto pelo Amperímetro:</strong> Deixar a ponta no borne 10A e tentar medir uma tomada de 220V. O multímetro atua como barra de cobre maciço gerando uma explosão de arco elétrico!
+            </p>
+            <p class="text-xs text-gray-400 leading-relaxed font-mono">
+              <strong class="text-amber-400">2. Medir Resistência Energizado:</strong> Destrói a ponte analógica interna do chip do multímetro.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Regra de Ouro: Sempre confirme em qual orifício a ponta vermelha está conectada antes de encostar em qualquer terminal elétrico!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 5 — 8. PROCEDIMENTOS DE MEDIÇÃO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-5">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>8. PROCEDIMENTOS OPERACIONAIS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Como Medir Corretamente com o Multímetro</h2>
+          <p class="text-sm text-gray-400">O método rigoroso para cada grandeza: por que tensão é em paralelo e corrente é obrigatoriamente em série.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- Medição de Tensão (Voltímetro) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <span class="font-bold text-white text-base">Medição de Tensão (Voltímetro)</span>
+              <span class="text-xs font-mono text-cyan-400">EM PARALELO</span>
+            </div>
+            <p class="text-xs text-gray-300 font-mono">
+              O voltímetro possui <strong>impedância interna quase infinita ($> 10\text{ M}\Omega$)</strong>. Ele não absorve corrente do circuito. Encoste as pontas nos dois nós cuja diferença de potencial você deseja saber sem interromper o circuito.
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] text-xs font-mono text-[#22C55E]">
+              Ponta Preta no GND/Referência; Ponta Vermelha no nó de teste.
+            </div>
+          </div>
+
+          <!-- Medição de Corrente (Amperímetro) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <span class="font-bold text-white text-base">Medição de Corrente (Amperímetro)</span>
+              <span class="text-xs font-mono text-[#22C55E] font-bold">EM SÉRIE (ABRA O CIRCUITO)</span>
+            </div>
+            <p class="text-xs text-gray-200 font-mono">
+              O amperímetro possui <strong>resistência interna quase nula ($R_{shunt} \approx 0,01\ \Omega$)</strong>. Para medir, você <strong>DEVE SECCIONAR</strong> um fio e fazer com que a corrente entre pela ponta vermelha, atravesse o multímetro e saia pela ponta preta para continuar viagem.
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#22C55E] text-xs font-mono text-white">
+              Dica: Em painéis industriais fechados, utilize sempre o <strong>Alicate Amperímetro</strong> por indução magnética.
+            </div>
+          </div>
+
+          <!-- Medição de Resistência (Ohmímetro) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <span class="font-bold text-white text-base">Medição de Resistência (Ohmímetro)</span>
+              <span class="text-xs font-mono text-yellow-400">DESENERGIZADO</span>
+            </div>
+            <p class="text-xs text-gray-300 font-mono">
+              O multímetro injeta uma pequena tensão de teste de sua própria bateria interna e mede a corrente resultante ($R = V_{int} / I$). Desligue a energia e solte pelo menos um terminal do resistor da placa para evitar caminhos paralelos falsos.
+            </p>
+          </div>
+
+          <!-- Teste de Continuidade (Buzzer) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <span class="font-bold text-white text-base">Teste de Continuidade Sonora</span>
+              <span class="text-xs font-mono text-green-400">BEEP CONTÍNUO</span>
+            </div>
+            <p class="text-xs text-gray-300 font-mono">
+              Se a resistência entre as duas pontas de prova for menor que ~30 Ω a 50 Ω, o aparelho emite um som agudo contínuo. Permite testar fios partidos, trilhas de PCB, bobinas e fusíveis sem desviar os olhos da placa.
+            </p>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Multímetros modernos com escala automática (Auto-Ranging) selecionam sozinhos a melhor grandeza de mV até centenas de Volts.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 6 — 8. SIMULADOR DO MULTÍMETRO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-6">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>8. LABORATÓRIO VIRTUAL</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Simulador Interativo do Multímetro</h2>
+          <p class="text-sm text-gray-400">Gire o seletor virtual e configure as pontas de prova para entender a resposta do display.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- O Multímetro Ilustrado -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="w-full max-w-xs bg-[#1F2937] p-5 rounded-3xl border-2 border-[#374151] shadow-2xl relative">
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] mb-4 text-right">
+                <span id="multimeter-sub-display" class="text-[9px] font-mono text-gray-500 block text-left">TRUE RMS • AUTO</span>
+                <span id="multimeter-main-display" class="font-tech text-3xl font-bold text-[#22C55E] tracking-wider">12.00 V</span>
+              </div>
+
+              <!-- Seletor Rotativo Central -->
+              <div class="relative w-36 h-36 mx-auto rounded-full bg-[#0A0A0A] border-4 border-[#374151] flex items-center justify-center my-3">
+                <div id="sim-dial-needle" class="w-8 h-24 bg-[#374151] rounded-full border border-gray-400 relative transition-transform duration-300" style="transform: rotate(0deg);">
+                  <div class="w-2 h-4 bg-[#22C55E] mx-auto rounded-t"></div>
+                </div>
+                <span class="absolute top-1 text-[9px] font-mono font-bold text-[#22C55E]">DCV</span>
+                <span class="absolute right-1 text-[9px] font-mono text-gray-400">ACV</span>
+                <span class="absolute bottom-1 text-[9px] font-mono text-gray-400">OHM</span>
+                <span class="absolute left-1 text-[9px] font-mono text-gray-400">AMP</span>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-[#374151] text-center font-mono text-[8px]">
+                <div class="bg-[#0A0A0A] p-1.5 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">10A MAX</span>
+                  <div class="w-3.5 h-3.5 mx-auto rounded-full bg-red-900 border border-red-500 mt-1"></div>
+                </div>
+                <div class="bg-[#0A0A0A] p-1.5 rounded border border-gray-600">
+                  <span class="text-white block font-bold">COM</span>
+                  <div class="w-3.5 h-3.5 mx-auto rounded-full bg-black border border-gray-400 mt-1"></div>
+                </div>
+                <div class="bg-[#0A0A0A] p-1.5 rounded border border-red-500/50">
+                  <span class="text-red-400 block font-bold">V-Ω-Hz</span>
+                  <div class="w-3.5 h-3.5 mx-auto rounded-full bg-red-600 border border-red-400 mt-1"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controles de Modo -->
+          <div class="lg:col-span-7 space-y-4">
+            <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+              Selecione o teste para executar na bancada:
+            </span>
+
+            <div class="grid grid-cols-2 gap-2 font-mono text-xs">
+              <button onclick="setSimMeter('DCV')" class="p-3 rounded-xl bg-[#0A0A0A] hover:bg-[#1F2937] border border-[#22C55E] text-left transition">
+                <span class="text-[#22C55E] font-bold block">1. Tensão DC (Bateria 12V)</span>
+                <span class="text-gray-400 text-[10px]">Ponta vermelha em V-Ω; em paralelo.</span>
+              </button>
+
+              <button onclick="setSimMeter('ACV')" class="p-3 rounded-xl bg-[#0A0A0A] hover:bg-[#1F2937] border border-[#374151] text-left transition">
+                <span class="text-cyan-400 font-bold block">2. Tensão AC (Tomada 220V)</span>
+                <span class="text-gray-400 text-[10px]">Ponta vermelha em V-Ω; em paralelo.</span>
+              </button>
+
+              <button onclick="setSimMeter('OHM')" class="p-3 rounded-xl bg-[#0A0A0A] hover:bg-[#1F2937] border border-[#374151] text-left transition">
+                <span class="text-yellow-400 font-bold block">3. Resistência (Resistor 1kΩ)</span>
+                <span class="text-gray-400 text-[10px]">Circuito totalmente desligado.</span>
+              </button>
+
+              <button onclick="setSimMeter('AMP')" class="p-3 rounded-xl bg-[#0A0A0A] hover:bg-[#1F2937] border border-[#374151] text-left transition">
+                <span class="text-red-400 font-bold block">4. Corrente DC (Motor 2.5A)</span>
+                <span class="text-gray-400 text-[10px]">Borne 10A; multímetro em série.</span>
+              </button>
+            </div>
+
+            <!-- Guia explicativo dinâmico -->
+            <div id="meter-feedback-card" class="glass-panel p-4 rounded-xl border border-[#22C55E]/40 font-mono text-xs space-y-2">
+              <div class="text-[#22C55E] font-bold">MODO SELECIONADO: TENSÃO CONTÍNUA (DCV)</div>
+              <p class="text-gray-300 font-sans">
+                As pontas de prova estão encostadas nos polos da bateria. A impedância de 10 MΩ do multímetro impede qualquer curto-circuito e permite leitura estável de 12.00 V.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Pratique mentalmente o checklist: grandeza, escala aproximada, posição dos bornes e tipo de ligação.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 7 — 9. PRIMEIRA E SEGUNDA LEI DE OHM -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-7">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>9. AS LEIS FUNDAMENTAIS DE GEORG OHM</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Primeira & Segunda Lei de Ohm</h2>
+          <p class="text-sm text-gray-400">A relação linear entre potencial e corrente, e a influência geométrica e atômica da matéria condutora.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- 1ª Lei de Ohm -->
+          <div class="glass-card p-6 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-4">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <h3 class="font-bold text-base text-white">Primeira Lei de Ohm</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Relação Elétrica</span>
+            </div>
+
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-2xl text-[#22C55E]">
+              V = R · I
+            </div>
+
+            <p class="text-xs text-gray-200 font-mono leading-relaxed">
+              "Para um condutor ôhmico mantido a temperatura constante, a diferença de potencial aplicada é diretamente proporcional à corrente elétrica que o atravessa."
+            </p>
+            <div class="text-[11px] font-mono text-white bg-[#0A0A0A] p-2 rounded">
+              Gráfico V × I: É uma reta perfeita cuja inclinação angular representa a Resistência ($R = \Delta V / \Delta I$).
+            </div>
+          </div>
+
+          <!-- 2ª Lei de Ohm -->
+          <div class="glass-card p-6 rounded-2xl border border-[#374151] space-y-4">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <h3 class="font-bold text-base text-white">Segunda Lei de Ohm</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-cyan-400 font-bold">Geometria do Cabo</span>
+            </div>
+
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-2xl text-white">
+              R = ρ · (L / A)
+            </div>
+
+            <ul class="text-xs text-gray-300 font-mono space-y-2">
+              <li>▸ <strong class="text-white">$\rho$ (Resistividade):</strong> Propriedade do material (Cobre = $0,0172\ \Omega\cdot\text{mm}^2/\text{m}$).</li>
+              <li>▸ <strong class="text-white">$L$ (Comprimento):</strong> Quanto mais comprido o cabo, maior a queda de tensão.</li>
+              <li>▸ <strong class="text-white">$A$ (Área da Seção):</strong> Quanto mais grosso o fio (bitola em mm²), menor a resistência e menor o aquecimento.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Aplicação prática: Dimensionar a bitola de um cabo para um motor a 100 metros de distância é aplicar diretamente a 2ª Lei de Ohm!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 8 — 9. POTÊNCIA ELÉTRICA & LEI DE OHM -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-8">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>9. ENERGIA E TRANSFORMAÇÃO DE POTÊNCIA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Potência Elétrica & O Efeito Joule</h2>
+          <p class="text-sm text-gray-400">A taxa de realização de trabalho por segundo e as três fórmulas matemáticas de potência em Watts.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: As Fórmulas da Potência -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">As 3 Equações Fundamentais da Potência</span>
+              
+              <div class="grid grid-cols-3 gap-2 font-mono text-center">
+                <div class="bg-[#0A0A0A] p-2.5 rounded-lg border border-[#374151]">
+                  <span class="text-[9px] text-gray-400 block">TENSÃO E CORRENTE</span>
+                  <span class="text-[#22C55E] font-bold text-sm">P = V · I</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2.5 rounded-lg border border-[#374151]">
+                  <span class="text-[9px] text-gray-400 block">JOULE POR CORRENTE</span>
+                  <span class="text-[#22C55E] font-bold text-sm">P = R · I²</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2.5 rounded-lg border border-[#374151]">
+                  <span class="text-[9px] text-gray-400 block">JOULE POR TENSÃO</span>
+                  <span class="text-[#22C55E] font-bold text-sm">P = V² / R</span>
+                </div>
+              </div>
+
+              <p class="text-xs text-gray-300 font-mono leading-relaxed pt-2">
+                Unidade no SI: <strong>Watt [W]</strong> = 1 Joule por segundo. Múltiplos industriais: 1 kW = 1.000 W; 1 Cavalo-Vapor (CV) $\approx 735,5\text{ W}$; 1 Horsepower (HP) $\approx 746\text{ W}$.
+              </p>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Simulador de Potência e Aquecimento -->
+          <div class="lg:col-span-6">
+            <div class="glass-panel p-6 rounded-2xl border border-[#374151] space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Simulador Interativo de Carga Térmica</span>
+                <span id="power-safety-tag" class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1F2937] text-[#22C55E]">POTÊNCIA SEGURA</span>
+              </div>
+
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#374151] space-y-3 font-mono text-xs text-center">
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="bg-[#1F2937] p-2 rounded">
+                    <span class="text-gray-400 text-[10px] block">TENSÃO (V)</span>
+                    <span id="p-sim-v" class="text-base font-bold text-white">12 V</span>
+                  </div>
+                  <div class="bg-[#1F2937] p-2 rounded">
+                    <span class="text-gray-400 text-[10px] block">CORRENTE (I)</span>
+                    <span id="p-sim-i" class="text-base font-bold text-cyan-400">1.20 A</span>
+                  </div>
+                  <div class="bg-[#1F2937] p-2 rounded">
+                    <span class="text-gray-400 text-[10px] block">POTÊNCIA (P)</span>
+                    <span id="p-sim-w" class="text-base font-bold text-[#22C55E]">14.4 W</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-mono text-gray-300 flex justify-between">
+                  <span>Ajustar Tensão do Circuito (V)</span>
+                  <span id="p-slider-v-disp" class="text-[#22C55E]">12 V</span>
+                </label>
+                <input type="range" min="1" max="48" value="12" id="p-slider-v" class="w-full accent-[#22C55E] bg-[#1F2937] rounded-lg cursor-pointer" oninput="updatePowerSim()">
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-mono text-gray-300 flex justify-between">
+                  <span>Ajustar Resistência da Carga (Ω)</span>
+                  <span id="p-slider-r-disp" class="text-[#22C55E]">10 Ω</span>
+                </label>
+                <input type="range" min="2" max="100" value="10" id="p-slider-r" class="w-full accent-[#22C55E] bg-[#1F2937] rounded-lg cursor-pointer" oninput="updatePowerSim()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Perigo de queima: Se a potência calculada for 14.4W e você usar um resistor comercial de 1/4W (0.25W), ele entrará em combustão em segundos!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 9 — 10. CONCEITOS DE ELETRICIDADE -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-9">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10. FENÔMENOS ELETRORRÉIS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Conceitos Essenciais da Eletricidade</h2>
+          <p class="text-sm text-gray-400">O comportamento coletivo dos portadores de carga e a velocidade real dos elétrons versus velocidade da luz.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Velocidade de Deriva -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Velocidade de Deriva (Drift)</h3>
+            <p class="text-xs text-gray-300">
+              Surpresa da física: Os elétrons individuais dentro do fio de cobre se movem a passos de tartaruga (cerca de <strong>1 milímetro por segundo</strong>). No entanto, quando você aciona o interruptor, a lâmpada acende instantaneamente!
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Explicação: O campo eletromagnético propaga-se a quase 300.000 km/s!
+            </div>
+          </div>
+
+          <!-- Sentido Convencional vs Real -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Sentido Convencional × Real</h3>
+            <ul class="text-xs font-mono text-gray-200 space-y-2">
+              <li><strong class="text-amber-400">Sentido Real:</strong> Os elétrons fluem do polo negativo (-) para o polo positivo (+).</li>
+              <li><strong class="text-[#22C55E]">Sentido Convencional:</strong> Adotado na engenharia por Benjamin Franklin (do + para o -). Todos os diagramas e softwares usam o sentido convencional!</li>
+            </ul>
+          </div>
+
+          <!-- Densidade de Corrente -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Densidade de Corrente (J)</h3>
+            <p class="text-xs text-gray-300">
+              Mede a quantidade de corrente concentrada por milímetro quadrado de cobre: <code class="text-white">J = I / A [A/mm²]</code>.
+            </p>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Critério térmico da NBR 5410: Para cabos de cobre comuns em eletrodutos, limita-se entre 4 A/mm² e 7 A/mm² para evitar derretimento da isolação.
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Pense no circuito elétrico como uma fila de bolinhas de gude dentro de um tubo: empurre uma de um lado, e a última cai do outro imediatamente.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 10 — 10.1 CORRENTE ELÉTRICA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-10">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.1 DEFINIÇÃO MATEMÁTICA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Corrente Elétrica: Taxa de Cargas no Tempo</h2>
+          <p class="text-sm text-gray-400">A quantificação matemática rigorosa de Coulomb por segundo que define a grandeza Ampere.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: A Derivada e a Média -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Fórmula da Corrente Elétrica</span>
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#374151] text-center font-tech text-3xl text-white">
+                I = ΔQ / Δt = dq / dt
+              </div>
+              <p class="text-xs text-gray-300 font-mono leading-relaxed">
+                Um circuito possui corrente de <strong>1 Ampere (1 A)</strong> quando exatamente <strong>1 Coulomb de carga</strong> atravessa uma seção transversal do condutor a cada <strong>1 segundo</strong>.
+              </p>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Os 3 Efeitos Físicos da Corrente -->
+          <div class="lg:col-span-6 space-y-2 font-mono text-xs">
+            <span class="text-xs text-[#22C55E] uppercase font-bold block mb-1">
+              Os Três Efeitos Físicos Universais da Corrente:
+            </span>
+
+            <div class="glass-card p-3 rounded-xl border border-[#374151]">
+              <strong class="text-white block">1. Efeito Térmico (Joule):</strong>
+              <span class="text-gray-400">Qualquer condutor aquece ao transportar corrente (ferros de solda, resistências).</span>
+            </div>
+
+            <div class="glass-card p-3 rounded-xl border border-[#374151]">
+              <strong class="text-white block">2. Efeito Magnético:</strong>
+              <span class="text-gray-400">Cria um campo magnético instantâneo ao redor de si (motores, transformadores, bobinas).</span>
+            </div>
+
+            <div class="glass-card p-3 rounded-xl border border-[#374151]">
+              <strong class="text-white block">3. Efeito Químico:</strong>
+              <span class="text-gray-400">Provoca eletrólise e reações de óxido-redução (recarga de baterias de lítio e galvanoplastia).</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Se o fluxo de cargas mantiver direção invariável, temos Corrente Contínua (CC); se alternar de sentido periodicamente, temos Corrente Alternada (CA).
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 11 — 10.1.1 CORRENTE CONTÍNUA (CC) -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-11">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.1.1 CORRENTE CONTÍNUA (CC / DC)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Corrente Contínua: Estabilidade Unidirecional</h2>
+          <p class="text-sm text-gray-400">A energia pura sem oscilações que alimenta processadores, celulares, baterias e telecomunicações.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Características -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Comportamento Gráfico</h3>
+            <p class="text-xs text-gray-200">
+              A tensão e a corrente formam uma linha horizontal perfeitamente constante ao longo do tempo ($f = 0\text{ Hz}$). Não existem semiciclos nem inversão de polaridade.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Polo Positivo (+) é sempre Positivo;<br/>
+              Polo Negativo (-) é sempre Negativo.
+            </div>
+          </div>
+
+          <!-- Fontes Geradoras -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Fontes Naturais de CC</h3>
+            <ul class="text-xs font-mono text-gray-300 space-y-2">
+              <li>▸ <strong class="text-white">Baterias e Pilhas Químicas:</strong> Lítio-Íon, Chumbo-Ácido automotivo.</li>
+              <li>▸ <strong class="text-white">Painéis Fotovoltaicos:</strong> A luz solar excita a junção de silício gerando CC pura.</li>
+              <li>▸ <strong class="text-white">Fontes de Alimentação Chaveadas:</strong> Retificam a CA da tomada em 5V ou 12V.</li>
+            </ul>
+          </div>
+
+          <!-- Vantagens e Limitações -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Vantagens & Desafios</h3>
+            <p class="text-xs text-gray-300">
+              <strong class="text-[#22C55E]">Vantagem:</strong> Excelente para circuitos digitais e armazenamento em baterias.
+            </p>
+            <p class="text-xs text-amber-400">
+              <strong class="text-white">Desafio:</strong> Dificuldade histórica de elevação/rebaixamento sem conversores chaveados e formação de arcos elétricos difíceis de extinguir em disjuntores.
+            </p>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Você sabia? O arco elétrico em Corrente Contínua não passa pelo "zero" como na CA, exigindo disjuntores especiais com câmaras de sopro magnético!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 12 — 10.1.2 CORRENTE ALTERNADA (CA) -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-12">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.1.2 CORRENTE ALTERNADA (CA / AC)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Corrente Alternada: Senóide & Valor Eficaz (RMS)</h2>
+          <p class="text-sm text-gray-400">Por que a rede elétrica opera a 60 Hz e por que 127V medidos no multímetro na verdade atingem 180V de pico!</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: Gráfico Senoidal e Fórmulas -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Parâmetros da Senóide</span>
+              
+              <!-- Gráfico Senoidal com Linha de RMS SVG -->
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151]">
+                <svg viewBox="0 0 320 120" class="w-full h-auto">
+                  <line x1="20" y1="60" x2="300" y2="60" stroke="#374151" stroke-width="1.5" />
+                  <line x1="40" y1="10" x2="40" y2="110" stroke="#374151" stroke-width="1.5" />
+                  <!-- Onda Senoidal -->
+                  <path d="M 40 60 Q 105 10 170 60 T 300 60" fill="none" stroke="#22C55E" stroke-width="2.5" />
+                  <!-- Linha RMS tracejada -->
+                  <line x1="40" y1="25" x2="300" y2="25" stroke="#EAB308" stroke-dasharray="3 3" stroke-width="1.5" />
+                  <text x="210" y="22" fill="#EAB308" font-size="9" font-family="monospace">Vrms = 127 V</text>
+                  <text x="100" y="18" fill="#22C55E" font-size="9" font-family="monospace">Vpico = 179.6 V</text>
+                </svg>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 text-[10px] block">TENSÃO DE PICO</span>
+                  <span class="text-white font-bold">Vp = Vrms · √2</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 text-[10px] block">TENSÃO EFICAZ (RMS)</span>
+                  <span class="text-[#22C55E] font-bold">Vrms = Vp / 1,414</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: O Conceito de RMS -->
+          <div class="lg:col-span-6 space-y-3 font-mono text-xs">
+            <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+              <h3 class="font-bold text-base text-white">O Significado Real do RMS (Root Mean Square)</h3>
+              <p class="text-gray-300 font-sans leading-relaxed">
+                A tensão RMS é o <strong>equivalente térmico</strong> da corrente contínua: uma senóide de 127V RMS dissipa exatamente o mesmo calor em uma resistência que uma bateria de 127V contínua pura.
+              </p>
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#22C55E] space-y-1">
+                <div class="text-[#22C55E] font-bold">Exemplo Real de Tomada Residencial:</div>
+                <div class="text-gray-300">▸ Tensão nominal: 127 V (RMS)</div>
+                <div class="text-white font-bold">▸ Tensão de Pico real: 127 × 1,414 = 179,6 V!</div>
+                <div class="text-gray-400">▸ Tensão Pico a Pico ($V_{pp}$): 359,2 V!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Na tomada, a corrente inverte de sentido 120 vezes por segundo (duas vezes por ciclo de 60Hz), passando pelo zero elétrico a cada 8,3 milissegundos.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 13 — 10.1 CC × CA QUADRO COMPARATIVO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-13">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.1 A GUERRA DAS CORRENTES: TESLA VS EDISON</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Corrente Contínua (CC) × Alternada (CA)</h2>
+          <p class="text-sm text-gray-400">Por que a rede de distribuição mundial utiliza CA, enquanto o interior dos dispositivos eletrônicos utiliza CC.</p>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-[#374151] bg-[#0A0A0A] my-auto">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-[#1F2937] text-[#22C55E]">
+              <tr>
+                <th class="p-3">Critério Técnico</th>
+                <th class="p-3">Corrente Contínua (CC)</th>
+                <th class="p-3">Corrente Alternada (CA)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#374151]/50 text-gray-300">
+              <tr>
+                <td class="p-3 font-bold text-white">Frequência</td>
+                <td class="p-3">0 Hz (Invariável no tempo)</td>
+                <td class="p-3 text-[#22C55E] font-bold">50 Hz ou 60 Hz</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Transformação de Tensão</td>
+                <td class="p-3 text-amber-400">Difícil (requer conversores chaveados DC-DC)</td>
+                <td class="p-3 text-[#22C55E] font-bold">Trivial (Transformadores de indução eletromagnética)</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Transmissão em Longa Distância</td>
+                <td class="p-3">Econômica apenas em ultra-alta tensão (HVDC submarino)</td>
+                <td class="p-3 text-[#22C55E] font-bold">Padrão global (eleva-se para 500 kV reduzindo perdas I²R)</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Armazenamento de Energia</td>
+                <td class="p-3 text-[#22C55E] font-bold">Direto em baterias químicas e capacitores</td>
+                <td class="p-3 text-red-400">Impossível armazenar CA diretamente</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-white">Motores Elétricos</td>
+                <td class="p-3">Exigem escovas e comutadores (desgaste)</td>
+                <td class="p-3 text-[#22C55E] font-bold">Motores de indução tipo gaiola (blindados e indestrutíveis)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] text-xs font-mono text-center text-gray-300">
+          A união perfeita: A concessionária entrega CA com facilidade de transformação, e a fonte da máquina retifica para CC alimentar o CLP.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 14 — 10.2 TENSÃO ELÉTRICA & PADRÕES -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-14">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.2 NÍVEIS DE TENSÃO NORMALIZADOS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Tensão Elétrica: Níveis e Padrões Industriais</h2>
+          <p class="text-sm text-gray-400">As tensões padronizadas pela ABNT/IEC para segurança em comandos e eficiência em potência.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-auto font-mono text-xs">
+          <!-- 24 VDC -->
+          <div class="glass-card p-4 rounded-xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-2">
+            <span class="text-[10px] text-[#22C55E] font-bold">EXTRA-BAIXA TENSÃO (SELV)</span>
+            <div class="text-2xl font-tech font-bold text-white">24 VDC</div>
+            <p class="text-gray-200">
+              O padrão universal para automação industrial, sensores indutivos, CLPs e botões de comando.
+            </p>
+            <div class="text-[10px] text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Totalmente segura ao toque humano (sem risco de choque elétrico perigoso).
+            </div>
+          </div>
+
+          <!-- 127V / 220V Monofásico -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <span class="text-[10px] text-gray-400 font-bold">BAIXA TENSÃO RESIDENCIAL</span>
+            <div class="text-2xl font-tech font-bold text-white">127 / 220 V</div>
+            <p class="text-gray-300">
+              Alimentação de tomadas, iluminação de galpões e circuitos auxiliares de comando monofásicos.
+            </p>
+            <div class="text-[10px] text-gray-400 bg-[#0A0A0A] p-2 rounded">
+              Exige proteção obrigatória com IDR (30mA).
+            </div>
+          </div>
+
+          <!-- 380V / 440V Trifásico -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <span class="text-[10px] text-amber-400 font-bold">FORÇA MOTRIZ INDUSTRIAL</span>
+            <div class="text-2xl font-tech font-bold text-white">380 / 440 V</div>
+            <p class="text-gray-300">
+              Alimentação direta de motores trifásicos, fornos de indução e inversores de alta potência.
+            </p>
+            <div class="text-[10px] text-amber-400 bg-[#0A0A0A] p-2 rounded">
+              Menor corrente $\implies$ cabos de alimentação mais finos.
+            </div>
+          </div>
+
+          <!-- 13.800 V (Média Tensão) -->
+          <div class="glass-card p-4 rounded-xl border border-red-500/40 bg-red-950/20 space-y-2">
+            <span class="text-[10px] text-red-400 font-bold">MÉDIA TENSÃO PRIMÁRIA</span>
+            <div class="text-2xl font-tech font-bold text-white">13,8 kV</div>
+            <p class="text-gray-200">
+              Chega aos transformadores particulares de fábricas a partir dos postes da distribuidora.
+            </p>
+            <div class="text-[10px] text-red-400 bg-[#0A0A0A] p-2 rounded">
+              Acesso exclusivo a técnicos com treinamento NR-10 SEP.
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Norma de Painéis NR-12: Circuitos de parada de emergência e portas de máquinas devem operar obrigatoriamente em 24VDC!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 15 — 10.3 O TRIÂNGULO DE POTÊNCIAS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-15">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.3 POTÊNCIA EM CORRENTE ALTERNADA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">O Triângulo das Potências & Fator de Potência</h2>
+          <p class="text-sm text-gray-400">Por que motores criam potência reativa e por que indústrias são multadas se o $\cos\phi$ cair abaixo de 0,92.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Potência Ativa (P) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">Potência Ativa (P)</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">[ Watt - W ]</span>
+            </div>
+            <p class="text-xs text-gray-200">
+              A potência real que realiza <strong>trabalho mecânico útil</strong> (gira o eixo do motor, gera calor ou acende a lâmpada):
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] font-mono text-xs text-[#22C55E]">
+              P = V · I · cos(φ)
+            </div>
+          </div>
+
+          <!-- Potência Reativa (Q) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">Potência Reativa (Q)</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-amber-400">[ VAr ]</span>
+            </div>
+            <p class="text-xs text-gray-300">
+              Não realiza trabalho mecânico, mas é estritamente necessária para <strong>criar os campos magnéticos</strong> das bobinas dos motores e transformadores:
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] font-mono text-xs text-amber-400">
+              Q = V · I · sen(φ)
+            </div>
+          </div>
+
+          <!-- Potência Aparente (S) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">Potência Aparente (S)</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-cyan-400">[ Volt-Ampere - VA ]</span>
+            </div>
+            <p class="text-xs text-gray-300">
+              A potência total que a rede elétrica precisa dimensionar para entregar a soma vetorial de $P$ e $Q$:
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] font-mono text-xs text-white">
+              S² = P² + Q²  (S = V · I)
+            </div>
+          </div>
+        </div>
+
+        <!-- Fator de Potência e Analogia da Cerveja -->
+        <div class="p-3.5 rounded-xl bg-[#0A0A0A] border border-[#374151] flex items-center justify-between text-xs font-mono">
+          <div>
+            <strong class="text-white">Analogia da Caneca de Chopp:</strong> O líquido útil é a <span class="text-[#22C55E] font-bold">Potência Ativa (P)</span>; a espuma no topo é a <span class="text-amber-400 font-bold">Potência Reativa (Q)</span>; a caneca cheia total é a <span class="text-cyan-400 font-bold">Potência Aparente (S)</span>.
+          </div>
+          <span class="text-[#22C55E] font-bold hidden sm:inline">FP = P / S = cos(φ)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 16 — 10.4 FREQUÊNCIA E PERÍODO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-16">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.4 A DINÂMICA TEMPORAL DOS SINAIS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Frequência (f) & Período (T)</h2>
+          <p class="text-sm text-gray-400">Quantos ciclos ocorrem a cada segundo e como isso define o comportamento de filtros e motores.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- A Relação Fundamental -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Relação Fundamental</h3>
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-2xl text-[#22C55E]">
+              f = 1 / T  ou  T = 1 / f
+            </div>
+            <ul class="text-xs font-mono text-gray-200 space-y-1.5">
+              <li>▸ <strong class="text-white">Frequência ($f$):</strong> Ciclos por segundo [Hertz - Hz].</li>
+              <li>▸ <strong class="text-white">Período ($T$):</strong> Duração de um ciclo completo [segundos - s].</li>
+            </ul>
+          </div>
+
+          <!-- O Caso dos 60 Hz -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">A Rede de 60 Hz no Brasil</h3>
+            <p class="text-xs text-gray-300">
+              Na rede da concessionária a 60 Hz, cada ciclo completo de senóide dura rigorosamente:
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] font-mono text-xs text-cyan-400 text-center font-bold">
+              T = 1 / 60 ≈ 0,01667 s = 16,67 milissegundos
+            </div>
+            <p class="text-[11px] text-gray-400 font-mono">
+              Na Europa, a rede é de 50 Hz ($T = 20\text{ ms}$).
+            </p>
+          </div>
+
+          <!-- Frequência e Velocidade de Motores -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Inversores de Frequência</h3>
+            <p class="text-xs text-gray-300">
+              A velocidade síncrona de rotação ($N_s$) de um motor elétrico é diretamente proporcional à frequência:
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] font-mono text-xs text-white text-center">
+              Ns = (120 · f) / Pólos [RPM]
+            </div>
+            <p class="text-[11px] text-[#22C55E] font-mono">
+              Para variar a velocidade de uma esteira industrial, o inversor varia a frequência de 0 Hz a 60 Hz!
+            </p>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Em áudio, ouvimos frequências de 20 Hz a 20.000 Hz; no Wi-Fi, os sinais oscilam a 2,4 bilhões e 5 bilhões de vezes por segundo (2.4 GHz / 5 GHz).
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 17 — 10.5 RESISTÊNCIA ELÉTRICA & CÓDIGO DE CORES -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-17">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.5 RESISTORES COMERCIAIS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Resistores: Código de Cores & Tecnologia SMD</h2>
+          <p class="text-sm text-gray-400">Como identificar valores nominais, tolerâncias e potências dissipadas em componentes axiais e de montagem em superfície.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: Código de Cores de 4 Faixas -->
+          <div class="lg:col-span-7 space-y-3">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">O Código de Cores Oficial (4 Faixas)</span>
+              
+              <div class="grid grid-cols-5 gap-1.5 text-center font-mono text-[10px]">
+                <div class="p-1 rounded bg-[#0A0A0A] border border-gray-700 text-gray-400">0: Preto</div>
+                <div class="p-1 rounded bg-amber-950 text-amber-300">1: Marrom</div>
+                <div class="p-1 rounded bg-red-950 text-red-400">2: Vermelho</div>
+                <div class="p-1 rounded bg-orange-950 text-orange-400">3: Laranja</div>
+                <div class="p-1 rounded bg-yellow-950 text-yellow-300">4: Amarelo</div>
+                <div class="p-1 rounded bg-green-950 text-green-400">5: Verde</div>
+                <div class="p-1 rounded bg-blue-950 text-cyan-400">6: Azul</div>
+                <div class="p-1 rounded bg-purple-950 text-purple-400">7: Violeta</div>
+                <div class="p-1 rounded bg-gray-900 text-gray-300">8: Cinza</div>
+                <div class="p-1 rounded bg-gray-800 text-white font-bold">9: Branco</div>
+              </div>
+
+              <!-- Exemplo Resolvido -->
+              <div class="p-3 rounded-xl bg-[#0A0A0A] border border-[#374151] font-mono text-xs space-y-1">
+                <div class="text-[#22C55E] font-bold">Exemplo Clássico: Marrom (1) - Preto (0) - Vermelho (10²) - Dourado (±5%)</div>
+                <div class="text-white text-base">Valor: 10 × 100 = 1.000 Ω = <strong class="text-[#22C55E]">1 kΩ (±5%)</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Código de 3 Dígitos em Resistores SMD -->
+          <div class="lg:col-span-5 space-y-3 font-mono text-xs">
+            <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+                Resistores SMD de Montagem em Superfície
+              </span>
+              <p class="text-gray-300 font-sans">
+                Em placas modernas, os componentes axiais com fios foram substituídos por peças minúsculas soldadas diretamente na superfície da PCB.
+              </p>
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#22C55E] space-y-1.5">
+                <div class="text-white">Código SMD de 3 dígitos: <strong class="text-cyan-400">[ 472 ]</strong></div>
+                <div class="text-[#22C55E]">47 seguido de 2 zeros = 4700 Ω = 4,7 kΩ</div>
+                <div class="text-white pt-1">Código SMD com R: <strong class="text-cyan-400">[ 4R7 ]</strong> = 4,7 Ω</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Tolerâncias comuns: Dourado = ±5%; Prata = ±10%; Marrom em resistores de precisão de 5 faixas = ±1%.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 18 — 10.6 CAPACITÂNCIA ELÉTRICA & O CAPACITOR -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-18">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.6 CARGA REATIVA ELETROSTÁTICA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Capacitância: Armazenamento em Campo Elétrico</h2>
+          <p class="text-sm text-gray-400">Dois condutores separados por um dielétrico: o componente que resiste a variações bruscas de tensão.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- A Fórmula da Capacitância -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Definição Fundamental</h3>
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-2xl text-[#22C55E]">
+              C = Q / V  [Farad - F]
+            </div>
+            <p class="text-xs text-gray-200 font-mono">
+              Um capacitor armazena energia eletrostática entre suas placas: <code class="text-white">E = 1/2 · C · V²</code>.
+            </p>
+            <div class="text-[10px] font-mono text-white bg-[#0A0A0A] p-2 rounded">
+              Submúltiplos usuais: µF (10⁻⁶), nF (10⁻⁹) e pF (10⁻¹²).
+            </div>
+          </div>
+
+          <!-- Comportamento em CC e CA -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Comportamento em CC vs CA</h3>
+            <ul class="text-xs font-mono text-gray-300 space-y-2">
+              <li>▸ <strong class="text-white">Em Corrente Contínua (CC):</strong> Carrega-se até a tensão da fonte e bloqueia o circuito (<strong class="text-amber-400">circuito aberto</strong>).</li>
+              <li>▸ <strong class="text-[#22C55E]">Em Corrente Alternada (CA):</strong> Carrega e descarrega sem parar, conduzindo corrente alternada com facilidade (<strong class="text-[#22C55E]">reatância capacitiva $X_C$</strong>).</li>
+            </ul>
+          </div>
+
+          <!-- Constante de Tempo Tau -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Constante de Tempo (τ = R · C)</h3>
+            <p class="text-xs text-gray-300">
+              O tempo que um capacitor leva para atingir 63,2% de sua carga máxima através de um resistor:
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] font-mono text-xs text-cyan-400 text-center font-bold">
+              τ = R · C [segundos]
+            </div>
+            <p class="text-[11px] text-gray-400 font-mono">
+              Em $5\tau$, o capacitor é considerado 100% carregado. Base dos temporizadores integrados 555!
+            </p>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Regra de Ouro do Capacitor: "A tensão sobre um capacitor NÃO pode variar instantaneamente."
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 19 — 10.7 INDUTÂNCIA ELÉTRICA & O INDUTOR -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-19">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.7 CARGA REATIVA ELETROMAGNÉTICA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Indutância: Armazenamento em Campo Magnético</h2>
+          <p class="text-sm text-gray-400">O gêmeo magnético do capacitor: o componente que resiste tenazmente a variações bruscas de corrente.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- A Fórmula da Indutância -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Definição Fundamental</h3>
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-2xl text-white">
+              V = L · (di / dt)  [Henry - H]
+            </div>
+            <p class="text-xs text-gray-300 font-mono">
+              Se a corrente tentar variar rapidamente ($di/dt$), surge uma tensão induzida reversa gigantesca (Força Contra-Eletromotriz).
+            </p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Energia Magnética acumulada: $E = 1/2 · L · I²$.
+            </div>
+          </div>
+
+          <!-- Comportamento em CC e CA -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Comportamento em CC vs CA</h3>
+            <ul class="text-xs font-mono text-gray-200 space-y-2">
+              <li>▸ <strong class="text-white">Em Corrente Contínua (CC):</strong> Após o regime transitório, vira um fio comum (<strong class="text-[#22C55E]">curto-circuito perfeito</strong> de $0\ \Omega$).</li>
+              <li>▸ <strong class="text-amber-400">Em Corrente Alternada (CA):</strong> Opõe-se fortemente à passagem de altas frequências (<strong class="text-amber-400">reatância indutiva $X_L$</strong>).</li>
+            </ul>
+          </div>
+
+          <!-- Reatância Indutiva -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Reatância Indutiva (XL)</h3>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] font-mono text-xs text-[#22C55E] text-center font-bold">
+              XL = 2 · π · f · L [Ω]
+            </div>
+            <p class="text-xs text-gray-300 font-mono">
+              Quanto maior a frequência ($f$), maior a oposição! Indutores atuam como bloqueadores de ruído de alta frequência (Choques de RF).
+            </p>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Regra de Ouro do Indutor: "A corrente através de um indutor NÃO pode variar instantaneamente."
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 20 — 10.8 IMPEDÂNCIA ELÉTRICA (Z) -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-20">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.8 A OPOSIÇÃO TOTAL AO FLUXO EM CA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Impedância Elétrica (Z) & O Triângulo RLC</h2>
+          <p class="text-sm text-gray-400">A soma vetorial da Resistência Ôhmica com as Reatâncias Indutiva e Capacitiva no plano complexo.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: A Fórmula da Impedância -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Equação Geral da Impedância</span>
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#374151] text-center font-tech text-2xl text-white">
+                Z = √( R² + (XL - XC)² ) [Ω]
+              </div>
+              <p class="text-xs text-gray-300 font-mono leading-relaxed">
+                Em regime senoidal alternado, a Lei de Ohm se generaliza: <code class="text-[#22C55E] text-sm font-bold">V = Z · I</code>. A Impedância $Z$ substitui a resistência simples de CC.
+              </p>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: As 3 Parcelas da Impedância -->
+          <div class="lg:col-span-6 space-y-2 font-mono text-xs">
+            <div class="glass-card p-3 rounded-xl border border-[#374151]">
+              <strong class="text-white block">1. Resistência Pura (R):</strong>
+              <span class="text-gray-400">Dissipa energia em calor (Eixo real horizontal). Corrente e tensão em fase.</span>
+            </div>
+
+            <div class="glass-card p-3 rounded-xl border border-[#374151]">
+              <strong class="text-amber-400 block">2. Reatância Indutiva ($X_L = 2\pi f L$):</strong>
+              <span class="text-gray-300">Atrasa a corrente em 90 graus em relação à tensão (Eixo imaginário positivo +j).</span>
+            </div>
+
+            <div class="glass-card p-3 rounded-xl border border-[#374151]">
+              <strong class="text-cyan-400 block">3. Reatância Capacitiva ($X_C = \frac{1}{2\pi f C}$):</strong>
+              <span class="text-gray-300">Adiantada a corrente em 90 graus em relação à tensão (Eixo imaginário negativo -j).</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Como indutores e capacitores puxam a fase para lados opostos (+90° e -90°), eles se anulam mutuamente quando $X_L = X_C$!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 21 — RESSONÂNCIA RLC & FILTROS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-21">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>10.8 SINTONIA & RESSONÂNCIA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Ressonância RLC & Filtros de Frequência</h2>
+          <p class="text-sm text-gray-400">O ponto mágico onde $X_L = X_C$, a reatância total zera e o circuito sintoniza uma estação de rádio ou filtra ruídos.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- A Frequência de Ressonância -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Fórmula de Thomson</h3>
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-xl text-[#22C55E]">
+              f₀ = 1 / (2 · π · √(L · C))
+            </div>
+            <p class="text-xs text-gray-200 font-mono">
+              Na frequência de ressonância $f_0$, o circuito série atinge a <strong>menor impedância possível ($Z = R$)</strong> e a corrente atinge seu pico máximo.
+            </p>
+          </div>
+
+          <!-- Filtros de Frequência -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Filtros Passa-Baixa & Passa-Alta</h3>
+            <ul class="text-xs font-mono text-gray-300 space-y-2">
+              <li>▸ <strong class="text-white">Filtro Passa-Baixa (RC/LC):</strong> Deixa passar sinais contínuos e 60Hz, eliminando ruídos de alta frequência.</li>
+              <li>▸ <strong class="text-white">Filtro Passa-Alta:</strong> Bloqueia níveis contínuos de DC e deixa passar apenas áudio ou sinais modulados.</li>
+            </ul>
+          </div>
+
+          <!-- Correção de Fator de Potência -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Banco de Capacitores</h3>
+            <p class="text-xs text-gray-300">
+              Como motores industriais são fortemente indutivos ($X_L$), instala-se um banco de capacitores em paralelo ($X_C$) para fornecer localmente a potência reativa necessária, aliviando a rede da distribuidora e evitando multas na conta de luz.
+            </p>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Sintonia de rádio: Quando você gira o botão do rádio analógico, está variando um capacitor de placas móveis para igualar $f_0$ à frequência da estação!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 22 — SÍNTESE & ENCERRAMENTO MÓDULO 4 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-22">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F2937] border border-[#22C55E]/40 text-[#22C55E] text-xs font-mono uppercase">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            Síntese do Módulo 4
+          </div>
+          <span class="text-xs font-mono text-[#22C55E] font-bold">MÓDULOS 1, 2, 3 E 4 COMPLETOS</span>
+        </div>
+
+        <div class="text-center max-w-3xl mx-auto my-auto space-y-6">
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black font-tech text-white leading-tight">
+            DO MULTÍMETRO À <br/>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] via-[#4ADE80] to-white text-glow-green">
+              IMPEDÂNCIA TOTAL
+            </span>
+          </h2>
+
+          <!-- Diagrama de Síntese em Pílulas -->
+          <div class="flex flex-wrap items-center justify-center gap-2 font-mono text-xs pt-2">
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">MULTÍMETRO</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">LEI DE OHM</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">CC & CA (RMS)</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">POTÊNCIA (W, VAr, VA)</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#166534] border border-[#22C55E] text-white font-bold glow-green-sm">IMPEDÂNCIA Z</span>
+          </div>
+
+          <!-- Mensagem Final -->
+          <div class="p-6 rounded-2xl glass-panel border border-[#22C55E]/40 relative glow-green-sm">
+            <i data-lucide="quote" class="w-8 h-8 text-[#22C55E]/40 mx-auto mb-2"></i>
+            <p class="text-base sm:text-lg text-gray-200 italic font-light leading-relaxed">
+              "A eletricidade deixa de ser um mistério quando dominamos a instrumentação de bancada e enxergamos a beleza matemática que une a Lei de Ohm, os campos senoidais e a resposta de cada componente reativo."
+            </p>
+          </div>
+
+          <div class="pt-4 flex flex-wrap justify-center gap-3">
+            <button onclick="goToSlide(1)" class="px-5 py-2.5 rounded-xl bg-[#22C55E] hover:bg-[#4ADE80] text-black font-bold font-mono text-xs transition flex items-center gap-1.5">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+              Reiniciar Módulo 4
+            </button>
+            <a href="index.html" class="px-4 py-2.5 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono text-xs transition">
+              Módulo 1
+            </a>
+            <a href="eletronica_2.html" class="px-4 py-2.5 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono text-xs transition">
+              Módulo 2
+            </a>
+            <a href="eletronica_3.html" class="px-4 py-2.5 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono text-xs transition">
+              Módulo 3
+            </a>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-gray-500 font-mono border-t border-[#374151]/50 pt-4">
+          <span>CURSO TÉCNICO • ELETRÔNICA & AUTOMAÇÃO</span>
+          <span class="text-[#22C55E]">SUÍTE COMPLETA: MÓDULOS 1, 2, 3 E 4</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="h-14 border-t border-[#374151]/70 bg-[#0A0A0A]/95 backdrop-blur-md px-6 flex items-center justify-between z-30 select-none">
+    <div class="flex items-center space-x-2">
+      <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+      <span class="font-tech text-xs tracking-wider font-bold text-gray-300">
+        ELETRÔNICA • SISTEMAS AUTOMATIZADOS
+      </span>
+    </div>
+
+    <div class="hidden md:flex items-center space-x-3 text-[11px] font-mono text-gray-500">
+      <span>Navegação:</span>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">← Ant</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">Próx →</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">Espaço</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">F Tela Cheia</kbd>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <button id="btn-prev" onclick="prevSlide()" class="px-3.5 py-1.5 rounded-lg bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-xs font-mono text-white transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        <span>Anterior</span>
+      </button>
+
+      <button id="btn-next" onclick="nextSlide()" class="px-4 py-1.5 rounded-lg bg-[#22C55E] hover:bg-[#4ADE80] text-xs font-mono font-bold text-black transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_12px_rgba(34,197,94,0.3)]">
+        <span>Próximo</span>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </footer>
+
+  <!-- MODAL: VISÃO GERAL DE TODOS OS 22 SLIDES -->
+  <div id="overview-modal" class="fixed inset-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-lg hidden flex flex-col p-6 md:p-12 overflow-y-auto">
+    <div class="flex justify-between items-center max-w-7xl w-full mx-auto pb-4 border-b border-[#374151]">
+      <div class="flex items-center gap-2">
+        <i data-lucide="layout-grid" class="w-5 h-5 text-[#22C55E]"></i>
+        <h3 class="font-tech text-lg font-bold text-white">Módulo 4: Mapa de Todos os Slides</h3>
+      </div>
+      <button onclick="toggleOverviewModal()" class="p-2 rounded-lg bg-[#1F2937] hover:bg-[#374151] text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-w-7xl w-full mx-auto my-6" id="overview-grid">
+      <!-- Inserido dinamicamente via JS -->
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT: NAVEGAÇÃO, ATALHOS & SIMULADORES -->
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 22;
+
+    const slideTitles = [
+      "1. Capa: Módulo 4",
+      "2. Objetivos do Módulo 4",
+      "3. Visão Geral: Bancada à Frequência",
+      "4. 8. Anatomia do Multímetro Digital",
+      "5. 8. Procedimentos de Medição",
+      "6. 8. Simulador do Multímetro",
+      "7. 9. 1ª e 2ª Lei de Ohm",
+      "8. 9. Potência Elétrica & Joule",
+      "9. 10. Conceitos de Eletricidade",
+      "10. 10.1 Corrente Elétrica Fundamental",
+      "11. 10.1.1 Corrente Contínua (CC)",
+      "12. 10.1.2 Corrente Alternada & RMS",
+      "13. 10.1 Comparativo CC × CA",
+      "14. 10.2 Tensão Elétrica & Padrões",
+      "15. 10.3 O Triângulo de Potências",
+      "16. 10.4 Frequência (f) & Período (T)",
+      "17. 10.5 Resistores & Código de Cores",
+      "18. 10.6 Capacitância & O Capacitor",
+      "19. 10.7 Indutância & O Indutor",
+      "20. 10.8 Impedância Elétrica (Z)",
+      "21. 10.8 Ressonância RLC & Filtros",
+      "22. Síntese Final & Encerramento"
+    ];
+
+    function updateSlideUI() {
+      for (let i = 1; i <= totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        if (slide) {
+          if (i === currentSlide) {
+            slide.classList.add('active');
+          } else {
+            slide.classList.remove('active');
+          }
+        }
+      }
+
+      document.getElementById('current-slide-num').textContent = String(currentSlide).padStart(2, '0');
+      document.getElementById('total-slides-num').textContent = String(totalSlides).padStart(2, '0');
+
+      const progressPercent = (currentSlide / totalSlides) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+      document.getElementById('btn-prev').disabled = (currentSlide === 1);
+      document.getElementById('btn-next').disabled = (currentSlide === totalSlides);
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlideUI();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlideUI();
+      }
+    }
+
+    function goToSlide(n) {
+      if (n >= 1 && n <= totalSlides) {
+        currentSlide = n;
+        updateSlideUI();
+        const modal = document.getElementById('overview-modal');
+        if (!modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToSlide(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToSlide(totalSlides);
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullScreen();
+      } else if (e.key === 'Escape') {
+        const modal = document.getElementById('overview-modal');
+        if (!modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      }
+    });
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+        document.getElementById('fs-icon').setAttribute('data-lucide', 'minimize');
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          document.getElementById('fs-icon').setAttribute('data-lucide', 'maximize');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleOverviewModal() {
+      const modal = document.getElementById('overview-modal');
+      const isHidden = modal.classList.contains('hidden');
+      if (isHidden) {
+        buildOverviewGrid();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function buildOverviewGrid() {
+      const grid = document.getElementById('overview-grid');
+      grid.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const card = document.createElement('button');
+        const isActive = (i === currentSlide);
+        card.className = `p-3 rounded-xl text-left border transition font-mono flex flex-col justify-between h-24 ${
+          isActive 
+            ? 'bg-[#166534] border-[#22C55E] text-white shadow-[0_0_12px_#22C55E]' 
+            : 'bg-[#1F2937] border-[#374151] text-gray-300 hover:border-[#22C55E]/50'
+        }`;
+        card.onclick = () => goToSlide(i);
+        card.innerHTML = `
+          <span class="text-[10px] text-[#22C55E] font-bold">SLIDE ${String(i).padStart(2, '0')}</span>
+          <span class="text-xs font-sans font-bold leading-tight line-clamp-2">${slideTitles[i-1]}</span>
+          <span class="text-[9px] text-gray-400">Clique para abrir</span>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    // ==========================================
+    // SIMULADOR 1: MULTÍMETRO DIGITAL (Slide 6)
+    // ==========================================
+    function setSimMeter(mode) {
+      const dial = document.getElementById('sim-dial-needle');
+      const mainDisp = document.getElementById('multimeter-main-display');
+      const subDisp = document.getElementById('multimeter-sub-display');
+      const feedback = document.getElementById('meter-feedback-card');
+
+      if (mode === 'DCV') {
+        dial.style.transform = 'rotate(0deg)';
+        mainDisp.textContent = '12.00 V';
+        subDisp.textContent = 'DC VOLTAGE • AUTO';
+        feedback.innerHTML = `
+          <div class="text-[#22C55E] font-bold">MODO SELECIONADO: TENSÃO CONTÍNUA (DCV)</div>
+          <p class="text-gray-300 font-sans">
+            Pontas de prova em paralelo com a bateria. A impedância de 10 MΩ do multímetro garante medição perfeita sem drenar carga.
+          </p>
+        `;
+      } else if (mode === 'ACV') {
+        dial.style.transform = 'rotate(90deg)';
+        mainDisp.textContent = '220.4 V';
+        subDisp.textContent = 'AC VOLTAGE • TRUE RMS';
+        feedback.innerHTML = `
+          <div class="text-cyan-400 font-bold">MODO SELECIONADO: TENSÃO ALTERNADA (ACV)</div>
+          <p class="text-gray-300 font-sans">
+            Pontas em paralelo nos orifícios da tomada. O circuito conversor RMS do multímetro calcula a raiz média quadrada da onda de 60Hz.
+          </p>
+        `;
+      } else if (mode === 'OHM') {
+        dial.style.transform = 'rotate(180deg)';
+        mainDisp.textContent = '0.998 kΩ';
+        subDisp.textContent = 'RESISTANCE • 4-WIRE';
+        feedback.innerHTML = `
+          <div class="text-yellow-400 font-bold">MODO SELECIONADO: RESISTÊNCIA ÔHMICA (Ω)</div>
+          <p class="text-gray-300 font-sans">
+            Circuito totalmente desenergizado. O instrumento injeta uma corrente de teste própria de poucos microamperes.
+          </p>
+        `;
+      } else if (mode === 'AMP') {
+        dial.style.transform = 'rotate(270deg)';
+        mainDisp.textContent = '2.50 A';
+        subDisp.textContent = '10A FUSED DC CURRENT';
+        feedback.innerHTML = `
+          <div class="text-red-400 font-bold">MODO SELECIONADO: CORRENTE ELÉTRICA (10A)</div>
+          <p class="text-gray-300 font-sans">
+            Ponta vermelha no borne 10A. O circuito foi seccionado e o multímetro inserido em série com o motor.
+          </p>
+        `;
+      }
+    }
+
+    // ==========================================
+    // SIMULADOR 2: POTÊNCIA E JOULE (Slide 8)
+    // ==========================================
+    function updatePowerSim() {
+      const v = parseFloat(document.getElementById('p-slider-v').value);
+      const r = parseFloat(document.getElementById('p-slider-r').value);
+      const i = v / r;
+      const w = v * i;
+
+      document.getElementById('p-slider-v-disp').textContent = `${v} V`;
+      document.getElementById('p-slider-r-disp').textContent = `${r} Ω`;
+
+      document.getElementById('p-sim-v').textContent = `${v} V`;
+      document.getElementById('p-sim-i').textContent = `${i.toFixed(2)} A`;
+      document.getElementById('p-sim-w').textContent = `${w.toFixed(1)} W`;
+
+      const tag = document.getElementById('power-safety-tag');
+      if (w > 50) {
+        tag.textContent = 'AQUECIMENTO INTENSO (DISSIPADOR OBRIGATÓRIO)';
+        tag.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-500 font-bold';
+      } else if (w > 10) {
+        tag.textContent = 'POTÊNCIA MODERADA (RESISTOR 20W)';
+        tag.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-500 font-bold';
+      } else {
+        tag.textContent = 'POTÊNCIA SEGURA (BAIXO AQUECIMENTO)';
+        tag.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-[#1F2937] text-[#22C55E] border border-[#22C55E]';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSlideUI();
+      updatePowerSim();
+    });
+  </script>
+</body>
+</html>

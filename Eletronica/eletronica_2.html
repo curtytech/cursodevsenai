@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 2: Eletrônica Digital, Analógica & Proteção Elétrica — Curso Técnico</title>
+
+  <!-- Google Fonts: Inter, JetBrains Mono e Orbitron -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            theme: {
+              black: '#0A0A0A',
+              dark: '#1F2937',
+              gray: '#374151',
+              lightGray: '#4B5563',
+              green: '#22C55E',
+              darkGreen: '#166534',
+              brightGreen: '#4ADE80',
+              emerald: '#10B981',
+              white: '#F9FAFB',
+              accentCyan: '#06B6D4'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            tech: ['Orbitron', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background-color: #0A0A0A;
+      color: #F9FAFB;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Grid técnico de circuito impresso (PCB) */
+    .pcb-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(34, 197, 94, 0.05) 1px, transparent 1px);
+    }
+
+    .glow-green {
+      box-shadow: 0 0 20px -3px rgba(34, 197, 94, 0.35);
+    }
+    
+    .glow-green-sm {
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+    }
+
+    .text-glow-green {
+      text-shadow: 0 0 12px rgba(34, 197, 94, 0.55);
+    }
+
+    /* Glassmorphism moderado */
+    .glass-panel {
+      background: rgba(31, 41, 55, 0.72);
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .glass-card {
+      background: rgba(31, 41, 55, 0.85);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(34, 197, 94, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -4px rgba(34, 197, 94, 0.15);
+    }
+
+    /* Animações de trilhas e LEDs */
+    @keyframes pulseTrace {
+      0% { stroke-dashoffset: 200; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .animated-trace {
+      stroke-dasharray: 12, 12;
+      animation: pulseTrace 4s linear infinite;
+    }
+
+    @keyframes ledBlink {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px #22C55E); }
+      50% { opacity: 0.35; filter: none; }
+    }
+
+    .led-pulsing {
+      animation: ledBlink 1.8s ease-in-out infinite;
+    }
+
+    /* Transição suave entre slides */
+    .slide-wrapper {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.98) translateY(8px);
+      transition: opacity 0.35s ease-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-wrapper.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    .slide-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .slide-scroll::-webkit-scrollbar-track {
+      background: rgba(31, 41, 55, 0.4);
+      border-radius: 4px;
+    }
+    .slide-scroll::-webkit-scrollbar-thumb {
+      background: #22C55E;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-[#0A0A0A] text-[#F9FAFB] pcb-grid relative selection:bg-[#22C55E]/30 selection:text-white">
+
+  <!-- TOP BAR -->
+  <header class="h-14 border-b border-[#374151]/70 bg-[#0A0A0A]/90 backdrop-blur-md px-6 flex items-center justify-between z-30 select-none">
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#1F2937] border border-[#374151]">
+        <span class="w-2 h-2 rounded-full bg-[#22C55E] led-pulsing"></span>
+        <span class="font-tech text-xs tracking-wider text-[#22C55E] font-semibold">MÓDULO 2</span>
+      </div>
+      <div class="h-4 w-px bg-[#374151]"></div>
+      <a href="index.html" title="Voltar ao Módulo 1" class="text-xs font-mono text-gray-400 hover:text-[#22C55E] transition flex items-center gap-1">
+        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline">MÓDULO 1</span>
+      </a>
+    </div>
+
+    <!-- Título Centralizado -->
+    <div class="text-center font-tech text-xs md:text-sm tracking-wider text-white font-bold flex items-center gap-2">
+      <i data-lucide="cpu" class="w-4 h-4 text-[#22C55E]"></i>
+      <span>SEMICONDUTORES, CIRCUITOS DIGITAIS & PROTEÇÃO</span>
+    </div>
+
+    <!-- Indicador e Botões de Controle Superior -->
+    <div class="flex items-center space-x-3">
+      <div class="font-mono text-xs px-2.5 py-1 bg-[#1F2937] rounded border border-[#374151] flex items-center gap-1.5">
+        <span class="text-[#22C55E] font-bold" id="current-slide-num">01</span>
+        <span class="text-gray-500">/</span>
+        <span class="text-gray-400" id="total-slides-num">22</span>
+      </div>
+
+      <button onclick="toggleOverviewModal()" title="Visão Geral dos Slides (Menu)" class="p-1.5 rounded bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-gray-300 hover:text-white transition">
+        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+      </button>
+
+      <button onclick="toggleFullScreen()" title="Modo Tela Cheia (F)" class="p-1.5 rounded bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-gray-300 hover:text-white transition">
+        <i data-lucide="maximize" class="w-4 h-4" id="fs-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- BARRA DE PROGRESSO SUPERIOR -->
+  <div class="h-1 w-full bg-[#1F2937] relative z-30">
+    <div id="progress-bar" class="h-full bg-gradient-to-r from-[#166534] via-[#22C55E] to-[#4ADE80] transition-all duration-300 shadow-[0_0_8px_#22C55E]" style="width: 4.54%;"></div>
+  </div>
+
+  <!-- CONTAINER PRINCIPAL DOS SLIDES -->
+  <main id="presentation-viewport" class="relative w-full h-[calc(100vh-7rem)] overflow-hidden">
+
+    <!-- ========================================== -->
+    <!-- SLIDE 1 — CAPA MÓDULO 2 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper active" id="slide-1">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F2937] border border-[#22C55E]/40 text-[#22C55E] text-xs font-mono tracking-widest uppercase">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            Módulo 2 • Dispositivos & Potência
+          </div>
+          <span class="text-xs font-mono text-gray-400">CURSO TÉCNICO • CONTINUAÇÃO</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto">
+          <div class="lg:col-span-7 space-y-5">
+            <div class="inline-block px-2.5 py-1 rounded bg-[#166534]/50 border border-[#22C55E]/50 text-[#22C55E] font-mono text-xs">
+              PORTAS • CONVERSORES • TRANSISTORES • AMP-OPS • TIRISTORES • PROTEÇÃO
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black font-tech tracking-tight text-white leading-tight">
+              CIRCUITOS DIGITAIS, <br/>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] via-[#4ADE80] to-white text-glow-green">
+                ANALÓGICA & PROTEÇÃO
+              </span>
+            </h1>
+            <p class="text-base sm:text-lg text-gray-300 font-light max-w-2xl leading-relaxed">
+              O aprofundamento essencial em semicondutores, conversores A/D e D/A, amplificadores operacionais, eletrônica de potência com tiristores e proteção de sistemas elétricos industriais.
+            </p>
+            
+            <div class="flex flex-wrap gap-2.5 pt-2">
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                1. Eletrônica Digital
+              </span>
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                2. Eletrônica Analógica & Potência
+              </span>
+              <span class="px-3 py-1 rounded-lg bg-[#1F2937] border border-[#374151] text-xs font-mono text-gray-300">
+                3. Proteção Elétrica
+              </span>
+            </div>
+          </div>
+
+          <!-- Composição Gráfica -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="relative w-full max-w-md aspect-square rounded-2xl glass-panel p-6 border border-[#22C55E]/30 glow-green relative overflow-hidden flex flex-col justify-between">
+              <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 400 400">
+                <path d="M 50 200 L 150 200 L 200 120 L 300 120 L 350 200" fill="none" stroke="#22C55E" stroke-width="2" class="animated-trace" />
+                <path d="M 150 200 L 150 280 L 250 280 L 250 200" fill="none" stroke="#22C55E" stroke-width="2" />
+                <circle cx="200" cy="120" r="5" fill="#22C55E" />
+                <circle cx="150" cy="200" r="5" fill="#22C55E" />
+                <circle cx="250" cy="200" r="5" fill="#22C55E" />
+              </svg>
+
+              <div class="flex justify-between items-center z-10">
+                <span class="font-mono text-xs text-[#22C55E] font-bold">DISCIPLINAS INTEGRADAS</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#22C55E] led-pulsing"></span>
+              </div>
+
+              <!-- Diagrama Esquemático Central -->
+              <div class="my-auto self-center p-5 rounded-xl bg-[#0A0A0A] border-2 border-[#22C55E] text-center z-10 w-52 shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+                <i data-lucide="shield-check" class="w-10 h-10 mx-auto text-[#22C55E] mb-2"></i>
+                <div class="font-tech text-xs tracking-wider font-bold text-white">HARDWARE & POWER</div>
+                <div class="font-mono text-[9px] text-[#22C55E] mt-1">INDUSTRIAL STANDARDS</div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2 text-center z-10 font-mono text-[10px]">
+                <div class="bg-[#0A0A0A]/90 p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">DIGITAL</span>
+                  <span class="text-[#22C55E] font-bold">A/D & D/A</span>
+                </div>
+                <div class="bg-[#0A0A0A]/90 p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">ANALÓGICA</span>
+                  <span class="text-white font-bold">Op-Amp & BJT</span>
+                </div>
+                <div class="bg-[#0A0A0A]/90 p-2 rounded border border-[#374151]">
+                  <span class="text-gray-400 block">POTÊNCIA</span>
+                  <span class="text-[#22C55E] font-bold">TRIAC & MOV</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-gray-500 font-mono border-t border-[#374151]/50 pt-4">
+          <span>Use [← / →] ou clique em "Próximo" para avançar</span>
+          <span class="text-[#22C55E] flex items-center gap-1 font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span> 22 Slides Técnicos
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 2 — OBJETIVOS DA AULA 2 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-2">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>PROGRAMA DA DISCIPLINA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Objetivos do Módulo 2</h2>
+          <p class="text-sm text-gray-400">Domínio das tecnologias de conversão de dados, circuitos amplificadores, semicondutores e segurança.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Bloco 1 -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="binary" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-[#22C55E] font-bold block">DISCIPLINA 1</span>
+            <h3 class="font-bold text-base text-white">Eletrônica Digital & Conversores</h3>
+            <ul class="text-xs text-gray-300 space-y-1.5 font-mono">
+              <li>▸ Portas lógicas combinacionais e mapas</li>
+              <li>▸ Conversores A/D (Analógico-Digital)</li>
+              <li>▸ Conversores D/A (Digital-Analógico)</li>
+              <li>▸ Características de sensores analógicos e digitais</li>
+              <li>▸ Transdutores e condicionamento de sinais</li>
+            </ul>
+          </div>
+
+          <!-- Bloco 2 -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#22C55E] flex items-center justify-center text-[#0A0A0A]">
+              <i data-lucide="cpu" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-[#22C55E] font-bold block">DISCIPLINA 2</span>
+            <h3 class="font-bold text-base text-white">Eletrônica Analógica & Tiristores</h3>
+            <ul class="text-xs text-gray-200 space-y-1.5 font-mono">
+              <li>▸ Diodos retificadores e LEDs de sinalização</li>
+              <li>▸ Fontes de alimentação com filtragem (Ripple)</li>
+              <li>▸ Transistores bipolares (BJT) em chaveamento</li>
+              <li>▸ Amplificadores operacionais (Amp, Comp, Soma, Sub)</li>
+              <li>▸ Tiristores de potência: SCR, DIAC e TRIAC</li>
+            </ul>
+          </div>
+
+          <!-- Bloco 3 -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#166534]/50 border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="shield-alert" class="w-5 h-5"></i>
+            </div>
+            <span class="text-xs font-mono text-[#22C55E] font-bold block">DISCIPLINA 3</span>
+            <h3 class="font-bold text-base text-white">Dispositivos de Proteção Elétrica</h3>
+            <ul class="text-xs text-gray-300 space-y-1.5 font-mono">
+              <li>▸ Fusíveis de queima rápida e retardada</li>
+              <li>▸ Disjuntores termomagnéticos (Curvas B, C e D)</li>
+              <li>▸ Supressores de surto (Varistor MOV e TVS)</li>
+              <li>▸ Relés térmicos de sobrecarga para motores</li>
+              <li>▸ Interruptor Diferencial Residual (DR / IDR)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] text-xs text-gray-400 font-mono text-center">
+          Foco didático: relacionar a teoria dos componentes com a montagem real em placas de circuito e armários industriais.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 3 — VISÃO GERAL DAS DISCIPLINAS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-3">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>INTEGRAÇÃO DO SISTEMA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Visão Geral: Do Silício à Proteção</h2>
+          <p class="text-sm text-gray-400">Como os componentes analógicos, conversores e elementos de potência convivem em segurança.</p>
+        </div>
+
+        <div class="my-auto py-3">
+          <div class="glass-panel p-6 rounded-2xl border border-[#22C55E]/40 space-y-6">
+            <!-- Diagrama em Camadas Horizontais -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center font-mono text-xs">
+              <!-- Camada 1 -->
+              <div class="p-4 rounded-xl bg-[#0A0A0A] border border-[#374151] space-y-2">
+                <span class="text-[10px] text-gray-400 block">CAMADA DE ENTRADA</span>
+                <div class="text-[#22C55E] font-bold text-sm">SENSORES & SINAIS</div>
+                <p class="text-[11px] text-gray-300">Termopares, NTC, LDR e sensores industriais geram sinais contínuos.</p>
+              </div>
+
+              <!-- Camada 2 -->
+              <div class="p-4 rounded-xl bg-[#0A0A0A] border border-[#374151] space-y-2">
+                <span class="text-[10px] text-gray-400 block">CONDICIONAMENTO</span>
+                <div class="text-[#22C55E] font-bold text-sm">AMP-OPS & FILTROS</div>
+                <p class="text-[11px] text-gray-300">Amplificam milivolts, eliminam ruídos e preparam para digitalização.</p>
+              </div>
+
+              <!-- Camada 3 -->
+              <div class="p-4 rounded-xl bg-[#166534]/30 border border-[#22C55E] space-y-2">
+                <span class="text-[10px] text-[#22C55E] block font-bold">DIGITALIZAÇÃO</span>
+                <div class="text-white font-bold text-sm">CONVERSOR A/D & CPU</div>
+                <p class="text-[11px] text-gray-200">Amostragem binária, lógica computacional e tomada de decisões.</p>
+              </div>
+
+              <!-- Camada 4 -->
+              <div class="p-4 rounded-xl bg-[#0A0A0A] border border-[#374151] space-y-2">
+                <span class="text-[10px] text-gray-400 block">POTÊNCIA & SAÍDA</span>
+                <div class="text-[#22C55E] font-bold text-sm">BJT, TIRISTORES & DISJ</div>
+                <p class="text-[11px] text-gray-300">Chaveamento de alta corrente com proteção térmica e contra surtos.</p>
+              </div>
+            </div>
+
+            <!-- Faixa de Proteção Transversal -->
+            <div class="p-3 rounded-xl bg-[#1F2937] border-2 border-dashed border-[#22C55E]/60 flex items-center justify-between text-xs font-mono">
+              <div class="flex items-center gap-3">
+                <i data-lucide="shield" class="w-5 h-5 text-[#22C55E]"></i>
+                <span class="text-white font-bold">PROTEÇÃO ELÉTRICA INTEGRAL:</span>
+                <span class="text-gray-300">Fusíveis, Varistores (MOV), Diodos de Roda-Livre e Disjuntores operam em todas as camadas.</span>
+              </div>
+              <span class="text-[#22C55E] font-bold hidden sm:inline">SAFETY FIRST</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Um circuito bem projetado garante imunidade eletromagnética, precisão na conversão e tolerância a falhas na rede.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 4 — 1.1 PORTAS LÓGICAS AVANÇADAS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-4">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>1.1 ELETRÔNICA DIGITAL</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Portas Lógicas Universais & Especiais</h2>
+          <p class="text-sm text-gray-400">NAND e NOR como portas universais, além de XOR e XNOR para comparação e paridade aritmética.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-auto">
+          <!-- NAND -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-mono text-[#22C55E] font-bold">PORTA NAND</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-gray-400">Universal</span>
+            </div>
+            <div class="font-tech text-base text-white">Y = (A · B)'</div>
+            <p class="text-xs text-gray-300">Saída é 0 <strong>apenas</strong> se todas as entradas forem 1. Com NANDs é possível construir qualquer circuito digital.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              0,0→1 | 0,1→1 | 1,0→1 | 1,1→0
+            </div>
+          </div>
+
+          <!-- NOR -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-mono text-[#22C55E] font-bold">PORTA NOR</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-gray-400">Universal</span>
+            </div>
+            <div class="font-tech text-base text-white">Y = (A + B)'</div>
+            <p class="text-xs text-gray-300">Saída é 1 <strong>apenas</strong> se ambas as entradas forem 0. Base clássica de Flip-Flops e memórias estáticas (SRAM).</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              0,0→1 | 0,1→0 | 1,0→0 | 1,1→0
+            </div>
+          </div>
+
+          <!-- XOR -->
+          <div class="glass-card p-4 rounded-xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-mono text-[#22C55E] font-bold">PORTA XOR</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Ou Exclusivo</span>
+            </div>
+            <div class="font-tech text-base text-white">Y = A ⊕ B</div>
+            <p class="text-xs text-gray-200">Saída é 1 quando as entradas forem <strong>diferentes</strong>. Fundamental em somadores binários de CPUs e criptografia.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              0,0→0 | 0,1→1 | 1,0→1 | 1,1→0
+            </div>
+          </div>
+
+          <!-- XNOR -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-mono text-[#22C55E] font-bold">PORTA XNOR</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-gray-400">Comparador</span>
+            </div>
+            <div class="font-tech text-base text-white">Y = (A ⊕ B)'</div>
+            <p class="text-xs text-gray-300">Saída é 1 quando as entradas forem <strong>iguais</strong>. Utilizada em comparadores de magnitude e checagem de paridade de dados.</p>
+            <div class="text-[10px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              0,0→1 | 0,1→0 | 1,0→0 | 1,1→1
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] text-xs font-mono text-gray-300 flex items-center justify-between">
+          <span>Teorema de De Morgan: <code class="text-[#22C55E]">(A · B)' = A' + B'</code> e <code class="text-[#22C55E]">(A + B)' = A' · B'</code></span>
+          <span class="text-gray-400">Otimização de chips lógicos</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 5 — 1.2.1 CONVERSORES A/D -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-5">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>1.2.1 CONVERSÃO ANALÓGICO-DIGITAL (A/D)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Conversores Analógico-Digital (ADC)</h2>
+          <p class="text-sm text-gray-400">Transformando variações de tensão contínuas em palavras binárias para microcontroladores.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">As 3 Fases da Conversão ADC</span>
+              
+              <div class="space-y-2 text-xs font-mono">
+                <div class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151]">
+                  <strong class="text-white block">1. Amostragem (Sampling):</strong>
+                  <span class="text-gray-400">Captura amostras do sinal contínuo em intervalos discretos (Teorema de Nyquist: $f_s \ge 2 \cdot f_{max}$).</span>
+                </div>
+                <div class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151]">
+                  <strong class="text-white block">2. Quantização:</strong>
+                  <span class="text-gray-400">Arredondamento da tensão medida para o degrau (step) mais próximo da escala digital.</span>
+                </div>
+                <div class="p-2.5 rounded bg-[#0A0A0A] border border-[#374151]">
+                  <strong class="text-white block">3. Codificação (Encoding):</strong>
+                  <span class="text-gray-400">Geração da palavra binária correspondente (Ex: 0 a 1023 para 10 bits).</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-[#374151] font-mono text-xs">
+              <span class="text-[#22C55E] font-bold block mb-1">Cálculo da Resolução (Tensão de Passo):</span>
+              <div class="text-white">Degrau ($\Delta V$) = $V_{ref} / (2^n - 1)$</div>
+              <div class="text-gray-400 text-[11px] mt-1">Para 5V com 10 bits ($2^{10} = 1024$ níveis): $\Delta V = 5 / 1023 pprox 4,88	ext{ mV por degrau}$.</div>
+            </div>
+          </div>
+
+          <!-- Simulador Interativo de ADC -->
+          <div class="lg:col-span-6">
+            <div class="glass-panel p-6 rounded-2xl border border-[#374151] space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Simulador Interativo ADC 10 bits</span>
+                <span class="text-[10px] font-mono text-gray-400">Vref = 5.0 V</span>
+              </div>
+
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#374151] space-y-3 font-mono text-xs text-center">
+                <div class="text-gray-400">Tensão Analógica Injetada:</div>
+                <div id="adc-voltage-display" class="font-tech text-3xl font-bold text-white">2.50 V</div>
+                
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-[#374151]">
+                  <div class="bg-[#1F2937] p-2 rounded">
+                    <span class="text-[10px] text-gray-400 block">VALOR DECIMAL (10-bit)</span>
+                    <span id="adc-dec-display" class="text-lg font-bold text-[#22C55E]">512</span>
+                  </div>
+                  <div class="bg-[#1F2937] p-2 rounded">
+                    <span class="text-[10px] text-gray-400 block">PALAVRA BINÁRIA</span>
+                    <span id="adc-bin-display" class="text-xs font-bold text-white tracking-widest">1000000000</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-mono text-gray-300 flex justify-between">
+                  <span>Ajustar Tensão de Entrada (Vin)</span>
+                  <span class="text-[#22C55E] font-bold">0V a 5V</span>
+                </label>
+                <input type="range" min="0" max="5" step="0.05" value="2.5" id="adc-slider" class="w-full accent-[#22C55E] bg-[#1F2937] rounded-lg cursor-pointer" oninput="updateADCSim()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Quanto maior o número de bits (ex: 12 bits = 4096 níveis, 16 bits = 65536 níveis), menor o ruído de quantização e maior a precisão do sensor.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 6 — 1.2.2 CONVERSORES D/A -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-6">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>1.2.2 CONVERSÃO DIGITAL-ANALÓGICA (D/A)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Conversores Digital-Analógico (DAC)</h2>
+          <p class="text-sm text-gray-400">Reconstruindo sinais contínuos no tempo para áudio, controle de velocidade e geração de ondas arbitrárias.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Topologia 1: R-2R Ladder -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#22C55E] flex items-center justify-center text-[#0A0A0A]">
+              <i data-lucide="git-merge" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-base text-white">Rede Escada R-2R</h3>
+            <p class="text-xs text-gray-200">
+              A arquitetura DAC mais popular da eletrônica. Utiliza apenas dois valores de resistores ($R$ e $2R$) repetidos em cascata, eliminando a necessidade de tolerâncias complexas.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Vantagem: Alta velocidade e simplicidade de fabricação em chips.
+            </div>
+          </div>
+
+          <!-- Topologia 2: PWM Filtrado -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="sliders" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-base text-white">PWM + Filtro Passa-Baixa</h3>
+            <p class="text-xs text-gray-300">
+              Modulação por Largura de Pulso filtrada por um circuito RC passivo. O valor analógico de tensão contínua gerado é diretamente proporcional ao Duty Cycle (ciclo ativo).
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Vantagem: Custo zero de hardware adicional em microcontroladores.
+            </div>
+          </div>
+
+          <!-- Aplicações Práticas -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[#1F2937] border border-[#22C55E]/40 flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="activity" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-base text-white">Aplicações Industriais</h3>
+            <ul class="text-xs text-gray-300 space-y-2 font-mono">
+              <li>▸ Padrão analógico 4-20mA e 0-10V para válvulas proporcionais.</li>
+              <li>▸ Controle de rotação em inversores de frequência.</li>
+              <li>▸ Sintetizadores de frequência e placas de som de alta fidelidade.</li>
+            </ul>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Padrão Industrial: 4 a 20 mA imune a quedas de cabo longo.
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Enquanto o ADC "ouve" o mundo real, o DAC "fala" com o mundo real através de ondas contínuas de tensão e corrente.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 7 — 1.3 TIPOS E CARACTERÍSTICAS DE SENSORES -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-7">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>1.3 TIPOS E CARACTERÍSTICAS DE SENSORES</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Sensores Analógicos × Digitais</h2>
+          <p class="text-sm text-gray-400">Compreendendo as diferenças fundamentais de interface, precisão e imunidade a ruídos na instrumentação.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- Coluna Sensores Analógicos -->
+          <div class="glass-card p-6 rounded-2xl border border-[#374151] space-y-4">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-3">
+              <h3 class="font-bold text-base text-white flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4 text-cyan-400"></i>
+                1.3.2 Sensores Analógicos
+              </h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-cyan-400">Sinal Contínuo</span>
+            </div>
+            <ul class="text-xs font-mono text-gray-300 space-y-2.5">
+              <li><strong class="text-white">Saída:</strong> Variação de resistência, capacitância ou tensão proporcional (mV/V).</li>
+              <li><strong class="text-white">Resolução:</strong> Teoricamente infinita (limitada apenas pelo conversor ADC receptor).</li>
+              <li><strong class="text-white">Cabo Longo:</strong> Sofre com queda de tensão ôhmica e ruído de indução eletromagnética.</li>
+              <li><strong class="text-white">Exemplos:</strong> Termopares, NTC/PTC, Células de Carga piezorresistivas e LDRs.</li>
+            </ul>
+          </div>
+
+          <!-- Coluna Sensores Digitais -->
+          <div class="glass-card p-6 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-4">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-3">
+              <h3 class="font-bold text-base text-white flex items-center gap-2">
+                <i data-lucide="binary" class="w-4 h-4 text-[#22C55E]"></i>
+                1.3.1 Sensores Digitais
+              </h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Barramentos de Dados</span>
+            </div>
+            <ul class="text-xs font-mono text-gray-200 space-y-2.5">
+              <li><strong class="text-white">Saída:</strong> Pacotes de dados digitais serializados (I2C, SPI, 1-Wire, RS-485 Modbus).</li>
+              <li><strong class="text-white">Calibração Interna:</strong> Possui ADC e memória EEPROM embutidos com calibração de fábrica.</li>
+              <li><strong class="text-white">Cabo Longo:</strong> Altíssima imunidade com checagem de erros por CRC/Checksum.</li>
+              <li><strong class="text-white">Exemplos:</strong> DS18B20 (1-Wire), BME280 (I2C), Encoders incrementais e ToF laser.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tabela de Decisão do Engenheiro -->
+        <div class="p-4 rounded-xl bg-[#0A0A0A] border border-[#374151] font-mono text-xs flex justify-between items-center">
+          <span class="text-gray-300">Regra de Seleção:</span>
+          <span class="text-white">Se precisa de resposta em microssegundos → <strong class="text-cyan-400">Analógico puro</strong>. Se precisa de longa distância e calibração garantida → <strong class="text-[#22C55E]">Digital</strong>.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 8 — 1.3 ESTUDO PRÁTICO DE SENSORES -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-8">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>1.3 ESTUDO DE CASO EM BANCADA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Estudo Comparativo: LM35 vs DS18B20</h2>
+          <p class="text-sm text-gray-400">Dois dos sensores de temperatura mais consagrados da indústria analisados sob a ótica do circuito.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- Sensor Analógico: LM35 -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="font-tech text-base font-bold text-white">Sensor Analógico: LM35</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1F2937] text-cyan-400">10 mV / °C</span>
+            </div>
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] font-mono text-xs space-y-1.5">
+              <div>Vout = 10 mV por grau Celsius linear direto</div>
+              <div class="text-[#22C55E]">Exemplo: 25 °C = 250 mV (0.25 V) na saída</div>
+              <div class="text-gray-400">Conexão: Pino VCC, GND e Pino Analógico A0</div>
+            </div>
+            <p class="text-xs text-gray-300">
+              Extremamente simples de programar, porém qualquer ruído no pino A0 ou flutuação na fonte de 5V altera diretamente o valor medido.
+            </p>
+          </div>
+
+          <!-- Sensor Digital: DS18B20 -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="font-tech text-base font-bold text-white">Sensor Digital: DS18B20</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Protocolo 1-Wire</span>
+            </div>
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] font-mono text-xs space-y-1.5">
+              <div>Transmite dados digitais com resolução configurável (9 a 12 bits)</div>
+              <div class="text-[#22C55E]">Possui endereço de 64 bits gravado a laser no chip</div>
+              <div class="text-gray-400">Conexão: Permite dezenas de sensores no mesmo fio de dados!</div>
+            </div>
+            <p class="text-xs text-gray-200">
+              Imune a flutuações de tensão analógica e com alcance de até 100 metros sem perda de calibração.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#1F2937]/50 border border-[#374151] text-xs font-mono text-center text-gray-300">
+          Aplicação prática: Salas técnicas usam o barramento 1-Wire do DS18B20 para monitorar dezenas de racks com apenas 3 condutores.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 9 — 1.4 TRANSDUTORES E CONVERSORES -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-9">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>1.4 TRANSDUTORES E CONDICIONAMENTO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Transdutores & Pontes de Medição</h2>
+          <p class="text-sm text-gray-400">Como converter pequenas variações mecânicas e térmicas em sinais elétricos estáveis.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">A Ponte de Wheatstone</span>
+              <p class="text-xs text-gray-300 leading-relaxed">
+                Circuito resistivo de 4 nós fundamental para transdutores com variações mínimas de resistência (como Strain Gauges de balanças e PT100).
+              </p>
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] font-mono text-xs text-white">
+                Condição de Equilíbrio: $R_1 \cdot R_4 = R_2 \cdot R_3 \implies \Delta V = 0	ext{ V}$
+              </div>
+              <p class="text-xs text-gray-400">
+                Quando a grandeza física deforma o sensor, a ponte sai do equilíbrio e gera milivolts proporcionais com cancelamento térmico natural.
+              </p>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 space-y-3 font-mono text-xs">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+                O Condicionador de Sinal (Transmissor)
+              </span>
+              
+              <div class="space-y-2">
+                <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151]">
+                  <span class="text-[#22C55E] font-bold block">1. Linearização:</span>
+                  <span class="text-gray-300">Compensação matemática de sensores com comportamento exponencial (ex: NTC).</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151]">
+                  <span class="text-[#22C55E] font-bold block">2. Isolação Galvânica:</span>
+                  <span class="text-gray-300">Optoacopladores protegem os circuitos digitais contra surtos de 220V/380V.</span>
+                </div>
+                <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151]">
+                  <span class="text-[#22C55E] font-bold block">3. Conversão para Loop 4-20mA:</span>
+                  <span class="text-gray-300">4mA representa o zero (Live Zero: detecta se o fio partiu se a corrente cair para 0mA).</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          "Live Zero" de 4mA: Se a corrente for 0 mA, o controlador acusa falha de fiação rompida imediatamente!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 10 — 2.1 DIODOS RETIFICADORES -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-10">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.1 ELETRÔNICA ANALÓGICA: SEMICONDUTORES</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Diodos Retificadores</h2>
+          <p class="text-sm text-gray-400">A válvula de sentido único da eletricidade: Junção P-N, polarização e retificação de corrente alternada.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Junção P-N -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-base text-white">Junção P-N de Silício</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-[#22C55E]">0,7 V</span>
+            </div>
+            <p class="text-xs text-gray-300">
+              União de semicondutores tipo P (lacunas) e tipo N (elétrons). Exige vencer a barreira de potencial de aproximadamente <strong>0,7V</strong> para entrar em condução direta.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Polarização Direta: Conduz.<br/>
+              Polarização Reversa: Bloqueia (corrente de fuga insignificante).
+            </div>
+          </div>
+
+          <!-- Meia Onda vs Onda Completa -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Retificação de Onda</h3>
+            <ul class="text-xs text-gray-200 space-y-2 font-mono">
+              <li><strong class="text-white">Meia Onda (1 Diodo):</strong> Aproveita apenas os semiciclos positivos da rede AC. Baixa eficiência.</li>
+              <li><strong class="text-[#22C55E]">Onda Completa (Ponte de Graetz):</strong> 4 diodos que aproveitam ambos os semiciclos, dobrando a frequência para 120 Hz.</li>
+            </ul>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Ponte 1N4007: Suporta até 1000V de pico reverso e 1A de corrente direta.
+            </div>
+          </div>
+
+          <!-- Diodo de Roda-Livre (Flyback) -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Diodo de Roda-Livre (Flyback)</h3>
+            <p class="text-xs text-gray-300">
+              Conectado em antiparalelo com bobinas de relés e motores. Desvia o surto de tensão destrutivo gerado pela autoindução (<code class="text-amber-400">V = -L di/dt</code>) no momento do desligamento.
+            </p>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Função: Salvar transistores e saídas de microcontroladores da queima.
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Regra prática: Nunca acione um relé com transistor sem colocar um diodo 1N4007 invertido na bobina!
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 11 — 2.2 LEDS E CÁLCULO DE RESISTOR -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-11">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.2 DIODOS EMISSORES DE LUZ (LED)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">LEDs & Dimensionamento de Resistor</h2>
+          <p class="text-sm text-gray-400">Eletroluminescência semicondutora, queda de tensão por comprimento de onda e cálculo da proteção.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Coluna Esquerda: Teoria e Tabela de Quedas -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Fórmula do Resistor Limitador</span>
+              <div class="font-tech text-2xl font-bold text-white text-center py-2 bg-[#0A0A0A] rounded-xl border border-[#374151]">
+                R = (Vcc - Vled) / Iled
+              </div>
+              <p class="text-xs text-gray-300">
+                Como o LED não possui resistência interna apreciável após conduzir, ligá-lo sem resistor limitador provoca queima quase instantânea por sobrecorrente.
+              </p>
+            </div>
+
+            <!-- Tabela de Queda de Tensão por Cor -->
+            <div class="grid grid-cols-4 gap-2 text-center font-mono text-xs">
+              <div class="p-2 rounded bg-[#0A0A0A] border border-red-500/40">
+                <span class="text-red-400 font-bold block">Vermelho</span>
+                <span class="text-gray-300 text-[10px]">~1.8V - 2.0V</span>
+              </div>
+              <div class="p-2 rounded bg-[#0A0A0A] border border-green-500/40">
+                <span class="text-[#22C55E] font-bold block">Verde</span>
+                <span class="text-gray-300 text-[10px]">~2.1V - 2.4V</span>
+              </div>
+              <div class="p-2 rounded bg-[#0A0A0A] border border-blue-500/40">
+                <span class="text-cyan-400 font-bold block">Azul</span>
+                <span class="text-gray-300 text-[10px]">~3.0V - 3.2V</span>
+              </div>
+              <div class="p-2 rounded bg-[#0A0A0A] border border-gray-400">
+                <span class="text-white font-bold block">Branco</span>
+                <span class="text-gray-300 text-[10px]">~3.2V - 3.4V</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Calculadora Interativa de Resistor -->
+          <div class="lg:col-span-6">
+            <div class="glass-panel p-6 rounded-2xl border border-[#374151] space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Calculadora Interativa de Bancada</span>
+                <span class="text-[10px] font-mono text-gray-400">LED STANDARD 5mm</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 font-mono text-xs">
+                <div>
+                  <label class="text-gray-400 block mb-1">Tensão da Fonte (Vcc):</label>
+                  <select id="calc-vcc" onchange="calcLedResistor()" class="w-full bg-[#0A0A0A] border border-[#374151] text-white p-2 rounded">
+                    <option value="5">5.0 V (Arduino / USB)</option>
+                    <option value="3.3">3.3 V (ESP32 / ARM)</option>
+                    <option value="12" selected>12.0 V (Painel / Bateria)</option>
+                    <option value="24">24.0 V (CLP Industrial)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="text-gray-400 block mb-1">Cor do LED (Vled):</label>
+                  <select id="calc-vled" onchange="calcLedResistor()" class="w-full bg-[#0A0A0A] border border-[#374151] text-white p-2 rounded">
+                    <option value="2.0">Vermelho (~2.0V)</option>
+                    <option value="2.2" selected>Verde (~2.2V)</option>
+                    <option value="3.2">Azul / Branco (~3.2V)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Resultado do Cálculo -->
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#22C55E]/40 text-center space-y-2">
+                <span class="text-[10px] font-mono text-gray-400 block">RESISTOR COMERCIAL SUGERIDO (para 20 mA):</span>
+                <div id="led-resistor-val" class="font-tech text-3xl font-bold text-[#22C55E]">490 Ω → Usar 560 Ω</div>
+                <div id="led-power-val" class="text-xs font-mono text-gray-400">Potência dissipada no resistor: ~0.20 W (Usar 1/4W)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Em circuitos com alimentação de 24V industrial, atente-se à potência do resistor: use resistores de 1W ou 2W para não superaquecer.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 12 — 2.3 FONTES DE ALIMENTAÇÃO -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-12">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.3 FONTES DE ALIMENTAÇÃO LINEARES & CHAVEADAS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Fontes de Alimentação DC</h2>
+          <p class="text-sm text-gray-400">Os 4 blocos essenciais de conversão de energia: Transformação, Retificação, Filtragem e Regulação.</p>
+        </div>
+
+        <!-- 4 Blocos da Fonte Linear -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-auto">
+          <!-- 1. Transformador -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2 text-center">
+            <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 1</span>
+            <div class="w-10 h-10 mx-auto rounded-lg bg-[#0A0A0A] border border-[#374151] flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="radio" class="w-5 h-5"></i>
+            </div>
+            <h4 class="font-bold text-sm text-white">Transformador</h4>
+            <p class="text-xs text-gray-400">Rebaixa a tensão alternada de 127V/220V para 12V/24V com isolação galvânica.</p>
+          </div>
+
+          <!-- 2. Retificação -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2 text-center">
+            <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 2</span>
+            <div class="w-10 h-10 mx-auto rounded-lg bg-[#0A0A0A] border border-[#374151] flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="repeat" class="w-5 h-5"></i>
+            </div>
+            <h4 class="font-bold text-sm text-white">Ponte de Diodos</h4>
+            <p class="text-xs text-gray-400">Converte a senóide bidirecional em pulsos positivos contínuos pulsantes.</p>
+          </div>
+
+          <!-- 3. Filtragem -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2 text-center">
+            <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 3</span>
+            <div class="w-10 h-10 mx-auto rounded-lg bg-[#0A0A0A] border border-[#374151] flex items-center justify-center text-[#22C55E]">
+              <i data-lucide="shield" class="w-5 h-5"></i>
+            </div>
+            <h4 class="font-bold text-sm text-white">Filtro Capacitivo</h4>
+            <p class="text-xs text-gray-400">Capacitor eletrolítico suaviza as ondulações, minimizando a tensão de <strong>Ripple</strong>.</p>
+          </div>
+
+          <!-- 4. Regulação -->
+          <div class="glass-card p-4 rounded-xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-2 text-center">
+            <span class="text-[10px] font-mono text-[#22C55E] font-bold">ETAPA 4</span>
+            <div class="w-10 h-10 mx-auto rounded-lg bg-[#22C55E] text-[#0A0A0A] flex items-center justify-center font-bold">
+              <i data-lucide="gauge" class="w-5 h-5"></i>
+            </div>
+            <h4 class="font-bold text-sm text-white">Regulador (78xx / SMPS)</h4>
+            <p class="text-xs text-gray-200">Mantém a tensão estável em 5V ou 12V independente da oscilação da carga ou da rede.</p>
+          </div>
+        </div>
+
+        <!-- Quadro Comparativo: Linear vs Chaveada -->
+        <div class="overflow-x-auto rounded-xl border border-[#374151] bg-[#0A0A0A]/60">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-[#1F2937] text-[#22C55E]">
+              <tr>
+                <th class="p-2.5">Característica</th>
+                <th class="p-2.5">Fonte Linear (ex: LM7805)</th>
+                <th class="p-2.5">Fonte Chaveada (SMPS / Buck)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#374151]/50 text-gray-300">
+              <tr>
+                <td class="p-2.5 font-bold text-white">Eficiência Energética</td>
+                <td class="p-2.5 text-amber-400">Baixa (30% a 50% - dissipa calor em excesso)</td>
+                <td class="p-2.5 text-[#22C55E] font-bold">Altíssima (85% a 95%)</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 font-bold text-white">Tamanho e Peso</td>
+                <td class="p-2.5">Pesada (transformador de ferro a 60Hz)</td>
+                <td class="p-2.5 text-[#22C55E]">Compacta e leve (opera em centenas de kHz)</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 font-bold text-white">Ruído Eletromagnético</td>
+                <td class="p-2.5 text-[#22C55E]">Praticamente zero (ótima para áudio e medição)</td>
+                <td class="p-2.5 text-amber-400">Requer filtros EMI nas entradas e saídas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 13 — 2.4 TRANSISTORES BIPOLARES (BJT) -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-13">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.4 TRANSISTORES BIPOLARES DE JUNÇÃO (BJT)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Transistores Bipolares (BJT NPN & PNP)</h2>
+          <p class="text-sm text-gray-400">O componente que revolucionou a humanidade: controle de grandes correntes através de pequenos estímulos de base.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- Estrutura e Terminais -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Os Três Terminais</h3>
+            <ul class="text-xs font-mono text-gray-300 space-y-2">
+              <li><strong class="text-[#22C55E]">Base (B):</strong> O pino de controle onde a pequena corrente ($I_B$) é injetada.</li>
+              <li><strong class="text-white">Coletor (C):</strong> O terminal que recebe a corrente principal de carga.</li>
+              <li><strong class="text-white">Emissor (E):</strong> O terminal que escoa a corrente combinada ($I_E = I_B + I_C$).</li>
+            </ul>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Relação Fundamental: $I_C = eta \cdot I_B$ ($eta$ = Ganho Hfe)
+            </div>
+          </div>
+
+          <!-- NPN vs PNP -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Tipos: NPN vs PNP</h3>
+            <p class="text-xs text-gray-300">
+              <strong class="text-[#22C55E]">NPN (Ex: BC547, 2N2222):</strong> O mais comum. Conduz quando a base recebe tensão positiva em relação ao emissor ($V_{BE} > 0,7	ext{ V}$).
+            </p>
+            <p class="text-xs text-gray-400">
+              <strong class="text-white">PNP (Ex: BC557):</strong> Conduz quando a base é puxada para o GND ($0	ext{ V}$) em relação ao emissor positivo.
+            </p>
+            <div class="text-[10px] font-mono text-gray-400 bg-[#0A0A0A] p-2 rounded">
+              Mnemônica NPN: "Não Pula pra Dentro" (seta do emissor aponta para fora).
+            </div>
+          </div>
+
+          <!-- As 3 Regiões de Operação -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-2">
+            <h3 class="font-bold text-base text-white">Regiões de Operação</h3>
+            <div class="text-xs font-mono space-y-2 text-gray-200">
+              <div class="p-1.5 rounded bg-[#0A0A0A] border border-[#374151]">
+                <strong class="text-amber-400">1. Corte:</strong> $I_B = 0 \implies I_C = 0$ (Chave aberta, motor desligado).
+              </div>
+              <div class="p-1.5 rounded bg-[#0A0A0A] border border-[#374151]">
+                <strong class="text-cyan-400">2. Ativa:</strong> $I_C = eta \cdot I_B$ (Amplificação linear de som).
+              </div>
+              <div class="p-1.5 rounded bg-[#0A0A0A] border border-[#22C55E]">
+                <strong class="text-[#22C55E]">3. Saturação:</strong> $V_{CE} pprox 0,2	ext{ V}$ (Chave totalmente fechada).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Na automação e robótica, 90% das vezes utilizamos o transistor operando entre o Corte e a Saturação (como chave digital).
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 14 — 2.4.1 CHAVEAMENTO COM TRANSISTOR -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-14">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.4.1 TRANSISTOR COMO CHAVE (SWITCHING)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Chaveamento de Cargas Indutivas</h2>
+          <p class="text-sm text-gray-400">Controlando motores, solenoides e relés de 12V/24V a partir de pinos GPIO de 3.3V ou 5V do microcontrolador.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3 font-mono text-xs">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Por que o Transistor é Indispensável?</span>
+              <p class="text-gray-300 leading-relaxed font-sans">
+                Um pino digital de microcontrolador (Arduino/ESP32) fornece apenas de <strong>12 mA a 20 mA</strong> sob 3.3V/5V. Uma bobina de relé industrial ou motor precisa de <strong>150 mA a 2000 mA</strong> sob 12V/24V.
+              </p>
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] space-y-1">
+                <div class="text-white font-bold">O Transistor atua como Relé de Estado Sólido:</div>
+                <div class="text-[#22C55E]">1 mA na Base aciona 100 mA no Coletor!</div>
+              </div>
+            </div>
+
+            <!-- Passo a Passo do Dimensionamento -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] text-xs font-mono space-y-1.5">
+              <span class="text-white font-bold">Cálculo do Resistor de Base ($R_B$):</span>
+              <div>1. Descubra a corrente da carga: $I_C = V_{carga} / R_{bobina}$</div>
+              <div>2. Garanta saturação profunda: $I_B \ge I_C / 10$</div>
+              <div>3. Calcule $R_B$: $R_B = (V_{gpio} - 0,7	ext{ V}) / I_B$</div>
+            </div>
+          </div>
+
+          <!-- Simulador Visual do Chaveamento -->
+          <div class="lg:col-span-6">
+            <div class="glass-panel p-6 rounded-2xl border border-[#374151] space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Simulador de Chaveamento NPN</span>
+                <span id="transistor-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1F2937] text-gray-400">CORTE (DESLIGADO)</span>
+              </div>
+
+              <div class="bg-[#0A0A0A] p-5 rounded-xl border border-[#374151] text-center space-y-3">
+                <div class="flex justify-around items-center">
+                  <!-- GPIO -->
+                  <div class="text-xs font-mono">
+                    <span class="text-gray-400 block text-[10px]">PINO MCU</span>
+                    <span id="mcu-pin-text" class="text-white font-bold">0V (LOW)</span>
+                  </div>
+                  <div class="text-[#22C55E] font-bold">→ [RB] →</div>
+                  <!-- Base BJT -->
+                  <div class="text-xs font-mono">
+                    <span class="text-gray-400 block text-[10px]">BASE NPN</span>
+                    <span id="bjt-base-text" class="text-gray-500 font-bold">Ib = 0 mA</span>
+                  </div>
+                  <div class="text-[#22C55E] font-bold">→</div>
+                  <!-- Carga 12V -->
+                  <div class="text-xs font-mono">
+                    <span class="text-gray-400 block text-[10px]">CARGA (12V)</span>
+                    <span id="bjt-load-text" class="text-gray-500 font-bold">RELÉ ABERTO</span>
+                  </div>
+                </div>
+
+                <!-- Botão Interativo para alternar estado -->
+                <div class="pt-3 border-t border-[#374151]">
+                  <button onclick="toggleTransistorSim()" class="px-5 py-2 rounded-xl bg-[#22C55E] hover:bg-[#4ADE80] text-black font-bold font-mono text-xs transition">
+                    Alternar Sinal do Pino GPIO (0V / 5V)
+                  </button>
+                </div>
+              </div>
+
+              <div class="text-[11px] font-mono text-gray-400 text-center">
+                Observe a presença do Diodo 1N4007 em paralelo com a bobina para absorver os picos indutivos.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Em cargas ainda maiores (mais de 5A), substitui-se o BJT por um MOSFET canal N de nível lógico (Logic Level).
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 15 — 2.5 AMPLIFICADORES OPERACIONAIS -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-15">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.5 AMPLIFICADORES OPERACIONAIS (OP-AMP)</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Amplificadores Operacionais: O Amp-Op Ideal</h2>
+          <p class="text-sm text-gray-400">O bloco analógico universal mais versátil da engenharia: LM741, TL082, LM358 e amplificadores de instrumentação.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- O Símbolo e os 5 Pinos -->
+          <div class="lg:col-span-5 space-y-3">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 text-center space-y-3">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block text-left">Símbolo do Amp-Op</span>
+              
+              <div class="bg-[#0A0A0A] p-4 rounded-xl border border-[#374151] flex justify-center">
+                <svg viewBox="0 0 240 140" class="w-48 h-auto">
+                  <!-- Triângulo clássico -->
+                  <polygon points="40,20 40,120 180,70" fill="#1F2937" stroke="#22C55E" stroke-width="2.5" />
+                  <!-- Entradas -->
+                  <line x1="10" y1="45" x2="40" y2="45" stroke="#22C55E" stroke-width="2" />
+                  <text x="25" y="38" fill="#FFFFFF" font-size="12" font-family="monospace">-</text>
+                  <text x="50" y="50" fill="#9CA3AF" font-size="10" font-family="monospace">V- (Inv)</text>
+
+                  <line x1="10" y1="95" x2="40" y2="95" stroke="#22C55E" stroke-width="2" />
+                  <text x="25" y="88" fill="#FFFFFF" font-size="12" font-family="monospace">+</text>
+                  <text x="50" y="100" fill="#9CA3AF" font-size="10" font-family="monospace">V+ (Não-Inv)</text>
+
+                  <!-- Saída -->
+                  <line x1="180" y1="70" x2="220" y2="70" stroke="#22C55E" stroke-width="2" />
+                  <text x="185" y="62" fill="#22C55E" font-size="10" font-family="monospace">Vout</text>
+                </svg>
+              </div>
+
+              <div class="text-[11px] font-mono text-gray-300">
+                Alimentação: Simétrica (+Vcc e -Vee) ou Simples (+Vcc e GND).
+              </div>
+            </div>
+          </div>
+
+          <!-- As 4 Propriedades do Amp-Op Ideal -->
+          <div class="lg:col-span-7 space-y-2">
+            <span class="text-xs font-mono text-[#22C55E] uppercase font-bold block">
+              Os 4 Mandamentos do Amp-Op Ideal:
+            </span>
+
+            <div class="space-y-2 text-xs font-mono">
+              <div class="glass-card p-3 rounded-xl border border-[#374151]">
+                <strong class="text-white block">1. Ganho de Malha Aberta Infinito ($A_{OL} 	o \infty$):</strong>
+                <span class="text-gray-400">Qualquer milivolt de diferença entre as entradas tenta saturar a saída.</span>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl border border-[#374151]">
+                <strong class="text-white block">2. Impedância de Entrada Infinita ($Z_{in} 	o \infty$):</strong>
+                <span class="text-gray-400">Nenhuma corrente entra nos pinos (+) e (-). $I_+ = I_- = 0	ext{ A}$. O circuito não carrega o sensor!</span>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl border border-[#374151]">
+                <strong class="text-white block">3. Impedância de Saída Nula ($Z_{out} = 0\ \Omega$):</strong>
+                <span class="text-gray-400">A saída comporta-se como uma fonte de tensão perfeita para alimentar o próximo estágio.</span>
+              </div>
+
+              <div class="glass-card p-3 rounded-xl border border-[#22C55E]/40 bg-[#166534]/15">
+                <strong class="text-[#22C55E] block">4. Conceito de "Terra Virtual" (Virtual Ground):</strong>
+                <span class="text-gray-200">Com realimentação negativa, o Amp-Op força a tensão $V_-$ a ser rigorosamente igual a $V_+$ ($V_+ = V_-$).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          A realimentação negativa (resistor da saída de volta para a entrada inversora) é o segredo que doma o ganho infinito e permite controle milimétrico.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 16 — 2.5.1 AMP-OP: AMPLIFICADORES -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-16">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.5.1 CONFIGURAÇÕES BÁSICAS DE AMPLIFICAÇÃO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Amplificador Inversor & Não-Inversor</h2>
+          <p class="text-sm text-gray-400">Como estabelecer ganhos de tensão precisos definidos exclusivamente pela proporção de resistores externos.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- Amplificador Inversor -->
+          <div class="glass-card p-6 rounded-2xl border border-[#374151] space-y-4">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <h3 class="font-bold text-base text-white">Amplificador Inversor</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-cyan-400">Defasagem 180°</span>
+            </div>
+            
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-xl text-[#22C55E]">
+              Vout = - (Rf / Rin) · Vin
+            </div>
+
+            <ul class="text-xs font-mono text-gray-300 space-y-2">
+              <li>▸ O sinal entra no pino inversor (-) através de $R_{in}$.</li>
+              <li>▸ O pino não-inversor (+) é aterrado (GND = 0V).</li>
+              <li>▸ A saída inverte o sinal: tensões positivas tornam-se negativas.</li>
+              <li>▸ <strong class="text-white">Exemplo:</strong> Se $R_f = 100	ext{ k}\Omega$ e $R_{in} = 10	ext{ k}\Omega \implies 	ext{Ganho} = -10$. Um sinal de 0,1V vira -1,0V!</li>
+            </ul>
+          </div>
+
+          <!-- Amplificador Não-Inversor -->
+          <div class="glass-card p-6 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-4">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <h3 class="font-bold text-base text-white">Amplificador Não-Inversor</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Em Fase (0°)</span>
+            </div>
+
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-xl text-white">
+              Vout = (1 + Rf / R1) · Vin
+            </div>
+
+            <ul class="text-xs font-mono text-gray-200 space-y-2">
+              <li>▸ O sinal entra diretamente no pino não-inversor (+).</li>
+              <li>▸ Impedância de entrada altíssima (não drena corrente do sensor).</li>
+              <li>▸ O ganho é sempre maior ou igual a 1.</li>
+              <li>▸ <strong class="text-white">Seguidor de Tensão (Buffer):</strong> Se $R_f = 0 \implies 	ext{Ganho} = 1$. Isola fontes frágeis sem alterar a amplitude.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          O ganho nunca depende das imperfeições do chip, apenas da precisão dos resistores $R_f$ e $R_{in}$ escolhidos pelo projetista.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 17 — 2.5.2 AMP-OP: COMPARADOR -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-17">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.5.2 AMP-OP COMO COMPARADOR DE TENSÃO</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Amp-Op: Comparador & Histerese</h2>
+          <p class="text-sm text-gray-400">Sem realimentação negativa, o circuito compara duas tensões e entrega um sinal puramente binário (HIGH / LOW).</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-center">
+          <!-- Conceito e Histerese -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-[#22C55E]/40 space-y-3 font-mono text-xs">
+              <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Regra de Decisão do Comparador</span>
+              <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] space-y-2">
+                <div class="text-[#22C55E] font-bold">Se Vin > Vref  →  Vout = +Vsat (~Vcc) [NÍVEL ALTO]</div>
+                <div class="text-gray-400 font-bold">Se Vin < Vref  →  Vout = -Vsat (~0V)  [NÍVEL BAIXO]</div>
+              </div>
+              <p class="text-gray-300 font-sans leading-relaxed">
+                Ideal para termostatos analógicos, sensores de luminosidade crepuscular e alarmes de sobretensão.
+              </p>
+            </div>
+
+            <!-- Trigger de Schmitt (Histerese) -->
+            <div class="glass-card p-4 rounded-xl border border-[#374151] font-mono text-xs space-y-2">
+              <strong class="text-white block">Trigger de Schmitt (Evitando Oscilações):</strong>
+              <p class="text-gray-400 font-sans">
+                Se o sinal tiver ruído ao redor do limiar, a saída oscila loucamente. A histerese cria dois pontos de disparo ($V_{TH}$ superior e $V_{TL}$ inferior), garantindo estabilidade total.
+              </p>
+            </div>
+          </div>
+
+          <!-- Simulador Interativo do Comparador -->
+          <div class="lg:col-span-6">
+            <div class="glass-panel p-6 rounded-2xl border border-[#374151] space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono text-[#22C55E] uppercase font-bold">Simulador de Comparador de Tensão</span>
+                <span class="text-[10px] font-mono text-gray-400">Vref fixo em 2.50V</span>
+              </div>
+
+              <div class="bg-[#0A0A0A] p-5 rounded-xl border border-[#374151] text-center space-y-3">
+                <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                  <div class="bg-[#1F2937] p-2 rounded">
+                    <span class="text-gray-400 text-[10px] block">TENSÃO DE SENSOR (Vin)</span>
+                    <span id="comp-vin-val" class="text-lg font-bold text-white">1.80 V</span>
+                  </div>
+                  <div class="bg-[#1F2937] p-2 rounded">
+                    <span class="text-gray-400 text-[10px] block">TENSÃO DE REFERÊNCIA (Vref)</span>
+                    <span class="text-lg font-bold text-cyan-400">2.50 V</span>
+                  </div>
+                </div>
+
+                <!-- Saída LED -->
+                <div class="p-3 rounded-lg bg-[#1F2937] border border-[#374151] flex justify-between items-center font-mono text-xs">
+                  <span class="text-gray-300">Saída do Comparador (Vout):</span>
+                  <span id="comp-out-pill" class="px-3 py-1 rounded bg-[#0A0A0A] text-gray-500 font-bold border border-[#374151]">LOW (0V)</span>
+                </div>
+              </div>
+
+              <!-- Slider de Vin -->
+              <div class="space-y-1">
+                <label class="text-xs font-mono text-gray-300 flex justify-between">
+                  <span>Ajustar Tensão do Sensor (Vin)</span>
+                  <span class="text-[#22C55E]">Arraste acima de 2.5V</span>
+                </label>
+                <input type="range" min="0" max="5" step="0.1" value="1.8" id="comp-slider" class="w-full accent-[#22C55E] bg-[#1F2937] rounded-lg cursor-pointer" oninput="updateCompSim()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Compare: O comparador transforma um sinal analógico ruidoso em uma borda digital limpa pronta para interromper o microcontrolador.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 18 — 2.5.3 & 2.5.4 SOMADOR E SUBTRATOR -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-18">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.5.3 & 2.5.4 MATEMÁTICA ANALÓGICA COM AMP-OPS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Circuitos Somador e Subtrator</h2>
+          <p class="text-sm text-gray-400">Como somar, subtrair e remover tensões de offset antes de alimentar os canais do microcontrolador.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+          <!-- Circuito Somador -->
+          <div class="glass-card p-6 rounded-2xl border border-[#374151] space-y-4">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <h3 class="font-bold text-base text-white">2.5.3 Amplificador Somador</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-[#22C55E]">Soma Ponderada</span>
+            </div>
+
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-lg text-[#22C55E]">
+              Vout = - Rf · (V1/R1 + V2/R2 + V3/R3)
+            </div>
+
+            <ul class="text-xs font-mono text-gray-300 space-y-2">
+              <li>▸ Múltiplas tensões de entrada convergem para o nó de terra virtual.</li>
+              <li>▸ <strong class="text-white">Mesa de Som (Mixer):</strong> Permite misturar sinais de áudio sem que um canal interfira no outro.</li>
+              <li>▸ <strong class="text-white">Conversor D/A primitivo:</strong> Ponderando os resistores por potências de 2 ($R, 2R, 4R, 8R$).</li>
+            </ul>
+          </div>
+
+          <!-- Circuito Subtrator (Diferencial) -->
+          <div class="glass-card p-6 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-4">
+            <div class="flex justify-between items-center border-b border-[#374151] pb-2">
+              <h3 class="font-bold text-base text-white">2.5.4 Amplificador Subtrator</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Amplificador Diferencial</span>
+            </div>
+
+            <div class="bg-[#0A0A0A] p-3 rounded-xl border border-[#374151] text-center font-tech text-lg text-white">
+              Vout = (Rf / R1) · (V2 - V1)
+            </div>
+
+            <ul class="text-xs font-mono text-gray-200 space-y-2">
+              <li>▸ Amplifica apenas a <strong>diferença</strong> entre os dois terminais.</li>
+              <li>▸ <strong class="text-white">Rejeição de Modo Comum (CMRR):</strong> Ruídos induzidos igualmente nos dois cabos são anulados por subtração matemática!</li>
+              <li>▸ Essencial para leitura de pontes de células de carga e sinais biomédicos (ECG).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Os amplificadores de instrumentação modernos (ex: INA128, AD620) são compostos por 3 Amp-Ops internos formando um subtrator de altíssima precisão.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 19 — 2.6 TIRISTORES NA ELETRÔNICA DE POTÊNCIA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-19">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.6 ELETRÔNICA DE POTÊNCIA: TIRISTORES</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">A Família dos Tiristores</h2>
+          <p class="text-sm text-gray-400">Semicondutores multicamadas de quatro camadas (P-N-P-N) projetados para controlar quilowatts em alta tensão.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- O que são Tiristores -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">O Efeito Chave com Trava (Latch)</h3>
+            <p class="text-xs text-gray-300">
+              Ao contrário do transistor (que exige corrente de base constante para ficar ligado), os tiristores precisam apenas de um <strong>pulso transitório no Gate</strong> para disparar e continuar conduzindo mesmo após a remoção do pulso.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Desligamento: Ocorre apenas quando a corrente principal cai abaixo da corrente de manutenção ($I_H$ - Holding Current).
+            </div>
+          </div>
+
+          <!-- Controle por Ângulo de Fase -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <h3 class="font-bold text-base text-white">Controle de Fase AC</h3>
+            <p class="text-xs text-gray-200">
+              Ajustando o instante exato do disparo (ângulo $lpha$ entre 0° e 180° da senóide da rede de 60Hz), controla-se a quantidade de potência entregue a fornos industriais e motores sem gerar perdas resistivas.
+            </p>
+            <div class="text-[11px] font-mono text-[#22C55E] bg-[#0A0A0A] p-2 rounded">
+              Eficiência: Quase 98% da energia da rede vai para a carga!
+            </div>
+          </div>
+
+          <!-- Robustez Industrial -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <h3 class="font-bold text-base text-white">Vantagens de Engenharia</h3>
+            <ul class="text-xs text-gray-300 space-y-2 font-mono">
+              <li>▸ Suportam milhares de Volts e centenas de Amperes.</li>
+              <li>▸ Imunes ao desgaste mecânico de contatores.</li>
+              <li>▸ Velocidade de chaveamento na faixa de microsegundos.</li>
+            </ul>
+            <div class="text-[11px] font-mono text-cyan-400 bg-[#0A0A0A] p-2 rounded">
+              Aplicações: Soft-Starters, Dimmers industriais e HVDC.
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 font-mono text-center">
+          Os tiristores formam a base dos relés de estado sólido (SSR) que acionam resistências de fornos plásticos e siderurgia.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 20 — 2.6.1, 2.6.2, 2.6.3 SCR, DIAC, TRIAC -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-20">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>2.6.1, 2.6.2, 2.6.3 OS PRINCIPAIS DISPOSITIVOS</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">SCR, DIAC e TRIAC</h2>
+          <p class="text-sm text-gray-400">Comparação dos três semicondutores de disparo e acionamento em corrente contínua e alternada.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 my-auto">
+          <!-- 2.6.1 SCR -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-tech text-base font-bold text-white">2.6.1 SCR (Retificador Controlado)</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-amber-400">Unidirecional</span>
+            </div>
+            <p class="text-xs text-gray-300">
+              Funciona como um diodo com gatilho. Conduz apenas de Anodo para Catodo após receber um pulso no pino <strong>Gate</strong>.
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] text-xs font-mono space-y-1">
+              <div class="text-[#22C55E]">Disparo: Pulso positivo no Gate.</div>
+              <div class="text-gray-400">Uso: Retificadores controlados DC e proteção Crowbar contra sobretensão.</div>
+            </div>
+          </div>
+
+          <!-- 2.6.2 DIAC -->
+          <div class="glass-card p-5 rounded-2xl border border-[#374151] space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-tech text-base font-bold text-white">2.6.2 DIAC (Diodo de Disparo AC)</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0A0A] text-cyan-400">Bidirecional</span>
+            </div>
+            <p class="text-xs text-gray-300">
+              Dispositivo de dois terminais sem gatilho. Entra em avalanche quando a tensão entre seus terminais atinge a tensão de Breakover ($V_{BO} pprox 32	ext{ V}$).
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#374151] text-xs font-mono space-y-1">
+              <div class="text-[#22C55E]">Disparo: Por ultrapassagem de tensão.</div>
+              <div class="text-gray-400">Uso: Gerador de pulso simétrico para disparar o TRIAC sem assimetria.</div>
+            </div>
+          </div>
+
+          <!-- 2.6.3 TRIAC -->
+          <div class="glass-card p-5 rounded-2xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-tech text-base font-bold text-white">2.6.3 TRIAC (Triodo para AC)</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#22C55E] text-black font-bold">Totalmente AC</span>
+            </div>
+            <p class="text-xs text-gray-200">
+              Equivalente a dois SCRs montados em paralelo invertido (antiparalelo) com um gate comum. Conduz corrente nos dois sentidos da senóide.
+            </p>
+            <div class="bg-[#0A0A0A] p-2.5 rounded border border-[#22C55E] text-xs font-mono space-y-1">
+              <div class="text-[#22C55E] font-bold">Disparo: Em ambos os semiciclos AC.</div>
+              <div class="text-gray-200">Uso: Dimmers de luz, controle de velocidade de ventiladores e máquinas de lavar.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-400">
+          Circuito Clássico de Dimmer: Potenciômetro + Capacitor + DIAC (32V) + TRIAC (BTA16/BT136).
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 21 — 3. DISPOSITIVOS DE PROTEÇÃO ELÉTRICA -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-21">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-10 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-mono text-[#22C55E]">
+            <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+            <span>3. DISPOSITIVOS DE PROTEÇÃO ELÉTRICA</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-tech font-bold text-white">Dispositivos de Proteção Elétrica</h2>
+          <p class="text-sm text-gray-400">Segurança de vidas e integridade de equipamentos: sobrecorrente, curto-circuito, surtos e fuga de corrente.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-auto">
+          <!-- 1. Fusível -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <h4 class="font-bold text-white text-sm">Fusível (Vidro / Cerâmica / NH)</h4>
+              <span class="text-[9px] font-mono text-[#22C55E]">Térmico sacrificial</span>
+            </div>
+            <p class="text-xs text-gray-300">Fio de liga metálica calibrada que se funde por efeito Joule. Ação rápida para semicondutores e retardada para motores com pico de partida.</p>
+          </div>
+
+          <!-- 2. Disjuntor Termomagnético -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <h4 class="font-bold text-white text-sm">Disjuntor Termomagnético</h4>
+              <span class="text-[9px] font-mono text-[#22C55E]">Reconectável</span>
+            </div>
+            <p class="text-xs text-gray-300">Proteção bimetálica contra sobrecargas lentas e bobina magnética instantânea para extinção rápida de curto-circuitos.</p>
+          </div>
+
+          <!-- 3. Varistor (MOV) -->
+          <div class="glass-card p-4 rounded-xl border border-[#22C55E]/40 bg-[#166534]/15 space-y-2">
+            <div class="flex justify-between items-center">
+              <h4 class="font-bold text-white text-sm">Varistor de Óxido Metálico (MOV)</h4>
+              <span class="text-[9px] font-mono text-[#22C55E] font-bold">Supressor DPS</span>
+            </div>
+            <p class="text-xs text-gray-200">Resistor não-linear cuja resistência cai para quase zero durante picos de surto de raios, desviando a sobretensão para o terra.</p>
+          </div>
+
+          <!-- 4. Diodo TVS -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <h4 class="font-bold text-white text-sm">Diodo TVS (Transil)</h4>
+              <span class="text-[9px] font-mono text-[#22C55E]">Sub-nanosegundos</span>
+            </div>
+            <p class="text-xs text-gray-300">Diodo zener ultrarrápido para proteção de portas de comunicação sensíveis (USB, RS-485, CAN) contra descargas eletrostáticas (ESD).</p>
+          </div>
+
+          <!-- 5. Relé Térmico -->
+          <div class="glass-card p-4 rounded-xl border border-[#374151] space-y-2">
+            <div class="flex justify-between items-center">
+              <h4 class="font-bold text-white text-sm">Relé Térmico Bimetálico</h4>
+              <span class="text-[9px] font-mono text-[#22C55E]">Motores AC</span>
+            </div>
+            <p class="text-xs text-gray-300">Monitora o aquecimento provocado pelo travamento de eixo ou falta de fase em motores elétricos trifásicos industriais.</p>
+          </div>
+
+          <!-- 6. Dispositivo DR (IDR) -->
+          <div class="glass-card p-4 rounded-xl border border-red-500/40 bg-red-950/20 space-y-2">
+            <div class="flex justify-between items-center">
+              <h4 class="font-bold text-white text-sm">Interruptor DR (IDR 30mA)</h4>
+              <span class="text-[9px] font-mono text-red-400 font-bold">Salva Vidas</span>
+            </div>
+            <p class="text-xs text-gray-200">Mede o equilíbrio entre Fase e Neutro. Se houver fuga acima de 30mA (choque elétrico em humanos), desarma em menos de 30 milissegundos!</p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#0A0A0A] border border-[#374151] text-xs font-mono text-center text-gray-300">
+          Norma NR-10 & NBR 5410: O uso de proteção DR e aterramento adequado é mandatório em qualquer instalação moderna.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 22 — SÍNTESE & ENCERRAMENTO MÓDULO 2 -->
+    <!-- ========================================== -->
+    <section class="slide-wrapper" id="slide-22">
+      <div class="h-full w-full flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto slide-scroll overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1F2937] border border-[#22C55E]/40 text-[#22C55E] text-xs font-mono uppercase">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            Síntese Integrada
+          </div>
+          <span class="text-xs font-mono text-gray-500">MÓDULO 2 CONCLUÍDO</span>
+        </div>
+
+        <div class="text-center max-w-3xl mx-auto my-auto space-y-6">
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black font-tech text-white leading-tight">
+            DO BIT À <br/>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] via-[#4ADE80] to-white text-glow-green">
+              POTÊNCIA PROTEGIDA
+            </span>
+          </h2>
+
+          <!-- Diagrama de Síntese em Pílulas -->
+          <div class="flex flex-wrap items-center justify-center gap-2 font-mono text-xs pt-2">
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">PORTAS & ADC</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">AMP-OPS</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">TRANSISTORES</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#1F2937] border border-[#374151] text-white">TIRISTORES</span>
+            <span class="text-[#22C55E]">→</span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#166534] border border-[#22C55E] text-white font-bold glow-green-sm">SISTEMA PROTEGIDO</span>
+          </div>
+
+          <!-- Mensagem Final -->
+          <div class="p-6 rounded-2xl glass-panel border border-[#22C55E]/40 relative glow-green-sm">
+            <i data-lucide="quote" class="w-8 h-8 text-[#22C55E]/40 mx-auto mb-2"></i>
+            <p class="text-base sm:text-lg text-gray-200 italic font-light leading-relaxed">
+              "A verdadeira excelência em engenharia eletrônica não reside apenas em fazer o circuito funcionar, mas em garantir que ele opere de maneira segura, robusta e imune a falhas em qualquer ambiente industrial."
+            </p>
+          </div>
+
+          <div class="pt-4 flex justify-center gap-4">
+            <button onclick="goToSlide(1)" class="px-6 py-2.5 rounded-xl bg-[#22C55E] hover:bg-[#4ADE80] text-black font-bold font-mono text-xs transition flex items-center gap-2">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+              Reiniciar Módulo 2
+            </button>
+            <a href="index.html" class="px-6 py-2.5 rounded-xl bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-white font-mono text-xs transition flex items-center gap-2">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              Ir para Módulo 1
+            </a>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-gray-500 font-mono border-t border-[#374151]/50 pt-4">
+          <span>CURSO TÉCNICO PROFISSIONAL • ELETRÔNICA & AUTOMAÇÃO</span>
+          <span class="text-[#22C55E]">MÓDULOS 1 & 2 DISPONÍVEIS</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="h-14 border-t border-[#374151]/70 bg-[#0A0A0A]/95 backdrop-blur-md px-6 flex items-center justify-between z-30 select-none">
+    <div class="flex items-center space-x-2">
+      <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>
+      <span class="font-tech text-xs tracking-wider font-bold text-gray-300">
+        ELETRÔNICA • SISTEMAS AUTOMATIZADOS
+      </span>
+    </div>
+
+    <div class="hidden md:flex items-center space-x-3 text-[11px] font-mono text-gray-500">
+      <span>Navegação:</span>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">← Ant</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">Próx →</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">Espaço</kbd>
+      <kbd class="px-1.5 py-0.5 rounded bg-[#1F2937] border border-[#374151] text-gray-300">F Tela Cheia</kbd>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <button id="btn-prev" onclick="prevSlide()" class="px-3.5 py-1.5 rounded-lg bg-[#1F2937] hover:bg-[#374151] border border-[#374151] text-xs font-mono text-white transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        <span>Anterior</span>
+      </button>
+
+      <button id="btn-next" onclick="nextSlide()" class="px-4 py-1.5 rounded-lg bg-[#22C55E] hover:bg-[#4ADE80] text-xs font-mono font-bold text-black transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_12px_rgba(34,197,94,0.3)]">
+        <span>Próximo</span>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </footer>
+
+  <!-- MODAL: VISÃO GERAL DE TODOS OS 22 SLIDES -->
+  <div id="overview-modal" class="fixed inset-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-lg hidden flex flex-col p-6 md:p-12 overflow-y-auto">
+    <div class="flex justify-between items-center max-w-7xl w-full mx-auto pb-4 border-b border-[#374151]">
+      <div class="flex items-center gap-2">
+        <i data-lucide="layout-grid" class="w-5 h-5 text-[#22C55E]"></i>
+        <h3 class="font-tech text-lg font-bold text-white">Módulo 2: Mapa de Todos os Slides</h3>
+      </div>
+      <button onclick="toggleOverviewModal()" class="p-2 rounded-lg bg-[#1F2937] hover:bg-[#374151] text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-w-7xl w-full mx-auto my-6" id="overview-grid">
+      <!-- Inserido dinamicamente via JS -->
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT: NAVEGAÇÃO, ATALHOS & SIMULADORES -->
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 22;
+
+    const slideTitles = [
+      "1. Capa: Módulo 2",
+      "2. Objetivos das Disciplinas",
+      "3. Visão Geral Integrada",
+      "4. 1.1 Portas Lógicas Avançadas",
+      "5. 1.2.1 Conversores A/D (ADC)",
+      "6. 1.2.2 Conversores D/A (DAC)",
+      "7. 1.3 Sensores Analógicos × Digitais",
+      "8. 1.3 Estudo Prático: LM35 vs DS18B20",
+      "9. 1.4 Transdutores & Condicionamento",
+      "10. 2.1 Diodos Retificadores",
+      "11. 2.2 LEDs & Cálculo de Resistor",
+      "12. 2.3 Fontes de Alimentação DC",
+      "13. 2.4 Transistores Bipolares (BJT)",
+      "14. 2.4.1 Chaveamento com Transistor",
+      "15. 2.5 O Amp-Op Ideal",
+      "16. 2.5.1 Amplificador Inversor & Não-Inv.",
+      "17. 2.5.2 Comparador & Histerese",
+      "18. 2.5.3 & 2.5.4 Somador e Subtrator",
+      "19. 2.6 A Família dos Tiristores",
+      "20. 2.6.1-3 SCR, DIAC e TRIAC",
+      "21. 3. Dispositivos de Proteção Elétrica",
+      "22. Síntese Integrada & Encerramento"
+    ];
+
+    function updateSlideUI() {
+      for (let i = 1; i <= totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        if (slide) {
+          if (i === currentSlide) {
+            slide.classList.add('active');
+          } else {
+            slide.classList.remove('active');
+          }
+        }
+      }
+
+      document.getElementById('current-slide-num').textContent = String(currentSlide).padStart(2, '0');
+      document.getElementById('total-slides-num').textContent = String(totalSlides).padStart(2, '0');
+
+      const progressPercent = (currentSlide / totalSlides) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+      document.getElementById('btn-prev').disabled = (currentSlide === 1);
+      document.getElementById('btn-next').disabled = (currentSlide === totalSlides);
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlideUI();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlideUI();
+      }
+    }
+
+    function goToSlide(n) {
+      if (n >= 1 && n <= totalSlides) {
+        currentSlide = n;
+        updateSlideUI();
+        const modal = document.getElementById('overview-modal');
+        if (!modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToSlide(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToSlide(totalSlides);
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullScreen();
+      } else if (e.key === 'Escape') {
+        const modal = document.getElementById('overview-modal');
+        if (!modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      }
+    });
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+        document.getElementById('fs-icon').setAttribute('data-lucide', 'minimize');
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          document.getElementById('fs-icon').setAttribute('data-lucide', 'maximize');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleOverviewModal() {
+      const modal = document.getElementById('overview-modal');
+      const isHidden = modal.classList.contains('hidden');
+      if (isHidden) {
+        buildOverviewGrid();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function buildOverviewGrid() {
+      const grid = document.getElementById('overview-grid');
+      grid.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const card = document.createElement('button');
+        const isActive = (i === currentSlide);
+        card.className = `p-3 rounded-xl text-left border transition font-mono flex flex-col justify-between h-24 ${
+          isActive 
+            ? 'bg-[#166534] border-[#22C55E] text-white shadow-[0_0_12px_#22C55E]' 
+            : 'bg-[#1F2937] border-[#374151] text-gray-300 hover:border-[#22C55E]/50'
+        }`;
+        card.onclick = () => goToSlide(i);
+        card.innerHTML = `
+          <span class="text-[10px] text-[#22C55E] font-bold">SLIDE ${String(i).padStart(2, '0')}</span>
+          <span class="text-xs font-sans font-bold leading-tight line-clamp-2">${slideTitles[i-1]}</span>
+          <span class="text-[9px] text-gray-400">Clique para abrir</span>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    // ==========================================
+    // SIMULADOR 1: CONVERSOR A/D (Slide 5)
+    // ==========================================
+    function updateADCSim() {
+      const vin = parseFloat(document.getElementById('adc-slider').value);
+      const vref = 5.0;
+      const dec = Math.round((vin / vref) * 1023);
+      const bin = dec.toString(2).padStart(10, '0');
+
+      document.getElementById('adc-voltage-display').textContent = `${vin.toFixed(2)} V`;
+      document.getElementById('adc-dec-display').textContent = dec;
+      document.getElementById('adc-bin-display').textContent = bin;
+    }
+
+    // ==========================================
+    // SIMULADOR 2: CÁLCULO DE RESISTOR DE LED (Slide 11)
+    // ==========================================
+    function calcLedResistor() {
+      const vcc = parseFloat(document.getElementById('calc-vcc').value);
+      const vled = parseFloat(document.getElementById('calc-vled').value);
+      const iled = 0.02; // 20mA
+
+      if (vcc <= vled) {
+        document.getElementById('led-resistor-val').textContent = 'Vcc deve ser maior que Vled!';
+        document.getElementById('led-power-val').textContent = '';
+        return;
+      }
+
+      const rExact = (vcc - vled) / iled;
+      const commercialValues = [68, 100, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820, 1000, 1200, 1500, 2200];
+      let rSuggested = commercialValues.find(v => v >= rExact) || Math.round(rExact);
+      const power = (vcc - vled) * iled;
+
+      document.getElementById('led-resistor-val').textContent = `${rExact.toFixed(0)} Ω → Usar ${rSuggested} Ω`;
+      document.getElementById('led-power-val').textContent = `Potência dissipada: ~${power.toFixed(2)} W (${power < 0.25 ? 'Usar 1/4W' : power < 0.5 ? 'Usar 1/2W' : 'Usar 1W ou mais'})`;
+    }
+
+    // ==========================================
+    // SIMULADOR 3: CHAVEAMENTO BJT (Slide 14)
+    // ==========================================
+    let transistorActive = false;
+    function toggleTransistorSim() {
+      transistorActive = !transistorActive;
+      const badge = document.getElementById('transistor-status-badge');
+      const pinText = document.getElementById('mcu-pin-text');
+      const baseText = document.getElementById('bjt-base-text');
+      const loadText = document.getElementById('bjt-load-text');
+
+      if (transistorActive) {
+        badge.textContent = 'SATURAÇÃO (LIGADO)';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-[#166534] text-[#22C55E] border border-[#22C55E] font-bold';
+        pinText.textContent = '5V (HIGH)';
+        pinText.className = 'text-[#22C55E] font-bold';
+        baseText.textContent = 'Ib = 4.3 mA';
+        baseText.className = 'text-[#22C55E] font-bold';
+        loadText.textContent = 'RELÉ 12V ATIVADO! (Ic = 120mA)';
+        loadText.className = 'text-[#22C55E] font-bold';
+      } else {
+        badge.textContent = 'CORTE (DESLIGADO)';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-[#1F2937] text-gray-400';
+        pinText.textContent = '0V (LOW)';
+        pinText.className = 'text-white font-bold';
+        baseText.textContent = 'Ib = 0 mA';
+        baseText.className = 'text-gray-500 font-bold';
+        loadText.textContent = 'RELÉ ABERTO';
+        loadText.className = 'text-gray-500 font-bold';
+      }
+    }
+
+    // ==========================================
+    // SIMULADOR 4: COMPARADOR AMP-OP (Slide 17)
+    // ==========================================
+    function updateCompSim() {
+      const vin = parseFloat(document.getElementById('comp-slider').value);
+      const vref = 2.50;
+      document.getElementById('comp-vin-val').textContent = `${vin.toFixed(2)} V`;
+
+      const pill = document.getElementById('comp-out-pill');
+      if (vin > vref) {
+        pill.textContent = 'HIGH (+5V / +Vsat)';
+        pill.className = 'px-3 py-1 rounded bg-[#22C55E] text-black font-bold shadow-[0_0_12px_#22C55E]';
+      } else {
+        pill.textContent = 'LOW (0V / -Vsat)';
+        pill.className = 'px-3 py-1 rounded bg-[#0A0A0A] text-gray-500 font-bold border border-[#374151]';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSlideUI();
+      updateADCSim();
+      calcLedResistor();
+      updateCompSim();
+    });
+  </script>
+</body>
+</html>
