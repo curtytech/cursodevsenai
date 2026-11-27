@@ -67,7 +67,6 @@
             }
         });
 
-
         const realtime = onSnapshot(
             collection(db, 'temp'),
             (snapshot) => {
@@ -75,8 +74,6 @@
             },
             (erro) => console.error(erro)
         );
-
-
 
         try {
             const snapshot = await getDocs(collection(db, "temp"));
