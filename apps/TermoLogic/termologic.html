@@ -25,10 +25,12 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/devicon/2.18.0/devicon.min.css">
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" />
+
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -37,15 +39,12 @@
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
+            display: ['Sora', 'Inter', 'sans-serif'],
           },
           colors: {
-            brand: {
-              navy: '#063b2d',
-              green: '#059669',
-              mint: '#34d399',
-              orange: '#f97316',
-              orangeDark: '#ea580c',
-            }
+            brand: { navy: '#102B3B', tech: '#168AAD', heat: '#E97835', mint: '#D8E8E3', paper: '#F3F5F4' },
+            tech: { 50:'#EAF6FA', 100:'#D3ECF3', 200:'#A9D8E6', 300:'#78C0D6', 400:'#3FA3C2', 500:'#168AAD', 600:'#127694', 700:'#0F6179', 800:'#0D4E61', 900:'#102B3B' },
+            orange: { 400:'#F09258', 500:'#E97835', 600:'#D1632A', 700:'#B45120' }
           }
         }
       }
@@ -53,6 +52,11 @@
   </script>
 
   <style>
+    :root{
+      --tl-navy:#102B3B;
+      --tl-paper:#F3F5F4;
+    }
+
     /* Transições suaves para o termômetro SVG e cards */
     .mercury-fill {
       transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -69,6 +73,98 @@
       transform: translateY(-2px);
       box-shadow: 0 10px 25px -5px rgba(10, 37, 64, 0.08), 0 8px 10px -6px rgba(10, 37, 64, 0.04);
     }
+    .digital-circuit-frame {
+      display: block;
+      width: 100%;
+      height: 750px;
+      background: #f4f6f3;
+    }
+
+/* Cabeçalho climático: mistura de frio e calor */
+.site-header {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: #102b3b;
+  border-bottom: 0;
+  background-image:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 1px,transparent 1px 10px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.65) 0 1px,transparent 1px 50px);
+  background-size: 100% 5px,100% 11px;
+  background-position: left bottom;
+  background-repeat: no-repeat;
+  box-shadow: none;
+}
+
+/* Camada fria: azul e ciano */
+.site-header::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -45%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 22% 45%,rgba(22,138,173,.60) 0%,rgba(14,165,233,.22) 30%,transparent 60%);
+  filter: blur(35px);
+  animation: clima-frio 13s ease-in-out infinite alternate;
+}
+
+/* Camada quente: laranja e vermelho */
+.site-header::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -45%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 80% 55%,rgba(233,120,53,.52) 0%,rgba(220,65,45,.22) 30%,transparent 60%);
+  filter: blur(40px);
+  animation: clima-calor 16s ease-in-out infinite alternate;
+}
+
+/* Movimentação das atmosferas */
+@keyframes clima-frio {
+  0% {
+    transform: translate(-5%, -3%) scale(1);
+  }
+  50% {
+    transform: translate(12%, 5%) scale(1.15);
+  }
+  100% {
+    transform: translate(4%, -7%) scale(1.08);
+  }
+}
+
+@keyframes clima-calor {
+  0% {
+    transform: translate(5%, 3%) scale(1.05);
+  }
+  50% {
+    transform: translate(-12%, -5%) scale(1.15);
+  }
+  100% {
+    transform: translate(-3%, 8%) scale(1);
+  }
+}
+
+.site-header h1 span {
+  background: linear-gradient(90deg,#6FD3EE 0%,#F6B27A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.site-header p {
+  color: #cfe0e6;
+}
+
+.site-header [class*="bg-white/5"] {
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 14px;
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28),0 10px 28px -12px rgba(0,0,0,.5);
+}
+
     /* Custom scrollbar para tabelas */
     ::-webkit-scrollbar {
       width: 6px;
@@ -85,109 +181,381 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
+
+/* ===== Climate Tech ===== */
+body.tl-body{
+  background:
+    radial-gradient(ellipse at 8% 15%,rgba(22,138,173,.055),transparent 30rem),
+    radial-gradient(ellipse at 92% 45%,rgba(233,120,53,.045),transparent 28rem),
+    var(--tl-paper);
+  color:#243b49;
+  font-family:'Inter',sans-serif;
+}
+body #app{min-height:100vh}
+body main{padding-top:2rem;padding-bottom:2.5rem}
+body main h2,body main h3,body main h4{
+  color:var(--tl-navy);
+  font-family:'Sora','Inter',sans-serif;
+  letter-spacing:-.02em;
+}
+body .site-header h1{font-family:'Sora','Inter',sans-serif;font-weight:800;letter-spacing:-.04em}
+body main p{line-height:1.55}
+body main .font-mono{font-variant-numeric:tabular-nums}
+
+/* Prévia do Gêmeo Digital */
+.tl-twin{position:relative;overflow:hidden;border-radius:16px;color:#fff;border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(120deg,#102B3B 0%,#0F3F55 58%,#12495F 100%);box-shadow:0 18px 40px -22px rgba(16,43,59,.6)}
+.tl-twin::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(255,255,255,.18) 1px,transparent 1.6px);background-size:22px 22px;
+  -webkit-mask-image:linear-gradient(90deg,transparent 25%,#000);mask-image:linear-gradient(90deg,transparent 25%,#000)}
+.tl-twin::after{content:"";position:absolute;right:-90px;top:-90px;width:340px;height:340px;pointer-events:none;
+  background:radial-gradient(circle,rgba(233,120,53,.38),transparent 65%)}
+.tl-twin > *{position:relative;z-index:1}
+.tl-twin-btn{display:flex;align-items:center;gap:.8rem;padding:.85rem 1rem;border-radius:12px;color:#fff;text-decoration:none;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:background .2s,border-color .2s}
+.tl-twin-btn:hover{background:rgba(255,255,255,.17);border-color:rgba(255,255,255,.45)}
+
+/* Sistema visual das áreas de dados */
+/* Resumo: uma faixa de visão geral com quatro cartões de leitura */
+body main .tl-summary{
+  padding:1.5rem;
+  border:1px solid rgba(16,43,59,.09);
+  border-radius:22px;
+  background:rgba(255,255,255,.97);
+  box-shadow:0 2px 5px rgba(16,43,59,.035),0 18px 42px -30px rgba(16,43,59,.34);
+}
+body main .tl-section-heading{
+  align-items:flex-start;
+  padding-bottom:1.15rem;
+  border-color:rgba(16,43,59,.09);
+}
+body main .tl-section-heading h2{font-size:1.15rem;letter-spacing:-.025em}
+body main .tl-section-heading h2 > span{
+  width:4px;
+  height:1.7rem;
+  border-radius:999px;
+  box-shadow:0 2px 8px rgba(22,138,173,.18);
+}
+body main .tl-summary-card{
+  min-height:142px;
+  padding:1rem;
+  border:1px solid rgba(16,43,59,.085);
+  border-radius:16px;
+  background:linear-gradient(150deg,#fff,#f6f9f9);
+  box-shadow:inset 0 1px 0 #fff;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+body main .tl-summary-card > div:first-child{
+  min-height:2rem;
+  color:#687b84;
+  font-size:.66rem;
+  letter-spacing:.09em;
+}
+body main .tl-summary-card .text-xl{font-size:1.22rem;letter-spacing:-.035em}
+body main .tl-summary-card .border-t{border-color:rgba(16,43,59,.09)}
+@media (hover:hover){
+  body main .tl-summary-card:hover{
+    transform:translateY(-3px);
+    border-color:rgba(22,138,173,.22);
+    box-shadow:0 12px 25px -20px rgba(16,43,59,.5);
+  }
+}
+
+/* Painéis de origem: a cor identifica a base sem competir com os dados */
+body main .tl-source-panel{
+  --source:#168f78;
+  --source-strong:#116d65;
+  --source-soft:#eaf6f2;
+  border:1px solid rgba(16,43,59,.09);
+  border-top:4px solid var(--source);
+  border-radius:20px;
+  box-shadow:0 4px 10px rgba(16,43,59,.035),0 20px 42px -32px rgba(16,43,59,.42);
+}
+body main .tl-source-supabase{--source:#168f78;--source-strong:#116d65;--source-soft:#eaf6f2}
+body main .tl-source-firestore{--source:#df7133;--source-strong:#a24721;--source-soft:#fff3e9}
+body main .tl-source-head{
+  min-height:88px;
+  padding:1.15rem 1.35rem;
+  background:linear-gradient(110deg,var(--source-soft),#f8faf9 72%);
+  border-color:rgba(16,43,59,.075);
+}
+body main .tl-source-head h3{font-size:1rem;letter-spacing:-.02em}
+body main .tl-source-head p{margin-top:.2rem;color:#687b84}
+body main .tl-source-panel .bg-emerald-600.text-white{
+  background:linear-gradient(145deg,#168f78,#116d65);
+  box-shadow:0 6px 16px -9px rgba(17,109,101,.7);
+}
+body main .tl-source-panel .bg-red-900.text-white{
+  background:linear-gradient(145deg,#bd4f31,#8f332a);
+  box-shadow:0 6px 16px -9px rgba(143,51,42,.58);
+}
+body main .tl-source-panel .devicon-supabase-plain{font-size:1.35rem}
+body main .tl-source-panel .bg-red-900 img{filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
+body main .tl-source-panel [class*="rounded-full"][class*="font-semibold"]{
+  border-radius:999px;
+  letter-spacing:.015em;
+}
+body main .tl-source-panel .animate-pulse{box-shadow:0 0 0 3px rgba(22,143,120,.12)}
+body main .tl-source-panel .tl-thermometer{
+  min-height:350px;
+  border-radius:17px;
+  background:linear-gradient(155deg,#f8fbfb,#eef4f4);
+  border-color:rgba(16,43,59,.075);
+}
+body main .tl-source-panel .tl-thermometer > span:first-child{
+  color:var(--source-strong);
+  font-size:.66rem;
+  letter-spacing:.11em;
+}
+body main .tl-source-panel .tl-thermometer .text-2xl{
+  color:var(--tl-navy);
+  letter-spacing:-.05em;
+}
+body main .tl-source-panel .tl-metrics{align-content:stretch;gap:.65rem}
+body main .tl-source-panel .tl-metrics > div{
+  min-width:0;
+  min-height:76px;
+  padding:.8rem .9rem;
+  border:1px solid rgba(16,43,59,.075);
+  border-radius:13px;
+  background:#f7f9f9;
+  transition:background-color .18s ease,border-color .18s ease,transform .18s ease;
+}
+body main .tl-source-panel .tl-metrics > div:first-child{
+  background:var(--source-soft);
+  border-color:rgba(16,43,59,.09);
+}
+body main .tl-source-panel .tl-metrics > div > span:first-child{
+  color:#647780;
+  font-size:.65rem;
+  letter-spacing:.035em;
+}
+body main .tl-source-panel .tl-metrics > div:first-child > span:first-child{color:var(--source-strong)}
+body main .tl-source-panel .tl-metrics .text-xl{font-size:1.18rem}
+@media (hover:hover){
+  body main .tl-source-panel .tl-metrics > div:hover{
+    transform:translateY(-1px);
+    border-color:rgba(16,43,59,.16);
+  }
+}
+body main .tl-records{padding-top:.25rem}
+body main .tl-records h4{
+  color:#506773;
+  font-size:.68rem;
+  letter-spacing:.09em;
+}
+body main .tl-records .border.rounded-xl{border-color:rgba(16,43,59,.09);border-radius:13px}
+body main .tl-records .max-h-64{overflow-x:auto}
+body main .tl-records table{min-width:520px}
+body main .tl-records thead{
+  background:#eaf0f1;
+  color:#36515f;
+  font-size:.63rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+body main .tl-records thead th{white-space:nowrap;padding-top:.8rem;padding-bottom:.8rem}
+body main .tl-records tbody tr{transition:background-color .16s ease}
+body main .tl-records tbody td{white-space:nowrap}
+body main .tl-records tbody tr:not(:last-child){border-color:rgba(16,43,59,.065)}
+
+/* Gráficos: mesma moldura, cabeçalhos e ritmo visual dos painéis de dados */
+body main .tl-charts{display:grid;gap:1.1rem}
+body main .tl-charts > .grid{gap:1.1rem}
+body main .tl-chart-card{
+  min-width:0;
+  padding:1.3rem;
+  border-radius:19px;
+  background:linear-gradient(155deg,#fff,#fbfcfc);
+  box-shadow:0 2px 5px rgba(16,43,59,.035),0 16px 34px -28px rgba(16,43,59,.36);
+}
+body main .tl-chart-card h3{font-size:.92rem;letter-spacing:-.015em}
+body main .tl-chart-card h3 i{
+  display:inline-grid;
+  width:1.8rem;
+  height:1.8rem;
+  place-items:center;
+  border-radius:9px;
+  background:#fff1e8;
+}
+body main .tl-chart-card h3 .text-tech-500{background:#eaf5f8}
+body main .tl-chart-card p{margin-top:.2rem;color:#71818a}
+body main .tl-chart-card .relative{min-width:0}
+body main .tl-chart-card canvas{display:block}
+body main .tl-chart-card .text-emerald-700{color:#168f78}
+body main .tl-chart-card .text-orange-600{color:#c45c2b}
+
+/* Tela do Gêmeo Digital e rodapé seguem o mesmo acabamento */
+body main.digital-twin-page > div:first-child{
+  padding:1.35rem 1.5rem;
+  border:1px solid rgba(16,43,59,.08);
+  border-radius:18px;
+  background:rgba(255,255,255,.72);
+  box-shadow:0 8px 26px -22px rgba(16,43,59,.34);
+}
+body main.digital-twin-page > div:first-child h2{letter-spacing:-.04em}
+body main.digital-twin-page [role="group"]{
+  padding:.3rem;
+  border:1px solid rgba(16,43,59,.08);
+  border-radius:13px;
+  background:#e8eff0;
+}
+body main.digital-twin-page [role="group"] button[aria-pressed="true"]{
+  color:var(--tl-navy);
+  box-shadow:0 2px 7px rgba(16,43,59,.12),inset 0 1px 0 #fff;
+}
+body main.digital-twin-page .tl-twin-frame{
+  overflow:hidden;
+  border:1px solid rgba(16,43,59,.09);
+  border-radius:20px;
+  background:#fff;
+  box-shadow:0 4px 10px rgba(16,43,59,.035),0 20px 42px -32px rgba(16,43,59,.34);
+}
+body main.digital-twin-page .tl-twin-frame > div:first-child{
+  background:linear-gradient(90deg,#f7f9f9,#f2f6f5);
+}
+body main.digital-twin-page .digital-circuit-frame{background:#f1f5f4}
+body .tl-footer{
+  margin-top:1.5rem;
+  padding-top:1.15rem;
+  padding-bottom:1.15rem;
+  background:rgba(233,239,238,.92);
+  border-color:rgba(16,43,59,.1);
+}
+
+body a:focus-visible,body button:focus-visible{
+  outline:3px solid rgba(22,138,173,.58);
+  outline-offset:3px;
+}
+@media (max-width:900px){
+  body main .tl-source-panel .tl-thermometer{min-height:320px}
+}
+@media (max-width:640px){
+  .tl-twin{border-radius:14px}
+  .digital-circuit-frame{height:min(750px,72vh);min-height:480px}
+  body main{padding-top:1.25rem;padding-bottom:1.75rem}
+  body main .tl-summary{padding:1rem}
+  body main .tl-summary-card{min-height:126px;padding:.85rem}
+  body main .tl-source-panel .tl-source-head{padding:1rem}
+  body main .tl-source-panel .tl-thermometer{min-height:310px}
+  body main .tl-chart-card{padding:1rem}
+  body main.digital-twin-page > div:first-child{padding:1rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white">
+<body class="tl-body antialiased selection:bg-tech-500 selection:text-white">
 
 <div id="app" class="min-h-screen flex flex-col">
 
-  <!-- =====================================================================
-       3. BANNER SUPERIOR (Área exclusiva com suporte a imagem personalizada)
-       ===================================================================== -->
-  <header class="w-full bg-gradient-to-r from-blue-600 via-blue-900 to-blue-600 text-white shadow-lg border-b border-emerald-900/50 relative overflow-hidden">
-    <!-- Camada opcional de imagem personalizada (basta definir bannerImageUrl no script) -->
-    <img
-      v-if="config.bannerImageUrl"
-      :src="config.bannerImageUrl"
-      alt="Banner TermoLogic"
-      class="w-full h-44 sm:h-52 md:h-60 object-cover object-center"
-    />
+  
+  <header v-show="currentPage === 'dashboard'" class="site-header w-full text-white relative overflow-hidden">
 
-    <!-- Banner vetorial tecnológico padrão caso não haja imagem externa carregada -->
-    <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-11 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-      <!-- Decoração de fundo sutil (circuitos / brilho) -->
-      <div class="absolute inset-0 opacity-10 pointer-events-none">
-        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#34d399" stroke-width="0.8"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
-
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-11 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
       <!-- Identidade Principal -->
       <div class="text-center md:text-left z-10">
         <div class="flex items-center justify-center md:justify-start gap-3">
           <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
             Termo<span class="text-white">Logic</span>
           </h1>
-          <!-- Ícone discreto de termômetro ao lado do nome -->
-          <div class="p-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15 text-orange-400">
+
+          <div class="p-2 rounded-lg bg-white/10 border border-white/15 text-orange-300">
             <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
               <circle cx="11.5" cy="17.5" r="1.5" fill="currentColor" />
             </svg>
           </div>
         </div>
-        <p class="mt-2 text-sm sm:text-base text-slate-300 max-w-xl">
-          Sistema de monitoramento inteligente de temperatura e umidade com dados do Supabase e do Cloud Firestore.
+        <p class="mt-2 text-sm sm:text-base max-w-xl">
+          Temperatura e umidade em um só lugar, com histórico e comparação entre fontes.
         </p>
       </div>
+
+      <div class="mt-2 flex flex-wrap items-center justify-center md:justify-start gap-3">
+
+      <!-- Status Supabase -->
+      <div class="inline-flex items-center gap-3 px-3.5 py-2.5 rounded-lg
+              bg-white/5
+              border border-white/15">
+
+      <div class="flex items-center justify-center w-9 h-9 rounded-lg
+                bg-emerald-300/15 border border-emerald-200/25">
+      <i class="fa-solid fa-bolt text-emerald-300"></i>
+      </div>
+
+      <div class="flex flex-col">
+      <span class="text-xs font-medium text-slate-300">Supabase</span>
+      <strong class="text-sm font-semibold text-white">
+        Consulta a cada 30 segundos
+      </strong>
+      </div>
+      </div>
+
+      <!-- Status Firestore -->
+      <div class="inline-flex items-center gap-3 px-3.5 py-2.5 rounded-lg
+              bg-white/5
+              border border-white/15">
+
+      <div class="flex items-center justify-center w-9 h-9 rounded-lg
+                bg-orange-400/15 border border-orange-200/25">
+      <i class="fa-solid fa-fire text-orange-400"></i>
+      </div>
+
+      <div class="flex flex-col">
+        <span class="text-xs font-medium text-slate-300">Cloud Firestore</span>
+        <strong class="text-sm font-semibold text-white">
+        Atualização em tempo real
+        </strong>
+    </div>
+    </div>
+
+    </div>
 
     </div>
   </header>
 
-  <!-- =====================================================================
-       BARRA DE CONTROLE E CONFIGURAÇÃO RÁPIDA DAS FONTES
-       ===================================================================== -->
-  <div class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
-        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-        <span>Supabase: <strong class="text-slate-800">consulta a cada 30 segundos</strong></span>
-        <span class="text-slate-300">|</span>
-        <span>Firestore: <strong class="text-orange-600">atualização em tempo real</strong></span>
-      </div>
-
-      <div class="flex items-center gap-2">
-
-
-        <button
-          @click="fetchSupabaseData"
-          :disabled="supabaseStatus.loading || !supabaseStatus.configured"
-          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white shadow-sm transition"
-        >
-          <svg class="w-4 h-4" :class="{ 'animate-spin': supabaseStatus.loading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          {{ supabaseStatus.loading ? 'Atualizando Supabase...' : 'Atualizar Supabase Agora' }}
-        </button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- =====================================================================
+  <!-- 
        CONTEÚDO PRINCIPAL DO DASHBOARD
-       ===================================================================== -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+        -->
+  <main v-show="currentPage === 'dashboard'" class="tl-dashboard flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+
+    <section class="tl-twin p-6 sm:p-8" aria-labelledby="twin-title">
+      <div class="grid gap-6 md:grid-cols-5 md:items-center">
+        <div class="md:col-span-3">
+          <h2 id="twin-title" class="text-2xl sm:text-3xl font-bold text-white">Gêmeo Digital</h2>
+          <p class="mt-2 text-sm sm:text-base text-slate-200 max-w-xl">Explore os circuitos do sistema em um modelo tridimensional ou em diagrama 2D.</p>
+        </div>
+        <div class="md:col-span-2 grid gap-3">
+          <a href="#gemeo-digital" @click="selectedCircuit = '3d'" class="tl-twin-btn">
+            <i class="fa-solid fa-cube text-cyan-300 text-lg w-6 text-center" aria-hidden="true"></i>
+            <span class="flex-1"><strong class="block text-sm">Circuito 3D</strong><span class="text-xs text-slate-300">Modelo tridimensional interativo</span></span>
+            <i class="fa-solid fa-arrow-right text-slate-300 text-sm" aria-hidden="true"></i>
+          </a>
+          <a href="#gemeo-digital" @click="selectedCircuit = '2d'" class="tl-twin-btn">
+            <i class="fa-solid fa-diagram-project text-orange-300 text-lg w-6 text-center" aria-hidden="true"></i>
+            <span class="flex-1"><strong class="block text-sm">Circuito 2D</strong><span class="text-xs text-slate-300">Diagrama bidimensional interativo</span></span>
+            <i class="fa-solid fa-arrow-right text-slate-300 text-sm" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+    </section>
 
     <!-- ===================================================================
          7. VISÃO COMPARATIVA ENTRE AS DUAS FONTES (Supabase x Firestore)
          =================================================================== -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+    <section class="tl-summary bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-6">
+      <div class="tl-section-heading flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
         <div>
           <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
             <span class="w-2.5 h-6 rounded-full bg-gradient-to-b from-emerald-500 to-orange-500"></span>
-            Painel Comparativo Geral (Supabase vs. Firestore)
+            Leituras por fonte
           </h2>
           <p class="text-xs text-slate-500 mt-0.5">
-            Consolidado independente indicando a origem exata de cada métrica registrada.
+            Compare as últimas leituras recebidas em cada serviço.
           </p>
         </div>
         <div class="flex items-center gap-3 text-xs font-medium">
@@ -203,7 +571,7 @@
       <!-- Cards Comparativos -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
         <!-- Diferença / Temperatura Atual -->
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
+        <div class="tl-summary-card p-4 rounded-xl bg-slate-50 border border-slate-200/70">
           <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Temperatura Atual</div>
           <div class="mt-2 flex items-baseline justify-between">
             <div>
@@ -226,7 +594,7 @@
         </div>
 
         <!-- Umidade Atual -->
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
+        <div class="tl-summary-card p-4 rounded-xl bg-slate-50 border border-slate-200/70">
           <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Umidade Relativa Atual</div>
           <div class="mt-2 flex items-baseline justify-between">
             <div>
@@ -249,7 +617,7 @@
         </div>
 
         <!-- Médias Históricas -->
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
+        <div class="tl-summary-card p-4 rounded-xl bg-slate-50 border border-slate-200/70">
           <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Temperatura Média Geral</div>
           <div class="mt-2 flex items-baseline justify-between">
             <div>
@@ -274,7 +642,7 @@
         </div>
 
         <!-- Volume de Amostras -->
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
+        <div class="tl-summary-card p-4 rounded-xl bg-slate-50 border border-slate-200/70">
           <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total de Medições</div>
           <div class="mt-2 flex items-baseline justify-between">
             <div>
@@ -297,21 +665,21 @@
     <!-- ===================================================================
          6. DUAS ÁREAS INDEPENDENTES DE DADOS (Lado a lado em telas maiores)
          =================================================================== -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+    <div class="tl-source-grid grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
 
       <!-- =================================================================
            ÁREA 1 — DADOS DO SUPABASE
            ================================================================= -->
-      <section class="bg-white rounded-2xl shadow-sm border-t-4 border-t-emerald-600 border border-slate-200 overflow-hidden flex flex-col">
+      <section class="tl-source-panel tl-source-supabase bg-white rounded-2xl shadow-sm border-t-2 border-t-emerald-700 border border-slate-200 overflow-hidden flex flex-col">
         <!-- Cabeçalho da Fonte 1 -->
-        <div class="p-5 bg-gradient-to-r from-emerald-50/80 to-white border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+        <div class="tl-source-head p-5 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
             <i class="devicon-supabase-plain"></i>
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h3 class="text-base font-bold text-slate-900">Fonte 1: Banco Supabase</h3>
+                <h3 class="text-base font-bold text-slate-900">Supabase</h3>
                 <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Supabase JS</span>
               </div>
               <p class="text-xs text-slate-500 font-mono truncate max-w-[260px]" :title="config.supabaseTable">
@@ -346,7 +714,7 @@
         <!-- Corpo Principal Supabase: Termômetro Visual + Indicadores -->
         <div class="p-5 grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
           <!-- 8. Termômetro Visual SVG (Supabase) -->
-          <div class="sm:col-span-5 flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
+          <div class="tl-thermometer sm:col-span-5 flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
             <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-2">Termômetro Supabase</span>
             <svg class="w-28 h-52" viewBox="0 0 100 200" aria-label="Termômetro Supabase">
               <!-- Escala graduada -->
@@ -388,7 +756,7 @@
           </div>
 
           <!-- Grid de Indicadores Estatísticos Supabase -->
-          <div class="sm:col-span-7 grid grid-cols-2 gap-3">
+          <div class="tl-metrics sm:col-span-7 grid grid-cols-2 gap-3">
             <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-100">
               <span class="text-[11px] font-semibold text-emerald-700 block">Umidade Atual</span>
               <span class="text-xl font-extrabold font-mono text-slate-900 mt-0.5 block">
@@ -412,7 +780,7 @@
 
             <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
               <span class="text-[11px] font-semibold text-slate-500 block">Temp. Mínima</span>
-              <span class="text-base font-bold font-mono text-emerald-600 mt-0.5 block">
+              <span class="text-base font-bold font-mono text-tech-600 mt-0.5 block">
                 {{ formatValue(supabaseStats.minTemp, '°C') }}
               </span>
             </div>
@@ -441,12 +809,12 @@
         </div>
 
         <!-- Tabela de Registros Supabase -->
-        <div class="px-5 pb-5">
+        <div class="tl-records px-5 pb-5">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">
               Registros Recebidos (Supabase REST API)
             </h4>
-            <span class="text-[11px] text-slate-400">Exibindo até {{ config.firestoreDisplayLimit }} mais recentes</span>
+            <span class="text-[11px] text-slate-400">Exibindo até 50 mais recentes</span>
           </div>
 
           <div class="border border-slate-200 rounded-xl overflow-hidden">
@@ -488,20 +856,20 @@
       <!-- =================================================================
            ÁREA 2 — DADOS DO FIREBASE FIRESTORE (CLOUD REALTIME)
            ================================================================= -->
-      <section class="bg-white rounded-2xl shadow-sm border-t-4 border-t-orange-500 border border-slate-200 overflow-hidden flex flex-col">
+      <section class="tl-source-panel tl-source-firestore bg-white rounded-2xl shadow-sm border-t-2 border-t-orange-600 border border-slate-200 overflow-hidden flex flex-col">
         <!-- Cabeçalho da Fonte 2 -->
-        <div class="p-5 bg-gradient-to-r from-orange-50/80 to-white border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+        <div class="tl-source-head p-5 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-red-900 text-white flex items-center justify-center shadow-sm">
               <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/firebase.svg" alt="Firebase" class="w-6 h-6 object-contain">
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h3 class="text-base font-bold text-slate-900">Fonte 2: Firebase Firestore</h3>
+                <h3 class="text-base font-bold text-slate-900">Firebase Firestore</h3>
                 <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-orange-100 text-orange-800">Cloud SDK</span>
               </div>
               <p class="text-xs text-slate-500 font-mono">
-                 &bull; Coleção: <strong class="text-orange-600">{{ config.firestoreCollection }}</strong>
+                  Coleção: <strong class="text-orange-600">{{ config.firestoreCollection }}</strong>
               </p>
             </div>
           </div>
@@ -513,7 +881,7 @@
               :class="firestoreStatus.connected ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'"
             >
               <span class="w-2 h-2 rounded-full" :class="firestoreStatus.connected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'"></span>
-              {{ firestoreStatus.connected ? 'Listener Ativo' : 'Aguardando / Erro' }}
+              {{ firestoreStatus.connected ? 'Conectado' : 'Aguardando / Erro' }}
             </span>
           </div>
         </div>
@@ -532,7 +900,7 @@
         <!-- Corpo Principal Firestore: Termômetro Visual + Indicadores -->
         <div class="p-5 grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
           <!-- 8. Termômetro Visual SVG (Firestore) -->
-          <div class="sm:col-span-5 flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
+          <div class="tl-thermometer sm:col-span-5 flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
             <span class="text-xs font-bold uppercase tracking-wider text-orange-600 mb-2">Termômetro Cloud</span>
             <svg class="w-28 h-52" viewBox="0 0 100 200" aria-label="Termômetro Firestore">
               <!-- Escala graduada -->
@@ -574,7 +942,7 @@
           </div>
 
           <!-- Grid de Indicadores Estatísticos Firestore -->
-          <div class="sm:col-span-7 grid grid-cols-2 gap-3">
+          <div class="tl-metrics sm:col-span-7 grid grid-cols-2 gap-3">
             <div class="p-3 rounded-xl bg-orange-50/70 border border-orange-100">
               <span class="text-[11px] font-semibold text-orange-700 block">Umidade Atual</span>
               <span class="text-xl font-extrabold font-mono text-slate-900 mt-0.5 block">
@@ -598,7 +966,7 @@
 
             <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
               <span class="text-[11px] font-semibold text-slate-500 block">Temp. Mínima</span>
-              <span class="text-base font-bold font-mono text-emerald-600 mt-0.5 block">
+              <span class="text-base font-bold font-mono text-tech-600 mt-0.5 block">
                 {{ formatValue(firestoreStats.minTemp, '°C') }}
               </span>
             </div>
@@ -627,7 +995,7 @@
         </div>
 
         <!-- Tabela de Registros Firestore -->
-        <div class="px-5 pb-5">
+        <div class="tl-records px-5 pb-5">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">
               Registros Recebidos (Firebase Firestore)
@@ -675,16 +1043,16 @@
     <!-- ===================================================================
          9. GRÁFICOS COM CHART.JS (Evolução e Comparativo Real)
          =================================================================== -->
-    <section class="space-y-6">
+    <section class="tl-charts space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Gráfico 1: Evolução da Temperatura -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="tl-chart-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h3 class="text-sm font-bold text-slate-900">Evolução da Temperatura (°C)</h3>
-              <p class="text-xs text-slate-500">Série histórica separada por fonte de dados</p>
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-temperature-half text-orange-500" aria-hidden="true"></i>Evolução da Temperatura (°C)</h3>
+              <p class="text-xs text-slate-500">Histórico das duas fontes</p>
             </div>
-            <span class="px-2.5 py-1 rounded-md bg-orange-50 text-orange-600 text-xs font-semibold">Chart.js</span>
+
           </div>
           <div class="relative h-64 w-full">
             <canvas id="tempEvolutionChart"></canvas>
@@ -692,13 +1060,13 @@
         </div>
 
         <!-- Gráfico 2: Evolução da Umidade -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="tl-chart-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h3 class="text-sm font-bold text-slate-900">Evolução da Umidade Relativa (%)</h3>
-              <p class="text-xs text-slate-500">Série histórica separada por fonte de dados</p>
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-droplet text-tech-500" aria-hidden="true"></i>Evolução da Umidade Relativa (%)</h3>
+              <p class="text-xs text-slate-500">Histórico das duas fontes</p>
             </div>
-            <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-xs font-semibold">Chart.js</span>
+
           </div>
           <div class="relative h-64 w-full">
             <canvas id="humidityEvolutionChart"></canvas>
@@ -707,11 +1075,11 @@
       </div>
 
       <!-- Gráfico 3: Comparativo Direto Supabase x Firestore -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+      <div class="tl-chart-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div>
-            <h3 class="text-sm font-bold text-slate-900">Comparativo Estatístico: Supabase vs. Firebase Firestore</h3>
-            <p class="text-xs text-slate-500">Comparação de Temperatura Atual, Média, Máxima, Mínima e Umidade Atual entre as bases</p>
+            <h3 class="text-sm font-bold text-slate-900">Resumo comparativo</h3>
+            <p class="text-xs text-slate-500">Temperatura e umidade registradas em cada base</p>
           </div>
           <div class="flex items-center gap-3 text-xs">
             <span class="flex items-center gap-1.5 font-semibold text-emerald-700">
@@ -730,11 +1098,39 @@
 
   </main>
 
+  <main v-show="currentPage === 'digital-twin'" class="digital-twin-page flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <a href="#dashboard" class="inline-flex items-center gap-2 text-sm font-semibold text-tech-700 hover:text-tech-800 transition mb-3"><span aria-hidden="true">&larr;</span> Voltar ao dashboard</a>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">G&ecirc;meo Digital</h2>
+        <p class="mt-1 text-sm text-slate-500">Visualize os circuitos virtuais do TermoLogic em 3D ou 2D.</p>
+      </div>
+      <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200 self-start sm:self-auto" role="group" aria-label="Selecionar visualiza&ccedil;&atilde;o do circuito">
+        <button type="button" @click="selectedCircuit = '3d'" :aria-pressed="selectedCircuit === '3d'" :class="selectedCircuit === '3d' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Circuito 3D</button>
+        <button type="button" @click="selectedCircuit = '2d'" :aria-pressed="selectedCircuit === '2d'" :class="selectedCircuit === '2d' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'" class="px-4 py-2 rounded-lg text-sm font-semibold transition">Circuito 2D</button>
+      </div>
+    </div>
+
+    <section class="tl-twin-frame bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+      <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h3 class="font-bold text-slate-900">{{ selectedCircuit === '3d' ? 'Circuito Virtual 3D' : 'Circuito Virtual 2D' }}</h3>
+          <p class="text-xs text-slate-500 mt-0.5">{{ selectedCircuit === '3d' ? 'Modelo tridimensional interativo' : 'Diagrama bidimensional interativo' }}</p>
+        </div>
+        <span class="inline-flex items-center gap-2 text-xs font-semibold text-emerald-700"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Visualiza&ccedil;&atilde;o ativa</span>
+      </div>
+      <div class="bg-slate-50">
+        <iframe v-if="selectedCircuit === '3d'" class="digital-circuit-frame" src="https://termologic-gemeos.web.app/circuito-3d/?embed=true" title="G&ecirc;meo Digital 3D" width="100%" height="750" style="border: none;" loading="lazy"></iframe>
+        <iframe v-else class="digital-circuit-frame" src="https://termologic-gemeos.web.app/circuito-virtual/?embed=true" title="G&ecirc;meo Digital 2D" width="100%" height="750" style="border: none;" loading="lazy"></iframe>
+      </div>
+    </section>
+  </main>
+
   <!-- Rodapé -->
-  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+  <footer v-show="currentPage === 'dashboard'" class="tl-footer bg-slate-50 border-t border-slate-200 py-4 mt-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
       <div>
-        <strong class="text-slate-700">TermoLogic</strong> &mdash; Monitoramento Ambiental Inteligente
+        <strong class="text-slate-700">TermoLogic</strong> &mdash; Monitoramento ambiental
       </div>
       <div>
         Arquitetura Híbrida: <span class="text-emerald-600 font-semibold">Supabase REST</span> + <span class="text-orange-600 font-semibold">Firebase Firestore</span>
@@ -744,18 +1140,23 @@
 
 </div>
 
-<!-- =========================================================================
+<!-- ====
      11. SCRIPT VUE.JS 3 (COMPOSITION API) + INTEGRAÇÕES PRÉ-PROGRAMADAS
-     ========================================================================= -->
+     ==== -->
 <script>
   const { createApp, ref, reactive, computed, watch, onMounted, onUnmounted } = Vue;
 
   createApp({
     setup() {
-      // =====================================================================
+      const currentPage = ref(window.location.hash === '#gemeo-digital' ? 'digital-twin' : 'dashboard');
+      const selectedCircuit = ref('3d');
+      const syncPageWithHash = () => {
+        currentPage.value = window.location.hash === '#gemeo-digital' ? 'digital-twin' : 'dashboard';
+      };
+      // 
       // A. CONFIGURAÇÕES PRÉ-PROGRAMADAS DAS FONTES DE DADOS
       //    (Ajuste aqui conforme os nomes exatos da sua API e Firestore)
-      // =====================================================================
+      // 
       const config = reactive({
         // Caso salve a imagem do banner na mesma pasta, coloque o nome dela aqui (ex: 'Gemini_Generated_Image_u9jcllu9jcllu9jc.jpeg')
         bannerImageUrl: '',
@@ -795,9 +1196,9 @@
         appId: "1:1089678391917:web:f8d2fb7f4e5e7dd20c1d64"
       };
 
-      // =====================================================================
+      // 
       // B. ESTADOS REATIVOS INDEPENDENTES
-      // =====================================================================
+      // 
       const supabaseRecords = ref([]);
       const supabaseStatus = reactive({
         loading: false,
@@ -825,9 +1226,9 @@
       let humidityChartInstance = null;
       let comparisonChartInstance = null;
 
-      // =====================================================================
+      // 
       // C. NORMALIZADOR INTELIGENTE DE REGISTROS (Supabase & Firestore)
-      // =====================================================================
+      // 
       function extractField(obj, possibleKeys) {
         for (const key of possibleKeys) {
           if (obj && obj[key] !== undefined && obj[key] !== null) {
@@ -933,9 +1334,9 @@
         return Number.isFinite(parsed) ? parsed : 0;
       }
 
-      // =====================================================================
+      // 
       // D. INTEGRAÇÃO 1: SUPABASE (SELECT + REALTIME)
-      // =====================================================================
+      // 
       function initSupabase() {
         supabaseStatus.configured = Boolean(supabaseConfig.url && supabaseConfig.anonKey);
         supabaseStatus.error = null;
@@ -1048,9 +1449,9 @@
       }
 
 
-      // =====================================================================
+      // 
       // F. CÁLCULO DE ESTATÍSTICAS INDEPENDENTES (COMPUTED)
-      // =====================================================================
+      // 
       function computeSourceStats(records) {
         if (!records || records.length === 0) {
           return {
@@ -1100,9 +1501,9 @@
         return `${diff.toFixed(1)} %`;
       });
 
-      // =====================================================================
+      // 
       // G. TERMÔMETROS VISUAIS DINÂMICOS (ESCALA 0°C A 50°C)
-      // =====================================================================
+      // 
       function computeThermometerProps(temp) {
         if (temp === null || temp === undefined || isNaN(temp)) {
           return { y: 150, height: 6, color: '#94a3b8', label: 'Sem leitura' };
@@ -1116,14 +1517,14 @@
         const y = 152 - height;
 
         // Faixas de cor dinâmicas
-        let color = '#0284c7'; // Azul (Frio / Amena < 20°C)
+        let color = '#168AAD'; // Azul (Frio / Amena < 20°C)
         let label = 'Temperatura Baixa';
 
         if (temp >= 20 && temp <= 28) {
           color = '#10b981'; // Verde Esmeralda (Ideal)
           label = 'Faixa Ideal';
         } else if (temp > 28 && temp <= 35) {
-          color = '#f97316'; // Laranja TermoLogic (Elevada)
+          color = '#E97835'; // Laranja TermoLogic (Elevada)
           label = 'Temperatura Elevada';
         } else if (temp > 35) {
           color = '#ef4444'; // Vermelho (Alerta Crítico)
@@ -1141,9 +1542,9 @@
         return `${Number(val).toFixed(1)} ${suffix}`;
       }
 
-      // =====================================================================
+      // 
       // H. GRÁFICOS DINÂMICOS COM CHART.JS
-      // =====================================================================
+      // 
       function initCharts() {
         const commonOptions = {
           responsive: true,
@@ -1152,17 +1553,17 @@
           plugins: {
             legend: {
               position: 'top',
-              labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter', size: 11 } }
+              labels: { usePointStyle: true, boxWidth: 8, color: '#36515F', font: { family: 'Inter', size: 11 } }
             }
           },
           scales: {
             x: {
               grid: { display: false },
-              ticks: { font: { family: 'JetBrains Mono', size: 10 }, maxRotation: 0 }
+              ticks: { color: '#647780', font: { family: 'JetBrains Mono', size: 10 }, maxRotation: 0 }
             },
             y: {
-              grid: { color: '#f1f5f9' },
-              ticks: { font: { family: 'JetBrains Mono', size: 10 } }
+              grid: { color: 'rgba(16, 43, 59, 0.08)' },
+              ticks: { color: '#647780', font: { family: 'JetBrains Mono', size: 10 } }
             }
           }
         };
@@ -1178,8 +1579,8 @@
                 {
                   label: 'Supabase (°C)',
                   data: [],
-                  borderColor: '#059669',
-                  backgroundColor: 'rgba(5, 150, 105, 0.12)',
+                  borderColor: '#168F78',
+                  backgroundColor: 'rgba(22, 143, 120, 0.12)',
                   tension: 0.35,
                   fill: true,
                   pointRadius: 3
@@ -1187,8 +1588,8 @@
                 {
                   label: 'Firestore (°C)',
                   data: [],
-                  borderColor: '#f97316',
-                  backgroundColor: 'rgba(249, 115, 22, 0.12)',
+                  borderColor: '#E97835',
+                  backgroundColor: 'rgba(233, 120, 53, 0.14)',
                   tension: 0.35,
                   fill: true,
                   pointRadius: 3
@@ -1210,8 +1611,9 @@
                 {
                   label: 'Supabase (%)',
                   data: [],
-                  borderColor: '#10b981',
-                  backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                  borderColor: '#168F78',
+                  borderDash: [6, 4],
+                  backgroundColor: 'rgba(22, 143, 120, 0.12)',
                   tension: 0.35,
                   fill: true,
                   pointRadius: 3
@@ -1219,8 +1621,9 @@
                 {
                   label: 'Firestore (%)',
                   data: [],
-                  borderColor: '#ea580c',
-                  backgroundColor: 'rgba(234, 88, 12, 0.12)',
+                  borderColor: '#E97835',
+                  borderDash: [6, 4],
+                  backgroundColor: 'rgba(233, 120, 53, 0.12)',
                   tension: 0.35,
                   fill: true,
                   pointRadius: 3
@@ -1242,13 +1645,13 @@
                 {
                   label: 'Supabase REST API',
                   data: [0, 0, 0, 0, 0],
-                  backgroundColor: '#059669',
+                  backgroundColor: '#168F78',
                   borderRadius: 6
                 },
                 {
                   label: 'Firebase Firestore',
                   data: [0, 0, 0, 0, 0],
-                  backgroundColor: '#f97316',
+                  backgroundColor: '#E97835',
                   borderRadius: 6
                 }
               ]
@@ -1308,10 +1711,11 @@
         updateCharts();
       }, { deep: true });
 
-      // =====================================================================
+      // 
       // I. CICLO DE VIDA VUE.JS (onMounted / onUnmounted)
-      // =====================================================================
+      // 
       onMounted(() => {
+        window.addEventListener('hashchange', syncPageWithHash);
         initCharts();
         initSupabase();
         initFirebase();
@@ -1319,11 +1723,14 @@
       });
 
       onUnmounted(() => {
+        window.removeEventListener('hashchange', syncPageWithHash);
         if (supabaseIntervalId) clearInterval(supabaseIntervalId);
         if (typeof firestoreUnsubscribe === 'function') firestoreUnsubscribe();
       });
 
       return {
+        currentPage,
+        selectedCircuit,
         config,
         firebaseConfig,
         supabaseRecords,
